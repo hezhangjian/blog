@@ -1,0 +1,18 @@
+# macOS
+**/.DS_Store
+
+# IDE
+.idea/**
+.vscode/**
+!.vscode/extensions.json
+**.iml
+
+# npm
+node_modules
+
+Thumbs.db
+db.json
+*.log
+public/
+.deploy*/
+_multiconfig.yml
