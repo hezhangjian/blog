@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="TLDR笔者推测Palantir起初以支持定制代码运行为基础，在构筑自己部署平台（Apollo，Palantir GitHub上也有很多开发者构建、Lint工具）的同时，逐渐抽象出Dataset、本体、Function、Action API，打造了坚实的Foundry平台，让应用从定制化开发逐步“长在平台上”。最终，Palantir 推出人工智能平台（AIP），实现数据驱动的智能决策。 前言近年来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Palantir Foundry技术演进：从定制代码到AIP智能决策">
+<meta property="og:url" content="https://hezhangjian.com/2025/10/10/Palantir%20Foundry%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B%EF%BC%9A%E4%BB%8E%E5%AE%9A%E5%88%B6%E4%BB%A3%E7%A0%81%E5%88%B0AIP%E6%99%BA%E8%83%BD%E5%86%B3%E7%AD%96/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="TLDR笔者推测Palantir起初以支持定制代码运行为基础，在构筑自己部署平台（Apollo，Palantir GitHub上也有很多开发者构建、Lint工具）的同时，逐渐抽象出Dataset、本体、Function、Action API，打造了坚实的Foundry平台，让应用从定制化开发逐步“长在平台上”。最终，Palantir 推出人工智能平台（AIP），实现数据驱动的智能决策。 前言近年来">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/Palantir%20Operating%20Model.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/Palantir%20Phase0.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/Palantir%20Phase1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/Palantir%20Phase2.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/Palantir%20Phase3.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/%E8%AE%BE%E6%83%B3%E7%9A%84%E4%BC%81%E4%B8%9A%E4%BD%BF%E7%94%A8Foundry%E8%B7%AF%E7%BA%BF%E5%9B%BE.png">
+<meta property="article:published_time" content="2025-10-10T07:19:54.000Z">
+<meta property="article:modified_time" content="2025-10-14T12:17:52.423Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/Palantir%20Operating%20Model.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2025/10/10/Palantir%20Foundry%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B%EF%BC%9A%E4%BB%8E%E5%AE%9A%E5%88%B6%E4%BB%A3%E7%A0%81%E5%88%B0AIP%E6%99%BA%E8%83%BD%E5%86%B3%E7%AD%96/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2025/10/10/Palantir%20Foundry%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B%EF%BC%9A%E4%BB%8E%E5%AE%9A%E5%88%B6%E4%BB%A3%E7%A0%81%E5%88%B0AIP%E6%99%BA%E8%83%BD%E5%86%B3%E7%AD%96/","path":"2025/10/10/Palantir Foundry技术演进：从定制代码到AIP智能决策/","title":"Palantir Foundry技术演进：从定制代码到AIP智能决策"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Palantir Foundry技术演进：从定制代码到AIP智能决策 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#TLDR"><span class="nav-number">1.</span> <span class="nav-text">TLDR</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">2.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B6%E6%AE%B50-%E5%AE%9A%E5%88%B6%E4%BB%A3%E7%A0%81%E8%BF%90%E8%A1%8C"><span class="nav-number">3.</span> <span class="nav-text">阶段0 定制代码运行</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B6%E6%AE%B51-%E4%BB%8E%E5%AE%9A%E5%88%B6%E4%BB%A3%E7%A0%81%E8%BF%90%E8%A1%8C%E5%88%B0Palantir%E5%B9%B3%E5%8F%B0%E8%BF%90%E8%A1%8C"><span class="nav-number">4.</span> <span class="nav-text">阶段1 从定制代码运行到Palantir平台运行</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B6%E6%AE%B52-%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B9%B3%E5%8F%B0%E5%8C%96%E5%AD%98%E5%82%A8%E5%92%8C%E7%AE%A1%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">阶段2 数据的平台化存储和管理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B6%E6%AE%B53-%E6%8A%BD%E8%B1%A1Action-Function"><span class="nav-number">6.</span> <span class="nav-text">阶段3 抽象Action Function</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5-4%EF%BC%9AAIP-%E7%9A%84%E6%99%BA%E8%83%BD%E5%86%B3%E7%AD%96%E8%B5%8B%E8%83%BD"><span class="nav-number">7.</span> <span class="nav-text">阶段 4：AIP 的智能决策赋能</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2025/10/10/Palantir%20Foundry%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B%EF%BC%9A%E4%BB%8E%E5%AE%9A%E5%88%B6%E4%BB%A3%E7%A0%81%E5%88%B0AIP%E6%99%BA%E8%83%BD%E5%86%B3%E7%AD%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Palantir Foundry技术演进：从定制代码到AIP智能决策 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Palantir Foundry技术演进：从定制代码到AIP智能决策
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-10-10 15:19:54" itemprop="dateCreated datePublished" datetime="2025-10-10T15:19:54+08:00">2025-10-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-14 20:17:52" itemprop="dateModified" datetime="2025-10-14T20:17:52+08:00">2025-10-14</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="TLDR"><a href="#TLDR" class="headerlink" title="TLDR"></a>TLDR</h1><p>笔者推测Palantir起初以支持定制代码运行为基础，在构筑自己部署平台（Apollo，Palantir GitHub上也有很多开发者构建、Lint工具）的同时，逐渐抽象出Dataset、本体、Function、Action API，打造了坚实的Foundry平台，让应用从定制化开发逐步“长在平台上”。最终，Palantir 推出人工智能平台（AIP），实现数据驱动的智能决策。</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>近年来，Palantir 无疑成为数据分析领域的焦点之一。作为一家以解决复杂问题为核心的公司，Palantir 为政府、国防和企业客户提供了强大的数据整合与分析能力。Palantir 的核心产品 Foundry 是一个面向数据整合与分析的平台，它如何从最初的定制化开发逐渐演变为如今的通用数据智能平台？笔者尝试基于公开资源推测梳理 Palantir Foundry技术平台的演进路线，分享一些分析与推测。本文仅代表个人观点，欢迎读者交流探讨。</p>
+<h1 id="阶段0-定制代码运行"><a href="#阶段0-定制代码运行" class="headerlink" title="阶段0 定制代码运行"></a>阶段0 定制代码运行</h1><p>从Palantir的Offering来看，其核心始终是为客户解决复杂问题，拥有大量的FDE。合理推测Palantir最早其实以定制代码运行交付作为基础，通过高度定制化的软件开发满足客户在政府、国防和企业领域的特定需求。<br><img src="/Images/Palantir%20Operating%20Model.png"><br>阶段0，此时都处于定制开发状态。<br><img src="/Images/Palantir%20Phase0.png"></p>
+<h1 id="阶段1-从定制代码运行到Palantir平台运行"><a href="#阶段1-从定制代码运行到Palantir平台运行" class="headerlink" title="阶段1 从定制代码运行到Palantir平台运行"></a>阶段1 从定制代码运行到Palantir平台运行</h1><p>正如《人月神话》中所说，优秀的程序员都会有自己的library库，优秀的定制开发商也倾向于提炼可复用的技术框架。</p>
+<p>对于定制代码来说，我们把定制代码分为编写态和运行态</p>
+<ul>
+<li><strong>编写态</strong>，对应Palantir Code Repositories，可以看到Palantir的很多东西，其实跟Git很相似，有分支、合并等等。</li>
+<li><strong>运行态</strong>，将Palantir Code Repositories的代码构建运行，支持多种触发方式，比如通过API调用来执行，定时执行等。<br>Apollo 平台进一步支持多环境部署（如云和边缘）。<br><img src="/Images/Palantir%20Phase1.png"></li>
+</ul>
+<h1 id="阶段2-数据的平台化存储和管理"><a href="#阶段2-数据的平台化存储和管理" class="headerlink" title="阶段2 数据的平台化存储和管理"></a>阶段2 数据的平台化存储和管理</h1><p>当开发工作逐渐迁移到 Palantir 平台后，数据的存储和管理成为下一个重点。如果代码已经运行在平台上，那么数据为什么不能也存储在平台中呢？</p>
+<p>Palantir 在这一阶段引入了 Dataset 和本体（Ontology）模型，构建了平台化的数据管理能力。Dataset 作为数据的核心容器，支持结构化和非结构化数据的存储；本体则定义了数据之间的语义关系，为数据提供了更高级的抽象层。此外，Palantir 接入了时序数据库，增加了对时间序列数据的支持，满足了金融、工业等领域对实时数据处理的需求。</p>
+<p>同时，也把数据集的变更增加为一个触发条件。例如，当某个 Dataset 发生变化时，平台可以自动触发预定义的操作，如运行一段代码或更新其他数据集。</p>
+<p><img src="/Images/Palantir%20Phase2.png"></p>
+<h1 id="阶段3-抽象Action-Function"><a href="#阶段3-抽象Action-Function" class="headerlink" title="阶段3 抽象Action Function"></a>阶段3 抽象Action Function</h1><p>在本体已经定义了DataSet以及数据集之间关系的基础上，通过Action、Function的定义，同时Action、Function可以通过拖拉拽简单地生成，无需书写代码。对于难以无码的复杂逻辑，还可以通过定制代码来书写。</p>
+<p>其实Workflow和Pipeline都是在更高层次、更简便地操作代码的手段而存在，底层实现上：</p>
+<ul>
+<li>Pipeline &#x3D; Datasets+Builds+Schedules</li>
+<li>Workflow &#x3D; Schedules + Builds + Jobs</li>
+</ul>
+<p><img src="/Images/Palantir%20Phase3.png"></p>
+<h1 id="阶段-4：AIP-的智能决策赋能"><a href="#阶段-4：AIP-的智能决策赋能" class="headerlink" title="阶段 4：AIP 的智能决策赋能"></a>阶段 4：AIP 的智能决策赋能</h1><p>在Foundry坚实的基础上，Palantir 2023 年推出了 AIP（人工智能平台）整合大语言模型（LLM）与 Foundry 数据，自动化复杂决策。其核心功能包括：</p>
+<ul>
+<li><strong>自然语言处理</strong>：用户通过对话界面查询数据或生成分析，如“预测下季度库存需求”。</li>
+<li><strong>自动化工作流</strong>：基于 Ontology，AIP 驱动智能决策，例如优化供应链或调度资源。</li>
+<li><strong>实时推理</strong>：结合时序数据，AIP 支持动态预测，如医疗资源分配或工业故障检测。</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><img src="/Images/%E8%AE%BE%E6%83%B3%E7%9A%84%E4%BC%81%E4%B8%9A%E4%BD%BF%E7%94%A8Foundry%E8%B7%AF%E7%BA%BF%E5%9B%BE.png"><br>图：笔者设想的企业使用Foundry路线图</p>
+<p>本文分析了Palantir Foundry的技术实现路径，笔者认为Palantir Foundry 的技术演进展现了一个从“定制”到“平台原生”的清晰路径。应用从分散的定制代码，逐步迁移到平台上运行，扎根于平台的数据和触发机制，最终成为完全依赖平台功能的原生应用。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/09/22/%E8%BD%AF%E4%BB%B6%E5%BA%94%E8%AF%A5%E4%BB%A5%E6%A0%87%E5%87%86%E7%9A%84%E6%A0%BC%E5%BC%8F%E6%9D%A5%E4%BA%A4%E4%BB%98/" rel="prev" title="软件应该以标准的格式来交付">
+                  <i class="fa fa-angle-left"></i> 软件应该以标准的格式来交付
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
