@@ -10,6 +10,8 @@
 # npm
 node_modules
 
+source/Images
+
 Thumbs.db
 db.json
 *.log
