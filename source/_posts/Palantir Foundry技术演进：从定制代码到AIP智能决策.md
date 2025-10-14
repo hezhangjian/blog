@@ -1,9 +1,11 @@
 ---
 date: 2025-10-10 15:19:54
 tags:
+  - Palantir
 title: Palantir Foundry技术演进：从定制代码到AIP智能决策
 ---
 # TLDR
+
 
 笔者推测Palantir起初以支持定制代码运行为基础，在构筑自己部署平台（Apollo，Palantir GitHub上也有很多开发者构建、Lint工具）的同时，逐渐抽象出Dataset、本体、Function、Action API，打造了坚实的Foundry平台，让应用从定制化开发逐步“长在平台上”。最终，Palantir 推出人工智能平台（AIP），实现数据驱动的智能决策。
 
