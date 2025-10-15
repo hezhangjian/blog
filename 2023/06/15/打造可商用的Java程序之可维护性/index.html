@@ -19,22 +19,26 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
 
-    <meta property="og:type" content="website">
-<meta property="og:title" content="张俭的博客">
-<meta property="og:url" content="https://hezhangjian.com/archives/2022/09/index.html">
+    <meta name="description" content="在主函数中捕获未处理的异常在主函数中捕获未处理的异常，防止程序崩溃，同时记录日志，方便排查问题。 12345public class UncaughtExceptionHandle &#123;    public static void main(String[] args) &#123;        Thread.setDefaultUncaughtExceptionHandler((t,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="打造可商用的Java程序之可维护性">
+<meta property="og:url" content="https://hezhangjian.com/2023/06/15/%E6%89%93%E9%80%A0%E5%8F%AF%E5%95%86%E7%94%A8%E7%9A%84Java%E7%A8%8B%E5%BA%8F%E4%B9%8B%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7/index.html">
 <meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="在主函数中捕获未处理的异常在主函数中捕获未处理的异常，防止程序崩溃，同时记录日志，方便排查问题。 12345public class UncaughtExceptionHandle &#123;    public static void main(String[] args) &#123;        Thread.setDefaultUncaughtExceptionHandler((t,">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-06-15T12:43:58.000Z">
+<meta property="article:modified_time" content="2025-10-15T11:49:42.682Z">
 <meta property="article:author" content="Zhangjian He">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://hezhangjian.com/archives/2022/09/">
+<link rel="canonical" href="https://hezhangjian.com/2023/06/15/%E6%89%93%E9%80%A0%E5%8F%AF%E5%95%86%E7%94%A8%E7%9A%84Java%E7%A8%8B%E5%BA%8F%E4%B9%8B%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"archives/2022/09/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2023/06/15/%E6%89%93%E9%80%A0%E5%8F%AF%E5%95%86%E7%94%A8%E7%9A%84Java%E7%A8%8B%E5%BA%8F%E4%B9%8B%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7/","path":"2023/06/15/打造可商用的Java程序之可维护性/","title":"打造可商用的Java程序之可维护性"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>归档 | 张俭的博客</title>
+<title>打造可商用的Java程序之可维护性 | 张俭的博客</title>
   
 
 
@@ -86,7 +90,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">张俭的博客</h1>
+      <p class="site-title">张俭的博客</p>
       <i class="logo-line"></i>
     </a>
   </div>
@@ -139,7 +143,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -152,6 +156,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E4%B8%BB%E5%87%BD%E6%95%B0%E4%B8%AD%E6%8D%95%E8%8E%B7%E6%9C%AA%E5%A4%84%E7%90%86%E7%9A%84%E5%BC%82%E5%B8%B8"><span class="nav-number">1.</span> <span class="nav-text">在主函数中捕获未处理的异常</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -193,49 +198,98 @@
 
     </div>
 
-    <div class="main-inner archive posts-collapse">
+    <div class="main-inner post posts-expand">
 
 
   
-  
-  
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 10 篇日志。 继续努力。</span>
-      </div>
 
-      
-    <div class="collection-year">
-      <span class="collection-header">2022<span class="collection-year-count">2</span></span>
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/06/15/%E6%89%93%E9%80%A0%E5%8F%AF%E5%95%86%E7%94%A8%E7%9A%84Java%E7%A8%8B%E5%BA%8F%E4%B9%8B%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="打造可商用的Java程序之可维护性 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          打造可商用的Java程序之可维护性
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-15 20:43:58" itemprop="dateCreated datePublished" datetime="2023-06-15T20:43:58+08:00">2023-06-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-15 19:49:42" itemprop="dateModified" datetime="2025-10-15T19:49:42+08:00">2025-10-15</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="在主函数中捕获未处理的异常"><a href="#在主函数中捕获未处理的异常" class="headerlink" title="在主函数中捕获未处理的异常"></a>在主函数中捕获未处理的异常</h2><p>在主函数中捕获未处理的异常，防止程序崩溃，同时记录日志，方便排查问题。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UncaughtExceptionHandle</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        Thread.setDefaultUncaughtExceptionHandler((t, e) -&gt; log.error(<span class="string">&quot;Uncaught exception: &quot;</span>, e));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2022-09-26T22:51:07+08:00"
-              content="2022-09-26">
-          09-26
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/09/26/Calcite%20Parser%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E8%AF%A6%E8%A7%A3/" itemprop="url">
-            <span itemprop="name">Calcite Parser代码生成详解</span>
-          </a>
-      </div>
+    <footer class="post-footer">
 
-      
-    </header>
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/02/jetty%20servlet%E7%9A%84%E7%BC%96%E7%A0%81%E5%AD%97%E7%AC%A6%E9%9B%86%E9%80%89%E6%8B%A9/" rel="prev" title="jetty servlet的代码字符集选择">
+                  <i class="fa fa-angle-left"></i> jetty servlet的代码字符集选择
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/06/15/java%20DefaultUncaughtExceptionHandler%20%E8%AF%A6%E8%A7%A3/" rel="next" title="Java DefaultUncaughtExceptionHandler 详解">
+                  Java DefaultUncaughtExceptionHandler 详解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
   </article>
+</div>
 
 
-    </div>
-  </div>
-  
-  
-  
+
+
+
 
 </div>
   </main>

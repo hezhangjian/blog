@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="prometheus 磁盘布局采集到的数据每两个小时形成一个block。每个block由一个目录组成，并存放在data路径下。该目录包含一个包含该时间窗口的所有时间序列样本的块子目录、一个元数据文件和一个索引文件（将metric_name和label索引到目录下的时间序列）。 chunks 目录中的样本默认组合成一个或多个段文件，每个段文件最大为 512MB。 当通过 API 删除系列时，删除记录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="prometheus tsdb索引布局及查询流程">
+<meta property="og:url" content="https://hezhangjian.com/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="prometheus 磁盘布局采集到的数据每两个小时形成一个block。每个block由一个目录组成，并存放在data路径下。该目录包含一个包含该时间窗口的所有时间序列样本的块子目录、一个元数据文件和一个索引文件（将metric_name和label索引到目录下的时间序列）。 chunks 目录中的样本默认组合成一个或多个段文件，每个段文件最大为 512MB。 当通过 API 删除系列时，删除记录">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/prometheus-tsdb-index.png">
+<meta property="article:published_time" content="2022-07-18T08:48:38.000Z">
+<meta property="article:modified_time" content="2025-10-15T11:49:42.681Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="Prometheus">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/prometheus-tsdb-index.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/","path":"2022/07/18/prometheus tsdb索引布局及查询流程/","title":"prometheus tsdb索引布局及查询流程"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>prometheus tsdb索引布局及查询流程 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#prometheus-%E7%A3%81%E7%9B%98%E5%B8%83%E5%B1%80"><span class="nav-number">1.</span> <span class="nav-text">prometheus 磁盘布局</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#prometheus%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">prometheus概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#prometheus%E7%B4%A2%E5%BC%95%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">prometheus索引格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%A6%E5%8F%B7%E8%A1%A8"><span class="nav-number">1.2.1.</span> <span class="nav-text">符号表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97-series"><span class="nav-number">1.2.2.</span> <span class="nav-text">序列 series</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Posting"><span class="nav-number">1.2.3.</span> <span class="nav-text">Posting</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Posting-Offset-Table"><span class="nav-number">1.2.4.</span> <span class="nav-text">Posting Offset Table</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TOC"><span class="nav-number">1.2.5.</span> <span class="nav-text">TOC</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#chunks-%E7%A3%81%E7%9B%98%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.3.</span> <span class="nav-text">chunks 磁盘格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#chunks%E4%B8%AD%E7%9A%84Chunk%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.4.</span> <span class="nav-text">chunks中的Chunk格式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE"><span class="nav-number">2.</span> <span class="nav-text">查询数据</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#code"><span class="nav-number">2.1.</span> <span class="nav-text">code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">查询数据流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="prometheus tsdb索引布局及查询流程 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          prometheus tsdb索引布局及查询流程
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-07-18 16:48:38" itemprop="dateCreated datePublished" datetime="2022-07-18T16:48:38+08:00">2022-07-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-15 19:49:42" itemprop="dateModified" datetime="2025-10-15T19:49:42+08:00">2025-10-15</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="prometheus-磁盘布局"><a href="#prometheus-磁盘布局" class="headerlink" title="prometheus 磁盘布局"></a>prometheus 磁盘布局</h1><p>采集到的数据每两个小时形成一个block。每个block由一个目录组成，并存放在data路径下。该目录包含一个包含该时间窗口的所有时间序列样本的块子目录、一个元数据文件和一个索引文件（将metric_name和label索引到目录下的时间序列）。 chunks 目录中的样本默认组合成一个或多个段文件，每个段文件最大为 512MB。 当通过 API 删除系列时，删除记录存储在单独的 tombstone 文件中（而不是立即从块段中删除数据）。</p>
+<p>当前正在写入的块保存在内存中，没有完全持久化。通过WAL日志来防止崩溃丢失数据。预写日志分为数节(segments)保存在wal文件夹中。这些文件包含尚未压缩的原始数据； 因此它们比常规块文件大得多。 Prometheus 将至少保留三个预写日志文件。在高流量下，会保留三个以上的 WAL 文件，以便保留至少两个小时的原始数据。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">./data</span><br><span class="line">├── 01BKGV7JBM69T2G1BGBGM6KB12</span><br><span class="line">│   └── meta.json</span><br><span class="line">├── 01BKGTZQ1SYQJTR4PB43C8PD98</span><br><span class="line">│   ├── chunks</span><br><span class="line">│   │   └── 000001</span><br><span class="line">│   ├── tombstones</span><br><span class="line">│   ├── index</span><br><span class="line">│   └── meta.json</span><br><span class="line">├── 01BKGTZQ1HHWHV8FBJXW1Y3W0K</span><br><span class="line">│   └── meta.json</span><br><span class="line">├── 01BKGV7JC0RY8A6MACW02A2PJD</span><br><span class="line">│   ├── chunks</span><br><span class="line">│   │   └── 000001</span><br><span class="line">│   ├── tombstones</span><br><span class="line">│   ├── index</span><br><span class="line">│   └── meta.json</span><br><span class="line">├── chunks_head</span><br><span class="line">│   └── 000001</span><br><span class="line">└── wal</span><br><span class="line">    ├── 000000002</span><br><span class="line">    └── checkpoint.00000001</span><br><span class="line">        └── 00000000</span><br></pre></td></tr></table></figure>
+
+<h2 id="prometheus概念"><a href="#prometheus概念" class="headerlink" title="prometheus概念"></a>prometheus概念</h2><ul>
+<li>Label: 标签，string格式的kv组合</li>
+<li>series: 时间序列，label的组合</li>
+<li>chunk: 时间，value的数据</li>
+</ul>
+<h2 id="prometheus索引格式"><a href="#prometheus索引格式" class="headerlink" title="prometheus索引格式"></a>prometheus索引格式</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────────────┬─────────────────────┐</span><br><span class="line">│ magic(0xBAAAD700) &lt;4b&gt;     │ version(1) &lt;1 byte&gt; │</span><br><span class="line">├────────────────────────────┴─────────────────────┤</span><br><span class="line">│ ┌──────────────────────────────────────────────┐ │</span><br><span class="line">│ │                 Symbol Table                 │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │                    Series                    │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │                   Postings 1                 │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │                      ...                     │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │                   Postings N                 │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │             Postings Offset Table            │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │                      TOC                     │ │</span><br><span class="line">│ └──────────────────────────────────────────────┘ │</span><br><span class="line">└──────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>写入索引时，可以在上面列出的主要部分之间添加任意数量的0字节作为填充。顺序扫描文件时，必须跳过部分间的任意0字节。</p>
+<p>下面描述的大部分部分都以 len 字段开头。 它总是指定就在尾随 CRC32 校验和之前的字节数。 校验和就计算这些字节的校验和（不包含len字段）</p>
+<h3 id="符号表"><a href="#符号表" class="headerlink" title="符号表"></a>符号表</h3><p>符号表包含已存储序列的标签对中出现的重复数据删除字符串的排序列表。 它们可以从后续部分中引用，并显着减少总索引大小。</p>
+<p>该部分包含一系列字符串entry，每个entry都以字符串的原始字节长度为前缀。 所有字符串均采用 utf-8 编码。 字符串由顺序索引引用。 字符串按字典顺序升序排序。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────┬─────────────────────┐</span><br><span class="line">│ len &lt;4b&gt;           │ #symbols &lt;4b&gt;       │</span><br><span class="line">├────────────────────┴─────────────────────┤</span><br><span class="line">│ ┌──────────────────────┬───────────────┐ │</span><br><span class="line">│ │ len(str_1) &lt;uvarint&gt; │ str_1 &lt;bytes&gt; │ │</span><br><span class="line">│ ├──────────────────────┴───────────────┤ │</span><br><span class="line">│ │                . . .                 │ │</span><br><span class="line">│ ├──────────────────────┬───────────────┤ │</span><br><span class="line">│ │ len(str_n) &lt;uvarint&gt; │ str_n &lt;bytes&gt; │ │</span><br><span class="line">│ └──────────────────────┴───────────────┘ │</span><br><span class="line">├──────────────────────────────────────────┤</span><br><span class="line">│ CRC32 &lt;4b&gt;                               │</span><br><span class="line">└──────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+<h3 id="序列-series"><a href="#序列-series" class="headerlink" title="序列 series"></a>序列 series</h3><p>保存一个具体的时间序列，其中包含系列的label集合和block中的chunks。</p>
+<p>每个series都是16字节对齐。series的id为偏移量除以16。series ID 的排序列表也就是series label的字典排序列表。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">┌───────────────────────────────────────┐</span><br><span class="line">│ ┌───────────────────────────────────┐ │</span><br><span class="line">│ │   series_1                        │ │</span><br><span class="line">│ ├───────────────────────────────────┤ │</span><br><span class="line">│ │                 . . .             │ │</span><br><span class="line">│ ├───────────────────────────────────┤ │</span><br><span class="line">│ │   series_n                        │ │</span><br><span class="line">│ └───────────────────────────────────┘ │</span><br><span class="line">└───────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>每一个series先保存label的数量，然后是包含label键值对的引用。 标签对按字典顺序排序。然后是series涉及的索引块的个数，然后是一系列元数据条目，其中包含块的最小 (mint) 和最大 (maxt) 时间戳以及对其在块文件中位置的引用。<code>mint</code> 是第一个样本的时间，<code>maxt</code> 是块中最后一个样本的时间。 在索引中保存时间范围数据, 允许按照时间范围删除数据时，如果时间范围匹配，不需要直接访问时间数据。</p>
+<p>空间大小优化: 第一个块的 <code>mint</code> 被存储，它的 <code>maxt</code> 被存储为一个增量，并且 <code>mint</code> 和 <code>maxt</code> 被编码为后续块的前一个时间的增量。 类似的，第一个chunk的引用被存储，下一个引用被存储为前一个chunk的增量。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────────────────────────────────────────────────────────┐</span><br><span class="line">│ len &lt;uvarint&gt;                                                            │</span><br><span class="line">├──────────────────────────────────────────────────────────────────────────┤</span><br><span class="line">│ ┌──────────────────────────────────────────────────────────────────────┐ │</span><br><span class="line">│ │                     labels count &lt;uvarint64&gt;                         │ │</span><br><span class="line">│ ├──────────────────────────────────────────────────────────────────────┤ │</span><br><span class="line">│ │              ┌────────────────────────────────────────────┐          │ │</span><br><span class="line">│ │              │ ref(l_i.name) &lt;uvarint32&gt;                  │          │ │</span><br><span class="line">│ │              ├────────────────────────────────────────────┤          │ │</span><br><span class="line">│ │              │ ref(l_i.value) &lt;uvarint32&gt;                 │          │ │</span><br><span class="line">│ │              └────────────────────────────────────────────┘          │ │</span><br><span class="line">│ │                             ...                                      │ │</span><br><span class="line">│ ├──────────────────────────────────────────────────────────────────────┤ │</span><br><span class="line">│ │                     chunks count &lt;uvarint64&gt;                         │ │</span><br><span class="line">│ ├──────────────────────────────────────────────────────────────────────┤ │</span><br><span class="line">│ │              ┌────────────────────────────────────────────┐          │ │</span><br><span class="line">│ │              │ c_0.mint &lt;varint64&gt;                        │          │ │</span><br><span class="line">│ │              ├────────────────────────────────────────────┤          │ │</span><br><span class="line">│ │              │ c_0.maxt - c_0.mint &lt;uvarint64&gt;            │          │ │</span><br><span class="line">│ │              ├────────────────────────────────────────────┤          │ │</span><br><span class="line">│ │              │ ref(c_0.data) &lt;uvarint64&gt;                  │          │ │</span><br><span class="line">│ │              └────────────────────────────────────────────┘          │ │</span><br><span class="line">│ │              ┌────────────────────────────────────────────┐          │ │</span><br><span class="line">│ │              │ c_i.mint - c_i-1.maxt &lt;uvarint64&gt;          │          │ │</span><br><span class="line">│ │              ├────────────────────────────────────────────┤          │ │</span><br><span class="line">│ │              │ c_i.maxt - c_i.mint &lt;uvarint64&gt;            │          │ │</span><br><span class="line">│ │              ├────────────────────────────────────────────┤          │ │</span><br><span class="line">│ │              │ ref(c_i.data) - ref(c_i-1.data) &lt;varint64&gt; │          │ │</span><br><span class="line">│ │              └────────────────────────────────────────────┘          │ │</span><br><span class="line">│ │                             ...                                      │ │</span><br><span class="line">│ └──────────────────────────────────────────────────────────────────────┘ │</span><br><span class="line">├──────────────────────────────────────────────────────────────────────────┤</span><br><span class="line">│ CRC32 &lt;4b&gt;                                                               │</span><br><span class="line">└──────────────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="Posting"><a href="#Posting" class="headerlink" title="Posting"></a>Posting</h3><p>Posting这一节存放着关于series引用的单调递增列表，简单来说就是存放id和时间序列的对应关系</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────┬────────────────────┐</span><br><span class="line">│ len &lt;4b&gt;           │ #entries &lt;4b&gt;      │</span><br><span class="line">├────────────────────┴────────────────────┤</span><br><span class="line">│ ┌─────────────────────────────────────┐ │</span><br><span class="line">│ │ ref(series_1) &lt;4b&gt;                  │ │</span><br><span class="line">│ ├─────────────────────────────────────┤ │</span><br><span class="line">│ │ ...                                 │ │</span><br><span class="line">│ ├─────────────────────────────────────┤ │</span><br><span class="line">│ │ ref(series_n) &lt;4b&gt;                  │ │</span><br><span class="line">│ └─────────────────────────────────────┘ │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ CRC32 &lt;4b&gt;                              │</span><br><span class="line">└─────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>Posting sections的顺序由<code>postings offset table</code>决定。</p>
+<h3 id="Posting-Offset-Table"><a href="#Posting-Offset-Table" class="headerlink" title="Posting Offset Table"></a>Posting Offset Table</h3><p><code>postings offset table</code>包含着一系列<code>posting offset entry</code>，根据label的名称和值排序。每一个<code>posting offset entry</code>存放着label的键值对以及在<code>posting sections</code>中其series列表的偏移量。用来跟踪<code>posting sections</code>。当index文件加载时，它们将部分加载到内存中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────┬──────────────────────┐</span><br><span class="line">│ len &lt;4b&gt;            │ #entries &lt;4b&gt;        │</span><br><span class="line">├─────────────────────┴──────────────────────┤</span><br><span class="line">│ ┌────────────────────────────────────────┐ │</span><br><span class="line">│ │  n = 2 &lt;1b&gt;                            │ │</span><br><span class="line">│ ├──────────────────────┬─────────────────┤ │</span><br><span class="line">│ │ len(name) &lt;uvarint&gt;  │ name &lt;bytes&gt;    │ │</span><br><span class="line">│ ├──────────────────────┼─────────────────┤ │</span><br><span class="line">│ │ len(value) &lt;uvarint&gt; │ value &lt;bytes&gt;   │ │</span><br><span class="line">│ ├──────────────────────┴─────────────────┤ │</span><br><span class="line">│ │  offset &lt;uvarint64&gt;                    │ │</span><br><span class="line">│ └────────────────────────────────────────┘ │</span><br><span class="line">│                    . . .                   │</span><br><span class="line">├────────────────────────────────────────────┤</span><br><span class="line">│  CRC32 &lt;4b&gt;                                │</span><br><span class="line">└────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="TOC"><a href="#TOC" class="headerlink" title="TOC"></a>TOC</h3><p><code>table of contents</code>是整个索引的入口点，并指向文件中的各个部分。 如果引用为零，则表示相应的部分不存在，查找时应返回空结果。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│ ref(symbols) &lt;8b&gt;                       │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ ref(series) &lt;8b&gt;                        │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ ref(label indices start) &lt;8b&gt;           │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ ref(label offset table) &lt;8b&gt;            │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ ref(postings start) &lt;8b&gt;                │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ ref(postings offset table) &lt;8b&gt;         │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ CRC32 &lt;4b&gt;                              │</span><br><span class="line">└─────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h2 id="chunks-磁盘格式"><a href="#chunks-磁盘格式" class="headerlink" title="chunks 磁盘格式"></a>chunks 磁盘格式</h2><p>chunks文件创建在<strong>block</strong>中的<code>chunks/</code>目录中。 每个段文件的最大大小为 512MB。<br>文件中的chunk由uint64的索引组织，索引低四位为文件内偏移，高四位为段序列号。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────────────┐</span><br><span class="line">│  magic(0x85BD40DD) &lt;4 byte&gt;  │</span><br><span class="line">├──────────────────────────────┤</span><br><span class="line">│    version(1) &lt;1 byte&gt;       │</span><br><span class="line">├──────────────────────────────┤</span><br><span class="line">│    padding(0) &lt;3 byte&gt;       │</span><br><span class="line">├──────────────────────────────┤</span><br><span class="line">│ ┌──────────────────────────┐ │</span><br><span class="line">│ │         Chunk 1          │ │</span><br><span class="line">│ ├──────────────────────────┤ │</span><br><span class="line">│ │          ...             │ │</span><br><span class="line">│ ├──────────────────────────┤ │</span><br><span class="line">│ │         Chunk N          │ │</span><br><span class="line">│ └──────────────────────────┘ │</span><br><span class="line">└──────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h2 id="chunks中的Chunk格式"><a href="#chunks中的Chunk格式" class="headerlink" title="chunks中的Chunk格式"></a>chunks中的Chunk格式</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">┌───────────────┬───────────────────┬──────────────┬────────────────┐</span><br><span class="line">│ len &lt;uvarint&gt; │ encoding &lt;1 byte&gt; │ data &lt;bytes&gt; │ CRC32 &lt;4 byte&gt; │</span><br><span class="line">└───────────────┴───────────────────┴──────────────┴────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h1 id="查询数据"><a href="#查询数据" class="headerlink" title="查询数据"></a>查询数据</h1><h2 id="code"><a href="#code" class="headerlink" title="code"></a>code</h2><p>查询的prometheus方法签名</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Select(sortSeries <span class="type">bool</span>, hints *SelectHints, matchers ...*labels.Matcher) SeriesSet</span><br></pre></td></tr></table></figure>
+
+<p>支持从block中，remote等各种地方查询获取数据</p>
+<p>prometheus会在内存中维护一个数据结构</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Map of LabelName to a list of some LabelValues&#x27;s position in the offset table.</span></span><br><span class="line"><span class="comment">// The first and last values for each name are always present.</span></span><br><span class="line">postings <span class="keyword">map</span>[<span class="type">string</span>][]postingOffset</span><br></pre></td></tr></table></figure>
+
+<p>在内存中，保留每个label name，并且每n个保存label值，降低内存的占用。但是第一个和最后一个值总是保存在内存中。</p>
+<h2 id="查询数据流程"><a href="#查询数据流程" class="headerlink" title="查询数据流程"></a>查询数据流程</h2><p><img src="/Images/prometheus-tsdb-index.png" alt="prometheus-tsdb-index"></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://prometheus.io/docs/prometheus/latest/storage/">https://prometheus.io/docs/prometheus/latest/storage/</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus/blob/release-2.37/tsdb/docs/format/README.md">https://github.com/prometheus/prometheus/blob/release-2.37/tsdb/docs/format/README.md</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus/blob/release-2.37/tsdb/docs/format/index.md">https://github.com/prometheus/prometheus/blob/release-2.37/tsdb/docs/format/index.md</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Prometheus/" rel="tag"># Prometheus</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/09/26/Calcite%20Parser%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E8%AF%A6%E8%A7%A3/" rel="next" title="Calcite Parser代码生成详解">
+                  Calcite Parser代码生成详解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
