@@ -21,14 +21,14 @@
 
     <meta name="description" content="prometheus 磁盘布局采集到的数据每两个小时形成一个block。每个block由一个目录组成，并存放在data路径下。该目录包含一个包含该时间窗口的所有时间序列样本的块子目录、一个元数据文件和一个索引文件（将metric_name和label索引到目录下的时间序列）。 chunks 目录中的样本默认组合成一个或多个段文件，每个段文件最大为 512MB。 当通过 API 删除系列时，删除记录">
 <meta property="og:type" content="article">
-<meta property="og:title" content="prometheus tsdb索引布局及查询流程">
+<meta property="og:title" content="Prometheus tsdb索引布局及查询流程">
 <meta property="og:url" content="https://hezhangjian.com/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/index.html">
 <meta property="og:site_name" content="张俭的博客">
 <meta property="og:description" content="prometheus 磁盘布局采集到的数据每两个小时形成一个block。每个block由一个目录组成，并存放在data路径下。该目录包含一个包含该时间窗口的所有时间序列样本的块子目录、一个元数据文件和一个索引文件（将metric_name和label索引到目录下的时间序列）。 chunks 目录中的样本默认组合成一个或多个段文件，每个段文件最大为 512MB。 当通过 API 删除系列时，删除记录">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://hezhangjian.com/Images/prometheus-tsdb-index.png">
 <meta property="article:published_time" content="2022-07-18T08:48:38.000Z">
-<meta property="article:modified_time" content="2025-10-16T00:40:20.023Z">
+<meta property="article:modified_time" content="2025-10-18T02:37:30.177Z">
 <meta property="article:author" content="Zhangjian He">
 <meta property="article:tag" content="Prometheus">
 <meta name="twitter:card" content="summary">
@@ -38,10 +38,10 @@
 <link rel="canonical" href="https://hezhangjian.com/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/","path":"2022/07/18/prometheus tsdb索引布局及查询流程/","title":"prometheus tsdb索引布局及查询流程"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/","path":"2022/07/18/prometheus tsdb索引布局及查询流程/","title":"Prometheus tsdb索引布局及查询流程"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>prometheus tsdb索引布局及查询流程 | 张俭的博客</title>
+<title>Prometheus tsdb索引布局及查询流程 | 张俭的博客</title>
   
 
 
@@ -172,13 +172,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">41</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -226,12 +226,13 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="prometheus tsdb索引布局及查询流程 | 张俭的博客">
+      <meta itemprop="name" content="Prometheus tsdb索引布局及查询流程 | 张俭的博客">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          prometheus tsdb索引布局及查询流程
+          <a href="/prometheus-tsdb-index" class="post-title-link post-title-link-external" itemprop="url">Prometheus tsdb索引布局及查询流程<i class="fa fa-external-link-alt"></i></a>
+          
         </h1>
 
         <div class="post-meta-container">
@@ -249,7 +250,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
     </span>
 
   
@@ -330,10 +331,13 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
+                <a href="/2022/03/31/%E4%B8%80%E6%AD%A5%E4%B8%80%E6%AD%A5%E6%95%99%E4%BD%A0%E5%86%99kubernetes%20sidecar/" rel="prev" title="一步一步教你写kubernetes sidecar">
+                  <i class="fa fa-angle-left"></i> 一步一步教你写kubernetes sidecar
+                </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2022/09/26/Calcite%20Parser%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E8%AF%A6%E8%A7%A3/" rel="next" title="Calcite Parser代码生成详解">
-                  Calcite Parser代码生成详解 <i class="fa fa-angle-right"></i>
+                <a href="/2022/08/01/LVS%20%E6%80%A7%E8%83%BD%E6%89%8B%E5%86%8C/" rel="next" title="lvs 性能手册">
+                  lvs 性能手册 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>

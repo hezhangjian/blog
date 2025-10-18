@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="需要了解的概念 VPC：用户的私有网段 peering：多个VPC之间打通的方式，可跨用户  前言今天微信推送Pulsar社区有个Hackathon比赛, 开始想的idea就是，实现pulsar在华为云上提供服务。因为是社区的比赛，是以一个三方系统的方式在华为云上提供服务，而非是以华为云的名义提供服务。分析了下可行性和能达到的效果，对比了StreamNative的官网上提供的pulsar服务在阿里">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如果不是公有云的供应商，能提供什么样的Pulsar服务体验">
+<meta property="og:url" content="https://hezhangjian.com/2021/04/20/%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%98%AF%E5%85%AC%E6%9C%89%E4%BA%91%E7%9A%84%E4%BE%9B%E5%BA%94%E5%95%86%EF%BC%8C%E8%83%BD%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84Pulsar%E6%9C%8D%E5%8A%A1%E4%BD%93%E9%AA%8C/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="需要了解的概念 VPC：用户的私有网段 peering：多个VPC之间打通的方式，可跨用户  前言今天微信推送Pulsar社区有个Hackathon比赛, 开始想的idea就是，实现pulsar在华为云上提供服务。因为是社区的比赛，是以一个三方系统的方式在华为云上提供服务，而非是以华为云的名义提供服务。分析了下可行性和能达到的效果，对比了StreamNative的官网上提供的pulsar服务在阿里">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/pulsar-third-vendor1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/pulsar-third-vendor2.png">
+<meta property="article:published_time" content="2021-04-20T12:45:22.000Z">
+<meta property="article:modified_time" content="2025-10-18T02:37:30.177Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="Pulsar">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/pulsar-third-vendor1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/04/20/%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%98%AF%E5%85%AC%E6%9C%89%E4%BA%91%E7%9A%84%E4%BE%9B%E5%BA%94%E5%95%86%EF%BC%8C%E8%83%BD%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84Pulsar%E6%9C%8D%E5%8A%A1%E4%BD%93%E9%AA%8C/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/04/20/%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%98%AF%E5%85%AC%E6%9C%89%E4%BA%91%E7%9A%84%E4%BE%9B%E5%BA%94%E5%95%86%EF%BC%8C%E8%83%BD%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84Pulsar%E6%9C%8D%E5%8A%A1%E4%BD%93%E9%AA%8C/","path":"2021/04/20/如果不是公有云的供应商，能提供什么样的Pulsar服务体验/","title":"如果不是公有云的供应商，能提供什么样的Pulsar服务体验"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>如果不是公有云的供应商，能提供什么样的Pulsar服务体验 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9C%80%E8%A6%81%E4%BA%86%E8%A7%A3%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">需要了解的概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">2.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E6%89%93%E9%80%9A%E5%AE%B9%E6%98%93"><span class="nav-number">2.1.</span> <span class="nav-text">网络打通容易</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%8E%E5%BB%89%E7%9A%84%E6%88%90%E6%9C%AC"><span class="nav-number">2.2.</span> <span class="nav-text">低廉的成本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9F%E5%AF%B9%E6%8E%A5"><span class="nav-number">2.3.</span> <span class="nav-text">监控系统对接</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E6%96%B9%E5%8E%82%E5%AE%B6%E8%83%BD%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84Pulsar%E6%8E%A5%E5%85%A5"><span class="nav-number">3.</span> <span class="nav-text">三方厂家能提供什么样的Pulsar接入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%9F%E4%B8%80%E6%8E%A5%E5%85%A5"><span class="nav-number">3.1.</span> <span class="nav-text">统一接入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Peering%E6%89%93%E9%80%9A"><span class="nav-number">3.2.</span> <span class="nav-text">Peering打通</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96"><span class="nav-number">3.2.1.</span> <span class="nav-text">自动化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%BD%91%E6%AE%B5%E5%92%8C%E5%85%B6%E4%BB%96%E7%BD%91%E6%AE%B5%E5%8F%88%E5%81%9A%E4%BA%86peering"><span class="nav-number">3.2.2.</span> <span class="nav-text">客户网段和其他网段又做了peering</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/20/%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%98%AF%E5%85%AC%E6%9C%89%E4%BA%91%E7%9A%84%E4%BE%9B%E5%BA%94%E5%95%86%EF%BC%8C%E8%83%BD%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84Pulsar%E6%9C%8D%E5%8A%A1%E4%BD%93%E9%AA%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="如果不是公有云的供应商，能提供什么样的Pulsar服务体验 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/pulsar-third-vendor" class="post-title-link post-title-link-external" itemprop="url">如果不是公有云的供应商，能提供什么样的Pulsar服务体验<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-20 20:45:22" itemprop="dateCreated datePublished" datetime="2021-04-20T20:45:22+08:00">2021-04-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="需要了解的概念"><a href="#需要了解的概念" class="headerlink" title="需要了解的概念"></a>需要了解的概念</h1><ul>
+<li>VPC：用户的私有网段</li>
+<li>peering：多个VPC之间打通的方式，可跨用户</li>
+</ul>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今天微信推送Pulsar社区有个Hackathon比赛, 开始想的idea就是，实现<code>pulsar</code>在华为云上提供服务。因为是社区的比赛，是以一个三方系统的方式在华为云上提供服务，而非是以华为云的名义提供服务。分析了下可行性和能达到的效果，对比了<code>StreamNative</code>的官网上提供的<code>pulsar</code>服务在阿里云托管的能力，能提供的能力差不多，最多只不过是实现了在华为云托管的能力，没有从0到1的突破。</p>
+<p>现在，在公有云上买<code>redis</code>和<code>kafka</code>这类组件已经变得非常普遍，由公有云供应商提供的中间件往往能给你带来良好的体验，相比三方厂家在云上进行托管，我个人认为云厂商的优势主要在以下三点</p>
+<h2 id="网络打通容易"><a href="#网络打通容易" class="headerlink" title="网络打通容易"></a>网络打通容易</h2><p>下文说一下不是公有云的供应商能以什么样的方式暴露自己的服务。云厂商可以把中间件的ip地址申请在你的vpc内，对任何应用程序来说，连接都是最方便的。无论是容器化部署、虚拟机部署、和其他vpc peering打通的场景，都可以通信。</p>
+<h2 id="低廉的成本"><a href="#低廉的成本" class="headerlink" title="低廉的成本"></a>低廉的成本</h2><p>不考虑人力成本，云厂商自运营的价格要低于三方厂家。</p>
+<h2 id="监控系统对接"><a href="#监控系统对接" class="headerlink" title="监控系统对接"></a>监控系统对接</h2><p>方便地和云厂商的告警、统计系统对接，接收告警通知和报表等。</p>
+<p>其中<strong>网络打通</strong>和<strong>成本</strong>尤为重要，三方厂家好好做监控统计系统，也能给用户较为良好的体验。</p>
+<h1 id="三方厂家能提供什么样的Pulsar接入"><a href="#三方厂家能提供什么样的Pulsar接入" class="headerlink" title="三方厂家能提供什么样的Pulsar接入"></a>三方厂家能提供什么样的Pulsar接入</h1><h2 id="统一接入"><a href="#统一接入" class="headerlink" title="统一接入"></a>统一接入</h2><p>三方厂家自己作为公有云上一个用户，无论这个Region上有多少个租户，都用这一个用户提供服务，这也就意味着无法与每个用户进行私网通信。如果在华为云，利用华为云推出的<strong>VPCEP</strong>服务（此处应有链接），倒是可以给每个用户提供私网通信，不过这个是做了DNAT地址转换的，跟做了DNAT转换的中间件连接，是非常麻烦的。（懂的自然懂。如果有人想详细了解，可以留言，我可以写一个文章介绍里面的坑）</p>
+<p>如果使用公网，又想避免扩容的时候动态申请EIP，动态申请EIP并不复杂，问题是EIP是有配额限制的，这才是关键。那么就需要一个统一的接入点，就需要部署pulsar proxy。到这一步，是每个用户申请一个EIP的，如果还想继续节省EIP，那么可以统一域名接入，后端通过SNI的方式转发，个别流量大的客户，单独把域名指向单独的集群。</p>
+<p><img src="/Images/pulsar-third-vendor1.png" alt="pulsar-third-vendor1"></p>
+<h2 id="Peering打通"><a href="#Peering打通" class="headerlink" title="Peering打通"></a>Peering打通</h2><p>Peering打通可以给用户不错的私网体验，需要用户预留一个网段，网段不需要太大，能容纳pulsar所在的vm就行。采用peering打通一般绝不会选择容器化部署，想要两个容器化的集群互通，对网设的要求很高，暂且忽略Service的存在，这要求用户的vpc网段和pod网段和三方厂商的vpc网段和pod网段都不重叠！而且peering打通，给用户私有，再搭建一个k8s集群，对成本影响比较大。主要有如下两个问题</p>
+<h3 id="自动化"><a href="#自动化" class="headerlink" title="自动化"></a>自动化</h3><p>和客户peering打通，需要较大的权限，如何自动化，最大程度的减少需要的权限。</p>
+<h3 id="客户网段和其他网段又做了peering"><a href="#客户网段和其他网段又做了peering" class="headerlink" title="客户网段和其他网段又做了peering"></a>客户网段和其他网段又做了peering</h3><p><img src="/Images/pulsar-third-vendor2.png" alt="pulsar-third-vendor2"></p>
+<p>这个问题其实还好，就是路由规则配置麻烦</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Peering打通对用户来说已经比较方便了，相信做到自动化也没有太大的技术难度，只是时间和人力投入的问题。统一接入因为网络打通的原因，不好使用<code>kop</code>、<code>mop</code>这些高级特性，此外还有不小的公网带宽成本，羊毛出在羊身上，比较大量的用户也会倾向于Peering打通的模式吧。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Pulsar/" rel="tag"># Pulsar</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/13/Kubernetes%20pod%E5%86%85%E8%B0%83%E7%94%A8API/" rel="prev" title="Kubernetes pod内调用API">
+                  <i class="fa fa-angle-left"></i> Kubernetes pod内调用API
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/04/26/MySQL%E6%98%AF%E5%A6%82%E4%BD%95%E9%9A%90%E8%97%8Fps%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%AD%E7%9A%84%E5%AF%86%E7%A0%81%E7%9A%84/" rel="next" title="Mysql是如何隐藏ps命令行中的密码的">
+                  Mysql是如何隐藏ps命令行中的密码的 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

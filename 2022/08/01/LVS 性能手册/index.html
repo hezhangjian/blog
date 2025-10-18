@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="lvs是做什么的lvs通常用做tcp&#x2F;udp协议的四层负载均衡  相比也可以用于四层负载的Nginx组件，Lvs因为运行在内核态，性能高是它的主要优势，同样，因为运行在内核态中，无法像Nginx那样，对四层的tls做卸载等动作。 lvs性能相关指标(用户视角)客户端的连接数 UDP模式下，按连接超时时间计算（根据业务需求决定）。可通过ipvsadm -l --timeout来查看udp超">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lvs 性能手册">
+<meta property="og:url" content="https://hezhangjian.com/2022/08/01/LVS%20%E6%80%A7%E8%83%BD%E6%89%8B%E5%86%8C/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="lvs是做什么的lvs通常用做tcp&#x2F;udp协议的四层负载均衡  相比也可以用于四层负载的Nginx组件，Lvs因为运行在内核态，性能高是它的主要优势，同样，因为运行在内核态中，无法像Nginx那样，对四层的tls做卸载等动作。 lvs性能相关指标(用户视角)客户端的连接数 UDP模式下，按连接超时时间计算（根据业务需求决定）。可通过ipvsadm -l --timeout来查看udp超">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/lvs-brief.png">
+<meta property="article:published_time" content="2022-08-01T13:37:08.000Z">
+<meta property="article:modified_time" content="2025-10-18T02:37:30.176Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="LVS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/lvs-brief.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2022/08/01/LVS%20%E6%80%A7%E8%83%BD%E6%89%8B%E5%86%8C/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2022/08/01/LVS%20%E6%80%A7%E8%83%BD%E6%89%8B%E5%86%8C/","path":"2022/08/01/LVS 性能手册/","title":"lvs 性能手册"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>lvs 性能手册 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#lvs%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">1.</span> <span class="nav-text">lvs是做什么的</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lvs%E6%80%A7%E8%83%BD%E7%9B%B8%E5%85%B3%E6%8C%87%E6%A0%87-%E7%94%A8%E6%88%B7%E8%A7%86%E8%A7%92"><span class="nav-number">2.</span> <span class="nav-text">lvs性能相关指标(用户视角)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%9A%84%E8%BF%9E%E6%8E%A5%E6%95%B0"><span class="nav-number">2.1.</span> <span class="nav-text">客户端的连接数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82%E6%B5%81%E9%87%8F"><span class="nav-number">2.2.</span> <span class="nav-text">客户端请求流量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%B9%B3%E5%9D%87%E5%8C%85%E5%A4%A7%E5%B0%8F"><span class="nav-number">2.3.</span> <span class="nav-text">客户端请求平均包大小</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lvs%E6%80%A7%E8%83%BD%E7%9B%B8%E5%85%B3%E5%8F%82%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">lvs性能相关参数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%9A%E8%AF%9D%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4"><span class="nav-number">3.1.</span> <span class="nav-text">会话超时时间</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B"><span class="nav-number">3.1.1.</span> <span class="nav-text">查看</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9"><span class="nav-number">3.1.2.</span> <span class="nav-text">修改</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vm-conntrack%E6%9C%80%E5%A4%A7%E4%B8%AA%E6%95%B0"><span class="nav-number">3.2.</span> <span class="nav-text">vm conntrack最大个数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">查看</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8Dnf-conntrack%E4%B8%AA%E6%95%B0"><span class="nav-number">3.2.2.</span> <span class="nav-text">查看当前nf_conntrack个数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9-1"><span class="nav-number">3.2.3.</span> <span class="nav-text">修改</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hashsize"><span class="nav-number">3.3.</span> <span class="nav-text">hashsize</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFhashsize"><span class="nav-number">3.3.1.</span> <span class="nav-text">什么是hashsize</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B-2"><span class="nav-number">3.3.2.</span> <span class="nav-text">查看</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9-%EF%BC%88%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%89"><span class="nav-number">3.3.3.</span> <span class="nav-text">修改 （方式一）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%EF%BC%88%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%89%E6%B0%B8%E4%B9%85%E7%94%9F%E6%95%88"><span class="nav-number">3.3.4.</span> <span class="nav-text">修改（方式二）永久生效</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E5%8F%A5%E6%9F%84%E6%95%B0"><span class="nav-number">3.4.</span> <span class="nav-text">文件句柄数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B-3"><span class="nav-number">3.4.1.</span> <span class="nav-text">查看</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9-2"><span class="nav-number">3.4.2.</span> <span class="nav-text">修改</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lvs%E6%80%A7%E8%83%BD%E7%93%B6%E9%A2%88"><span class="nav-number">4.</span> <span class="nav-text">lvs性能瓶颈</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%86%85%E5%AD%98"><span class="nav-number">4.1.</span> <span class="nav-text">虚拟机内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E5%8D%A1%E6%B5%81%E9%87%8F"><span class="nav-number">4.2.</span> <span class="nav-text">网卡流量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E5%8D%A1%E8%BF%9B%E5%87%BA%E5%8C%85%E4%B8%AA%E6%95%B0%EF%BC%88PPS"><span class="nav-number">4.3.</span> <span class="nav-text">网卡进出包个数（PPS)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%83%BD%E6%94%AF%E6%8C%81%E7%9A%84%E6%9C%80%E5%A4%A7%E7%BD%91%E7%BB%9C%E8%BF%9E%E6%8E%A5%E6%95%B0"><span class="nav-number">4.4.</span> <span class="nav-text">虚拟机能支持的最大网络连接数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lvs%E7%9B%91%E6%8E%A7-%E6%89%A9%E5%AE%B9"><span class="nav-number">5.</span> <span class="nav-text">Lvs监控&amp;扩容</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#cpu%E4%BD%BF%E7%94%A8%E7%8E%87"><span class="nav-number">5.1.</span> <span class="nav-text">cpu使用率</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E4%BD%BF%E7%94%A8%E7%8E%87"><span class="nav-number">5.2.</span> <span class="nav-text">内存使用率</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conntrack%E4%B8%AA%E6%95%B0"><span class="nav-number">5.3.</span> <span class="nav-text">conntrack个数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E5%8D%A1%E6%B5%81%E9%87%8F%E3%80%81%E7%BD%91%E5%8D%A1%E8%BF%9B%E5%87%BA%E5%8C%85%E4%B8%AA%E6%95%B0"><span class="nav-number">5.4.</span> <span class="nav-text">网卡流量、网卡进出包个数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E7%BD%91%E7%BB%9C%E8%BF%9E%E6%8E%A5%E6%95%B0"><span class="nav-number">5.5.</span> <span class="nav-text">最大网络连接数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EIP%E5%B8%A6%E5%AE%BD"><span class="nav-number">5.6.</span> <span class="nav-text">EIP带宽</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/08/01/LVS%20%E6%80%A7%E8%83%BD%E6%89%8B%E5%86%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="lvs 性能手册 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/lvs-performance-manual" class="post-title-link post-title-link-external" itemprop="url">lvs 性能手册<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-08-01 21:37:08" itemprop="dateCreated datePublished" datetime="2022-08-01T21:37:08+08:00">2022-08-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="lvs是做什么的"><a href="#lvs是做什么的" class="headerlink" title="lvs是做什么的"></a>lvs是做什么的</h1><p>lvs通常用做tcp&#x2F;udp协议的四层负载均衡</p>
+<p><img src="/Images/lvs-brief.png" alt="lvs-brief"></p>
+<p>相比也可以用于四层负载的<strong>Nginx</strong>组件，<strong>Lvs</strong>因为运行在内核态，性能高是它的主要优势，同样，因为运行在内核态中，无法像Nginx那样，对四层的tls做卸载等动作。</p>
+<h1 id="lvs性能相关指标-用户视角"><a href="#lvs性能相关指标-用户视角" class="headerlink" title="lvs性能相关指标(用户视角)"></a>lvs性能相关指标(用户视角)</h1><h2 id="客户端的连接数"><a href="#客户端的连接数" class="headerlink" title="客户端的连接数"></a>客户端的连接数</h2><ul>
+<li>UDP模式下，按连接超时时间计算（根据业务需求决定）。可通过<code>ipvsadm -l --timeout</code>来查看udp超时时间</li>
+<li>TCP模式下，即为tcp连接数</li>
+</ul>
+<h2 id="客户端请求流量"><a href="#客户端请求流量" class="headerlink" title="客户端请求流量"></a>客户端请求流量</h2><p>即client与lvs、lvs与RS之间交互的流量</p>
+<h2 id="客户端请求平均包大小"><a href="#客户端请求平均包大小" class="headerlink" title="客户端请求平均包大小"></a>客户端请求平均包大小</h2><p>即client与lvs、lvs与RS之间的平均包大小</p>
+<h1 id="lvs性能相关参数"><a href="#lvs性能相关参数" class="headerlink" title="lvs性能相关参数"></a>lvs性能相关参数</h1><h2 id="会话超时时间"><a href="#会话超时时间" class="headerlink" title="会话超时时间"></a>会话超时时间</h2><h3 id="查看"><a href="#查看" class="headerlink" title="查看"></a>查看</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipvsadm -l --<span class="built_in">timeout</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="修改"><a href="#修改" class="headerlink" title="修改"></a>修改</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipvsadm --<span class="built_in">set</span> <span class="variable">$&#123;tcptimeout&#125;</span> <span class="variable">$&#123;tcpfintimeout&#125;</span> <span class="variable">$&#123;udptimeout&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="vm-conntrack最大个数"><a href="#vm-conntrack最大个数" class="headerlink" title="vm conntrack最大个数"></a>vm conntrack最大个数</h2><h3 id="查看-1"><a href="#查看-1" class="headerlink" title="查看"></a>查看</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -a |grep net.netfilter.nf_conntrack_max</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看当前nf-conntrack个数"><a href="#查看当前nf-conntrack个数" class="headerlink" title="查看当前nf_conntrack个数"></a>查看当前nf_conntrack个数</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方式一</span></span><br><span class="line">conntrack -C</span><br><span class="line"><span class="comment"># 方式二</span></span><br><span class="line"><span class="built_in">cat</span> /proc/net/nf_conntrack | <span class="built_in">wc</span> -l</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-1"><a href="#修改-1" class="headerlink" title="修改"></a>修改</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w net.netfilter.nf_conntrack_max=1024</span><br></pre></td></tr></table></figure>
+
+<h2 id="hashsize"><a href="#hashsize" class="headerlink" title="hashsize"></a>hashsize</h2><h3 id="什么是hashsize"><a href="#什么是hashsize" class="headerlink" title="什么是hashsize"></a>什么是hashsize</h3><p><strong>hashsize</strong>也就是<strong>nf_conntrack_buckets</strong>，如果不手动指定。linux会根据机器的内存计算。如果要支持海量的<strong>nf_conntrack</strong>，则可以适当调大。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">  <span class="comment">// nf_conntrack_core.c</span></span><br><span class="line">  nf_conntrack_htable_size</span><br><span class="line">	= (((nr_pages &lt;&lt; PAGE_SHIFT) / <span class="number">16384</span>)</span><br><span class="line">	   / <span class="keyword">sizeof</span>(<span class="keyword">struct</span> hlist_head));</span><br><span class="line"><span class="keyword">if</span> (BITS_PER_LONG &gt;= <span class="number">64</span> &amp;&amp;</span><br><span class="line">    nr_pages &gt; (<span class="number">4</span> * (<span class="number">1024</span> * <span class="number">1024</span> * <span class="number">1024</span> / PAGE_SIZE)))</span><br><span class="line">	nf_conntrack_htable_size = <span class="number">262144</span>;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (nr_pages &gt; (<span class="number">1024</span> * <span class="number">1024</span> * <span class="number">1024</span> / PAGE_SIZE))</span><br><span class="line">	nf_conntrack_htable_size = <span class="number">65536</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (nf_conntrack_htable_size &lt; <span class="number">1024</span>)</span><br><span class="line">	nf_conntrack_htable_size = <span class="number">1024</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>hlist_head</strong>的大小在64位的机器下大小为16</p>
+<h3 id="查看-2"><a href="#查看-2" class="headerlink" title="查看"></a>查看</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /sys/module/nf_conntrack/parameters/hashsize</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-（方式一）"><a href="#修改-（方式一）" class="headerlink" title="修改 （方式一）"></a>修改 （方式一）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 65536 &gt; /sys/module/nf_conntrack/parameters/hashsize</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改（方式二）永久生效"><a href="#修改（方式二）永久生效" class="headerlink" title="修改（方式二）永久生效"></a>修改（方式二）永久生效</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># exmaple file, you can modify this config if exists. File name doesn&#x27;t matter.</span></span><br><span class="line"><span class="comment"># 样例文件，你可以修改已存在的这个文件。文件名称并不重要。</span></span><br><span class="line"><span class="built_in">touch</span> /etc/modprobe.d/lvs.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;options nf_conntrack hashsize=65536&quot;</span> &gt;&gt; /etc/modprobe.d/lvs.conf</span><br><span class="line"><span class="comment"># then you need reboot</span></span><br><span class="line"><span class="comment"># 需要重试来使配置生效</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="文件句柄数"><a href="#文件句柄数" class="headerlink" title="文件句柄数"></a>文件句柄数</h2><h3 id="查看-3"><a href="#查看-3" class="headerlink" title="查看"></a>查看</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ulimit</span> -n</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-2"><a href="#修改-2" class="headerlink" title="修改"></a>修改</h3><p>不同的linux发行版，修改方式不太一样，以RedHat为例</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">num=`<span class="built_in">ulimit</span> -n`</span><br><span class="line">sed -i <span class="string">&quot;s|<span class="variable">$num</span>|65536|g&quot;</span> /etc/security/limits.d/*-nofile.conf</span><br></pre></td></tr></table></figure>
+
+<h1 id="lvs性能瓶颈"><a href="#lvs性能瓶颈" class="headerlink" title="lvs性能瓶颈"></a>lvs性能瓶颈</h1><h2 id="虚拟机内存"><a href="#虚拟机内存" class="headerlink" title="虚拟机内存"></a>虚拟机内存</h2><p>contnrack使用<strong>slab</strong>分配内存，可以通过<strong>slabtop</strong>命令查看nf_conntrack模块占用的内存。当连接数较高时，Lvs的内存瓶颈在于会话管理。</p>
+<p><strong>conntrack</strong>最大理论内存占用为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">max_mem_used = conntrack * max * sizeof (struct nf_conntrack) + conntrack_buckets * sizeof (struct list_head)</span><br></pre></td></tr></table></figure>
+
+<p>使用如下python代码计算</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ctypes</span><br><span class="line"></span><br><span class="line"><span class="comment"># 这个是nf_conntrack的动态库所在路径</span></span><br><span class="line"><span class="comment"># libnetfilter git地址 git://git.netfilter.org/libnetfilter_conntrack</span></span><br><span class="line">LIBNETFILTER_CONNTRACK = <span class="string">&#x27;/usr/lib/aarch64-linux-gnu/libnetfilter_conntrack.so.3.7.0&#x27;</span></span><br><span class="line">nfct = ctypes.CDLL(LIBNETFILTER_CONNTRACK)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;max size of struct nf_conntrack:&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(nfct.nfct_maxsize())</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;sizeof(struct list_head):&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(ctypes.sizeof(ctypes.c_void_p) * <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>nfct_maxsize</code>出自于<code>git://git.netfilter.org/libnetfilter_conntrack</code>中的<code>src/conntrack/api.c</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * nfct_maxsize - return the maximum size in bytes of a conntrack object</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+<p>在如下操作系统下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">uname -a</span><br><span class="line">&gt; Linux primary 5.4.0-122-generic #138-Ubuntu SMP Wed Jun 22 15:05:39 UTC 2022 aarch64 aarch64 aarch64 GNU/Linux</span><br></pre></td></tr></table></figure>
+
+<p>以100万conntrack_max，65536buckets为例，占用的内存为</p>
+<p>1_000_000 * 392 + 65536 * 16 约等于 373.84 + 1 为374M内存</p>
+<h2 id="网卡流量"><a href="#网卡流量" class="headerlink" title="网卡流量"></a>网卡流量</h2><p>最大进出带宽。在云上，通常由云厂商限制。如果你将lvs上面的浮动Ip通过EIP的方式暴露出去（这很常见），还需要考虑EIP自身的带宽</p>
+<h2 id="网卡进出包个数（PPS"><a href="#网卡进出包个数（PPS" class="headerlink" title="网卡进出包个数（PPS)"></a>网卡进出包个数（PPS)</h2><p>最大进出包个数</p>
+<h2 id="虚拟机能支持的最大网络连接数"><a href="#虚拟机能支持的最大网络连接数" class="headerlink" title="虚拟机能支持的最大网络连接数"></a>虚拟机能支持的最大网络连接数</h2><p>ECS上可以支持的最大网络连接数。在云上，通常由云厂商限制</p>
+<h1 id="Lvs监控-扩容"><a href="#Lvs监控-扩容" class="headerlink" title="Lvs监控&amp;扩容"></a>Lvs监控&amp;扩容</h1><h2 id="cpu使用率"><a href="#cpu使用率" class="headerlink" title="cpu使用率"></a>cpu使用率</h2><p>可在超过百分之80的时候告警。处理方式：</p>
+<ul>
+<li>如果内存还没有到达瓶颈，可以通过扩大hashsize的方式，降低hash链上元素的个数，减少匹配消耗的cpu</li>
+<li>如果内存水位也较高。对CPU进行扩容</li>
+</ul>
+<h2 id="内存使用率"><a href="#内存使用率" class="headerlink" title="内存使用率"></a>内存使用率</h2><p>可在超过内存容量百分之80的时候告警。处理方式：扩容内存</p>
+<h2 id="conntrack个数"><a href="#conntrack个数" class="headerlink" title="conntrack个数"></a>conntrack个数</h2><p>通过<code>conntrack -C</code>或<code>cat /proc/net/nf_conntrack | wc -l</code>, 定期进行统计，使用<code>sysctl -w net.netfilter.nf_conntrack_max</code>进行扩容</p>
+<h2 id="网卡流量、网卡进出包个数"><a href="#网卡流量、网卡进出包个数" class="headerlink" title="网卡流量、网卡进出包个数"></a>网卡流量、网卡进出包个数</h2><p>可以利用云厂商的监控或<code>nicstat</code>命令查看。处理方式：扩容网卡</p>
+<h2 id="最大网络连接数"><a href="#最大网络连接数" class="headerlink" title="最大网络连接数"></a>最大网络连接数</h2><p>可以利用云厂商的监控或<code>netstat -an|egrep &quot;tcp|udp&quot;|grep -v &quot;LISTEN&quot;|wc -l</code>或<code>ss -tun state all | grep -v LISTEN | wc -l</code>查看。处理方式：扩容ECS规格</p>
+<h2 id="EIP带宽"><a href="#EIP带宽" class="headerlink" title="EIP带宽"></a>EIP带宽</h2><p>通过云厂商的指标来监控。处理方式，扩容EIP的BGP带宽</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/LVS/" rel="tag"># LVS</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/" rel="prev" title="Prometheus tsdb索引布局及查询流程">
+                  <i class="fa fa-angle-left"></i> Prometheus tsdb索引布局及查询流程
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/09/26/Calcite%20Parser%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E8%AF%A6%E8%A7%A3/" rel="next" title="Calcite Parser代码生成详解">
+                  Calcite Parser代码生成详解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

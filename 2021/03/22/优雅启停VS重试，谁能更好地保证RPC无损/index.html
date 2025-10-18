@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="背景我们的业务有些时候总是在升级期间rpc业务有一些呼损，想总结一下让rpc调用零呼损的两种方式：重试和优雅启停。我先介绍这两种方式，再描述一下这两种方式的优缺点  A是一个微服务 B也是一个微服务 蓝色的是常见的注册中心，有zookeeper、eureka等实现。 重试重试，在发生可重试错误的时候，重试一次。什么是可重试错误呢？就是重试一次，可能会成功。比如400 BadRequest，那出现这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="优雅启停VS重试，谁能更好地保证RPC无损">
+<meta property="og:url" content="https://hezhangjian.com/2021/03/22/%E4%BC%98%E9%9B%85%E5%90%AF%E5%81%9CVS%E9%87%8D%E8%AF%95%EF%BC%8C%E8%B0%81%E8%83%BD%E6%9B%B4%E5%A5%BD%E5%9C%B0%E4%BF%9D%E8%AF%81RPC%E6%97%A0%E6%8D%9F/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="背景我们的业务有些时候总是在升级期间rpc业务有一些呼损，想总结一下让rpc调用零呼损的两种方式：重试和优雅启停。我先介绍这两种方式，再描述一下这两种方式的优缺点  A是一个微服务 B也是一个微服务 蓝色的是常见的注册中心，有zookeeper、eureka等实现。 重试重试，在发生可重试错误的时候，重试一次。什么是可重试错误呢？就是重试一次，可能会成功。比如400 BadRequest，那出现这">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/rpc-lossless.png">
+<meta property="article:published_time" content="2021-03-22T10:57:18.000Z">
+<meta property="article:modified_time" content="2025-10-18T02:37:30.177Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="RPC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/rpc-lossless.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/03/22/%E4%BC%98%E9%9B%85%E5%90%AF%E5%81%9CVS%E9%87%8D%E8%AF%95%EF%BC%8C%E8%B0%81%E8%83%BD%E6%9B%B4%E5%A5%BD%E5%9C%B0%E4%BF%9D%E8%AF%81RPC%E6%97%A0%E6%8D%9F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/03/22/%E4%BC%98%E9%9B%85%E5%90%AF%E5%81%9CVS%E9%87%8D%E8%AF%95%EF%BC%8C%E8%B0%81%E8%83%BD%E6%9B%B4%E5%A5%BD%E5%9C%B0%E4%BF%9D%E8%AF%81RPC%E6%97%A0%E6%8D%9F/","path":"2021/03/22/优雅启停VS重试，谁能更好地保证RPC无损/","title":"优雅启停VS重试，谁能更好地保证RPC无损"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>优雅启停VS重试，谁能更好地保证RPC无损 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E8%AF%95"><span class="nav-number">1.1.</span> <span class="nav-text">重试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E9%9B%85%E5%90%AF%E5%81%9C"><span class="nav-number">1.2.</span> <span class="nav-text">优雅启停</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E9%9B%85%E5%81%9C%E6%AD%A2"><span class="nav-number">1.2.1.</span> <span class="nav-text">优雅停止</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E9%9B%85%E5%90%AF%E5%8A%A8"><span class="nav-number">1.2.2.</span> <span class="nav-text">优雅启动</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E5%8A%A3%E5%AF%B9%E6%AF%94"><span class="nav-number">2.</span> <span class="nav-text">优劣对比</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E9%A2%84%E7%9F%A5%E8%8A%82%E7%82%B9%E5%8D%87%E7%BA%A7%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">2.1.</span> <span class="nav-text">可预知节点升级的场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8D%E5%8F%AF%E9%A2%84%E7%9F%A5%E8%8A%82%E7%82%B9%E5%8D%87%E7%BA%A7%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">2.2.</span> <span class="nav-text">不可预知节点升级的场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E5%9C%BA%E6%99%AF"><span class="nav-number">2.3.</span> <span class="nav-text">其他场景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/03/22/%E4%BC%98%E9%9B%85%E5%90%AF%E5%81%9CVS%E9%87%8D%E8%AF%95%EF%BC%8C%E8%B0%81%E8%83%BD%E6%9B%B4%E5%A5%BD%E5%9C%B0%E4%BF%9D%E8%AF%81RPC%E6%97%A0%E6%8D%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="优雅启停VS重试，谁能更好地保证RPC无损 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/rpc-lossless" class="post-title-link post-title-link-external" itemprop="url">优雅启停VS重试，谁能更好地保证RPC无损<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-03-22 18:57:18" itemprop="dateCreated datePublished" datetime="2021-03-22T18:57:18+08:00">2021-03-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>我们的业务有些时候总是在升级期间<code>rpc</code>业务有一些呼损，想总结一下让<code>rpc</code>调用零呼损的两种方式：重试和优雅启停。我先介绍这两种方式，再描述一下这两种方式的优缺点</p>
+<p><img src="/Images/rpc-lossless.png" alt="rpc-lossless"></p>
+<p>A是一个微服务</p>
+<p>B也是一个微服务</p>
+<p>蓝色的是常见的注册中心，有<code>zookeeper</code>、<code>eureka</code>等实现。</p>
+<h2 id="重试"><a href="#重试" class="headerlink" title="重试"></a>重试</h2><p>重试，在发生可重试错误的时候，重试一次。什么是可重试错误呢？就是重试一次，可能会成功。比如400 BadRequest，那出现这种错误，基本上重试也没有用，就不要浪费我们宝贵的服务器资源了。常见的如<code>servicecomb</code>框架就有重试几次、重试间隔这样的参数。值得一提的是，如果你指望通过重试让升级零呼损，那么你的重试次数，要比你的并行升级实例数大才行。</p>
+<p>这也很容易理解，比如A服务调用B服务，B服务有5个实例,B1~B5。这个时候，同时升级B1和B2，A第一次调用了B1，接下来重试，如果运气不好，恰好重试到了B2节点，那么业务还是会失败的。如果防异常故障，就得重试三次才行。</p>
+<p>如果是防止单数据中心宕机，重试次数大于同时宕机节点数，这个规则可能就没那么靠谱了。现在，企业部署十几个乃至二十几个微服务实例，已经不是什么新闻了，假设分3数据中心部署，总不能重试接近10次吧，这种时候，最好重试策略和数据中心相关，重试的时候，选择另一个az的实例。目前<code>servicecomb</code>还不支持这种功能。</p>
+<h2 id="优雅启停"><a href="#优雅启停" class="headerlink" title="优雅启停"></a>优雅启停</h2><h3 id="优雅停止"><a href="#优雅停止" class="headerlink" title="优雅停止"></a>优雅停止</h3><p>优雅停止，就是说当微服务快要宕机的时候，先从注册中心进行去注册，然后把发送给微服务的消息，处理完毕后，再彻底关闭。这个方式，可以有效地防止升级期间，发送到老节点的呼损。</p>
+<h3 id="优雅启动"><a href="#优雅启动" class="headerlink" title="优雅启动"></a>优雅启动</h3><p>优雅启动，当微服务实例，能够处理<code>rpc</code>请求的时候，再将实例自己注册到注册中心。避免请求发进来，实例却无法处理。</p>
+<p>这里有一个要求，就是调用方发现被调用方（即A发现B）的注册中心，要和B注册、去注册的注册中心是一个注册中心。有案例是，发现采用k8s发现，注册、去注册却使用微服务引擎，导致呼损。</p>
+<h1 id="优劣对比"><a href="#优劣对比" class="headerlink" title="优劣对比"></a>优劣对比</h1><h2 id="可预知节点升级的场景"><a href="#可预知节点升级的场景" class="headerlink" title="可预知节点升级的场景"></a>可预知节点升级的场景</h2><p>重试相对于优雅启停，在预知节点升级的场景没那么优雅，重试次数可能还要和并行升级的节点挂钩，非常的不优雅，且难以维护</p>
+<h2 id="不可预知节点升级的场景"><a href="#不可预知节点升级的场景" class="headerlink" title="不可预知节点升级的场景"></a>不可预知节点升级的场景</h2><p>优雅启停无法对不可预知节点升级的场景生效。只有重试能在这个场景发挥作用</p>
+<h2 id="其他场景"><a href="#其他场景" class="headerlink" title="其他场景"></a>其他场景</h2><p>重试可以很好地处理网络闪断、长链接中断等场景</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>想要实现<code>rpc</code>调用零呼损，重试和优雅启停都不可或缺，都需要实现。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RPC/" rel="tag"># RPC</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/03/19/LVS%20persistent%20timeout%E5%92%8Cconnection%20timeout%E8%A7%A3%E6%9E%90/" rel="prev" title="LVS persistent timeout和connection timeout解析">
+                  <i class="fa fa-angle-left"></i> LVS persistent timeout和connection timeout解析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/04/10/Apache%20ZooKeeper%E5%9C%A8%E5%8D%8E%E4%B8%BA%E4%BA%91IoT%E6%9C%8D%E5%8A%A1%E4%BA%A7%E5%93%81%E9%83%A8%E7%9A%84%E4%BD%BF%E7%94%A8/" rel="next" title="Apache ZooKeeper在华为云IoT服务产品部的使用">
+                  Apache ZooKeeper在华为云IoT服务产品部的使用 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

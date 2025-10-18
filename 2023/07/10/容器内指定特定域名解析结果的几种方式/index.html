@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在本篇文章中，我们将探讨如何在容器内指定特定域名解析结果的几种方式。为了方便演示，首先我们创建一个演示用的Deployment配置文件。 1234567891011121314151617181920212223apiVersion: apps&#x2F;v1kind: Deploymentmetadata:  name: busybox-deployment  labels:    app: busybo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="容器内指定特定域名解析结果的几种方式">
+<meta property="og:url" content="https://hezhangjian.com/2023/07/10/%E5%AE%B9%E5%99%A8%E5%86%85%E6%8C%87%E5%AE%9A%E7%89%B9%E5%AE%9A%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E7%BB%93%E6%9E%9C%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="在本篇文章中，我们将探讨如何在容器内指定特定域名解析结果的几种方式。为了方便演示，首先我们创建一个演示用的Deployment配置文件。 1234567891011121314151617181920212223apiVersion: apps&#x2F;v1kind: Deploymentmetadata:  name: busybox-deployment  labels:    app: busybo">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-10T08:37:33.000Z">
+<meta property="article:modified_time" content="2025-10-18T02:37:30.177Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="Kubernetes">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2023/07/10/%E5%AE%B9%E5%99%A8%E5%86%85%E6%8C%87%E5%AE%9A%E7%89%B9%E5%AE%9A%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E7%BB%93%E6%9E%9C%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2023/07/10/%E5%AE%B9%E5%99%A8%E5%86%85%E6%8C%87%E5%AE%9A%E7%89%B9%E5%AE%9A%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E7%BB%93%E6%9E%9C%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/","path":"2023/07/10/容器内指定特定域名解析结果的几种方式/","title":"容器内指定特定域名解析结果的几种方式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>容器内指定特定域名解析结果的几种方式 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#TL-DR"><span class="nav-number">1.</span> <span class="nav-text">TL;DR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9-etc-hosts"><span class="nav-number">2.</span> <span class="nav-text">修改&#x2F;etc&#x2F;hosts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0HostAliases%E8%AE%B0%E5%BD%95"><span class="nav-number">3.</span> <span class="nav-text">添加HostAliases记录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Coredns%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">Coredns配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9Coredns%E9%85%8D%E7%BD%AE"><span class="nav-number">4.1.</span> <span class="nav-text">更改Coredns配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E6%9C%89%E7%9A%84configmap"><span class="nav-number">4.2.</span> <span class="nav-text">原有的configmap</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89DNS%E7%AD%96%E7%95%A5"><span class="nav-number">5.</span> <span class="nav-text">自定义DNS策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%89%E6%96%B9DNS%E6%8F%92%E4%BB%B6"><span class="nav-number">6.</span> <span class="nav-text">使用第三方DNS插件</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/07/10/%E5%AE%B9%E5%99%A8%E5%86%85%E6%8C%87%E5%AE%9A%E7%89%B9%E5%AE%9A%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E7%BB%93%E6%9E%9C%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="容器内指定特定域名解析结果的几种方式 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/kubernetes-domain-specify-result" class="post-title-link post-title-link-external" itemprop="url">容器内指定特定域名解析结果的几种方式<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-10 16:37:33" itemprop="dateCreated datePublished" datetime="2023-07-10T16:37:33+08:00">2023-07-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在本篇文章中，我们将探讨如何在容器内指定特定域名解析结果的几种方式。为了方便演示，首先我们创建一个演示用的Deployment配置文件。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">busybox-deployment</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">busybox</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">        <span class="attr">args:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">/bin/sh</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">-c</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;while true; do echo Hello, Kubernetes!; sleep 10;done&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这个deployment会创建1个busybox的pod，容器每隔10s会打印“Hello, Kubernetes!”到控制台</p>
+<h2 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h2><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>修改级别</th>
+<th>是否推荐</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>修改&#x2F;etc&#x2F;hosts</td>
+<td>pod</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td>添加HostAliases记录</td>
+<td>pod&#x2F;deploy&#x2F;statefulset</td>
+<td>是</td>
+<td></td>
+</tr>
+<tr>
+<td>修改Coredns配置</td>
+<td>整个kubernetes集群</td>
+<td>是</td>
+<td></td>
+</tr>
+<tr>
+<td>自定义DNS策略</td>
+<td>pod&#x2F;deploy&#x2F;statefulset</td>
+<td>视情况而定</td>
+<td>如需对接三方的DNS服务器，推荐采用</td>
+</tr>
+<tr>
+<td>使用三方DNS插件</td>
+<td>整个kubernetes集群</td>
+<td>否</td>
+<td>不推荐，Coredns为业内主流</td>
+</tr>
+</tbody></table>
+<h2 id="修改-etc-hosts"><a href="#修改-etc-hosts" class="headerlink" title="修改&#x2F;etc&#x2F;hosts"></a>修改&#x2F;etc&#x2F;hosts</h2><p>修改&#x2F;etc&#x2F;hosts是最传统的方式，直接在容器内修改相应的文件来实现域名解析，在Pod级别生效。由于其可维护性较差（每次pod发生重启都需要手动修改），不推荐在生产环境使用。</p>
+<p>例如，我们可以在&#x2F;etc&#x2F;hosts里面添加这样一条记录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">250.250.250.250 four-250</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/ # ping four-250</span><br><span class="line">PING four-250 (250.250.250.250): 56 data bytes</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加HostAliases记录"><a href="#添加HostAliases记录" class="headerlink" title="添加HostAliases记录"></a>添加HostAliases记录</h2><p>HostAliases是kubernetes中Pod配置的一个字段，它提供了Pod内容器的<code>/etc/hosts</code>文件的附加记录。这在某些情况下非常有用，特别是当你想要覆盖某个主机名的解析结果，或者提供网络中没有的主机名解析时。</p>
+<p>这个可以在Pod、Replica、Deployment、StatefulSet的级别修改，维护性稍强。举个🌰，我们将上面的yaml修改为</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">busybox-deployment</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">hostAliases:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">ip:</span> <span class="string">&quot;250.250.250.250&quot;</span></span><br><span class="line">        <span class="attr">hostnames:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;four-250&quot;</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">busybox</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">        <span class="attr">args:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">/bin/sh</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">-c</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;while true; do echo Hello, Kubernetes!; sleep 10;done&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这个时候我们查看容器的&#x2F;etc&#x2F;hosts，发现它被kubernetes自动插入了一条记录**Entries add by HostAliases。**这就是hostAliases的实现原理</p>
+<p>在<strong>kubelet_pods</strong>代码中进行了这样的写入动作</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">hostsEntriesFromHostAliases</span><span class="params">(hostAliases []v1.HostAlias)</span></span> []<span class="type">byte</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(hostAliases) == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> []<span class="type">byte</span>&#123;&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> buffer bytes.Buffer</span><br><span class="line">	buffer.WriteString(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">	buffer.WriteString(<span class="string">&quot;# Entries added by HostAliases.\n&quot;</span>)</span><br><span class="line">	<span class="comment">// for each IP, write all aliases onto single line in hosts file</span></span><br><span class="line">	<span class="keyword">for</span> _, hostAlias := <span class="keyword">range</span> hostAliases &#123;</span><br><span class="line">		buffer.WriteString(fmt.Sprintf(<span class="string">&quot;%s\t%s\n&quot;</span>, hostAlias.IP, strings.Join(hostAlias.Hostnames, <span class="string">&quot;\t&quot;</span>)))</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> buffer.Bytes()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Coredns配置"><a href="#Coredns配置" class="headerlink" title="Coredns配置"></a>Coredns配置</h2><p>我们可以通过修改ConfigMap来实现让容器解析特定域名的目的。</p>
+<h3 id="更改Coredns配置"><a href="#更改Coredns配置" class="headerlink" title="更改Coredns配置"></a>更改Coredns配置</h3><p>我们可以通过以下命令修改Coredns的配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl edit cm coredns -n kube-system</span><br></pre></td></tr></table></figure>
+
+<h3 id="原有的configmap"><a href="#原有的configmap" class="headerlink" title="原有的configmap"></a>原有的configmap</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Corefile:</span> <span class="string">|</span></span><br><span class="line"><span class="string">    .:53 &#123;</span></span><br><span class="line"><span class="string">        log</span></span><br><span class="line"><span class="string">        errors</span></span><br><span class="line"><span class="string">        health &#123;</span></span><br><span class="line"><span class="string">           lameduck 5s</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">        ready</span></span><br><span class="line"><span class="string">        kubernetes cluster.local in-addr.arpa ip6.arpa &#123;</span></span><br><span class="line"><span class="string">           pods insecure</span></span><br><span class="line"><span class="string">           fallthrough in-addr.arpa ip6.arpa</span></span><br><span class="line"><span class="string">           ttl 30</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">        prometheus :9153</span></span><br><span class="line"><span class="string">        hosts &#123;</span></span><br><span class="line"><span class="string">           192.168.65.2 host.minikube.internal</span></span><br><span class="line"><span class="string">           fallthrough</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">        forward . /etc/resolv.conf &#123;</span></span><br><span class="line"><span class="string">           max_concurrent 1000</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">        cache 30</span></span><br><span class="line"><span class="string">        loop</span></span><br><span class="line"><span class="string">        reload</span></span><br><span class="line"><span class="string">        loadbalance</span></span><br><span class="line"><span class="string">    &#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>在hosts里面加上特定的记录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">250.250.250.250 four-250</span><br></pre></td></tr></table></figure>
+
+<p>如果您没有配置reload插件，则需要重启Coredns才能生效，默认的reload时间是30s，在plugin&#x2F;reload&#x2F;setup.go的defaultInterval中定义</p>
+<h2 id="自定义DNS策略"><a href="#自定义DNS策略" class="headerlink" title="自定义DNS策略"></a>自定义DNS策略</h2><p>通过修改DNS策略。使得对于单个Pod&#x2F;Deploy&#x2F;StatefulSet将特定的域名解析发给特定的服务器来达到效果，如下，可以对pod添加dns的服务器以及search域</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spec:</span></span><br><span class="line">   <span class="attr">dnsConfig:</span></span><br><span class="line">     <span class="attr">nameservers:</span></span><br><span class="line">       <span class="bullet">-</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span></span><br><span class="line">     <span class="attr">searches:</span></span><br><span class="line">       <span class="bullet">-</span> <span class="string">search.prefix</span></span><br><span class="line">   <span class="attr">containers:</span></span><br><span class="line">   <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">busybox</span></span><br><span class="line">     <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">     <span class="attr">args:</span></span><br><span class="line">     <span class="bullet">-</span> <span class="string">/bin/sh</span></span><br><span class="line">     <span class="bullet">-</span> <span class="string">-c</span></span><br><span class="line">     <span class="bullet">-</span> <span class="string">&quot;while true; do echo Hello, Kubernetes!; sleep 10;done&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="使用第三方DNS插件"><a href="#使用第三方DNS插件" class="headerlink" title="使用第三方DNS插件"></a>使用第三方DNS插件</h2><p>不推荐，使用其他的DNS插件，来做一些炫酷的自定义操作。而且目前Coredns也是业内的主流，没有很好的替代</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Kubernetes/" rel="tag"># Kubernetes</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/07/08/%E7%BA%BF%E7%A8%8B%E9%94%81%E5%AF%BC%E8%87%B4%E7%9A%84kafka%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98/" rel="prev" title="线程锁导致的kafka客户端超时问题">
+                  <i class="fa fa-angle-left"></i> 线程锁导致的kafka客户端超时问题
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/07/14/%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%89%93%E5%8D%B0%E5%A4%A7%E5%85%A8/" rel="next" title="敏感信息打印大全">
+                  敏感信息打印大全 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

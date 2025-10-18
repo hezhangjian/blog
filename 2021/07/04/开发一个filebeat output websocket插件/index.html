@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="开发一个filebeat的websocket插件， 代码仓地址: https:&#x2F;&#x2F;github.com&#x2F;hezhangjian&#x2F;beats_output_websocket 引入对beat的依赖1go get github.com&#x2F;elastic&#x2F;beats&#x2F;v7  定义在filebeat中的配置文件filebeat通常以配置文件的方式加载插件。让我们定义一下必须的配置，就像elasticsear">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开发一个filebeat output websocket插件">
+<meta property="og:url" content="https://hezhangjian.com/2021/07/04/%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AAfilebeat%20output%20websocket%E6%8F%92%E4%BB%B6/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="开发一个filebeat的websocket插件， 代码仓地址: https:&#x2F;&#x2F;github.com&#x2F;hezhangjian&#x2F;beats_output_websocket 引入对beat的依赖1go get github.com&#x2F;elastic&#x2F;beats&#x2F;v7  定义在filebeat中的配置文件filebeat通常以配置文件的方式加载插件。让我们定义一下必须的配置，就像elasticsear">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-07-04T01:38:39.000Z">
+<meta property="article:modified_time" content="2025-10-18T02:37:30.177Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="Filebeat">
+<meta property="article:tag" content="Go">
+<meta property="article:tag" content="WebSocket">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/07/04/%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AAfilebeat%20output%20websocket%E6%8F%92%E4%BB%B6/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/07/04/%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AAfilebeat%20output%20websocket%E6%8F%92%E4%BB%B6/","path":"2021/07/04/开发一个filebeat output websocket插件/","title":"开发一个filebeat output websocket插件"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>开发一个filebeat output websocket插件 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E5%85%A5%E5%AF%B9beat%E7%9A%84%E4%BE%9D%E8%B5%96"><span class="nav-number">1.</span> <span class="nav-text">引入对beat的依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E5%9C%A8filebeat%E4%B8%AD%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">定义在filebeat中的配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#go%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">go文件中的配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8A%A0%E8%BD%BD%E6%8F%92%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">初始化加载插件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E6%8F%92%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">加载插件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96WebSocket%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">4.</span> <span class="nav-text">初始化WebSocket客户端</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#String-%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.1.</span> <span class="nav-text">String()接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Connect-%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.2.</span> <span class="nav-text">Connect()接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Close-%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.3.</span> <span class="nav-text">Close()接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Publish-%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.4.</span> <span class="nav-text">Publish()接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E7%A0%81"><span class="nav-number">4.5.</span> <span class="nav-text">编码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%90%8E%E6%98%AF%E6%88%91%E4%BB%AC%E7%9A%84wsclient"><span class="nav-number">4.6.</span> <span class="nav-text">最后是我们的wsclient</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E9%A2%9D%E5%A4%96%E7%9A%84%E5%8A%9F%E8%83%BD%EF%BC%9A%E5%A4%A7%E5%8C%85%E4%B8%A2%E5%BC%83"><span class="nav-number">5.</span> <span class="nav-text">添加额外的功能：大包丢弃</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E4%B8%AD%E6%B7%BB%E5%8A%A0maxLen"><span class="nav-number">5.1.</span> <span class="nav-text">配置中添加maxLen</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/04/%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AAfilebeat%20output%20websocket%E6%8F%92%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="开发一个filebeat output websocket插件 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/filebeat-output-websocket" class="post-title-link post-title-link-external" itemprop="url">开发一个filebeat output websocket插件<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-04 09:38:39" itemprop="dateCreated datePublished" datetime="2021-07-04T09:38:39+08:00">2021-07-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>开发一个filebeat的<code>websocket</code>插件， 代码仓地址: <a target="_blank" rel="noopener" href="https://github.com/hezhangjian/beats_output_websocket">https://github.com/hezhangjian/beats_output_websocket</a></p>
+<h2 id="引入对beat的依赖"><a href="#引入对beat的依赖" class="headerlink" title="引入对beat的依赖"></a>引入对<code>beat</code>的依赖</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/elastic/beats/v7</span><br></pre></td></tr></table></figure>
+
+<h2 id="定义在filebeat中的配置文件"><a href="#定义在filebeat中的配置文件" class="headerlink" title="定义在filebeat中的配置文件"></a>定义在filebeat中的配置文件</h2><p><code>filebeat</code>通常以配置文件的方式加载插件。让我们定义一下必须的配置，就像<code>elasticsearch</code>中的连接地址等等一样。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">output.websocket:</span></span><br><span class="line">  <span class="comment"># worker</span></span><br><span class="line">  <span class="comment"># 用于工作的websocket客户端数量</span></span><br><span class="line">  <span class="attr">workers:</span> <span class="number">1</span></span><br><span class="line">  <span class="comment"># 日志批量的最大大小</span></span><br><span class="line">  <span class="attr">batch_size:</span> <span class="number">1</span></span><br><span class="line">  <span class="comment"># 重试的最大次数，0代表不重试</span></span><br><span class="line">  <span class="attr">retry_limit:</span> <span class="number">1</span></span><br><span class="line">  <span class="comment"># conn</span></span><br><span class="line">  <span class="comment"># ws/wss</span></span><br><span class="line">  <span class="attr">schema:</span> <span class="string">&quot;ws&quot;</span></span><br><span class="line">  <span class="comment"># websocket连接地址</span></span><br><span class="line">  <span class="attr">addr:</span> <span class="string">&quot;localhost:8080&quot;</span></span><br><span class="line">  <span class="comment"># websocket路径</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">&quot;/echo&quot;</span></span><br><span class="line">  <span class="comment"># websocket心跳间隔，用于保活</span></span><br><span class="line">  <span class="attr">ping_interval:</span> <span class="number">30</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="go文件中的配置"><a href="#go文件中的配置" class="headerlink" title="go文件中的配置"></a>go文件中的配置</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> clientConfig <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// Number of worker goroutines publishing log events</span></span><br><span class="line">	Workers <span class="type">int</span> <span class="string">`config:&quot;workers&quot; validate:&quot;min=1&quot;`</span></span><br><span class="line">	<span class="comment">// Max number of events in a batch to send to a single client</span></span><br><span class="line">	BatchSize <span class="type">int</span> <span class="string">`config:&quot;batch_size&quot; validate:&quot;min=1&quot;`</span></span><br><span class="line">	<span class="comment">// Max number of retries for single batch of events</span></span><br><span class="line">	RetryLimit <span class="type">int</span> <span class="string">`config:&quot;retry_limit&quot;`</span></span><br><span class="line">	<span class="comment">// Schema WebSocket Schema</span></span><br><span class="line">	Schema <span class="type">string</span> <span class="string">`config:&quot;schema&quot;`</span></span><br><span class="line">	<span class="comment">// Addr WebSocket Addr</span></span><br><span class="line">	Addr <span class="type">string</span> <span class="string">`config:&quot;addr&quot;`</span></span><br><span class="line">	<span class="comment">// Path WebSocket Path</span></span><br><span class="line">	Path <span class="type">string</span> <span class="string">`config:&quot;path&quot;`</span></span><br><span class="line">	<span class="comment">// PingInterval WebSocket PingInterval</span></span><br><span class="line">	PingInterval <span class="type">int</span> <span class="string">`config:&quot;ping_interval&quot;`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="初始化加载插件"><a href="#初始化加载插件" class="headerlink" title="初始化加载插件"></a>初始化加载插件</h2><h3 id="加载插件"><a href="#加载插件" class="headerlink" title="加载插件"></a>加载插件</h3><p>在某个init函数中注册插件</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	outputs.RegisterType(<span class="string">&quot;websocket&quot;</span>, newWsOutput)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>newWsOutput</code>中卸载配置，并提供配置给<code>WebSocket</code>客户端</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newWsOutput</span><span class="params">(_ outputs.IndexManager, _ beat.Info, stats outputs.Observer, cfg *common.Config)</span></span> (outputs.Group, <span class="type">error</span>) &#123;</span><br><span class="line">	config := clientConfig&#123;&#125;</span><br><span class="line">	<span class="comment">// 卸载配置，将配置用于初始化WebSocket客户端</span></span><br><span class="line">	<span class="keyword">if</span> err := cfg.Unpack(&amp;config); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> outputs.Fail(err)</span><br><span class="line">	&#125;</span><br><span class="line">	clients := <span class="built_in">make</span>([]outputs.NetworkClient, config.Workers)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; config.Workers; i++ &#123;</span><br><span class="line">		clients[i] = &amp;wsClient&#123;</span><br><span class="line">			stats:  stats,</span><br><span class="line">			Schema: config.Schema,</span><br><span class="line">			Host:   config.Addr,</span><br><span class="line">			Path:   config.Path,</span><br><span class="line">			PingInterval: config.PingInterval,</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> outputs.SuccessNet(<span class="literal">true</span>, config.BatchSize, config.RetryLimit, clients)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="初始化WebSocket客户端"><a href="#初始化WebSocket客户端" class="headerlink" title="初始化WebSocket客户端"></a>初始化<code>WebSocket</code>客户端</h2><p><code>WebSocket</code>客户端不仅仅是一个<code>WebSocket</code>客户端，而且还需要实现<code>filebeat</code>中的<code>NetworkClient</code>接口，接下来，让我们来关注接口中的每一个方法的作用及实现</p>
+<h3 id="String-接口"><a href="#String-接口" class="headerlink" title="String()接口"></a>String()接口</h3><p><code>String</code>作为客户端的名字，用来标识日志以及指标。是最简单的一个接口</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *wsClient)</span></span> String() <span class="type">string</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;websocket&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Connect-接口"><a href="#Connect-接口" class="headerlink" title="Connect()接口"></a>Connect()接口</h3><p><code>Connect</code>用来初始化客户端</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *wsClient)</span></span> Connect() <span class="type">error</span> &#123;</span><br><span class="line">	u := url.URL&#123;Scheme: w.Schema, Host: w.Host, Path: w.Path&#125;</span><br><span class="line">	dial, _, err := websocket.DefaultDialer.Dial(u.String(), <span class="literal">nil</span>)</span><br><span class="line">	<span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">		w.conn = dial</span><br><span class="line">		ticker := time.NewTicker(time.Duration(w.PingInterval) * time.Second)</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="keyword">for</span> <span class="keyword">range</span> ticker.C &#123;</span><br><span class="line">				w.conn.WriteMessage(websocket.PingMessage, <span class="literal">nil</span>)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		time.Sleep(<span class="number">10</span> * time.Second)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意，这里初始化失败，需要<code>Sleep</code>一段时间，否则，filebeat会一直重试。这绝非是你想要的。或许对于场景来说，退避重试可能会更好</p>
+<h3 id="Close-接口"><a href="#Close-接口" class="headerlink" title="Close()接口"></a>Close()接口</h3><p>关闭客户端，也是很简单的接口</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *wsClient)</span></span> Close() <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> w.conn.Close()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Publish-接口"><a href="#Publish-接口" class="headerlink" title="Publish()接口"></a>Publish()接口</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *wsClient)</span></span> Publish(_ context.Context, batch publisher.Batch) <span class="type">error</span> &#123;</span><br><span class="line">	events := batch.Events()</span><br><span class="line">	<span class="comment">// 记录这批日志</span></span><br><span class="line">	w.stats.NewBatch(<span class="built_in">len</span>(events))</span><br><span class="line">	failEvents, err := w.PublishEvents(events)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// 如果发送正常，则ACK</span></span><br><span class="line">		batch.ACK()</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="comment">// 发送失败，则重试。受RetryLimit的限制</span></span><br><span class="line">		batch.RetryEvents(failEvents)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *wsClient)</span></span> PublishEvents(events []publisher.Event) ([]publisher.Event, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="keyword">for</span> i, event := <span class="keyword">range</span> events &#123;</span><br><span class="line">		err := w.publishEvent(&amp;event)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="comment">// 如果单条消息发送失败，则将剩余的消息直接重试</span></span><br><span class="line">			<span class="keyword">return</span> events[i:], err</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *wsClient)</span></span> publishEvent(event *publisher.Event) <span class="type">error</span> &#123;</span><br><span class="line">	bytes, err := encode(&amp;event.Content)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// 如果编码失败，就不重试了，重试也不会成功</span></span><br><span class="line">		<span class="comment">// encode error, don&#x27;t retry.</span></span><br><span class="line">		<span class="comment">// consider being success</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	err = w.conn.WriteMessage(websocket.TextMessage, bytes)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// 写入WebSocket Server失败</span></span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h3><p>编码的逻辑因人而异，事实上，这可能是大家最大的差异所在。这里只是做一个简单地例子</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> LogOutput <span class="keyword">struct</span> &#123;</span><br><span class="line">	Timestamp time.Time <span class="string">`json:&quot;timestamp&quot;`</span></span><br><span class="line">	Message   <span class="type">string</span>    <span class="string">`json:&quot;message&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">encode</span><span class="params">(event *beat.Event)</span></span> ([]<span class="type">byte</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	logOutput := &amp;LogOutput&#123;&#125;</span><br><span class="line">	value, err := event.Fields.GetValue(<span class="string">&quot;message&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	logOutput.Timestamp = event.Timestamp</span><br><span class="line">	logOutput.Message = value.(<span class="type">string</span>)</span><br><span class="line">	<span class="keyword">return</span> json.Marshal(logOutput)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="最后是我们的wsclient"><a href="#最后是我们的wsclient" class="headerlink" title="最后是我们的wsclient"></a>最后是我们的<code>wsclient</code></h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> wsClient <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// construct field</span></span><br><span class="line">	Schema       <span class="type">string</span></span><br><span class="line">	Host         <span class="type">string</span></span><br><span class="line">	Path         <span class="type">string</span></span><br><span class="line">	PingInterval <span class="type">int</span></span><br><span class="line"></span><br><span class="line">	stats outputs.Observer</span><br><span class="line">	conn  *websocket.Conn</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加额外的功能：大包丢弃"><a href="#添加额外的功能：大包丢弃" class="headerlink" title="添加额外的功能：大包丢弃"></a>添加额外的功能：大包丢弃</h2><p>你可能会想保护你的<code>WebSocket</code>服务器，避免接收到超级大的日志。我们可以在配置项中添加一个配置</p>
+<p>maxLen用来限制日志长度，超过maxLen的日志直接丢弃。为什么不使用<code>filebeat</code>中的<code>max_bytes</code>？</p>
+<p>因为<code>filebeat</code>中<code>max_bytes</code>的默认行为是截断，截断的日志在某些场景下不如丢弃。（比如，日志是json格式，截断后格式无法解析）</p>
+<h3 id="配置中添加maxLen"><a href="#配置中添加maxLen" class="headerlink" title="配置中添加maxLen"></a>配置中添加maxLen</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">max_len:</span> <span class="number">1024</span></span><br></pre></td></tr></table></figure>
+
+<p>省略掉那些重复的添加结构体，读取<code>max_len</code>在encode的时候忽略掉</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">s := value.(<span class="type">string</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(s) &gt;= w.MaxLen &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Go/" rel="tag"># Go</a>
+              <a href="/tags/Filebeat/" rel="tag"># Filebeat</a>
+              <a href="/tags/WebSocket/" rel="tag"># WebSocket</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/05/30/%E5%A4%A7%E5%9E%8B%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86/" rel="prev" title="大型系统中的证书管理">
+                  <i class="fa fa-angle-left"></i> 大型系统中的证书管理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/08/09/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%98%AF%E5%BC%80%E7%AE%B1%E5%8D%B3%E7%94%A8%E7%9A%84%E5%90%97%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%BC%80%E5%8F%91%E4%B8%AD%E9%97%B4%E4%BB%B6adapter%EF%BC%9F/" rel="next" title="中间件是开箱即用的吗？为什么要开发中间件adapter？">
+                  中间件是开箱即用的吗？为什么要开发中间件adapter？ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

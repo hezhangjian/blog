@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="前言之前在InfoQ的《华为云物联网四年配置中心实践》文章中分享了业务配置中心。 本文讲述业务配置中心（下文简述为配置中心）的关键技术和实现方式。华为云物联网平台按照本文的实现方式实现了一个业务配置中心，该配置中心2020年1月上线，平稳运行至今。 概念运维配置和用户无关，通常为集群界级别的配置，程序只会进行读取，如数据库配置、邮箱服务器配置、网卡配置、子网地址配置等。 业务配置作为SaaS 服务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="业务配置中心的实现">
+<meta property="og:url" content="https://hezhangjian.com/2021/05/13/%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="前言之前在InfoQ的《华为云物联网四年配置中心实践》文章中分享了业务配置中心。 本文讲述业务配置中心（下文简述为配置中心）的关键技术和实现方式。华为云物联网平台按照本文的实现方式实现了一个业务配置中心，该配置中心2020年1月上线，平稳运行至今。 概念运维配置和用户无关，通常为集群界级别的配置，程序只会进行读取，如数据库配置、邮箱服务器配置、网卡配置、子网地址配置等。 业务配置作为SaaS 服务">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/business-config-center-impl1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/business-config-center-impl2.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/business-config-center-impl3.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/business-config-center-impl4.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/business-config-center-impl5.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/business-config-center-impl6.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/business-config-center-impl7.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/business-config-center-impl8.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/business-config-center-impl9.png">
+<meta property="article:published_time" content="2021-05-13T07:44:23.000Z">
+<meta property="article:modified_time" content="2025-10-18T02:37:30.177Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/business-config-center-impl1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/05/13/%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/05/13/%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E5%AE%9E%E7%8E%B0/","path":"2021/05/13/业务配置中心的实现/","title":"业务配置中心的实现"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>业务配置中心的实现 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">运维配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">业务配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#env"><span class="nav-number">2.3.</span> <span class="nav-text">env</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cluster"><span class="nav-number">2.4.</span> <span class="nav-text">cluster</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">2.5.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Key"><span class="nav-number">2.6.</span> <span class="nav-text">Key</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Value"><span class="nav-number">2.7.</span> <span class="nav-text">Value</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1%E6%A2%97%E6%A6%82"><span class="nav-number">3.</span> <span class="nav-text">配置中心设计梗概</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%E7%89%B9%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">业务配置特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E8%A6%81%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">3.2.</span> <span class="nav-text">配置中心要解决的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9"><span class="nav-number">3.3.</span> <span class="nav-text">设计要点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E7%9F%A5%E6%98%AF%E5%90%A6%E5%8C%85%E5%90%AB%E6%B6%88%E6%81%AF%E5%86%85%E5%AE%B9"><span class="nav-number">3.4.</span> <span class="nav-text">通知是否包含消息内容</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E4%B8%9A%E5%8A%A1%E6%B5%81%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">配置中心业务流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E7%9A%84%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5"><span class="nav-number">4.1.</span> <span class="nav-text">配置的增删改查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E5%80%BC%E7%9A%84%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5"><span class="nav-number">4.2.</span> <span class="nav-text">配置值的增删改查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E6%9C%9F%E5%90%8C%E6%AD%A5"><span class="nav-number">4.3.</span> <span class="nav-text">定期同步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%90%AF%E5%8A%A8"><span class="nav-number">4.4.</span> <span class="nav-text">服务启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%90%E5%88%B6"><span class="nav-number">4.5.</span> <span class="nav-text">限制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%E6%8A%BD%E8%B1%A1%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.</span> <span class="nav-text">业务配置抽象实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E7%9B%B8%E5%85%B3%E6%8E%A5%E5%8F%A3"><span class="nav-number">5.1.</span> <span class="nav-text">配置相关接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E5%80%BC%E7%9B%B8%E5%85%B3%E6%8E%A5%E5%8F%A3"><span class="nav-number">5.2.</span> <span class="nav-text">配置值相关接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E7%9F%A5%E7%9B%B8%E5%85%B3%E6%8E%A5%E5%8F%A3"><span class="nav-number">5.3.</span> <span class="nav-text">通知相关接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%AD%98%E5%82%A8%E5%B1%82%E6%8A%BD%E8%B1%A1%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.4.</span> <span class="nav-text">配置中心存储层抽象实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E6%8A%BD%E8%B1%A1%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.5.</span> <span class="nav-text">服务发现抽象实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%BD%E8%B1%A1%E6%80%BB%E7%BB%93"><span class="nav-number">5.6.</span> <span class="nav-text">抽象总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%AE%9E%E7%8E%B0"><span class="nav-number">6.</span> <span class="nav-text">配置中心实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8E%E4%B8%BA%E4%BA%91%E7%89%A9%E8%81%94%E7%BD%91%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%AE%9E%E7%8E%B0"><span class="nav-number">6.1.</span> <span class="nav-text">华为云物联网配置中心实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%A6%E4%B8%80%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">6.2.</span> <span class="nav-text">另一种实现方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%88%E4%B8%80%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">6.3.</span> <span class="nav-text">又一种实现方式</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/05/13/%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="业务配置中心的实现 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/business-config-center-impl" class="post-title-link post-title-link-external" itemprop="url">业务配置中心的实现<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-13 15:44:23" itemprop="dateCreated datePublished" datetime="2021-05-13T15:44:23+08:00">2021-05-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前在InfoQ的《华为云物联网四年配置中心实践》文章中分享了业务配置中心。</p>
+<p>本文讲述业务配置中心（下文简述为配置中心）的关键技术和实现方式。华为云物联网平台按照本文的实现方式实现了一个业务配置中心，该配置中心2020年1月上线，平稳运行至今。</p>
+<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><h2 id="运维配置"><a href="#运维配置" class="headerlink" title="运维配置"></a>运维配置</h2><p>和用户无关，通常为集群界级别的配置，程序只会进行读取，如数据库配置、邮箱服务器配置、网卡配置、子网地址配置等。</p>
+<h2 id="业务配置"><a href="#业务配置" class="headerlink" title="业务配置"></a>业务配置</h2><p>作为SaaS 服务，每个用户在上面都有一些业务配置。如用户的证书配置、用户服务器的流控配置等，这些业务配置相对<strong>运维配置</strong>来说更加复杂，且可能会有唯一性限制，如按用户 id 唯一。这部分配置数据一般由用户操作触发，代码动态写入，并且通知到各个微服务实例。通常，我们希望这些配置能在界面展示，且支持人为修改。上述逻辑如果由各微服务自己实现，会存在大量重复代码，并且质量无法保证。我们希望由一个公共组件来统一实现这个能力。开源或体量较小的项目就不会选择依赖一个配置中心，而是直接通过连接数据库或etcd来解决问题</p>
+<h2 id="env"><a href="#env" class="headerlink" title="env"></a>env</h2><p>代表一个部署环境。</p>
+<h2 id="cluster"><a href="#cluster" class="headerlink" title="cluster"></a>cluster</h2><p>代表环境下的集群。常见于单环境下蓝绿发布，蓝集群、绿集群、金丝雀集群等。</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>配置名称，如用户证书配置、用户流控配置等。</p>
+<h2 id="Key"><a href="#Key" class="headerlink" title="Key"></a>Key</h2><p>配置的唯一键，如用户id。</p>
+<h2 id="Value"><a href="#Value" class="headerlink" title="Value"></a>Value</h2><p>配置唯一键对应的值。</p>
+<h1 id="配置中心设计梗概"><a href="#配置中心设计梗概" class="headerlink" title="配置中心设计梗概"></a>配置中心设计梗概</h1><h2 id="业务配置特点"><a href="#业务配置特点" class="headerlink" title="业务配置特点"></a>业务配置特点</h2><ul>
+<li>虽然业务配置写入可能存在并发，但并发量不大，频率较低。</li>
+<li>业务配置常常以用户为id，单集群用户量有限，一般不超过5万。</li>
+</ul>
+<h2 id="配置中心要解决的问题"><a href="#配置中心要解决的问题" class="headerlink" title="配置中心要解决的问题"></a>配置中心要解决的问题</h2><p><img src="/Images/business-config-center-impl1.png" alt="business-config-center-impl1"></p>
+<h2 id="设计要点"><a href="#设计要点" class="headerlink" title="设计要点"></a>设计要点</h2><ul>
+<li>单配置要求有配置id，每个id上通过version的乐观并发控制来解决多版本冲突问题</li>
+<li>通知不追求可靠，应用程序和配置中心断链无法接收通知的场景下，通过定期同步数据来保证数据的可靠</li>
+<li>支持Schema的变更，因Schema变更不频繁，也采用version的乐观并发控制来解决多版本冲突问题</li>
+</ul>
+<h2 id="通知是否包含消息内容"><a href="#通知是否包含消息内容" class="headerlink" title="通知是否包含消息内容"></a>通知是否包含消息内容</h2><p>我认为应该只通知Key，具体的数值让应用程序再去配置中心查询。仅通知Key实现简洁易懂。同时通知Key&amp;Value需要多考虑定期同步和通知两条通道并发，可能引起的竞态冲突。</p>
+<h1 id="配置中心业务流程"><a href="#配置中心业务流程" class="headerlink" title="配置中心业务流程"></a>配置中心业务流程</h1><p>本小节描述业务配置中心的所有业务流程，并试图从交互中抽象出与具体实现无关的接口</p>
+<h2 id="配置的增删改查"><a href="#配置的增删改查" class="headerlink" title="配置的增删改查"></a>配置的增删改查</h2><p><img src="/Images/business-config-center-impl2.png" alt="business-config-center-impl2"></p>
+<h2 id="配置值的增删改查"><a href="#配置值的增删改查" class="headerlink" title="配置值的增删改查"></a>配置值的增删改查</h2><p><img src="/Images/business-config-center-impl3.png" alt="business-config-center-impl3"></p>
+<h2 id="定期同步"><a href="#定期同步" class="headerlink" title="定期同步"></a>定期同步</h2><p>分布式场景下，通知有可能无法送达，如程序陷入网络中断（或长gc），通知消息送达超时，待程序恢复后，数据不再准确。因此需要对数据做定期同步，提高可靠性。</p>
+<p><img src="/Images/business-config-center-impl4.png" alt="business-config-center-impl4"></p>
+<p>同步过程中，仅仅请求交互id和version，避免传输大量数据。应用程序接收到需要同步的数据后：</p>
+<ul>
+<li>删除操作，触发删除通知，从本地缓存中移除数据。</li>
+<li>添加、修改操作，向配置中心查询最新数据，触发通知并写入本地缓存。</li>
+</ul>
+<h2 id="服务启动"><a href="#服务启动" class="headerlink" title="服务启动"></a>服务启动</h2><p>服务启动也可看做是一个同步的流程，只是需要同步大量的数据添加。为了避免向配置中心频繁大量的请求，引入批量操作来减轻压力</p>
+<p><img src="/Images/business-config-center-impl5.png" alt="business-config-center-impl5"></p>
+<h2 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h2><p>该配置中心设计思路依赖客户端可把数据全量放入到内存中，如用户量太大，则不适合采用这种模式。</p>
+<p>注：一个节省内存的思路是，内存中只放置全量的id和version，数据只有当用到的时候再去查询。这个思路要求配置中心持久化一些老旧数据以供以下场景的查询使用</p>
+<ul>
+<li><p>业务流程中，需要使用该配置值的。</p>
+</li>
+<li><p>回调业务程序修改的时候，需要提供旧值的。</p>
+</li>
+</ul>
+<p>除此之外没有任何区别。</p>
+<h1 id="业务配置抽象实现"><a href="#业务配置抽象实现" class="headerlink" title="业务配置抽象实现"></a>业务配置抽象实现</h1><p>从上述描述的业务场景，我们抽象出业务配置中心的交互接口和抽象实现。接口的Swagger Yaml已上传到Github：<a target="_blank" rel="noopener" href="https://gist.github.com/hezhangjian/68c9c2ecae72cc2a125184e95b0a741e">https://gist.github.com/hezhangjian/68c9c2ecae72cc2a125184e95b0a741e</a></p>
+<h2 id="配置相关接口"><a href="#配置相关接口" class="headerlink" title="配置相关接口"></a>配置相关接口</h2><ul>
+<li>提供env、cluster、配置名称、配置Schema、配置版本号添加配置</li>
+<li>提供env、cluster、配置名称删除配置</li>
+<li>提供env、cluster、配置名称、新Schema、新Version来修改配置</li>
+<li>提供env、cluster、配置名称来查询配置</li>
+</ul>
+<h2 id="配置值相关接口"><a href="#配置值相关接口" class="headerlink" title="配置值相关接口"></a>配置值相关接口</h2><ul>
+<li>提供env、cluster、配置名称、Key、Value来添加配置值</li>
+<li>提供env、cluster、Key、ValueVersion（可选）来删除配置值</li>
+<li>提供env、cluster、Key、Value、ValueVersion（可选）修改配置值</li>
+<li>提供env、cluster、Key查询配置值</li>
+<li>根据env、cluster、应用程序当前的配置数据来做定期同步</li>
+<li>根据Key列表批量查询配置值</li>
+</ul>
+<h2 id="通知相关接口"><a href="#通知相关接口" class="headerlink" title="通知相关接口"></a>通知相关接口</h2><ul>
+<li>通知某env某cluster下，配置项中的一个Key发生变化，新增、修改或是删除。可选方式有HTTP长链接（Inspired by Apollo）、Mqtt、WebSocket等。</li>
+</ul>
+<h2 id="配置中心存储层抽象实现"><a href="#配置中心存储层抽象实现" class="headerlink" title="配置中心存储层抽象实现"></a>配置中心存储层抽象实现</h2><p>配置中心存储层需要存储<strong>配置</strong>和<strong>配置值</strong>数据，支持UpdateByVersion，且需要捕捉数据的变化，用来通知到应用程序</p>
+<h2 id="服务发现抽象实现"><a href="#服务发现抽象实现" class="headerlink" title="服务发现抽象实现"></a>服务发现抽象实现</h2><p>为了使应用程序连接到配置中心，需要一个发现机制可以让应用程序感知到配置中心的地址。高可用的方式很多，如K8s发现、ZooKeeper、Etcd、ServiceComb、业务环境变量注入ELB地址（ELB后端挂载配置中心的地址）等。</p>
+<h2 id="抽象总结"><a href="#抽象总结" class="headerlink" title="抽象总结"></a>抽象总结</h2><p><img src="/Images/business-config-center-impl6.png" alt="business-config-center-impl6"></p>
+<p>根据这个抽象，我们可以进行关键技术点选型，来实现业务配置中心。</p>
+<h1 id="配置中心实现"><a href="#配置中心实现" class="headerlink" title="配置中心实现"></a>配置中心实现</h1><h2 id="华为云物联网配置中心实现"><a href="#华为云物联网配置中心实现" class="headerlink" title="华为云物联网配置中心实现"></a>华为云物联网配置中心实现</h2><p><img src="/Images/business-config-center-impl7.png" alt="business-config-center-impl7"></p>
+<ul>
+<li>env+cluster+config组成数据表的名称</li>
+<li>一个key、value对应一行数据</li>
+</ul>
+<h2 id="另一种实现方式"><a href="#另一种实现方式" class="headerlink" title="另一种实现方式"></a>另一种实现方式</h2><p>只要实现上述接口和抽象能力，都可以实现业务配置中心，也可以这么实现</p>
+<p><img src="/Images/business-config-center-impl8.png" alt="business-config-center-impl8"></p>
+<ul>
+<li>env+cluster+config+key 组合成etcd的key</li>
+<li>一个key、value对应一个键值对</li>
+</ul>
+<h2 id="又一种实现方式"><a href="#又一种实现方式" class="headerlink" title="又一种实现方式"></a>又一种实现方式</h2><p>当然也可以</p>
+<p><img src="/Images/business-config-center-impl9.png" alt="business-config-center-impl9"></p>
+<ul>
+<li>env+cluster+config+key 组合成RocksDB的key</li>
+<li>一个key、value对应一个键值对</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/26/MySQL%E6%98%AF%E5%A6%82%E4%BD%95%E9%9A%90%E8%97%8Fps%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%AD%E7%9A%84%E5%AF%86%E7%A0%81%E7%9A%84/" rel="prev" title="Mysql是如何隐藏ps命令行中的密码的">
+                  <i class="fa fa-angle-left"></i> Mysql是如何隐藏ps命令行中的密码的
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/05/30/%E5%A4%A7%E5%9E%8B%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86/" rel="next" title="大型系统中的证书管理">
+                  大型系统中的证书管理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">41</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -240,7 +240,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
     </span>
 
   
@@ -343,7 +343,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
     </span>
 
   
@@ -422,7 +422,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/07/08/%E7%BA%BF%E7%A8%8B%E9%94%81%E5%AF%BC%E8%87%B4%E7%9A%84kafka%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98/">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/12/26/%E7%8E%B0%E4%BB%A3%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -440,7 +440,8 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/07/08/%E7%BA%BF%E7%A8%8B%E9%94%81%E5%AF%BC%E8%87%B4%E7%9A%84kafka%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">线程锁导致的kafka客户端超时问题</a>
+          <a href="/code-error-process" class="post-title-link post-title-link-external" itemprop="url">现代编程语言中的异常处理<i class="fa fa-external-link-alt"></i></a>
+          
         </h2>
 
         <div class="post-meta-container">
@@ -451,14 +452,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-07-08 14:58:52" itemprop="dateCreated datePublished" datetime="2023-07-08T14:58:52+08:00">2023-07-08</time>
+      <time title="创建时间：2024-12-26 10:40:37" itemprop="dateCreated datePublished" datetime="2024-12-26T10:40:37+08:00">2024-12-26</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
     </span>
 
   
@@ -471,41 +472,140 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>有一个环境的kafka client发送数据有部分超时，拓扑图也非常简单</p>
-<p><img src="/Images/20230708p1.png" alt="Untitled"></p>
-<h2 id="定位历程"><a href="#定位历程" class="headerlink" title="定位历程"></a>定位历程</h2><p>我们先对客户端的环境及JVM情况进行了排查，从JVM所在的虚拟机到kafka server的网络正常，垃圾回收（GC）时间也在预期范围内，没有出现异常。</p>
-<p>紧接着，我们把目光转向了kafka 服务器，进行了一些基础的检查，同时也查看了kafka处理请求的超时日志，其中我们关心的metadata和produce请求都没有超时。</p>
-<p>问题就此陷入了僵局，虽然也搜到了一些kafka server会对连上来的client反解导致超时的问题（ <a target="_blank" rel="noopener" href="https://github.com/apache/kafka/pull/10059">https://github.com/apache/kafka/pull/10059</a>），但通过一些简单的分析，我们确定这并非是问题所在。</p>
-<p>同时，我们在环境上也发现一些异常情况，当时觉得不是核心问题&#x2F;解释不通，没有深入去看</p>
+          <p>在软件开发中，健壮的异常处理是编写高质量代码的关键。本文将探讨现代编程语言中的通用异常处理方法，帮助你优雅地处理异常并写出健壮的代码。我们将不拘泥于某种语言，而是讨论一些普遍适用的策略。</p>
+<h1 id="异常链概述"><a href="#异常链概述" class="headerlink" title="异常链概述"></a>异常链概述</h1><p>现代编程语言通常将异常视为一条单向链表，链表中的节点包含根本原因和相关的上下文信息。例如：</p>
+<pre class="mermaid">graph TD
+    C --> D[MicroServiceError, call user service failed]
+    B --> C[DatabaseError, select * from user failed]
+    A --> B[HttpError, http://localhost:6379 failed]
+    A[SocketError, localhost, 6379 connect failed]</pre>
+
+<p>异常就这么向外传播也不错，但是抽象是会泄露的，正常的时候顺风顺水，异常就需要判断一下，比如一个很常见的需求，文件已存在异常，就当做成功处理，用Java来写就是这样</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (exception <span class="keyword">instanceof</span> FileAlreadyExistsException) &#123;</span><br><span class="line">    log.info(<span class="string">&quot;file already exists&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> SUCCESS;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">throw</span> exception;<span class="comment">// or wrap it</span></span><br></pre></td></tr></table></figure>
+
+<p>综上来看，我们对现代编程语言的需求就是，能组织异常链，判断异常是否是某类异常，把异常用字符串的形式打印出来。</p>
+<p>当我们在构筑一个library的时候，应该尽可能保持完整的异常链，除非你认为这个异常在library内可以处理，比如上面的情况。并且应该在项目的README，或者项目的某个文件中，详细地列出本library可能抛出的异常，以及异常的含义。</p>
+<p>我们在<code>opengemini-client-go</code>中就有这样的例子，我们在<code>errors.go</code>中定义了所有可能的异常，以及异常的含义。</p>
+<p>有些时候，我们构筑的不是library，出于隐藏内部实现或者是向终端用户隐藏逻辑上的低级错误，我们会对异常进行处理，比如常见的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (exception <span class="keyword">instanceof</span> DuplicateKeyException) &#123;</span><br><span class="line">    log.info(<span class="string">&quot;duplicate key&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ServiceException</span>(<span class="string">&quot;already exists&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// many if else</span></span><br><span class="line"><span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ServiceException</span>(<span class="string">&quot;unknown error&quot;</span>); <span class="comment">// or just internal error</span></span><br></pre></td></tr></table></figure>
+
+<p>题外话，由于Java只能判断本级的异常类型，你会经常看到<code>getCause</code>的代码，比如Apache Pulsar项目中的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (exception.getCause() != <span class="literal">null</span></span><br><span class="line">                    &amp;&amp; exception.getCause() <span class="keyword">instanceof</span> PulsarClientException.InvalidServiceURL) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">MalformedURLException</span>(exception.getMessage());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>包括层次一多，甚至可以看到递归代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Throwable <span class="title function_">mapToBkException</span><span class="params">(Throwable ex)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> CompletionException || ex <span class="keyword">instanceof</span> ExecutionException) &#123;</span><br><span class="line">            <span class="keyword">return</span> mapToBkException(ex.getCause());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> MetadataStoreException.NotFoundException) &#123;</span><br><span class="line">            <span class="type">BKException</span> <span class="variable">bke</span> <span class="operator">=</span> BKException.create(BKException.Code.NoSuchLedgerExistsOnMetadataServerException);</span><br><span class="line">            bke.initCause(ex);</span><br><span class="line">            <span class="keyword">return</span> bke;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> MetadataStoreException.AlreadyExistsException) &#123;</span><br><span class="line">            <span class="type">BKException</span> <span class="variable">bke</span> <span class="operator">=</span> BKException.create(BKException.Code.LedgerExistException);</span><br><span class="line">            bke.initCause(ex);</span><br><span class="line">            <span class="keyword">return</span> bke;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> MetadataStoreException.BadVersionException) &#123;</span><br><span class="line">            <span class="type">BKException</span> <span class="variable">bke</span> <span class="operator">=</span> BKException.create(BKException.Code.MetadataVersionException);</span><br><span class="line">            bke.initCause(ex);</span><br><span class="line">            <span class="keyword">return</span> bke;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> MetadataStoreException.AlreadyClosedException) &#123;</span><br><span class="line">            <span class="type">BKException</span> <span class="variable">bke</span> <span class="operator">=</span> BKException.create(BKException.Code.LedgerClosedException);</span><br><span class="line">            bke.initCause(ex);</span><br><span class="line">            <span class="keyword">return</span> bke;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ex;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Go在这里易用性做的不错，支持了<code>errors.Is</code>和<code>errors.As</code>，可以判断异常链中是否包含某个异常，也可以直接获取异常链中的异常。不过如果异常链里面有两个一模一样类型的异常，你想精准取到其中一个就比较困难，不过这在实际场景中非常少见。</p>
+<p>这里，我们说异常链发生了变更，那么什么时候打印日志也比较明确了，当异常链发生变更的时候打印，保证完整的堆栈信息用于问题分析。这也可以保证在一条链的过程中，有且仅有一次打印日志。</p>
+<p>在异常链发生终止，比如转化为http content，或者是print到console的时候，要不要打印日志呢？这个问题有些见人见智，这取决于你的用户在report问题的时候，会不会携带http content或者是console output，如果不会，那么你就需要打印日志，如果会，那么你就不需要打印日志。</p>
+<p>Java里面，比起将底层的error抛出，我们更倾向于定义一个符合本library抽象层级的异常，并在方法的签名中只返回这个异常，一方面使得下层library的异常如果发生变化，本library依然是编译兼容的，另一方面也更符合抽象层级。</p>
+<p>但是在Go里面，事情就更复杂一些，我愿意称之为类型的细化具备传染性，一旦你将某个方法的签名不返回interface，而是返回一个具体的类型，比如</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Client)</span></span> CallService() (Result, *ServiceError) &#123;</span><br><span class="line">    <span class="keyword">if</span> failed &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, &amp;ServiceError&#123;Code: <span class="number">500</span>, Message: <span class="string">&quot;service error&quot;</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后有一个方法调用了它</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    err := MakeFriend()</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Client)</span></span> MakeFriend() (Result, <span class="type">error</span>) &#123;</span><br><span class="line">    err := io.Read(<span class="string">&quot;friend_list.txt&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> CallService()    </span><br></pre></td></tr></table></figure>
+
+<p>这下就麻烦了，当*ServiceError转化为error, nil的ServiceError指针转化为error的时候就不是nil了，这很致命，是的，这非常致命。即使CallService()成功了，main函数还是会panic。</p>
+<p>把这个叫做传染性还是比较准确的，异步的代码、鸿蒙的ets都具备一样的性质，他们会不断向上传播，我对这个词还是比较满意。</p>
+<p>综上，Go里面，我们可以构筑具体的异常，但是在不能确保上层一直都是用这个细化类型的情况下，接口还是返回error interface。</p>
+<p>漫谈了许多，我简单做一个总结</p>
 <ul>
-<li>问题JVM线程数较高，已经超过10000，这个线程数量虽然确实较高，但并不会对1个4U的容器产生什么实质性的影响。</li>
-<li>负责指标上报的线程CPU较高，大约占用了1&#x2F;4 ~ 1&#x2F;2 的CPU核，这个对于4U的容器来看问题也不大</li>
+<li>现代编程语言的异常是一条链</li>
+<li>现代编程语言应该具备构筑异常链，判断异常是否是某类异常，异常打印的能力</li>
+<li>设计符合抽象层级的异常</li>
+<li>构筑一个library的时候，尽可能保持完整的异常链，在项目的README，或者项目的某个文件中，详细地列出本library可能抛出的异常，以及异常的含义</li>
+<li>在异常链发生变更的时候进行日志打印</li>
 </ul>
-<p>当排查陷入僵局，我们开始考虑其他可能的调查手段。我们尝试抓包来找线索，这里的抓包是SASL鉴权+SSL加密的，非常难读，只能靠长度和响应时间勉强来推断报文的内容。</p>
-<p>在这个过程中，我们发现了一个非常重要的线索，客户端竟然发起了超时断链，并且超时的那条消息，实际服务端是有响应回复的。</p>
-<p>随后我们将kafka client的trace级别日志打开，这里不禁感叹kafka client日志打的相对较少，发现的确有<strong>log.debug(“Disconnecting from node {} due to request timeout.”, nodeId)</strong>;的日志打印。</p>
-<p>与网络相关的流程：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 这里发出了请求</span></span><br><span class="line">    client.send(request, time.milliseconds());</span><br><span class="line">    <span class="keyword">while</span> (client.active()) &#123;</span><br><span class="line">        List&lt;ClientResponse&gt; responses = client.poll(Long.MAX_VALUE, time.milliseconds());</span><br><span class="line">        <span class="keyword">for</span> (ClientResponse response : responses) &#123;</span><br><span class="line">            <span class="keyword">if</span> (response.requestHeader().correlationId() == request.correlationId()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (response.wasDisconnected()) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Connection to &quot;</span> + response.destination() + <span class="string">&quot; was disconnected before the response was read&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (response.versionMismatch() != <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> response.versionMismatch();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> response;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Client was shutdown before response was read&quot;</span>);</span><br><span class="line">&#125; <span class="keyword">catch</span> (DisconnectException e) &#123;</span><br><span class="line">    <span class="keyword">if</span> (client.active())</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Client was shutdown before response was read&quot;</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<script type="module"> import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';	mermaid.initialize({startOnLoad: true, flowchart: {curve: 'linear'}}); </script>
+      
+    </div>
 
-<p>这个poll方法，不是简单的poll方法，而在poll方法中会进行超时判断，查看poll方法中调用的handleTimedOutRequests方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> List&lt;ClientResponse&gt; <span class="title function_">poll</span><span class="params">(<span class="type">long</span> timeout, <span class="type">long</span> now)</span> &#123;</span><br><span class="line">    ensureActive();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!abortedSends.isEmpty()) &#123;</span><br><span class="line">        <span class="comment">// If there are aborted sends because of unsupported version exceptions or disconnects,</span></span><br><span class="line">        <span class="comment">// handle them immediately without waiting for Selector#poll.</span></span><br><span class="line">        List&lt;ClientResponse&gt; responses = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        handleAbortedSends(responses);</span><br><span class="line">        completeResponses(responses);</span><br><span class="line">        <span class="keyword">return</span> responses;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">long</span> <span class="variable">metadataTimeout</span> <span class="operator">=</span> metadataUpdater.maybeUpdate(now);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.selector.poll(Utils.min(timeout, metadataTimeout, defaultRequestTimeoutMs));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;Unexpected error during I/O&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// process completed actions</span></span><br><span class="line">    <span class="type">long</span> <span class="variable">updatedNow</span> <span class="operator">=</span> <span class="built_in">this</span>.time.milliseconds();</span><br><span class="line">    List&lt;ClientResponse&gt; responses = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    handleCompletedSends(responses, updatedNow);</span><br><span class="line">    handleCompletedReceives(responses, updatedNow);</span><br><span class="line">    handleDisconnections(responses, updatedNow);</span><br><span class="line">    handleConnections();</span><br><span class="line">    handleInitiateApiVersionRequests(updatedNow);</span><br><span class="line">    <span class="comment">// 关键的超时判断</span></span><br><span class="line">    handleTimedOutRequests(responses, updatedNow);</span><br><span class="line">    completeResponses(responses);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> responses;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    
+    
+    
 
-<p>由此我们推断，问题可能在于客户端hang住了一段时间，从而导致超时断链。我们通过工具Arthas深入跟踪了Kafka的相关代码，甚至发现一些简单的操作（如A.field）也需要数秒的时间。这进一步确认了我们的猜想：问题可能出在JVM。JVM可能在某个时刻出现问题，导致系统hang住，但这并非由GC引起。</p>
-<p><img src="/Images/20230708p2.png" alt="Untitled"></p>
-<p>为了解决这个问题，我们又检查了监控线程CPU较高的问题。我们发现线程的执行热点是从”sun.management.ThreadImpl”中的”getThreadInfo”方法。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&quot;metrics-1@746&quot; prio=5 tid=0xf nid=NA runnable</span><br><span class="line">  java.lang.Thread.State: RUNNABLE</span><br><span class="line">    at sun.management.ThreadImpl.getThreadInfo(Native Method)</span><br><span class="line">	  at sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:185)</span><br><span class="line">	  at sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:149)</span><br></pre></td></tr></table></figure>
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
 
-<p>进一步发现，在某些版本的JDK8中，读取线程信息是需要加锁的。</p>
-<p>至此，问题的根源已经清晰明了：过高的线程数以及线程监控时JVM全局锁的存在导致了这个问题。您可以使用如下的demo来复现这个问题</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.management.ManagementFactory;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ThreadInfo;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ThreadMXBean;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ScheduledExecutorService;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadLockSimple</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">15_000</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">200_000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">ScheduledExecutorService</span> <span class="variable">executorService</span> <span class="operator">=</span> Executors.newSingleThreadScheduledExecutor();</span><br><span class="line">        executorService.scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;take &quot;</span> + <span class="string">&quot; &quot;</span> + System.currentTimeMillis());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="number">1</span>, <span class="number">1</span>, TimeUnit.SECONDS);</span><br><span class="line">        <span class="type">ThreadMXBean</span> <span class="variable">threadMXBean</span> <span class="operator">=</span> ManagementFactory.getThreadMXBean();</span><br><span class="line">        <span class="type">ScheduledExecutorService</span> <span class="variable">metricsService</span> <span class="operator">=</span> Executors.newSingleThreadScheduledExecutor();</span><br><span class="line">        metricsService.scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">                ThreadInfo[] threadInfoList = threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds());</span><br><span class="line">                System.out.println(<span class="string">&quot;threads count &quot;</span> + threadInfoList.length + <span class="string">&quot; cost :&quot;</span> + (System.currentTimeMillis() - start));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="number">1</span>, <span class="number">1</span>, TimeUnit.SECONDS);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>为了解决这个问题，我们有以下几个可能的方案：</p>
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/12/08/%E4%B8%80%E4%BA%9B%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/microservice-dev-standard" class="post-title-link post-title-link-external" itemprop="url">一些微服务开发规范<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-12-08 13:27:42" itemprop="dateCreated datePublished" datetime="2024-12-08T13:27:42+08:00">2024-12-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="消费组名称"><a href="#消费组名称" class="headerlink" title="消费组名称"></a>消费组名称</h2><ul>
+<li>共享消费者使用微服务名称，比如(DeviceManager)</li>
+<li>广播消费者使用微服务名称+唯一标识，比如</li>
+<li>kubernetes部署场景下可以将pod名称的唯一部分作为唯一标识，比如下图的nginx可以使用5d4f5c59f8-7hztx作为唯一标识<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pod</span><br><span class="line">NAME                          READY   STATUS    RESTARTS   AGE</span><br><span class="line">nginx-deployment-5d4f5c59f8-7hztx   1/1     Running   0          2d3h</span><br><span class="line">nginx-deployment-5d4f5c59f8-xvbnm   1/1     Running   0          2d3h</span><br><span class="line">redis-5f67c8d8c9-4g2h3              1/1     Running   0          10h</span><br></pre></td></tr></table></figure>
 <ul>
-<li>将不合理的线程数往下降，可能存在线程泄露的场景</li>
-<li>升级jdk到jdk11或者jdk17（推荐）</li>
-<li>将Thread相关的监控临时关闭</li>
+<li>pod的IP地址</li>
+<li>UUID</li>
 </ul>
-<p>这个问题的解决方案应根据实际情况进行选择，希望对你有所帮助。</p>
+</li>
+</ul>
+<h2 id="数据库表"><a href="#数据库表" class="headerlink" title="数据库表"></a>数据库表</h2><ul>
+<li>数据库表名使用单数。</li>
+<li>数据库的主键，要考虑对应实体物理上是否唯一。</li>
+<li>数据库可以分为多个列组合唯一、单列唯一、是否有唯一索引、是否有二级索引。</li>
+</ul>
 
       
     </div>
@@ -532,7 +632,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/07/08/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E8%B6%85%E6%97%B6%E4%B9%8B%E5%90%8E%E8%AF%A5%E4%B8%8D%E8%AF%A5%E9%87%8D%E5%90%AF%E5%AE%A2%E6%88%B7%E7%AB%AF/">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/11/24/%E4%BB%8EASCII%E5%88%B0Unicode%EF%BC%8C%E4%BB%A5%E5%8F%8AUTF-8%E3%80%81UTF-16%E3%80%81UTF-32/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -550,7 +650,8 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/07/08/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E8%B6%85%E6%97%B6%E4%B9%8B%E5%90%8E%E8%AF%A5%E4%B8%8D%E8%AF%A5%E9%87%8D%E5%90%AF%E5%AE%A2%E6%88%B7%E7%AB%AF/" class="post-title-link" itemprop="url">网络通信超时之后该不该重启客户端</a>
+          <a href="/unicode" class="post-title-link post-title-link-external" itemprop="url">从ASCII到Unicode，以及UTF-8、UTF-16、UTF-32<i class="fa fa-external-link-alt"></i></a>
+          
         </h2>
 
         <div class="post-meta-container">
@@ -561,14 +662,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-07-08 14:06:21" itemprop="dateCreated datePublished" datetime="2023-07-08T14:06:21+08:00">2023-07-08</time>
+      <time title="创建时间：2024-11-24 16:59:57" itemprop="dateCreated datePublished" datetime="2024-11-24T16:59:57+08:00">2024-11-24</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
     </span>
 
   
@@ -581,368 +682,114 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>我写这篇文章来论证“超时之后要不要重启客户端”、“如何重启客户端”。简而言之，重启客户端还是为了让系统能够达到自愈，是比较高的可靠性要求。如果你的软件没有这么高的可靠性要求，像是人机交互程序等对可靠性要求较低的场景，可以选择不考虑这个功能。毕竟实现这个功能的时间至少够300倍你重新点击按钮&#x2F;重启的时间了。</p>
-<p>如果是一些串口协议，通过传输的间隙来判断报文的间隔，比如modbus协议，3.5个时间内不发送，就计算做一个协议报文的开始，那么故障时的报文毫无疑问会处理失败（因为存在CRC校验，奇偶校验等）。等待故障结束，又3.5个时间后，就会恢复正常。</p>
-<p>如果能确保网络通信报文不会遭到篡改、也没有宇宙射线&#x2F;太阳黑子修改你的比特位的场景下，笔者认为没有特别大的必要对客户端进行重启操作，因为不见得重启后就比之前更好，这种超时通常是由服务端处理时间长导致的。没做到建链限制的情况下，贸然重启，还可能会引起建链的波峰。</p>
-<p>但是，在实际复杂的网络环境下，如<strong>网络报文遭到篡改</strong>、<strong>部分字节丢失</strong>等的情况下，一切就大不一样了，不重启客户端就无法自愈。这其中的关键在于，切分报文是否正确。</p>
-<p>比如基于TCP的网络协议，这也是本文重点讨论的场景，假设应用协议采用最常见的LengthBasedFrame分包方式，这种协议，通常根据前0~4个字节来判断协议的总长度，比如前面的字节是<strong>00000014</strong>，那这个报文长度就是<code>1*16 + 4 = 20</code>长度。这种时候，一旦发生了报文篡改&#x2F;丢包，会导致通信端计算报文长度出错，一直在傻等，无法自愈。</p>
-<p>比如上面的例子一旦发生篡改，将4篡改5，那么就会导致客户端&#x2F;服务器一直在等待不存在的第21个字节，这种情况下，如果不做超时重建，那么这条链路就会一直处于等待状态，无法自愈。</p>
-<p>综上所述，实际复杂的网络环境下出现通信超时，这条链路可能会无法自愈。这种情况下，笔者推荐对针对tcp链路做超时重建，业内的一些例子像是：bookkeeper client没有做，kafka client做了。至于重建的触发条件，比如一次超时就重建、多次超时之后才重建、仅当心跳报文超时才重建，这些就交给读者自己把握了。如果区别不大，笔者倾向于一次超时就重建，逻辑简单清晰。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/06/15/java%20DefaultUncaughtExceptionHandler%20%E8%AF%A6%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/06/15/java%20DefaultUncaughtExceptionHandler%20%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">Java DefaultUncaughtExceptionHandler 详解</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-06-15 21:41:49" itemprop="dateCreated datePublished" datetime="2023-06-15T21:41:49+08:00">2023-06-15</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在Java程序运行时，一些非受检异常可能会导致程序崩溃，比如NullPointerException、ArrayIndexOutOfBoundsException等等，这些异常都是由JVM抛出的，如果不对这些异常进行处理，小则线程运行中突然退出，大则整个程序崩溃。理想的场景下，每一个非受检异常都应该被捕获并进行处理，但是在实际开发中，我们往往会忽略一些异常，这些异常可能是由于程序员的疏忽导致的，也可能是由于程序员无法预知的原因导致的，比如第三方库抛出的异常。</p>
-<p>为了避免这些异常导致程序崩溃，Java提供了一个全局的异常处理器，即DefaultUncaughtExceptionHandler，它可以捕获所有未被捕获的异常，从而避免程序崩溃。</p>
-<p>DefaultUncaught的使用示例如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UncaughtExceptionHandle</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        Thread.setDefaultUncaughtExceptionHandler((t, e) -&gt; log.error(<span class="string">&quot;Uncaught exception: &quot;</span>, e));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>上述的代码会将未捕获的异常打印到日志中，如果你希望打印至标准输出或标准输出，可以将log替换为：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 标准输出</span></span><br><span class="line">System.out.println(<span class="string">&quot;Uncaught exception: &quot;</span> + e);</span><br><span class="line"><span class="comment">// 错误输出</span></span><br><span class="line">System.err.println(<span class="string">&quot;Uncaught exception: &quot;</span> + e);</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/06/15/%E6%89%93%E9%80%A0%E5%8F%AF%E5%95%86%E7%94%A8%E7%9A%84Java%E7%A8%8B%E5%BA%8F%E4%B9%8B%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/06/15/%E6%89%93%E9%80%A0%E5%8F%AF%E5%95%86%E7%94%A8%E7%9A%84Java%E7%A8%8B%E5%BA%8F%E4%B9%8B%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7/" class="post-title-link" itemprop="url">打造可商用的Java程序之可维护性</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-06-15 20:43:58" itemprop="dateCreated datePublished" datetime="2023-06-15T20:43:58+08:00">2023-06-15</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="在主函数中捕获未处理的异常"><a href="#在主函数中捕获未处理的异常" class="headerlink" title="在主函数中捕获未处理的异常"></a>在主函数中捕获未处理的异常</h2><p>在主函数中捕获未处理的异常，防止程序崩溃，同时记录日志，方便排查问题。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UncaughtExceptionHandle</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        Thread.setDefaultUncaughtExceptionHandler((t, e) -&gt; log.error(<span class="string">&quot;Uncaught exception: &quot;</span>, e));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/06/02/jetty%20servlet%E7%9A%84%E7%BC%96%E7%A0%81%E5%AD%97%E7%AC%A6%E9%9B%86%E9%80%89%E6%8B%A9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/06/02/jetty%20servlet%E7%9A%84%E7%BC%96%E7%A0%81%E5%AD%97%E7%AC%A6%E9%9B%86%E9%80%89%E6%8B%A9/" class="post-title-link" itemprop="url">jetty servlet的代码字符集选择</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-06-03 01:05:07" itemprop="dateCreated datePublished" datetime="2023-06-03T01:05:07+08:00">2023-06-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>记一次中文指标乱码问题，问题也很简单，如下图所示：</p>
-<p><img src="/Images/20230603p1.png" alt="Untitled"></p>
-<p>从metricbeat开始找原因，发现其实只要是UTF-8的编码格式就都可以解析，最终发现是webServer返回的数据非UTF-8格式，修改方案也很简单。将servlet中的content-type里面的<strong>text&#x2F;plain</strong>修改成<strong>text&#x2F;plain; charset&#x3D;utf-8</strong>就可以了，如下面代码所示:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span><br><span class="line">        <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    response.setContentType(<span class="string">&quot;text/plain&quot;</span>);</span><br><span class="line">    response.setStatus(HttpServletResponse.SC_OK);</span><br><span class="line">    response.getWriter().write(<span class="string">&quot;&lt;h1&gt;哈哈&lt;/h1&gt;&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们可以轻易使用一个demo来复现这个问题，在maven中添加如下依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.eclipse.jetty<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jetty-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>9.4.35.v20201120<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.eclipse.jetty<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jetty-servlet<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>9.4.35.v20201120<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.shoothzj.jetty;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.eclipse.jetty.server.Server;</span><br><span class="line"><span class="keyword">import</span> org.eclipse.jetty.servlet.ServletContextHandler;</span><br><span class="line"><span class="keyword">import</span> org.eclipse.jetty.servlet.ServletHolder;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServlet;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SimpleJettyServer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Server</span> <span class="variable">server</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Server</span>(<span class="number">8080</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">ServletContextHandler</span> <span class="variable">context</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServletContextHandler</span>(ServletContextHandler.SESSIONS);</span><br><span class="line">        context.setContextPath(<span class="string">&quot;/&quot;</span>);</span><br><span class="line">        server.setHandler(context);</span><br><span class="line"></span><br><span class="line">        context.addServlet(<span class="keyword">new</span> <span class="title class_">ServletHolder</span>(<span class="keyword">new</span> <span class="title class_">HelloDefaultServlet</span>()), <span class="string">&quot;/hello-default&quot;</span>);</span><br><span class="line">        context.addServlet(<span class="keyword">new</span> <span class="title class_">ServletHolder</span>(<span class="keyword">new</span> <span class="title class_">HelloUTF8Servlet</span>()), <span class="string">&quot;/hello-utf8&quot;</span>);</span><br><span class="line"></span><br><span class="line">        server.start();</span><br><span class="line">        server.join();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">HelloDefaultServlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span><br><span class="line">                <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">            response.setContentType(<span class="string">&quot;text/plain&quot;</span>);</span><br><span class="line">            response.setStatus(HttpServletResponse.SC_OK);</span><br><span class="line">            response.getWriter().write(<span class="string">&quot;&lt;h1&gt;哈哈&lt;/h1&gt;&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">HelloUTF8Servlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span><br><span class="line">                <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">            response.setContentType(<span class="string">&quot;text/plain; charset=UTF-8&quot;</span>);</span><br><span class="line">            response.setStatus(HttpServletResponse.SC_OK);</span><br><span class="line">            response.getWriter().write(<span class="string">&quot;&lt;h1&gt;哈哈&lt;/h1&gt;&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过curl命令来复现这个问题</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl localhost:8080/hello-default</span><br><span class="line">&lt;h1&gt;??&lt;/h1&gt;%</span><br><span class="line">curl localhost:8080/hello-utf8</span><br><span class="line">&lt;h1&gt;哈哈&lt;/h1&gt;%</span><br></pre></td></tr></table></figure>
-
-<p>那么servlet里面的数据如何编码，我们可以dive一下，首先servlet里面有一个函数叫**<code>response.setCharacterEncoding();</code>**这个函数可以指定编码格式。其次，servlet还会通过上面的setContentType函数来做一定的推断，比如content-type中携带了charset，就使用content-type中的charset。还有些特定的content-type，比如text&#x2F;json，在没有设置的情况下，servlet容器会假设它使用utf-8编码。在推断不出来，也没有手动设置的情况下，jetty默认的编码是iso-8859-1，这就解释了乱码的问题。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/06/01/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%BC%8F%E5%AE%9E%E8%B7%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/06/01/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%BC%8F%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">微服务广播模式实践</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-06-01 23:19:45" itemprop="dateCreated datePublished" datetime="2023-06-01T23:19:45+08:00">2023-06-01</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>微服务广播模式，指的是在微服务多实例部署的场景下，将消息广播到多个微服务实例的一种模式。</p>
-<p><img src="/Images/20230601p1.png" alt="Untitled"></p>
-<p>广播模式，一般用来维护微服务的内存数据，根据数据类型的不同，有助于解决两类问题。通常广播模式会使用支持发布订阅的消息中间件实现（如Redis、Kafka、Pulsar等），本文也基于消息中间件进行讨论。</p>
-<h2 id="利用广播模式维护一致的缓存"><a href="#利用广播模式维护一致的缓存" class="headerlink" title="利用广播模式维护一致的缓存"></a>利用广播模式维护一致的缓存</h2><p>这应该是广播模式利用最多的一种场景，假想一个拥有海量用户的电商网站、或是一个亿级设备连接的IoT平台。势必会存在一些缓存数据，像是用户的购物车信息，或是设备的密钥缓存。如果没有广播模式，可能会存在这样的问题</p>
-<p><img src="/Images/20230601p2.png" alt="Untitled"></p>
-<p>当用户更新了它的购物车之后，微服务实例1的数据发生了更新，数据库的数据也成功更新。但是微服务实例2中的缓存数据未能更新，那么如果用户的请求均衡到了实例2，就会发生意想不到的后果。</p>
-<p>这种情况下我们可以让微服务1在广播通道中发送一个缓存的invalidate消息，将微服务实例2中该用户的缓存清零，使得微服务实例2在下一次处理该用户的请求时，从数据库中读取最新的消息。</p>
-<p>使用该模式需要注意的点：</p>
+          <h1 id="Unicode起源"><a href="#Unicode起源" class="headerlink" title="Unicode起源"></a>Unicode起源</h1><h2 id="ASCII"><a href="#ASCII" class="headerlink" title="ASCII"></a>ASCII</h2><p>ASCII（American Standard Code for Information Interchange）是一种字符编码标准，它使用7位二进制数来表示128个字符，包括大小写字母、数字、标点符号、控制字符等。ASCII编码是由美国国家标准协会（ANSI）制定的，于1963年发布，是最早的字符编码标准之一。</p>
+<h2 id="ASCII不够用了"><a href="#ASCII不够用了" class="headerlink" title="ASCII不够用了"></a>ASCII不够用了</h2><p>随着计算机不仅仅用于英文，而是用于全球各种语言，ASCII编码已经不能满足需求，针对不同语言的编码方案也应运而生，这其中诞生了很多编码方案，比如GB2312、BIG5、ISO-8859等，这些字符集典型的就是将ASCII的最高位利用起来，将7位扩展到8位，这样就可以表示256个字符。比如ISO-8859-1就是将ASCII的最高位利用起来，表示了拉丁字母。ISO-8859-5表示了西里尔字母。</p>
+<p>这些字符集各自不包含全部的字符，而且不兼容，这就导致了字符集混乱。这导致在一个文件中混用多种字符成为了不可能完成的事情。而Unicode改变了这一切，它的愿景就是Unicode官网中说到的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Everyone in the world should be able to use their own language on phones and computers.</span><br></pre></td></tr></table></figure>
+
+<p>在早期，Unicode曾想过固定使用16位来表示字符，这就是UCS-2编码，也是UTF-16的前身，后面发现固定16位字符还是不够用，这才发展成了我们现在熟知的Unicode。</p>
+<h1 id="Unicode介绍"><a href="#Unicode介绍" class="headerlink" title="Unicode介绍"></a>Unicode介绍</h1><p>Unicode是一个文本编码标准。Unicode通过一个唯一的数字来定义每个字符，不管平台、程序或语言。这个数字叫做码点（code point）。Unicode码点是从0x000000到0x10FFFF（十六进制），书写上通常使用U+打头，跟上至少4位十六进制数（不足则补0），如U+0041（字母A）、U+1F600（emoji 😀），理论上，Unicode可以定义1114112个字符。</p>
+<p>Unicode的码点跟字符是怎么对应的呢？Unicode将这些码点分成了若干个区段，每个区段称为一个平面（plane），每个平面包含65536（对应低位的0x0000~0xffff）个码点。Unicode总共有17个平面，编号从0到16。Unicode的码点分布如下：</p>
+<table>
+<thead>
+<tr>
+<th>平面编号</th>
+<th>码点区间</th>
+<th>英文缩写</th>
+<th>英文名</th>
+<th>中文名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0 号平面</td>
+<td>U+000000 - U+00FFFF</td>
+<td>BMP</td>
+<td>Basic Multilingual Plane</td>
+<td>基本多文种平面</td>
+</tr>
+<tr>
+<td>1 号平面</td>
+<td>U+010000 - U+01FFFF</td>
+<td>SMP</td>
+<td>Supplementary Multilingual Plane</td>
+<td>多文种补充平面</td>
+</tr>
+<tr>
+<td>2 号平面</td>
+<td>U+020000 - U+02FFFF</td>
+<td>SIP</td>
+<td>Supplementary Ideographic Plane</td>
+<td>表意文字补充平面</td>
+</tr>
+<tr>
+<td>3 号平面</td>
+<td>U+030000 - U+03FFFF</td>
+<td>TIP</td>
+<td>Tertiary Ideographic Plane</td>
+<td>表意文字第三平面</td>
+</tr>
+<tr>
+<td>4 号平面 ~ 13 号平面</td>
+<td>U+040000 - U+0DFFFF</td>
+<td>&#x2F;</td>
+<td>已分配，但尚未使用</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>14 号平面</td>
+<td>U+0E0000 - U+0EFFFF</td>
+<td>SSP</td>
+<td>Supplementary Special-purpose Plane</td>
+<td>特别用途补充平面</td>
+</tr>
+<tr>
+<td>15 号平面</td>
+<td>U+0F0000 - U+0FFFFF</td>
+<td>PUA-A</td>
+<td>Private Use Area-A</td>
+<td>保留作为私人使用区 (A区)</td>
+</tr>
+<tr>
+<td>16 号平面</td>
+<td>U+100000 - U+10FFFF</td>
+<td>PUA-B</td>
+<td>Private Use Area-B</td>
+<td>保留作为私人使用区 (B区)</td>
+</tr>
+</tbody></table>
+<p>中文、英文均在0号平面，详细的分配可以参考Unicode的<a target="_blank" rel="noopener" href="https://www.unicode.org/roadmaps/index.html">RoadMap</a>。</p>
+<p>那么Unicode先定义了码点和字符之间的对应关系，但是如何存储在磁盘上，如何在网络中传输，这就引入了编码方式，编码方式决定了Unicode的码点如何转换为字节流。这就是Unicode定义的三种编码方式：UTF-32、UTF-16、UTF-8。</p>
+<h1 id="UTF-32（32-bit-Unicode-Transformation-Format）"><a href="#UTF-32（32-bit-Unicode-Transformation-Format）" class="headerlink" title="UTF-32（32-bit Unicode Transformation Format）"></a>UTF-32（32-bit Unicode Transformation Format）</h1><p>在介绍完Unicode之后，UTF-32是最简单、最容易想到的一种编码方式，直接将Unicode的码点以32位整数的方式存储起来。其中Rust的字符类型<code>char</code>，就使用32位值来表示Unicode字符。</p>
+<p>但是这种方式也有很显然的缺点，就是浪费空间，实际Unicode的范围，只需要21位就可以表示了，变长编码就应运而生。</p>
+<h1 id="UTF-16（16-bit-Unicode-Transformation-Format）"><a href="#UTF-16（16-bit-Unicode-Transformation-Format）" class="headerlink" title="UTF-16（16-bit Unicode Transformation Format）"></a>UTF-16（16-bit Unicode Transformation Format）</h1><p>这里我想给大家讲一个背景知识，编码方案的扩展，通常会尝试去兼容旧的编码方案，这使得新的编辑器可以打开旧的文件，如果没有用到新的字符，那么新的文件也可以被旧的编辑器打开。这使得演进更加平滑，更易落地。</p>
+<p>那就不得不先说一下UCS-2编码方案，如前所述，UCS-2想通过固定16位来表示字符，虽然它最终失败了，但是也影响了很多的系统，比如Windows、Jdk。</p>
+<p>UTF-16编码就以兼容UCS-2编码、变长为两个目标，UTF-16的编码规则</p>
 <ul>
-<li>每个微服务实例应该使用不同的消费组，可以通过微服务的IP、主机名、UUID等拼装成订阅组名称，这才称得上广播之名</li>
-<li>微服务消费消息的时候，应从Latest开始消费，避免从Earliest开始消费无用的缓存清理消息</li>
-<li>由于每一次微服务重启都会产生一个新的消费组，需要注意消费组的老化，可以通过消息中间件自带的不活跃消费组老化能力兜底，建议通过gracefulExit、监听kill信号等机制来主动删除消费组信息</li>
+<li>① 对于码点小于等于U+FFFF的字符，直接使用16位表示，兼容UCS-2</li>
+<li>② 对于码点小于等于U+10FFFF的字符，使用两个16位表示</li>
 </ul>
-<p>为什么说消费组老化比较重要呢，因为很多监控系统都会根据消费组的积压来做告警，很容易产生误告警。</p>
-<h2 id="利用广播模式维护内存中的数据"><a href="#利用广播模式维护内存中的数据" class="headerlink" title="利用广播模式维护内存中的数据"></a>利用广播模式维护内存中的数据</h2><p>这种模式相对比较少见，常见于key的基数不是很大，能够将数据完整地存储在内存中，比如电商平台的企业卖家个数、物联网平台的用户个数等，并且对数据的一致性要求不是很高（因为广播模式情况下，对于两个微服务实例来说没有一致性保障）。像Apache Pulsar设计的TableView，在我看来，就是做这个事的一个最佳实践。Pulsar内部大量使用了topic存储数据，就是采用这个方式。</p>
-<p>使用该模式需要注意的点：</p>
+<blockquote>
+<p>这个补丁机制也常被人称作是surrogate。</p>
+</blockquote>
+<p>对于变长编码来说，对于文件中的任意一个字符，怎么能判断出来这是场景①的字符，还是场景②的第一个字符？抑或是场景②的第二个字符？</p>
+<p>Unicode给出的答案是，通过在BMP中舍弃U+D800到U+DFFF的码点，这个区间被称为代理对（surrogate pair），这个区间的码点不会被分配给字符，这样就可以通过这个区间来判断是场景①还是场景②。如果读取的时候，发现前两个字节是D8到DB，那么就是场景②的第一个字符；如果是DC到DF，那么就是场景②的第二个字符；否则就是场景①的字符。</p>
 <ul>
-<li>同上，需要使用不同的消费组名称</li>
-<li>微服务消费消息的时候，应该从Earliest开始消费，保证所有微服务内存中的消息视图一致</li>
-<li>同上，需要注意消费组的老化</li>
+<li>高代理（High-half surrogates）：范围是0xD800~0xDBFF，二进制范围为1101 1000 0000 ~ 1101 1111 1111，这也代表着高代理的前六位一定是110110。</li>
+<li>低代理（Low-half surrogates）：范围是0xDC00~0xDFFF，二进制范围为1101 1100 0000 ~ 1101 1111 1111，这也代表着低代理的前六位一定是110111。</li>
 </ul>
-<h2 id="为什么需要消费组老化作为保底手段"><a href="#为什么需要消费组老化作为保底手段" class="headerlink" title="为什么需要消费组老化作为保底手段"></a>为什么需要消费组老化作为保底手段</h2><p>因为在极端场景下，无论是graceful的代码，还是监听kill信号的代码，都不能保证代码百分百地被执行。需要兜底。</p>
-<h2 id="Kafka消费组老化"><a href="#Kafka消费组老化" class="headerlink" title="Kafka消费组老化"></a>Kafka消费组老化</h2><p>Kafka通过<strong>offsets.retention.minutes</strong>参数控制消费组中offsets保留时间，在此时间内如果没有提交offset，offsets将会被删除。Kafka判定消息组中没有在线的消费者（如empty状态），且没有offsets时，将会删除此消费组。</p>
-<h2 id="Pulsar消费组老化"><a href="#Pulsar消费组老化" class="headerlink" title="Pulsar消费组老化"></a>Pulsar消费组老化</h2><p>pulsar的消费组老化策略更加灵活，可以配置到namespace级别。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">bin/pulsar-admin namespaces | grep expiration</span><br><span class="line">    get-subscription-expiration-time      Get subscription expiration time for </span><br><span class="line">      Usage: get-subscription-expiration-time [options] tenant/namespace</span><br><span class="line">    set-subscription-expiration-time      Set subscription expiration time for </span><br><span class="line">      Usage: set-subscription-expiration-time [options] tenant/namespace</span><br><span class="line">            Subscription expiration time in minutes</span><br><span class="line">    remove-subscription-expiration-time      Remove subscription expiration </span><br><span class="line">      Usage: remove-subscription-expiration-time [options] tenant/namespace</span><br></pre></td></tr></table></figure>
-
-<p>这里注意要合理地配置消费组的老化时间，在pulsar的当前版本（2.11版本）下，catch up读，也就是说消费组平时积压量不大。如果将消费组的老化时间配置大于等于消息的老化时间，会出现消费组老化不了的现象。</p>
-<p>当然，由于消费组和消息老化都是定时任务，预估时间时，要考虑一定的buffer。</p>
-<p>这里让我们稍稍dive一下原理，消费组的老化是通过判断Cursor游标的LastActive time来判断能否老化的。如果该消费组的游标位置到达了消息老化区域，被老化掉了，消费组的游标位置就会强制更新到一个可用的位置，这个时候会更新游标的LastActive time到当前时间，周而复始，导致消费组无法老化。举个🌰</p>
-<p>假设消费组的老化时间为4h，消息的老化时间为3h，就可能会发生这样的事情</p>
-<p><img src="/Images/20230601p3.png" alt="Untitled"></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>广播模式在微服务架构中起到了重要的角色，尤其是在需要在微服务实例之间同步数据的场景中，它具有显著的优势。它能够帮助维护内存数据的缓存一致性。希望本篇文章能提供您全面的广播模式的知识。</p>
+<p>那么聪明的读者应该分析出来了，使用两个16位表示，由于存在代理对的固定部分，剩余的有效位还剩下20位。这20位恰好可以覆盖从U+010000到U+10FFFF的码点范围。由于U+0000-U+FFFF已经在场景①中覆盖，通过将码点减去0x10000，范围就变成了0x000000~0x0FFFFF，恰好是20位整数。</p>
+<h1 id="UTF-8（8-bit-Unicode-Transformation-Format）"><a href="#UTF-8（8-bit-Unicode-Transformation-Format）" class="headerlink" title="UTF-8（8-bit Unicode Transformation Format）"></a>UTF-8（8-bit Unicode Transformation Format）</h1><p>UTF-8的编码规则</p>
+<ul>
+<li>① 对于码点小于等于U+007F的字符，直接使用8位表示，兼容ASCII。</li>
+<li>② 对于码点小于等于U+07FF的字符，使用两个8位表示，其中有效位为11位。</li>
+<li>③ 对于码点小于等于U+FFFF的字符，使用三个8位表示，其中有效位为16位。</li>
+<li>④ 对于码点小于等于U+10FFFF的字符，使用四个8位表示，其中有效位为21位。</li>
+<li>⑤ 使用n个字节（n&gt;1）来表示一个字符时，第一个字节的前n位都是1，第n+1位是0，后面的字节的前两位都是10</li>
+</ul>
+<p>那么对于一个字节，就可以通过首位是不是1，来判断是1个字节还是n个字节，再通过第二个字节判断是否是首位，最后通过首位来判断字节的个数。</p>
+<p>由于UTF-8的有效位最大可达21位，这也就使得UTF-8不用像UTF-16那样减去0x10000。</p>
+<p>通过兼容ASCII，最短只用1个字节，这使得UTF-8成为了堪称最流行的编码方式，如果不需要兼容UCS-2，那么几乎可以说UTF-8是最好的选择，堪称当前事实上的标准。值得一提的是，UTF-8的主要设计者，也是Unix的创始人之一，Go语言的设计者之一，<strong>Ken Thompson</strong>。</p>
+<h1 id="扩展知识"><a href="#扩展知识" class="headerlink" title="扩展知识"></a>扩展知识</h1><h2 id="JDK17中英文字符集内存占用量降低了一半"><a href="#JDK17中英文字符集内存占用量降低了一半" class="headerlink" title="JDK17中英文字符集内存占用量降低了一半"></a>JDK17中英文字符集内存占用量降低了一半</h2><p>读者可能会觉得JDK17中中文字符内存占用降低一半是从UTF-16切换到UTF-8导致的，但实则不然，对于JDK来说，切换一种编码方式可谓是伤筋动骨，JDK17通过了JEP254提案，通过添加一个标志位，如果字符串的字符都是ISO-8859-1&#x2F;Latin-1字符，那么就使用一个字节进行存储。</p>
 
       
     </div>
@@ -969,7 +816,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/09/26/Calcite%20Parser%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E8%AF%A6%E8%A7%A3/">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/10/29/Gin%20Web%E9%A1%B9%E7%9B%AE%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -987,7 +834,8 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/09/26/Calcite%20Parser%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">Calcite Parser代码生成详解</a>
+          <a href="/gin-project-best-practice" class="post-title-link post-title-link-external" itemprop="url">Gin Web项目最佳实践<i class="fa fa-external-link-alt"></i></a>
+          
         </h2>
 
         <div class="post-meta-container">
@@ -998,14 +846,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-09-26 22:51:07" itemprop="dateCreated datePublished" datetime="2022-09-26T22:51:07+08:00">2022-09-26</time>
+      <time title="创建时间：2024-10-30 05:58:14" itemprop="dateCreated datePublished" datetime="2024-10-30T05:58:14+08:00">2024-10-30</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
     </span>
 
   
@@ -1018,36 +866,15 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>本文代码均已上传到<a target="_blank" rel="noopener" href="https://gitee.com/hezhangjian/calcite-examples">gitee</a><br>calcite的parser代码生成分为如下两个步骤  </p>
-<p><img src="/Images/calcite-parser-code-generate-process.png" alt="calcite-parser-code-generate-process">  </p>
-<h2 id="生成Parse-jj"><a href="#生成Parse-jj" class="headerlink" title="生成Parse.jj"></a>生成Parse.jj</h2><p>文件目录如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">├── pom.xml</span><br><span class="line">└── src</span><br><span class="line">    ├── main</span><br><span class="line">    │   ├── codegen</span><br><span class="line">    │   │   ├── config.fmpp</span><br><span class="line">    │   │   ├── includes</span><br><span class="line">    │   │   │   ├── compoundIdentifier.ftl</span><br><span class="line">    │   │   │   └── parserImpls.ftl</span><br><span class="line">    │   │   └── templates</span><br><span class="line">    │   │       └── Parser.jj</span><br></pre></td></tr></table></figure>
+          <p>本文包含，Gin项目推荐布局，一些最佳实践等等。</p>
+<h2 id="Gin项目推荐布局"><a href="#Gin项目推荐布局" class="headerlink" title="Gin项目推荐布局"></a>Gin项目推荐布局</h2><p>假设项目名称叫Hearth</p>
+<ul>
+<li>xxx、yyy代表大块的业务区分：如用户、订单、支付</li>
+<li>aaa、bbb代表小块的业务区分：如(用户的)登录、注册、查询</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">example/</span><br><span class="line">|-- cmd/</span><br><span class="line">|   |-- production/</span><br><span class="line">|       |-- hearth.go</span><br><span class="line">|   |-- local/</span><br><span class="line">|       |-- hearth_local.go</span><br><span class="line">|-- pkg/</span><br><span class="line">|   |-- apimodel/ 存放所有的ApiModel，用oapi-codegen解析uadp yaml来生成</span><br><span class="line">|   |-- boot/</span><br><span class="line">|       |-- boot.go //装备Struct，用于Lauch整个项目</span><br><span class="line">|   |-- handler/</span><br><span class="line">|       |-- xxx/</span><br><span class="line">|           |-- xxx_aaa_handler.go</span><br><span class="line">|           |-- xxx_bbb_handler.go</span><br><span class="line">|       |-- yyy/</span><br><span class="line">|           |-- yyy_model.go</span><br><span class="line">|           |-- yyy_aaa_handler.go</span><br><span class="line">|           |-- yyy_bbb_handler.go</span><br><span class="line">|   |-- xxx/</span><br><span class="line">|       |-- xxx_aaa_model.go // 存放持久化model，如数据库表，消息中间件结构，redis结构等</span><br><span class="line">|       |-- xxx_aaa_service.go</span><br><span class="line">|   |-- yyy/</span><br><span class="line">|       |-- yyy_bbb_model.go</span><br><span class="line">|       |-- yyy_bbb_service.go</span><br><span class="line">|   |-- ignite/</span><br><span class="line">|       |-- ignite.go</span><br><span class="line">|       |-- ignite_test.go</span><br><span class="line">|   |-- influx/</span><br><span class="line">|       |-- influx.go</span><br><span class="line">|       |-- influx_test.go</span><br><span class="line">|-- docker-build/</span><br><span class="line">|   |-- scripts/</span><br><span class="line">|       |-- start.sh</span><br><span class="line">|-- Dockerfile</span><br></pre></td></tr></table></figure>
 
-<p>添加calcite dependency</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.calcite<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>calcite-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>配置<code>drill-fmpp-maven-plugin</code>插件如下</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.drill.tools<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>drill-fmpp-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">config</span>&gt;</span>src/main/codegen/config.fmpp<span class="tag">&lt;/<span class="name">config</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">output</span>&gt;</span>$&#123;project.build.directory&#125;/generated-sources/fmpp<span class="tag">&lt;/<span class="name">output</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">templates</span>&gt;</span>src/main/codegen/templates<span class="tag">&lt;/<span class="name">templates</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>generate-fmpp-sources<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">phase</span>&gt;</span>validate<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>generate<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>codegen 模块的文件都拷贝自对应版本的<strong>calclite</strong> <strong>core&#x2F;src&#x2F;main&#x2F;codegen</strong>路径 <a target="_blank" rel="noopener" href="https://github.com/apache/calcite/tree/main/core/src/main/codegen">https://github.com/apache/calcite/tree/main/core/src/main/codegen</a></p>
-<p>然后把<a target="_blank" rel="noopener" href="https://github.com/apache/calcite/blob/main/core/src/main/codegen/default_config.fmpp">https://github.com/apache/calcite/blob/main/core/src/main/codegen/default_config.fmpp</a> 中的parser属性与config.fmpp中的parser属性合并。就可以通过<strong>mvn package</strong>命令生成Parser.jj了。当然，如果有定制化修改的需求，也可以在这个阶段修改config.fmpp  </p>
-<p><img src="/Images/calcite-parser-code-generator-fmpp.png" alt="calcite-parser-code-generator-fmpp">  </p>
-<h2 id="Parser-jj生成java代码"><a href="#Parser-jj生成java代码" class="headerlink" title="Parser.jj生成java代码"></a>Parser.jj生成java代码</h2><p>文件目录如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">├── pom.xml</span><br><span class="line">├── src</span><br><span class="line">│   ├── main</span><br><span class="line">│   │   ├── codegen</span><br><span class="line">│   │   │   └── Parser.jj</span><br></pre></td></tr></table></figure>
-
-<p>Parser.jj就是我们上一步生成的Parser.jj，如果有什么想要的定制化修改，也可以在这个步骤改入到Parser.jj中。</p>
-<p>添加calcite dependency</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.calcite<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>calcite-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>配置<code>javacc-maven-plugin</code>如下</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.codehaus.mojo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>javacc-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>javacc<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>javacc<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">sourceDirectory</span>&gt;</span>$&#123;project.basedir&#125;/src/main/codegen<span class="tag">&lt;/<span class="name">sourceDirectory</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">includes</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>**/Parser.jj<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">includes</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>生成代码  </p>
-<p><img src="/calcite-parser-code-generator-javacc.png" alt="calcite-parser-code-generator-javacc">  </p>
-<h2 id="无Parser-jj定制化修改，一步生成"><a href="#无Parser-jj定制化修改，一步生成" class="headerlink" title="无Parser.jj定制化修改，一步生成"></a>无Parser.jj定制化修改，一步生成</h2><h2 id="无Parser-jj定制化修改，一步生成-1"><a href="#无Parser-jj定制化修改，一步生成-1" class="headerlink" title="无Parser.jj定制化修改，一步生成"></a>无Parser.jj定制化修改，一步生成</h2><p>如果不需要对Parser.jj进行定制化修改，那么可以通过连续运行两个插件来生成代码，这里给出pom文件样例，不再赘述</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.drill.tools<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>drill-fmpp-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">config</span>&gt;</span>src/main/codegen/config.fmpp<span class="tag">&lt;/<span class="name">config</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">output</span>&gt;</span>$&#123;project.build.directory&#125;/generated-sources/fmpp<span class="tag">&lt;/<span class="name">output</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">templates</span>&gt;</span>src/main/codegen/templates<span class="tag">&lt;/<span class="name">templates</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>generate-fmpp-sources<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">phase</span>&gt;</span>validate<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>generate<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.codehaus.mojo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>javacc-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>javacc<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>javacc<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">sourceDirectory</span>&gt;</span>$&#123;project.build.directory&#125;/generated-sources/fmpp<span class="tag">&lt;/<span class="name">sourceDirectory</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">includes</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>**/Parser.jj<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">includes</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">lookAhead</span>&gt;</span>2<span class="tag">&lt;/<span class="name">lookAhead</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">isStatic</span>&gt;</span>false<span class="tag">&lt;/<span class="name">isStatic</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>javacc-test<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">phase</span>&gt;</span>generate-test-sources<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>javacc<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">sourceDirectory</span>&gt;</span>$&#123;project.build.directory&#125;/generated-test-sources/fmpp<span class="tag">&lt;/<span class="name">sourceDirectory</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">outputDirectory</span>&gt;</span>$&#123;project.build.directory&#125;/generated-test-sources/javacc<span class="tag">&lt;/<span class="name">outputDirectory</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">includes</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>**/Parser.jj<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">includes</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">isStatic</span>&gt;</span>false<span class="tag">&lt;/<span class="name">isStatic</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">ignoreCase</span>&gt;</span>true<span class="tag">&lt;/<span class="name">ignoreCase</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">unicodeInput</span>&gt;</span>true<span class="tag">&lt;/<span class="name">unicodeInput</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="放弃的布局方式"><a href="#放弃的布局方式" class="headerlink" title="放弃的布局方式"></a>放弃的布局方式</h2><h3 id="此种布局比较适合独立的包，对api结构体的操作复用较差"><a href="#此种布局比较适合独立的包，对api结构体的操作复用较差" class="headerlink" title="此种布局比较适合独立的包，对api结构体的操作复用较差"></a>此种布局比较适合独立的包，对api结构体的操作复用较差</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">example/</span><br><span class="line">|-- cmd/</span><br><span class="line">|   |-- production/</span><br><span class="line">|       |-- hearth.go</span><br><span class="line">|   |-- local/</span><br><span class="line">|       |-- hearth_local.go</span><br><span class="line">|-- pkg/</span><br><span class="line">|   |-- boot/</span><br><span class="line">|       |-- boot.go //装备Struct，用于Lauch整个项目</span><br><span class="line">|   |-- handler/</span><br><span class="line">|       |-- xxx/</span><br><span class="line">|           |-- xxx_model.go // 将大块业务的model也放在这里，可以使用oapi-codegen来生成结构体</span><br><span class="line">|           |-- xxx_aaa_handler.go</span><br><span class="line">|           |-- xxx_bbb_handler.go</span><br><span class="line">|       |-- yyy/</span><br><span class="line">|           |-- yyy_model.go</span><br><span class="line">|           |-- yyy_aaa_handler.go</span><br><span class="line">|           |-- yyy_bbb_handler.go</span><br><span class="line">|   |-- xxx/</span><br><span class="line">|       |-- xxx_aaa_model.go // 存放持久化model，如数据库表，消息中间件结构，redis结构等</span><br><span class="line">|       |-- xxx_aaa_service.go</span><br><span class="line">|   |-- yyy/</span><br><span class="line">|       |-- yyy_bbb_model.go</span><br><span class="line">|       |-- yyy_bbb_service.go</span><br><span class="line">|   |-- ignite/</span><br><span class="line">|       |-- ignite.go</span><br><span class="line">|       |-- ignite_test.go</span><br><span class="line">|   |-- influx/</span><br><span class="line">|       |-- influx.go</span><br><span class="line">|       |-- influx_test.go</span><br><span class="line">|-- docker-build/</span><br><span class="line">|   |-- scripts/</span><br><span class="line">|       |-- start.sh</span><br><span class="line">|-- Dockerfile</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -1074,7 +901,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/07/23/SaaS%E6%9C%8D%E5%8A%A1%E5%8A%9F%E8%83%BD%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%E6%98%AF%E6%80%8E%E4%B9%88%E5%81%9A%E7%9A%84/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -1092,7 +919,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/07/18/prometheus%20tsdb%E7%B4%A2%E5%BC%95%E5%B8%83%E5%B1%80%E5%8F%8A%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/" class="post-title-link" itemprop="url">prometheus tsdb索引布局及查询流程</a>
+          <a href="/2024/07/23/SaaS%E6%9C%8D%E5%8A%A1%E5%8A%9F%E8%83%BD%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%E6%98%AF%E6%80%8E%E4%B9%88%E5%81%9A%E7%9A%84/" class="post-title-link" itemprop="url">SaaS服务功能权限控制是怎么做的</a>
         </h2>
 
         <div class="post-meta-container">
@@ -1103,14 +930,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-07-18 16:48:38" itemprop="dateCreated datePublished" datetime="2022-07-18T16:48:38+08:00">2022-07-18</time>
+      <time title="创建时间：2024-07-23 19:06:50" itemprop="dateCreated datePublished" datetime="2024-07-23T19:06:50+08:00">2024-07-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-16 08:40:20" itemprop="dateModified" datetime="2025-10-16T08:40:20+08:00">2025-10-16</time>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
     </span>
 
   
@@ -1123,59 +950,149 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h1 id="prometheus-磁盘布局"><a href="#prometheus-磁盘布局" class="headerlink" title="prometheus 磁盘布局"></a>prometheus 磁盘布局</h1><p>采集到的数据每两个小时形成一个block。每个block由一个目录组成，并存放在data路径下。该目录包含一个包含该时间窗口的所有时间序列样本的块子目录、一个元数据文件和一个索引文件（将metric_name和label索引到目录下的时间序列）。 chunks 目录中的样本默认组合成一个或多个段文件，每个段文件最大为 512MB。 当通过 API 删除系列时，删除记录存储在单独的 tombstone 文件中（而不是立即从块段中删除数据）。</p>
-<p>当前正在写入的块保存在内存中，没有完全持久化。通过WAL日志来防止崩溃丢失数据。预写日志分为数节(segments)保存在wal文件夹中。这些文件包含尚未压缩的原始数据； 因此它们比常规块文件大得多。 Prometheus 将至少保留三个预写日志文件。在高流量下，会保留三个以上的 WAL 文件，以便保留至少两个小时的原始数据。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">./data</span><br><span class="line">├── 01BKGV7JBM69T2G1BGBGM6KB12</span><br><span class="line">│   └── meta.json</span><br><span class="line">├── 01BKGTZQ1SYQJTR4PB43C8PD98</span><br><span class="line">│   ├── chunks</span><br><span class="line">│   │   └── 000001</span><br><span class="line">│   ├── tombstones</span><br><span class="line">│   ├── index</span><br><span class="line">│   └── meta.json</span><br><span class="line">├── 01BKGTZQ1HHWHV8FBJXW1Y3W0K</span><br><span class="line">│   └── meta.json</span><br><span class="line">├── 01BKGV7JC0RY8A6MACW02A2PJD</span><br><span class="line">│   ├── chunks</span><br><span class="line">│   │   └── 000001</span><br><span class="line">│   ├── tombstones</span><br><span class="line">│   ├── index</span><br><span class="line">│   └── meta.json</span><br><span class="line">├── chunks_head</span><br><span class="line">│   └── 000001</span><br><span class="line">└── wal</span><br><span class="line">    ├── 000000002</span><br><span class="line">    └── checkpoint.00000001</span><br><span class="line">        └── 00000000</span><br></pre></td></tr></table></figure>
+          <h2 id="SaaS服务全局级别的功能"><a href="#SaaS服务全局级别的功能" class="headerlink" title="SaaS服务全局级别的功能"></a>SaaS服务全局级别的功能</h2><p>前端调用SaaS服务一个全局级别的接口</p>
+<pre class="mermaid">sequenceDiagram
+    participant User as 用户
+    participant Frontend as 前端
+    participant Backend as 后端
 
-<h2 id="prometheus概念"><a href="#prometheus概念" class="headerlink" title="prometheus概念"></a>prometheus概念</h2><ul>
-<li>Label: 标签，string格式的kv组合</li>
-<li>series: 时间序列，label的组合</li>
-<li>chunk: 时间，value的数据</li>
+    User->>Frontend: 点击页面
+    Frontend->>Backend: 请求当前功能集
+    Backend->>Backend: 返回当前功能集
+    alt 用户有权限
+        Backend->>Frontend: 返回全局数据
+        Frontend->>User: 显示数据
+    else 用户无权限
+        Backend->>Frontend: 返回错误信息
+        Frontend->>User: 显示错误信息
+    end</pre>
+
+<h2 id="SaaS服务用户级别的功能"><a href="#SaaS服务用户级别的功能" class="headerlink" title="SaaS服务用户级别的功能"></a>SaaS服务用户级别的功能</h2><p>前端调用SaaS服务一个用户权限的接口</p>
+<pre class="mermaid">sequenceDiagram
+    participant User as 用户
+    participant Frontend as 前端
+    participant Backend as 后端
+
+    User->>Frontend: 点击页面
+    Frontend->>Backend: 查看用户权限
+    Backend->>Backend: 验证用户权限
+    alt 用户有权限
+        Backend->>Frontend: 返回用户项目数据
+        Frontend->>User: 显示数据
+    else 用户无权限
+        Backend->>Frontend: 返回错误信息
+        Frontend->>User: 显示错误信息
+    end</pre>
+
+
+<script type="module"> import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';	mermaid.initialize({startOnLoad: true, flowchart: {curve: 'linear'}}); </script>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/07/09/MySQL%E5%BC%82%E6%AD%A5%E5%A4%8D%E5%88%B6%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%80%E8%87%B4%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/mysql-async-replica-inconsistency" class="post-title-link post-title-link-external" itemprop="url">MySQL异步复制中的数据不一致问题<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-07-09 20:51:03" itemprop="dateCreated datePublished" datetime="2024-07-09T20:51:03+08:00">2024-07-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前提"><a href="#前提" class="headerlink" title="前提"></a>前提</h2><p>Mysql8.0.X版本，且核心配置如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gtid_mode=ON</span><br><span class="line">binlog_format=row</span><br><span class="line">slave_skip_errors=all</span><br></pre></td></tr></table></figure>
+
+<p>数据不一致的根本原因在于MySQL在设计上不具备分布式系统的完整语义，这导致主从复制在面对网络分区和延迟时无法保持数据一致性。（又不可能采取全同步的模式，那就变成一个CP系统了）。根据数据冲突的内容，如果是**“不同主键，不触发唯一键约束的数据冲突”**，那么后续很容易可以同步到一致。如果触发了主键或者唯一键的冲突，无法互相同步，场景会变得复杂一些，简而言之，只有当后续的操作可以同时在主&#x2F;备两个数据库中抹平这个差距，数据才能恢复，并且约束越多，抹平也就变得愈困难。举例</p>
+<ul>
+<li>仅存在主键约束，数据内容不同，通过下次操作主键(update&#x2F;delete)，则可以恢复</li>
+<li>数据库自增主键（两条数据主键不同），触发了唯一字段约束，后续的操作要同时抹平主键、唯一字段、其他内容才能恢复一致（比如根据相同的条件删除掉这条数据等）</li>
 </ul>
-<h2 id="prometheus索引格式"><a href="#prometheus索引格式" class="headerlink" title="prometheus索引格式"></a>prometheus索引格式</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────────────┬─────────────────────┐</span><br><span class="line">│ magic(0xBAAAD700) &lt;4b&gt;     │ version(1) &lt;1 byte&gt; │</span><br><span class="line">├────────────────────────────┴─────────────────────┤</span><br><span class="line">│ ┌──────────────────────────────────────────────┐ │</span><br><span class="line">│ │                 Symbol Table                 │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │                    Series                    │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │                   Postings 1                 │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │                      ...                     │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │                   Postings N                 │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │             Postings Offset Table            │ │</span><br><span class="line">│ ├──────────────────────────────────────────────┤ │</span><br><span class="line">│ │                      TOC                     │ │</span><br><span class="line">│ └──────────────────────────────────────────────┘ │</span><br><span class="line">└──────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-<p>写入索引时，可以在上面列出的主要部分之间添加任意数量的0字节作为填充。顺序扫描文件时，必须跳过部分间的任意0字节。</p>
-<p>下面描述的大部分部分都以 len 字段开头。 它总是指定就在尾随 CRC32 校验和之前的字节数。 校验和就计算这些字节的校验和（不包含len字段）</p>
-<h3 id="符号表"><a href="#符号表" class="headerlink" title="符号表"></a>符号表</h3><p>符号表包含已存储序列的标签对中出现的重复数据删除字符串的排序列表。 它们可以从后续部分中引用，并显着减少总索引大小。</p>
-<p>该部分包含一系列字符串entry，每个entry都以字符串的原始字节长度为前缀。 所有字符串均采用 utf-8 编码。 字符串由顺序索引引用。 字符串按字典顺序升序排序。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────┬─────────────────────┐</span><br><span class="line">│ len &lt;4b&gt;           │ #symbols &lt;4b&gt;       │</span><br><span class="line">├────────────────────┴─────────────────────┤</span><br><span class="line">│ ┌──────────────────────┬───────────────┐ │</span><br><span class="line">│ │ len(str_1) &lt;uvarint&gt; │ str_1 &lt;bytes&gt; │ │</span><br><span class="line">│ ├──────────────────────┴───────────────┤ │</span><br><span class="line">│ │                . . .                 │ │</span><br><span class="line">│ ├──────────────────────┬───────────────┤ │</span><br><span class="line">│ │ len(str_n) &lt;uvarint&gt; │ str_n &lt;bytes&gt; │ │</span><br><span class="line">│ └──────────────────────┴───────────────┘ │</span><br><span class="line">├──────────────────────────────────────────┤</span><br><span class="line">│ CRC32 &lt;4b&gt;                               │</span><br><span class="line">└──────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-<h3 id="序列-series"><a href="#序列-series" class="headerlink" title="序列 series"></a>序列 series</h3><p>保存一个具体的时间序列，其中包含系列的label集合和block中的chunks。</p>
-<p>每个series都是16字节对齐。series的id为偏移量除以16。series ID 的排序列表也就是series label的字典排序列表。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">┌───────────────────────────────────────┐</span><br><span class="line">│ ┌───────────────────────────────────┐ │</span><br><span class="line">│ │   series_1                        │ │</span><br><span class="line">│ ├───────────────────────────────────┤ │</span><br><span class="line">│ │                 . . .             │ │</span><br><span class="line">│ ├───────────────────────────────────┤ │</span><br><span class="line">│ │   series_n                        │ │</span><br><span class="line">│ └───────────────────────────────────┘ │</span><br><span class="line">└───────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-<p>每一个series先保存label的数量，然后是包含label键值对的引用。 标签对按字典顺序排序。然后是series涉及的索引块的个数，然后是一系列元数据条目，其中包含块的最小 (mint) 和最大 (maxt) 时间戳以及对其在块文件中位置的引用。<code>mint</code> 是第一个样本的时间，<code>maxt</code> 是块中最后一个样本的时间。 在索引中保存时间范围数据, 允许按照时间范围删除数据时，如果时间范围匹配，不需要直接访问时间数据。</p>
-<p>空间大小优化: 第一个块的 <code>mint</code> 被存储，它的 <code>maxt</code> 被存储为一个增量，并且 <code>mint</code> 和 <code>maxt</code> 被编码为后续块的前一个时间的增量。 类似的，第一个chunk的引用被存储，下一个引用被存储为前一个chunk的增量。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────────────────────────────────────────────────────────┐</span><br><span class="line">│ len &lt;uvarint&gt;                                                            │</span><br><span class="line">├──────────────────────────────────────────────────────────────────────────┤</span><br><span class="line">│ ┌──────────────────────────────────────────────────────────────────────┐ │</span><br><span class="line">│ │                     labels count &lt;uvarint64&gt;                         │ │</span><br><span class="line">│ ├──────────────────────────────────────────────────────────────────────┤ │</span><br><span class="line">│ │              ┌────────────────────────────────────────────┐          │ │</span><br><span class="line">│ │              │ ref(l_i.name) &lt;uvarint32&gt;                  │          │ │</span><br><span class="line">│ │              ├────────────────────────────────────────────┤          │ │</span><br><span class="line">│ │              │ ref(l_i.value) &lt;uvarint32&gt;                 │          │ │</span><br><span class="line">│ │              └────────────────────────────────────────────┘          │ │</span><br><span class="line">│ │                             ...                                      │ │</span><br><span class="line">│ ├──────────────────────────────────────────────────────────────────────┤ │</span><br><span class="line">│ │                     chunks count &lt;uvarint64&gt;                         │ │</span><br><span class="line">│ ├──────────────────────────────────────────────────────────────────────┤ │</span><br><span class="line">│ │              ┌────────────────────────────────────────────┐          │ │</span><br><span class="line">│ │              │ c_0.mint &lt;varint64&gt;                        │          │ │</span><br><span class="line">│ │              ├────────────────────────────────────────────┤          │ │</span><br><span class="line">│ │              │ c_0.maxt - c_0.mint &lt;uvarint64&gt;            │          │ │</span><br><span class="line">│ │              ├────────────────────────────────────────────┤          │ │</span><br><span class="line">│ │              │ ref(c_0.data) &lt;uvarint64&gt;                  │          │ │</span><br><span class="line">│ │              └────────────────────────────────────────────┘          │ │</span><br><span class="line">│ │              ┌────────────────────────────────────────────┐          │ │</span><br><span class="line">│ │              │ c_i.mint - c_i-1.maxt &lt;uvarint64&gt;          │          │ │</span><br><span class="line">│ │              ├────────────────────────────────────────────┤          │ │</span><br><span class="line">│ │              │ c_i.maxt - c_i.mint &lt;uvarint64&gt;            │          │ │</span><br><span class="line">│ │              ├────────────────────────────────────────────┤          │ │</span><br><span class="line">│ │              │ ref(c_i.data) - ref(c_i-1.data) &lt;varint64&gt; │          │ │</span><br><span class="line">│ │              └────────────────────────────────────────────┘          │ │</span><br><span class="line">│ │                             ...                                      │ │</span><br><span class="line">│ └──────────────────────────────────────────────────────────────────────┘ │</span><br><span class="line">├──────────────────────────────────────────────────────────────────────────┤</span><br><span class="line">│ CRC32 &lt;4b&gt;                                                               │</span><br><span class="line">└──────────────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-<h3 id="Posting"><a href="#Posting" class="headerlink" title="Posting"></a>Posting</h3><p>Posting这一节存放着关于series引用的单调递增列表，简单来说就是存放id和时间序列的对应关系</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────┬────────────────────┐</span><br><span class="line">│ len &lt;4b&gt;           │ #entries &lt;4b&gt;      │</span><br><span class="line">├────────────────────┴────────────────────┤</span><br><span class="line">│ ┌─────────────────────────────────────┐ │</span><br><span class="line">│ │ ref(series_1) &lt;4b&gt;                  │ │</span><br><span class="line">│ ├─────────────────────────────────────┤ │</span><br><span class="line">│ │ ...                                 │ │</span><br><span class="line">│ ├─────────────────────────────────────┤ │</span><br><span class="line">│ │ ref(series_n) &lt;4b&gt;                  │ │</span><br><span class="line">│ └─────────────────────────────────────┘ │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ CRC32 &lt;4b&gt;                              │</span><br><span class="line">└─────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-<p>Posting sections的顺序由<code>postings offset table</code>决定。</p>
-<h3 id="Posting-Offset-Table"><a href="#Posting-Offset-Table" class="headerlink" title="Posting Offset Table"></a>Posting Offset Table</h3><p><code>postings offset table</code>包含着一系列<code>posting offset entry</code>，根据label的名称和值排序。每一个<code>posting offset entry</code>存放着label的键值对以及在<code>posting sections</code>中其series列表的偏移量。用来跟踪<code>posting sections</code>。当index文件加载时，它们将部分加载到内存中。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────┬──────────────────────┐</span><br><span class="line">│ len &lt;4b&gt;            │ #entries &lt;4b&gt;        │</span><br><span class="line">├─────────────────────┴──────────────────────┤</span><br><span class="line">│ ┌────────────────────────────────────────┐ │</span><br><span class="line">│ │  n = 2 &lt;1b&gt;                            │ │</span><br><span class="line">│ ├──────────────────────┬─────────────────┤ │</span><br><span class="line">│ │ len(name) &lt;uvarint&gt;  │ name &lt;bytes&gt;    │ │</span><br><span class="line">│ ├──────────────────────┼─────────────────┤ │</span><br><span class="line">│ │ len(value) &lt;uvarint&gt; │ value &lt;bytes&gt;   │ │</span><br><span class="line">│ ├──────────────────────┴─────────────────┤ │</span><br><span class="line">│ │  offset &lt;uvarint64&gt;                    │ │</span><br><span class="line">│ └────────────────────────────────────────┘ │</span><br><span class="line">│                    . . .                   │</span><br><span class="line">├────────────────────────────────────────────┤</span><br><span class="line">│  CRC32 &lt;4b&gt;                                │</span><br><span class="line">└────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-<h3 id="TOC"><a href="#TOC" class="headerlink" title="TOC"></a>TOC</h3><p><code>table of contents</code>是整个索引的入口点，并指向文件中的各个部分。 如果引用为零，则表示相应的部分不存在，查找时应返回空结果。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│ ref(symbols) &lt;8b&gt;                       │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ ref(series) &lt;8b&gt;                        │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ ref(label indices start) &lt;8b&gt;           │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ ref(label offset table) &lt;8b&gt;            │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ ref(postings start) &lt;8b&gt;                │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ ref(postings offset table) &lt;8b&gt;         │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ CRC32 &lt;4b&gt;                              │</span><br><span class="line">└─────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-<h2 id="chunks-磁盘格式"><a href="#chunks-磁盘格式" class="headerlink" title="chunks 磁盘格式"></a>chunks 磁盘格式</h2><p>chunks文件创建在<strong>block</strong>中的<code>chunks/</code>目录中。 每个段文件的最大大小为 512MB。<br>文件中的chunk由uint64的索引组织，索引低四位为文件内偏移，高四位为段序列号。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────────────┐</span><br><span class="line">│  magic(0x85BD40DD) &lt;4 byte&gt;  │</span><br><span class="line">├──────────────────────────────┤</span><br><span class="line">│    version(1) &lt;1 byte&gt;       │</span><br><span class="line">├──────────────────────────────┤</span><br><span class="line">│    padding(0) &lt;3 byte&gt;       │</span><br><span class="line">├──────────────────────────────┤</span><br><span class="line">│ ┌──────────────────────────┐ │</span><br><span class="line">│ │         Chunk 1          │ │</span><br><span class="line">│ ├──────────────────────────┤ │</span><br><span class="line">│ │          ...             │ │</span><br><span class="line">│ ├──────────────────────────┤ │</span><br><span class="line">│ │         Chunk N          │ │</span><br><span class="line">│ └──────────────────────────┘ │</span><br><span class="line">└──────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-<h2 id="chunks中的Chunk格式"><a href="#chunks中的Chunk格式" class="headerlink" title="chunks中的Chunk格式"></a>chunks中的Chunk格式</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">┌───────────────┬───────────────────┬──────────────┬────────────────┐</span><br><span class="line">│ len &lt;uvarint&gt; │ encoding &lt;1 byte&gt; │ data &lt;bytes&gt; │ CRC32 &lt;4 byte&gt; │</span><br><span class="line">└───────────────┴───────────────────┴──────────────┴────────────────┘</span><br></pre></td></tr></table></figure>
-
-<h1 id="查询数据"><a href="#查询数据" class="headerlink" title="查询数据"></a>查询数据</h1><h2 id="code"><a href="#code" class="headerlink" title="code"></a>code</h2><p>查询的prometheus方法签名</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Select(sortSeries <span class="type">bool</span>, hints *SelectHints, matchers ...*labels.Matcher) SeriesSet</span><br></pre></td></tr></table></figure>
-
-<p>支持从block中，remote等各种地方查询获取数据</p>
-<p>prometheus会在内存中维护一个数据结构</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Map of LabelName to a list of some LabelValues&#x27;s position in the offset table.</span></span><br><span class="line"><span class="comment">// The first and last values for each name are always present.</span></span><br><span class="line">postings <span class="keyword">map</span>[<span class="type">string</span>][]postingOffset</span><br></pre></td></tr></table></figure>
-
-<p>在内存中，保留每个label name，并且每n个保存label值，降低内存的占用。但是第一个和最后一个值总是保存在内存中。</p>
-<h2 id="查询数据流程"><a href="#查询数据流程" class="headerlink" title="查询数据流程"></a>查询数据流程</h2><p><img src="/Images/prometheus-tsdb-index.png" alt="prometheus-tsdb-index"></p>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a target="_blank" rel="noopener" href="https://prometheus.io/docs/prometheus/latest/storage/">https://prometheus.io/docs/prometheus/latest/storage/</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus/blob/release-2.37/tsdb/docs/format/README.md">https://github.com/prometheus/prometheus/blob/release-2.37/tsdb/docs/format/README.md</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus/blob/release-2.37/tsdb/docs/format/index.md">https://github.com/prometheus/prometheus/blob/release-2.37/tsdb/docs/format/index.md</a></li>
-</ul>
+<p>下文将分别以插入为例讨论这几个场景，用红色叉号代表同步延迟或者断开。</p>
+<p>注：由于Mysql主备同步时会将upsert类的sql转换为实际执行的insert、update语句，也就是说upsert的语义在主备同步不稳定&#x2F;切换时，容易丢失。</p>
+<h2 id="不同主键，不触发唯一键约束的数据冲突"><a href="#不同主键，不触发唯一键约束的数据冲突" class="headerlink" title="不同主键，不触发唯一键约束的数据冲突"></a><strong>不同主键，不触发唯一键约束的数据冲突</strong></h2><p>设想表结构，仅有一个name字段，且name为主键。比如我们先在MysqlA中插入了数据name&#x3D;tt，假设发生了切换，又向MysqlB插入了数据name&#x3D;wtt。</p>
+<p><img src="/Images/mysql-case1-insert-data.png" alt="mysql-case1-insert-data"></p>
+<p>这就导致MysqlA与MysqlB里面的数据存在着不一致，但是一旦同步恢复，数据就会一致。</p>
+<p><img src="/Images/mysql-case1-sync-success.png" alt="mysql-case1-sync-success"></p>
+<h2 id="仅主键约束，内容不一致冲突"><a href="#仅主键约束，内容不一致冲突" class="headerlink" title="仅主键约束，内容不一致冲突"></a>仅主键约束，内容不一致冲突</h2><p>表结构，拥有两个字段，name为主键，age为字段。</p>
+<p>同样，插入了两条数据，导致冲突。</p>
+<p><img src="/Images/mysql-case2-insert-data.png" alt="mysql-case2-insert-data"></p>
+<p>即使MysqlA和MysqlB之间同步恢复，后续insert语句也会由于主键冲突同步失败。</p>
+<p><img src="/Images/mysql-case2-sync-fail.png" alt="mysql-case2-sync-fail"></p>
+<p>这种不一致要等到后续对主键进行update操作后，才能恢复一致</p>
+<p><img src="/Images/mysql-case2-recovery.png" alt="mysql-case2-recovery"></p>
+<h2 id="包含主键、唯一约束在内的冲突场景"><a href="#包含主键、唯一约束在内的冲突场景" class="headerlink" title="包含主键、唯一约束在内的冲突场景"></a>包含主键、唯一约束在内的冲突场景</h2><p>主键为数据库自增主键，其中一个库为奇数，另一个库为偶数。同时还有唯一约束name</p>
+<p><img src="/Images/mysql-case3-insert-data.png" alt="mysql-case3-insert-data"></p>
+<p>这时候插入数据，就会导致不一致，并且主键也不相同，由于业务不感知主键，使用不存在则更新的语法也会导致主键不一致。</p>
+<p><img src="/Images/mysql-case3-upsert-data.png" alt="mysql-case3-upsert-data"></p>
+<p>可以预想到即使恢复同步，MysqlA和MysqlB数据也无法一致。</p>
+<p><img src="/Images/mysql-case3-sync-fail.png" alt="mysql-case3-sync-fail"></p>
+<p>在这种场景下，任何针对id的SQL操作都无法在双方数据库中成功同步。例如，MysqlB数据库中不存在id为0的记录，而MysqlA中不存在id为1的记录，导致同步操作失败。</p>
+<p>想要恢复一致，可以通过业务唯一约束来删除记录或者是根据业务约束把Mysql主键id也一并更新（不过这很困难，一般这种业务是不会直接操作id的）</p>
+<p>那么可能会有人有疑问，为什么不像之前那样，用name作为唯一主键呢？</p>
+<p>答：业务的需求多种多样，而且如果唯一约束由多个字段组成，使用Mysql自增主键是唯一的选择。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文探讨了Mysql异步复制模式下的数据不一致问题，容易在什么时候产生，什么时候恢复。总的来说，业务如果只有一个唯一主键，出现不一致的概率更小。如果业务用数据库自增作为主键，同时伴有唯一约束的插入操作（如upsert等），更容易出现长期的不一致。</p>
 
       
     </div>
@@ -1194,6 +1111,209 @@
 
 
 
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/06/08/WebFlux%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/webflux-best-practice" class="post-title-link post-title-link-external" itemprop="url">WebFlux最佳实践<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-06-08 15:50:57" itemprop="dateCreated datePublished" datetime="2024-06-08T15:50:57+08:00">2024-06-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>WebFlux是Spring 5引入的新的响应式编程框架，它提供了一种基于反应式流的编程模型，可以用于构建高性能、高吞吐量的Web应用程序。</p>
+<h1 id="防止大量请求堆积"><a href="#防止大量请求堆积" class="headerlink" title="防止大量请求堆积"></a>防止大量请求堆积</h1><h2 id="限制同一时间的并发处理个数"><a href="#限制同一时间的并发处理个数" class="headerlink" title="限制同一时间的并发处理个数"></a>限制同一时间的并发处理个数</h2><p>由于WebFlux可以处理大量的请求，如果后端处理较慢（如写db较慢等），可能会导致大量的请求堆积，可以通过限制同一时间的并发处理个数来防止请求堆积。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.http.HttpStatus;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.server.ServerWebExchange;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.server.WebFilter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.server.WebFilterChain;</span><br><span class="line"><span class="keyword">import</span> reactor.core.publisher.Mono;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Semaphore;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConcurrencyLimitingFilter</span> <span class="keyword">implements</span> <span class="title class_">WebFilter</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Semaphore semaphore;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ConcurrencyLimitingFilter</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.semaphore = <span class="keyword">new</span> <span class="title class_">Semaphore</span>(<span class="number">10</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, WebFilterChain chain)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (semaphore.tryAcquire()) &#123;</span><br><span class="line">            <span class="keyword">return</span> chain.filter(exchange)</span><br><span class="line">                    .doFinally(sig -&gt; semaphore.release());</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);</span><br><span class="line">            <span class="keyword">return</span> exchange.getResponse().setComplete();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="配置超时时间"><a href="#配置超时时间" class="headerlink" title="配置超时时间"></a>配置超时时间</h2><p>网络编程中，任何操作都应该有超时时间。WebFlux允许大量的请求进入，如果不设置超时时间，可能会导致大量的请求排队处理（可能客户端早已放弃），可以通过统一Filter来设置最大超时时间。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.HttpStatus;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.server.ResponseStatusException;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.server.ServerWebExchange;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.server.WebFilter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.server.WebFilterChain;</span><br><span class="line"><span class="keyword">import</span> reactor.core.publisher.Mono;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.time.Duration;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeoutException;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WebRequestTimeoutFilter</span> <span class="keyword">implements</span> <span class="title class_">WebFilter</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, WebFilterChain chain)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> chain.filter(exchange)</span><br><span class="line">                .timeout(Duration.ofSeconds(<span class="number">10</span>))</span><br><span class="line">                .onErrorResume(TimeoutException.class, e -&gt; &#123;</span><br><span class="line">                    log.error(<span class="string">&quot;Request timeout&quot;</span>, e);</span><br><span class="line">                    <span class="keyword">return</span> Mono.error(<span class="keyword">new</span> <span class="title class_">ResponseStatusException</span>(HttpStatus.GATEWAY_TIMEOUT, <span class="string">&quot;Request timeout&quot;</span>));</span><br><span class="line">                &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/05/08/%E8%AE%B0%E4%B8%80%E6%AC%A1%E8%AF%A1%E5%BC%82%E7%9A%84Java%E6%97%B6%E9%97%B4%E6%88%B3%E5%8F%98%E5%8C%96%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/java-weird-timestamp-change" class="post-title-link post-title-link-external" itemprop="url">记一次诡异的Java时间戳变化问题<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-05-08 08:11:47" itemprop="dateCreated datePublished" datetime="2024-05-08T08:11:47+08:00">2024-05-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h1><p>在一个使用Spring R2dbc与Mysql8.x的项目中，当创建 一个REST资源，进行创建，返回的毫秒精度时间戳，和下一瞬间查询的时间戳不一致。sql及代码大概如下</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> person (</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    name <span class="type">VARCHAR</span>(<span class="number">255</span>),</span><br><span class="line">    created_time DATETIME(<span class="number">3</span>),</span><br><span class="line">    updated_time DATETIME(<span class="number">3</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>实体类定义</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PersonEntity</span> &#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="meta">@CreatedDate</span></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime createdTime;</span><br><span class="line">    <span class="meta">@LastModifiedDate</span></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime updatedTime;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用了<code>@CreatedDate</code>、<code>@LastModifiedDate</code>注解，并在Application类上配置了<code>@EnableR2dbcAuditing</code>注解用于在Repo操作实体的时候，自动更新时间戳。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">PersonRepo</span> <span class="keyword">extends</span> <span class="title class_">ReactiveCrudRepository</span>&lt;PersonEntity, Long&gt; &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建代码类比如下，大概就是使用r2dbc操作数据，并将r2dbc返回的实体用于转换毫秒时间戳</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">return createPersonReq</span><br><span class="line">               .flatMap(req -&gt; &#123;</span><br><span class="line">                   PersonPo personPo = new PersonPo();</span><br><span class="line">                   personPo.setAge(18);</span><br><span class="line">                   personPo.setName(req.getName());</span><br><span class="line">                   return personRepo.save(personPo);</span><br><span class="line">               &#125;)</span><br><span class="line">               .map(person -&gt; &#123;</span><br><span class="line">                   PersonResp personResp = new PersonResp();</span><br><span class="line">                   personResp.setName(person.getName());</span><br><span class="line">                   personResp.setCreatedTime(TimeUtil.format(person.getCreatedTime()));</span><br><span class="line">                   return new ResponseEntity&lt;&gt;(personResp, null, HttpStatus.CREATED);</span><br><span class="line">               &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>然而创建的时候返回的时间戳和查询的时间戳不一致，现象举例：<br>创建的时候返回：<code>2024-05-08T08:11:47.333Z</code>，<br>查询的时候却返回：<code>2024-05-08T08:11:47.334Z</code>，</p>
+<p>走读代码，发现代码基本上万无一失，那么问题出在哪里呢？</p>
+<p>通过仔细观察时间戳的区别，发现时间戳的变化都在最后一位，且相差为一，醒悟到这估计是由于内存中纳秒时间戳精度在转化为数据库毫秒时间戳的时候，部分库的行为是截断，部分库的行为是四舍五入，导致了这个问题。</p>
+<p>最终通过写demo，docker抓包复现了这个问题，如下图所示，mysql server会将接收的时间戳进行四舍五入，而java常见的format工具类都是截断，导致了这一不一致。同时，这也体现了，r2dbc返回的entity可能并不是实际存入数据的内容，而是”原始”的entity。</p>
+<p><img src="/Images/r2dbc-weird-timestamp-change.jpeg" alt="r2dbc-weird-timestamp-change.jpeg"></p>
+<h1 id="r2dbc与mysql的时间精度失调问题"><a href="#r2dbc与mysql的时间精度失调问题" class="headerlink" title="r2dbc与mysql的时间精度失调问题"></a>r2dbc与mysql的时间精度失调问题</h1><p>在这个问题里面，存在三个时间精度：</p>
+<ul>
+<li>内存中的时间精度</li>
+<li>r2dbc发给mysql的时间精度，有趣的是，r2dbc发给mysql的时间精度，并不是sql中列定义的精度，而是mysql server所能支持的最高精度即微秒精度。</li>
+<li>mysql实际存储的时间精度</li>
+</ul>
+<p>r2dbc返回的entity可能并不是实际存入数据的内容，而是经过r2dbc处理之后，发送到数据库之前的entity。问题的关键就在r2dbc并不根据列定义的精度处理数据，而是根据mysql server支持的最高精度处理数据。</p>
+<p>解决问题的方式有几种：</p>
+<ul>
+<li>将mysql列定义到微秒级别精度，优选方案</li>
+<li>在进入r2dbc之前，将时间戳截断到mysql列定义的精度</li>
+<li>在r2dbc返回的entity中，将时间戳截断到mysql支持的精度。这其实对开发者的心智负担较重，返回的entity并不是实际存储的，使用前要做进位，限制也比较大。</li>
+</ul>
+<p>在进入r2dbc之前，将时间戳截断到数据库表定义的精度，也有两种方式</p>
+<ul>
+<li>不使用<code>@CreatedDate</code>、<code>@LastModifiedDate</code>注解，而是在应用程序中手动设置时间戳</li>
+<li>继续使用<code>@CreatedDate</code>、<code>@LastModifiedDate</code>注解，通过拦截器统一进位</li>
+</ul>
+<p>通过拦截器的代码如下，定义基类，不然每个实体类都要书写拦截器。一般来说，一个项目里，时间戳的精度都应该统一，所以可以定义一个统一的拦截器。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.ToString;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.annotation.CreatedDate;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.annotation.LastModifiedDate;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.time.LocalDateTime;</span><br><span class="line"></span><br><span class="line"><span class="meta">@ToString</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AuditableEntity</span> &#123;</span><br><span class="line">    <span class="meta">@CreatedDate</span></span><br><span class="line">    <span class="keyword">protected</span> LocalDateTime createdTime;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@LastModifiedDate</span></span><br><span class="line">    <span class="keyword">protected</span> LocalDateTime updatedTime;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> LocalDateTime <span class="title function_">getCreatedTime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> createdTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setCreatedTime</span><span class="params">(LocalDateTime createdTime)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.createdTime = createdTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> LocalDateTime <span class="title function_">getUpdatedTime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> updatedTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setUpdatedTime</span><span class="params">(LocalDateTime updatedTime)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.updatedTime = updatedTime;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.reactivestreams.Publisher;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.r2dbc.mapping.OutboundRow;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.r2dbc.mapping.event.BeforeSaveCallback;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.relational.core.mapping.event.BeforeConvertCallback;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.relational.core.sql.SqlIdentifier;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> reactor.core.publisher.Mono;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.time.LocalDateTime;</span><br><span class="line"><span class="keyword">import</span> java.time.temporal.ChronoUnit;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AuditableEntityCallback</span> <span class="keyword">implements</span> <span class="title class_">BeforeSaveCallback</span>&lt;AuditableEntity&gt;, BeforeConvertCallback&lt;AuditableEntity&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Publisher&lt;AuditableEntity&gt; <span class="title function_">onBeforeSave</span><span class="params">(AuditableEntity entity, OutboundRow row, SqlIdentifier table)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;before save &quot;</span> + entity.getCreatedTime());</span><br><span class="line">        entity.setCreatedTime(roundToMilliseconds(entity.getCreatedTime()));</span><br><span class="line">        entity.setUpdatedTime(roundToMilliseconds(entity.getUpdatedTime()));</span><br><span class="line">        System.out.println(<span class="string">&quot;before save &quot;</span> + entity.getCreatedTime());</span><br><span class="line">        <span class="keyword">return</span> Mono.just(entity);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> AuditableEntity <span class="title function_">onBeforeConvert</span><span class="params">(AuditableEntity entity)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;before convert &quot;</span> + entity.getCreatedTime());</span><br><span class="line">        entity.setCreatedTime(roundToMilliseconds(entity.getCreatedTime()));</span><br><span class="line">        entity.setUpdatedTime(roundToMilliseconds(entity.getUpdatedTime()));</span><br><span class="line">        System.out.println(<span class="string">&quot;before convert &quot;</span> + entity.getCreatedTime());</span><br><span class="line">        <span class="keyword">return</span> entity;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> LocalDateTime <span class="title function_">roundToMilliseconds</span><span class="params">(LocalDateTime dateTime)</span> &#123;</span><br><span class="line">        <span class="type">LocalDateTime</span> <span class="variable">localDateTime</span> <span class="operator">=</span> dateTime.truncatedTo(ChronoUnit.MILLIS);</span><br><span class="line">        <span class="type">int</span> <span class="variable">dateTimeNano</span> <span class="operator">=</span> dateTime.getNano() % <span class="number">1000_000</span>;</span><br><span class="line">        <span class="keyword">if</span> (dateTimeNano &gt;= <span class="number">500_000</span>) &#123;</span><br><span class="line">            localDateTime = localDateTime.plusNanos(<span class="number">1_000_000</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> localDateTime;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="jpa有没有问题呢？"><a href="#jpa有没有问题呢？" class="headerlink" title="jpa有没有问题呢？"></a>jpa有没有问题呢？</h1><p>出于好奇，我也做了jpa的尝试，jpa也是一样的行为</p>
+<p><img src="/Images/jpa-weird-timestamp-change.png" alt="jpa-weird-timestamp-change.jpeg"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
 
 </div>
   </main>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="如何使用显示过滤器或者按住 CTRL + F，输入显示过滤器 二层显示过滤器举例长度小于128字节的数据包frame.len&lt;&#x3D;128 排除ARP流量!arp 三层显示过滤器举例只显示192.168.0.1 IP相关数据包ip.addr&#x3D;&#x3D;192.168.0.1 四层显示过滤器举例排除RDP流量!tcp.port&#x3D;&#x3D;3389 具有SYN标志的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Wireshark 显示过滤器">
+<meta property="og:url" content="https://hezhangjian.com/2018/09/09/WireShark%20%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="如何使用显示过滤器或者按住 CTRL + F，输入显示过滤器 二层显示过滤器举例长度小于128字节的数据包frame.len&lt;&#x3D;128 排除ARP流量!arp 三层显示过滤器举例只显示192.168.0.1 IP相关数据包ip.addr&#x3D;&#x3D;192.168.0.1 四层显示过滤器举例排除RDP流量!tcp.port&#x3D;&#x3D;3389 具有SYN标志的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/wireshark-display-filter1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/wireshark-display-filter2.png">
+<meta property="article:published_time" content="2018-09-09T01:55:09.000Z">
+<meta property="article:modified_time" content="2025-10-18T02:37:30.176Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="Wireshark">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/wireshark-display-filter1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2018/09/09/WireShark%20%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2018/09/09/WireShark%20%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8/","path":"2018/09/09/WireShark 显示过滤器/","title":"Wireshark 显示过滤器"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Wireshark 显示过滤器 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">如何使用显示过滤器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%B1%82%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8%E4%B8%BE%E4%BE%8B"><span class="nav-number">1.1.</span> <span class="nav-text">二层显示过滤器举例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%95%BF%E5%BA%A6%E5%B0%8F%E4%BA%8E128%E5%AD%97%E8%8A%82%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-number">1.1.1.</span> <span class="nav-text">长度小于128字节的数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%92%E9%99%A4ARP%E6%B5%81%E9%87%8F"><span class="nav-number">1.1.2.</span> <span class="nav-text">排除ARP流量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E5%B1%82%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8%E4%B8%BE%E4%BE%8B"><span class="nav-number">1.2.</span> <span class="nav-text">三层显示过滤器举例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AA%E6%98%BE%E7%A4%BA192-168-0-1-IP%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-number">1.2.1.</span> <span class="nav-text">只显示192.168.0.1 IP相关数据包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E5%B1%82%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8%E4%B8%BE%E4%BE%8B"><span class="nav-number">1.3.</span> <span class="nav-text">四层显示过滤器举例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%92%E9%99%A4RDP%E6%B5%81%E9%87%8F"><span class="nav-number">1.3.1.</span> <span class="nav-text">排除RDP流量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E6%9C%89SYN%E6%A0%87%E5%BF%97%E7%9A%84TCP%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-number">1.3.2.</span> <span class="nav-text">具有SYN标志的TCP数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E6%9C%89RST%E6%A0%87%E5%BF%97%E7%9A%84TCP%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-number">1.3.3.</span> <span class="nav-text">具有RST标志的TCP数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP%E7%A1%AE%E8%AE%A4%E6%97%B6%E9%97%B4%E8%BE%83%E4%B9%85"><span class="nav-number">1.3.4.</span> <span class="nav-text">TCP确认时间较久</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%A1%E6%89%8B%E8%A2%AB%E5%AF%B9%E6%96%B9%E6%8B%92%E7%BB%9D%E7%9A%84%E5%8C%85"><span class="nav-number">1.3.5.</span> <span class="nav-text">握手被对方拒绝的包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%87%8D%E4%BC%A0"><span class="nav-number">1.3.6.</span> <span class="nav-text">客户端重传</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tcp%E5%8C%85%E5%90%AB"><span class="nav-number">1.3.7.</span> <span class="nav-text">Tcp包含</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8%E4%B8%BE%E4%BE%8B"><span class="nav-number">1.4.</span> <span class="nav-text">应用层显示过滤器举例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%80%E6%9C%89http%E6%B5%81%E9%87%8F"><span class="nav-number">1.4.1.</span> <span class="nav-text">所有http流量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E6%9C%AC%E7%AE%A1%E7%90%86%E6%B5%81%E9%87%8F"><span class="nav-number">1.4.2.</span> <span class="nav-text">文本管理流量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E6%9C%ACemail%E6%B5%81%E9%87%8F"><span class="nav-number">1.4.3.</span> <span class="nav-text">文本email流量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AA%E6%98%BE%E7%A4%BA%E8%AE%BF%E9%97%AE%E6%9F%90%E6%8C%87%E5%AE%9A%E4%B8%BB%E6%9C%BA%E5%90%8D%E7%9A%84HTTP%E5%8D%8F%E8%AE%AE%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-number">1.4.4.</span> <span class="nav-text">只显示访问某指定主机名的HTTP协议数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AA%E6%98%BE%E7%A4%BA%E5%8C%85%E5%90%ABHTTP-GET%E6%96%B9%E6%B3%95%E7%9A%84HTTP%E5%8D%8F%E8%AE%AE%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-number">1.4.5.</span> <span class="nav-text">只显示包含HTTP GET方法的HTTP协议数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AA%E6%98%BE%E7%A4%BAHTTP-%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%8F%91%E8%B5%B7%E7%9A%84%E5%8C%85%E5%90%AB%E6%8C%87%E5%AE%9AURI%E8%AF%B7%E6%B1%82%E7%9A%84HTTP%E5%8D%8F%E8%AE%AE%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-number">1.4.6.</span> <span class="nav-text">只显示HTTP 客户端发起的包含指定URI请求的HTTP协议数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AA%E6%98%BE%E7%A4%BA%E5%8C%85%E5%90%ABZIP%E6%96%87%E4%BB%B6%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-number">1.4.7.</span> <span class="nav-text">只显示包含ZIP文件的数据包</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2018/09/09/WireShark%20%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Wireshark 显示过滤器 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/wireshark-display-filter" class="post-title-link post-title-link-external" itemprop="url">Wireshark 显示过滤器<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-09-09 09:55:09" itemprop="dateCreated datePublished" datetime="2018-09-09T09:55:09+08:00">2018-09-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="如何使用显示过滤器"><a href="#如何使用显示过滤器" class="headerlink" title="如何使用显示过滤器"></a>如何使用显示过滤器</h1><p><img src="/Images/wireshark-display-filter1.png" alt="wireshark-display-filter1"><br>或者按住 CTRL + F，输入显示过滤器<br><img src="/Images/wireshark-display-filter2.png" alt="wireshark-display-filter2"></p>
+<h2 id="二层显示过滤器举例"><a href="#二层显示过滤器举例" class="headerlink" title="二层显示过滤器举例"></a>二层显示过滤器举例</h2><h3 id="长度小于128字节的数据包"><a href="#长度小于128字节的数据包" class="headerlink" title="长度小于128字节的数据包"></a>长度小于128字节的数据包</h3><p>frame.len&lt;&#x3D;128</p>
+<h3 id="排除ARP流量"><a href="#排除ARP流量" class="headerlink" title="排除ARP流量"></a>排除ARP流量</h3><p>!arp</p>
+<h2 id="三层显示过滤器举例"><a href="#三层显示过滤器举例" class="headerlink" title="三层显示过滤器举例"></a>三层显示过滤器举例</h2><h3 id="只显示192-168-0-1-IP相关数据包"><a href="#只显示192-168-0-1-IP相关数据包" class="headerlink" title="只显示192.168.0.1 IP相关数据包"></a>只显示192.168.0.1 IP相关数据包</h3><p>ip.addr&#x3D;&#x3D;192.168.0.1</p>
+<h2 id="四层显示过滤器举例"><a href="#四层显示过滤器举例" class="headerlink" title="四层显示过滤器举例"></a>四层显示过滤器举例</h2><h3 id="排除RDP流量"><a href="#排除RDP流量" class="headerlink" title="排除RDP流量"></a>排除RDP流量</h3><p>!tcp.port&#x3D;&#x3D;3389</p>
+<h3 id="具有SYN标志的TCP数据包"><a href="#具有SYN标志的TCP数据包" class="headerlink" title="具有SYN标志的TCP数据包"></a>具有SYN标志的TCP数据包</h3><p>tcp.flags.syn&#x3D;&#x3D;1</p>
+<h3 id="具有RST标志的TCP数据包"><a href="#具有RST标志的TCP数据包" class="headerlink" title="具有RST标志的TCP数据包"></a>具有RST标志的TCP数据包</h3><p>tcp.flags.rst&#x3D;&#x3D;1</p>
+<h3 id="TCP确认时间较久"><a href="#TCP确认时间较久" class="headerlink" title="TCP确认时间较久"></a>TCP确认时间较久</h3><p>tcp.analysis.ack_rtt &gt; 0.2 and tcp.len &#x3D;&#x3D; 0<br>###启用TCP Relative Sequence Number的情况<br>如何启用?<br>Edit -&gt; Preferences -&gt; Protocols -&gt; TCP Relative Sequence Numbers</p>
+<h3 id="握手被对方拒绝的包"><a href="#握手被对方拒绝的包" class="headerlink" title="握手被对方拒绝的包"></a>握手被对方拒绝的包</h3><p>tcp.flags.reset &#x3D;&#x3D; 1 &amp;&amp; tcp.seq &#x3D;&#x3D; 1</p>
+<h3 id="客户端重传"><a href="#客户端重传" class="headerlink" title="客户端重传"></a>客户端重传</h3><p>tcp.flags.syn &#x3D;&#x3D; 1 &amp;&amp; tcp.analysis.retransmission</p>
+<h3 id="Tcp包含"><a href="#Tcp包含" class="headerlink" title="Tcp包含"></a>Tcp包含</h3><p>tcp contains {str}</p>
+<h2 id="应用层显示过滤器举例"><a href="#应用层显示过滤器举例" class="headerlink" title="应用层显示过滤器举例"></a>应用层显示过滤器举例</h2><h3 id="所有http流量"><a href="#所有http流量" class="headerlink" title="所有http流量"></a>所有http流量</h3><p>http</p>
+<h3 id="文本管理流量"><a href="#文本管理流量" class="headerlink" title="文本管理流量"></a>文本管理流量</h3><p>tcp.port &#x3D;&#x3D; 23 || tcp.port &#x3D;&#x3D; 21</p>
+<h3 id="文本email流量"><a href="#文本email流量" class="headerlink" title="文本email流量"></a>文本email流量</h3><p>email || pop || imap</p>
+<h3 id="只显示访问某指定主机名的HTTP协议数据包"><a href="#只显示访问某指定主机名的HTTP协议数据包" class="headerlink" title="只显示访问某指定主机名的HTTP协议数据包"></a>只显示访问某指定主机名的HTTP协议数据包</h3><p>http.host &#x3D;&#x3D; &lt;”hostname”&gt;</p>
+<h3 id="只显示包含HTTP-GET方法的HTTP协议数据包"><a href="#只显示包含HTTP-GET方法的HTTP协议数据包" class="headerlink" title="只显示包含HTTP GET方法的HTTP协议数据包"></a>只显示包含HTTP GET方法的HTTP协议数据包</h3><p>http.request.method &#x3D;&#x3D; ‘GET’</p>
+<h3 id="只显示HTTP-客户端发起的包含指定URI请求的HTTP协议数据包"><a href="#只显示HTTP-客户端发起的包含指定URI请求的HTTP协议数据包" class="headerlink" title="只显示HTTP 客户端发起的包含指定URI请求的HTTP协议数据包"></a>只显示HTTP 客户端发起的包含指定URI请求的HTTP协议数据包</h3><p>http.request.uri &#x3D;&#x3D; &lt;”Full request URI”&gt;</p>
+<h3 id="只显示包含ZIP文件的数据包"><a href="#只显示包含ZIP文件的数据包" class="headerlink" title="只显示包含ZIP文件的数据包"></a>只显示包含ZIP文件的数据包</h3><p>http matches “.zip” &amp;&amp; http.request.method &#x3D;&#x3D; ‘GET’</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Wireshark/" rel="tag"># Wireshark</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/09/09/WireShark%20%E6%8D%95%E8%8E%B7%E8%BF%87%E6%BB%A4%E5%99%A8/" rel="prev" title="Wireshark 捕获过滤器">
+                  <i class="fa fa-angle-left"></i> Wireshark 捕获过滤器
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/01/12/Java%20Ping%E5%91%BD%E4%BB%A4%E5%BF%83%E8%B7%B3%E6%8E%A2%E6%B5%8B%20InetAddress%20isReachable%E5%88%86%E6%9E%90/" rel="next" title="Java Ping命令心跳探测 InetAddress isReachable分析">
+                  Java Ping命令心跳探测 InetAddress isReachable分析 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

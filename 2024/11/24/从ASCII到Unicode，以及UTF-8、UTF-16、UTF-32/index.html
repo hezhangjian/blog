@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Unicode起源ASCIIASCII（American Standard Code for Information Interchange）是一种字符编码标准，它使用7位二进制数来表示128个字符，包括大小写字母、数字、标点符号、控制字符等。ASCII编码是由美国国家标准协会（ANSI）制定的，于1963年发布，是最早的字符编码标准之一。 ASCII不够用了随着计算机不仅仅用于英文，而是用于全球">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从ASCII到Unicode，以及UTF-8、UTF-16、UTF-32">
+<meta property="og:url" content="https://hezhangjian.com/2024/11/24/%E4%BB%8EASCII%E5%88%B0Unicode%EF%BC%8C%E4%BB%A5%E5%8F%8AUTF-8%E3%80%81UTF-16%E3%80%81UTF-32/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="Unicode起源ASCIIASCII（American Standard Code for Information Interchange）是一种字符编码标准，它使用7位二进制数来表示128个字符，包括大小写字母、数字、标点符号、控制字符等。ASCII编码是由美国国家标准协会（ANSI）制定的，于1963年发布，是最早的字符编码标准之一。 ASCII不够用了随着计算机不仅仅用于英文，而是用于全球">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-11-24T08:59:57.000Z">
+<meta property="article:modified_time" content="2025-10-18T02:37:30.177Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="Unicode">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2024/11/24/%E4%BB%8EASCII%E5%88%B0Unicode%EF%BC%8C%E4%BB%A5%E5%8F%8AUTF-8%E3%80%81UTF-16%E3%80%81UTF-32/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2024/11/24/%E4%BB%8EASCII%E5%88%B0Unicode%EF%BC%8C%E4%BB%A5%E5%8F%8AUTF-8%E3%80%81UTF-16%E3%80%81UTF-32/","path":"2024/11/24/从ASCII到Unicode，以及UTF-8、UTF-16、UTF-32/","title":"从ASCII到Unicode，以及UTF-8、UTF-16、UTF-32"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>从ASCII到Unicode，以及UTF-8、UTF-16、UTF-32 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Unicode%E8%B5%B7%E6%BA%90"><span class="nav-number">1.</span> <span class="nav-text">Unicode起源</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ASCII"><span class="nav-number">1.1.</span> <span class="nav-text">ASCII</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ASCII%E4%B8%8D%E5%A4%9F%E7%94%A8%E4%BA%86"><span class="nav-number">1.2.</span> <span class="nav-text">ASCII不够用了</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unicode%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">Unicode介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UTF-32%EF%BC%8832-bit-Unicode-Transformation-Format%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">UTF-32（32-bit Unicode Transformation Format）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UTF-16%EF%BC%8816-bit-Unicode-Transformation-Format%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">UTF-16（16-bit Unicode Transformation Format）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UTF-8%EF%BC%888-bit-Unicode-Transformation-Format%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">UTF-8（8-bit Unicode Transformation Format）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%A9%E5%B1%95%E7%9F%A5%E8%AF%86"><span class="nav-number">6.</span> <span class="nav-text">扩展知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK17%E4%B8%AD%E8%8B%B1%E6%96%87%E5%AD%97%E7%AC%A6%E9%9B%86%E5%86%85%E5%AD%98%E5%8D%A0%E7%94%A8%E9%87%8F%E9%99%8D%E4%BD%8E%E4%BA%86%E4%B8%80%E5%8D%8A"><span class="nav-number">6.1.</span> <span class="nav-text">JDK17中英文字符集内存占用量降低了一半</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/11/24/%E4%BB%8EASCII%E5%88%B0Unicode%EF%BC%8C%E4%BB%A5%E5%8F%8AUTF-8%E3%80%81UTF-16%E3%80%81UTF-32/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="从ASCII到Unicode，以及UTF-8、UTF-16、UTF-32 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/unicode" class="post-title-link post-title-link-external" itemprop="url">从ASCII到Unicode，以及UTF-8、UTF-16、UTF-32<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-11-24 16:59:57" itemprop="dateCreated datePublished" datetime="2024-11-24T16:59:57+08:00">2024-11-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Unicode起源"><a href="#Unicode起源" class="headerlink" title="Unicode起源"></a>Unicode起源</h1><h2 id="ASCII"><a href="#ASCII" class="headerlink" title="ASCII"></a>ASCII</h2><p>ASCII（American Standard Code for Information Interchange）是一种字符编码标准，它使用7位二进制数来表示128个字符，包括大小写字母、数字、标点符号、控制字符等。ASCII编码是由美国国家标准协会（ANSI）制定的，于1963年发布，是最早的字符编码标准之一。</p>
+<h2 id="ASCII不够用了"><a href="#ASCII不够用了" class="headerlink" title="ASCII不够用了"></a>ASCII不够用了</h2><p>随着计算机不仅仅用于英文，而是用于全球各种语言，ASCII编码已经不能满足需求，针对不同语言的编码方案也应运而生，这其中诞生了很多编码方案，比如GB2312、BIG5、ISO-8859等，这些字符集典型的就是将ASCII的最高位利用起来，将7位扩展到8位，这样就可以表示256个字符。比如ISO-8859-1就是将ASCII的最高位利用起来，表示了拉丁字母。ISO-8859-5表示了西里尔字母。</p>
+<p>这些字符集各自不包含全部的字符，而且不兼容，这就导致了字符集混乱。这导致在一个文件中混用多种字符成为了不可能完成的事情。而Unicode改变了这一切，它的愿景就是Unicode官网中说到的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Everyone in the world should be able to use their own language on phones and computers.</span><br></pre></td></tr></table></figure>
+
+<p>在早期，Unicode曾想过固定使用16位来表示字符，这就是UCS-2编码，也是UTF-16的前身，后面发现固定16位字符还是不够用，这才发展成了我们现在熟知的Unicode。</p>
+<h1 id="Unicode介绍"><a href="#Unicode介绍" class="headerlink" title="Unicode介绍"></a>Unicode介绍</h1><p>Unicode是一个文本编码标准。Unicode通过一个唯一的数字来定义每个字符，不管平台、程序或语言。这个数字叫做码点（code point）。Unicode码点是从0x000000到0x10FFFF（十六进制），书写上通常使用U+打头，跟上至少4位十六进制数（不足则补0），如U+0041（字母A）、U+1F600（emoji 😀），理论上，Unicode可以定义1114112个字符。</p>
+<p>Unicode的码点跟字符是怎么对应的呢？Unicode将这些码点分成了若干个区段，每个区段称为一个平面（plane），每个平面包含65536（对应低位的0x0000~0xffff）个码点。Unicode总共有17个平面，编号从0到16。Unicode的码点分布如下：</p>
+<table>
+<thead>
+<tr>
+<th>平面编号</th>
+<th>码点区间</th>
+<th>英文缩写</th>
+<th>英文名</th>
+<th>中文名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0 号平面</td>
+<td>U+000000 - U+00FFFF</td>
+<td>BMP</td>
+<td>Basic Multilingual Plane</td>
+<td>基本多文种平面</td>
+</tr>
+<tr>
+<td>1 号平面</td>
+<td>U+010000 - U+01FFFF</td>
+<td>SMP</td>
+<td>Supplementary Multilingual Plane</td>
+<td>多文种补充平面</td>
+</tr>
+<tr>
+<td>2 号平面</td>
+<td>U+020000 - U+02FFFF</td>
+<td>SIP</td>
+<td>Supplementary Ideographic Plane</td>
+<td>表意文字补充平面</td>
+</tr>
+<tr>
+<td>3 号平面</td>
+<td>U+030000 - U+03FFFF</td>
+<td>TIP</td>
+<td>Tertiary Ideographic Plane</td>
+<td>表意文字第三平面</td>
+</tr>
+<tr>
+<td>4 号平面 ~ 13 号平面</td>
+<td>U+040000 - U+0DFFFF</td>
+<td>&#x2F;</td>
+<td>已分配，但尚未使用</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>14 号平面</td>
+<td>U+0E0000 - U+0EFFFF</td>
+<td>SSP</td>
+<td>Supplementary Special-purpose Plane</td>
+<td>特别用途补充平面</td>
+</tr>
+<tr>
+<td>15 号平面</td>
+<td>U+0F0000 - U+0FFFFF</td>
+<td>PUA-A</td>
+<td>Private Use Area-A</td>
+<td>保留作为私人使用区 (A区)</td>
+</tr>
+<tr>
+<td>16 号平面</td>
+<td>U+100000 - U+10FFFF</td>
+<td>PUA-B</td>
+<td>Private Use Area-B</td>
+<td>保留作为私人使用区 (B区)</td>
+</tr>
+</tbody></table>
+<p>中文、英文均在0号平面，详细的分配可以参考Unicode的<a target="_blank" rel="noopener" href="https://www.unicode.org/roadmaps/index.html">RoadMap</a>。</p>
+<p>那么Unicode先定义了码点和字符之间的对应关系，但是如何存储在磁盘上，如何在网络中传输，这就引入了编码方式，编码方式决定了Unicode的码点如何转换为字节流。这就是Unicode定义的三种编码方式：UTF-32、UTF-16、UTF-8。</p>
+<h1 id="UTF-32（32-bit-Unicode-Transformation-Format）"><a href="#UTF-32（32-bit-Unicode-Transformation-Format）" class="headerlink" title="UTF-32（32-bit Unicode Transformation Format）"></a>UTF-32（32-bit Unicode Transformation Format）</h1><p>在介绍完Unicode之后，UTF-32是最简单、最容易想到的一种编码方式，直接将Unicode的码点以32位整数的方式存储起来。其中Rust的字符类型<code>char</code>，就使用32位值来表示Unicode字符。</p>
+<p>但是这种方式也有很显然的缺点，就是浪费空间，实际Unicode的范围，只需要21位就可以表示了，变长编码就应运而生。</p>
+<h1 id="UTF-16（16-bit-Unicode-Transformation-Format）"><a href="#UTF-16（16-bit-Unicode-Transformation-Format）" class="headerlink" title="UTF-16（16-bit Unicode Transformation Format）"></a>UTF-16（16-bit Unicode Transformation Format）</h1><p>这里我想给大家讲一个背景知识，编码方案的扩展，通常会尝试去兼容旧的编码方案，这使得新的编辑器可以打开旧的文件，如果没有用到新的字符，那么新的文件也可以被旧的编辑器打开。这使得演进更加平滑，更易落地。</p>
+<p>那就不得不先说一下UCS-2编码方案，如前所述，UCS-2想通过固定16位来表示字符，虽然它最终失败了，但是也影响了很多的系统，比如Windows、Jdk。</p>
+<p>UTF-16编码就以兼容UCS-2编码、变长为两个目标，UTF-16的编码规则</p>
+<ul>
+<li>① 对于码点小于等于U+FFFF的字符，直接使用16位表示，兼容UCS-2</li>
+<li>② 对于码点小于等于U+10FFFF的字符，使用两个16位表示</li>
+</ul>
+<blockquote>
+<p>这个补丁机制也常被人称作是surrogate。</p>
+</blockquote>
+<p>对于变长编码来说，对于文件中的任意一个字符，怎么能判断出来这是场景①的字符，还是场景②的第一个字符？抑或是场景②的第二个字符？</p>
+<p>Unicode给出的答案是，通过在BMP中舍弃U+D800到U+DFFF的码点，这个区间被称为代理对（surrogate pair），这个区间的码点不会被分配给字符，这样就可以通过这个区间来判断是场景①还是场景②。如果读取的时候，发现前两个字节是D8到DB，那么就是场景②的第一个字符；如果是DC到DF，那么就是场景②的第二个字符；否则就是场景①的字符。</p>
+<ul>
+<li>高代理（High-half surrogates）：范围是0xD800~0xDBFF，二进制范围为1101 1000 0000 ~ 1101 1111 1111，这也代表着高代理的前六位一定是110110。</li>
+<li>低代理（Low-half surrogates）：范围是0xDC00~0xDFFF，二进制范围为1101 1100 0000 ~ 1101 1111 1111，这也代表着低代理的前六位一定是110111。</li>
+</ul>
+<p>那么聪明的读者应该分析出来了，使用两个16位表示，由于存在代理对的固定部分，剩余的有效位还剩下20位。这20位恰好可以覆盖从U+010000到U+10FFFF的码点范围。由于U+0000-U+FFFF已经在场景①中覆盖，通过将码点减去0x10000，范围就变成了0x000000~0x0FFFFF，恰好是20位整数。</p>
+<h1 id="UTF-8（8-bit-Unicode-Transformation-Format）"><a href="#UTF-8（8-bit-Unicode-Transformation-Format）" class="headerlink" title="UTF-8（8-bit Unicode Transformation Format）"></a>UTF-8（8-bit Unicode Transformation Format）</h1><p>UTF-8的编码规则</p>
+<ul>
+<li>① 对于码点小于等于U+007F的字符，直接使用8位表示，兼容ASCII。</li>
+<li>② 对于码点小于等于U+07FF的字符，使用两个8位表示，其中有效位为11位。</li>
+<li>③ 对于码点小于等于U+FFFF的字符，使用三个8位表示，其中有效位为16位。</li>
+<li>④ 对于码点小于等于U+10FFFF的字符，使用四个8位表示，其中有效位为21位。</li>
+<li>⑤ 使用n个字节（n&gt;1）来表示一个字符时，第一个字节的前n位都是1，第n+1位是0，后面的字节的前两位都是10</li>
+</ul>
+<p>那么对于一个字节，就可以通过首位是不是1，来判断是1个字节还是n个字节，再通过第二个字节判断是否是首位，最后通过首位来判断字节的个数。</p>
+<p>由于UTF-8的有效位最大可达21位，这也就使得UTF-8不用像UTF-16那样减去0x10000。</p>
+<p>通过兼容ASCII，最短只用1个字节，这使得UTF-8成为了堪称最流行的编码方式，如果不需要兼容UCS-2，那么几乎可以说UTF-8是最好的选择，堪称当前事实上的标准。值得一提的是，UTF-8的主要设计者，也是Unix的创始人之一，Go语言的设计者之一，<strong>Ken Thompson</strong>。</p>
+<h1 id="扩展知识"><a href="#扩展知识" class="headerlink" title="扩展知识"></a>扩展知识</h1><h2 id="JDK17中英文字符集内存占用量降低了一半"><a href="#JDK17中英文字符集内存占用量降低了一半" class="headerlink" title="JDK17中英文字符集内存占用量降低了一半"></a>JDK17中英文字符集内存占用量降低了一半</h2><p>读者可能会觉得JDK17中中文字符内存占用降低一半是从UTF-16切换到UTF-8导致的，但实则不然，对于JDK来说，切换一种编码方式可谓是伤筋动骨，JDK17通过了JEP254提案，通过添加一个标志位，如果字符串的字符都是ISO-8859-1&#x2F;Latin-1字符，那么就使用一个字节进行存储。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Unicode/" rel="tag"># Unicode</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/10/29/Gin%20Web%E9%A1%B9%E7%9B%AE%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" rel="prev" title="Gin Web项目最佳实践">
+                  <i class="fa fa-angle-left"></i> Gin Web项目最佳实践
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/12/08/%E4%B8%80%E4%BA%9B%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83/" rel="next" title="一些微服务开发规范">
+                  一些微服务开发规范 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
