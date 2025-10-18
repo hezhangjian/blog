@@ -1,5 +1,6 @@
 ---
-title: prometheus tsdb索引布局及查询流程
+title: Prometheus tsdb索引布局及查询流程
+link: prometheus-tsdb-index
 date: 2022-07-18 16:48:38
 tags:
   - Prometheus

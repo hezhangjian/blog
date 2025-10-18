@@ -3,6 +3,7 @@ title: Calcite Parser代码生成详解
 path: calcite-parser-code-generate
 date: 2022-09-26T22:51:07
 tags:
+  - Calcite
 ---
 本文代码均已上传到[gitee](https://gitee.com/hezhangjian/calcite-examples)  
 calcite的parser代码生成分为如下两个步骤  
@@ -113,9 +114,7 @@ Parser.jj就是我们上一步生成的Parser.jj，如果有什么想要的定�
 
 生成代码  
   
-![calcite-parser-code-generator-javacc](calcite-parser-code-generator-javacc.png)  
-  
-## 无Parser.jj定制化修改，一步生成  
+![calcite-parser-code-generator-javacc](Images/calcite-parser-code-generator-javacc.png)  
   
 ## 无Parser.jj定制化修改，一步生成
 

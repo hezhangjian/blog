@@ -1,7 +1,10 @@
 ---
 title: jetty servlet的代码字符集选择
+link: java-servlet-encoding-charset
 date: 2023-06-03 01:05:07
 tags:
+  - Java
+  - Jetty
 ---
 
 记一次中文指标乱码问题，问题也很简单，如下图所示：
@@ -35,7 +38,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
 ```
 
 ```java
-package com.shoothzj.jetty;
+package com.hezhangjian.jetty;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;

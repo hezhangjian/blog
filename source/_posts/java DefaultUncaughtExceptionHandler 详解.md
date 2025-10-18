@@ -1,6 +1,6 @@
 ---
 title: Java DefaultUncaughtExceptionHandler 详解
-path: java-default-uncaught-exception-handler
+link: java-default-uncaught-exception-handler
 date: 2023-06-15 21:41:49
 tags:
   - Java

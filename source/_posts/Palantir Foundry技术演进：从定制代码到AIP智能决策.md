@@ -1,5 +1,6 @@
 ---
 title: Palantir Foundry技术演进：从定制代码到AIP智能决策
+link:
 date: 2025-10-10 15:19:54
 tags:
   - Palantir
