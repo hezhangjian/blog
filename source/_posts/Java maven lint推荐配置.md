@@ -1,5 +1,5 @@
 ---
-title: java maven lint推荐配置
+title: Java Maven lint推荐配置
 link: java-maven-lint
 date: 2021-12-16 08:55:28
 tags:
