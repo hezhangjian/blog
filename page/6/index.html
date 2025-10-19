@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-count">87</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -241,7 +241,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
     </span>
 
   
@@ -335,7 +335,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
     </span>
 
   
@@ -441,7 +441,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
     </span>
 
   
@@ -579,7 +579,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
     </span>
 
   
@@ -708,7 +708,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
     </span>
 
   
@@ -783,6 +783,108 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/02/24/Wireshark%20%E4%B9%A6%E5%86%99Lua%E6%8F%92%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/wireshark-lua-plugin" class="post-title-link post-title-link-external" itemprop="url">Wireshark 书写Lua插件<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-02-24 18:01:40" itemprop="dateCreated datePublished" datetime="2022-02-24T18:01:40+08:00">2022-02-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="未书写插件前"><a href="#未书写插件前" class="headerlink" title="未书写插件前"></a>未书写插件前</h3><p>wireshark的协议不支持之前，报文几乎难以分析，举例如下</p>
+<p><img src="/Images/wireshark-lua-plugin1.png" alt="image-20210908144418891"></p>
+<h3 id="Wireshark插件路径"><a href="#Wireshark插件路径" class="headerlink" title="Wireshark插件路径"></a>Wireshark插件路径</h3><h4 id="MAC"><a href="#MAC" class="headerlink" title="MAC"></a>MAC</h4><p><img src="/Images/wireshark-lua-plugin2.png" alt="image-20210908142121894"></p>
+<h3 id="重新加载Wireshark中的lua插件"><a href="#重新加载Wireshark中的lua插件" class="headerlink" title="重新加载Wireshark中的lua插件"></a>重新加载Wireshark中的lua插件</h3><h4 id="MAC-1"><a href="#MAC-1" class="headerlink" title="MAC"></a>MAC</h4><p><img src="/Images/wireshark-lua-plugin3.png" alt="image-20210908141433962"></p>
+<h3 id="从一个新协议的样板开始"><a href="#从一个新协议的样板开始" class="headerlink" title="从一个新协议的样板开始"></a>从一个新协议的样板开始</h3><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">pulsar_protocol = Proto(<span class="string">&quot;Pulsar&quot;</span>, <span class="string">&quot;Pulsar Protocol&quot;</span>)</span><br><span class="line"></span><br><span class="line">pulsar_protocol.fields = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">pulsar_protocol.dissector</span><span class="params">(buffer, pinfo, tree)</span></span></span><br><span class="line">    length = buffer:<span class="built_in">len</span>()</span><br><span class="line">    <span class="keyword">if</span> length == <span class="number">0</span> <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    pinfo.cols.protocol = pulsar_protocol.name</span><br><span class="line">    <span class="keyword">local</span> subtree = tree:add(pulsar_protocol, buffer(), <span class="string">&quot;Pulsar Protocol Data&quot;</span>)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">local</span> tcp_port = DissectorTable.get(<span class="string">&quot;tcp.port&quot;</span>)</span><br><span class="line">tcp_port:add(<span class="number">6650</span>, pulsar_protocol)</span><br></pre></td></tr></table></figure>
+
+<p>我们从协议对象开始，命名为<code>pulsar_protocol</code>。构造函数两个参数分别为名称和描述。协议需要一个<code>fields</code>表和<code>dissecotr</code>函数。我们现在还没有任何<code>field</code>，所以<code>fields</code>表为空。对于每一个报文，<code>dissctor</code>函数都会被调用一次。</p>
+<p><code>dissector</code>函数有三个入参，<code>buffer</code>，<code>pinfo</code>，和<code>tree</code>。<code>buffer</code>包含了网络包的内容，是一个<code>Tvb</code>对象。<code>pinfo</code>包含了wireshark中展示packet的列信息，是一个<code>Pinfo</code>对象。<code>tree</code>是wireshark报文详情显示的内容，是<code>TreeItem</code>对象。</p>
+<p>在<code>dissector</code>函数中，我们检查buffer的长度，如果长度为0，则立即返回</p>
+<p><code>pinfo</code>对象包含着列信息，我们可以将<code>pinfo</code>的protocol设置为pulsar，显示在wireshark的界面中。接下来在packet的结构中创建一个子树，最后，我们把协议绑定到6650端口上。让我们加载这个<code>lua</code>插件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/.local/lib/wireshark/plugins</span><br><span class="line"><span class="built_in">cp</span> <span class="variable">$DIR</span>/../../pulsar_dissector.lua ~/.local/lib/wireshark/plugins/pulsar_dissector.lua</span><br></pre></td></tr></table></figure>
+
+<p>结果符合预期</p>
+<p><img src="/Images/wireshark-lua-plugin4.png" alt="image-20210908145821228"></p>
+<h3 id="添加长度字段"><a href="#添加长度字段" class="headerlink" title="添加长度字段"></a>添加长度字段</h3><p>让我们添加一个长度字段，pulsar协议中,长度字段即就是前4个字节，定义字段</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">message_length = ProtoField.int32(<span class="string">&quot;pulsar.message_length&quot;</span>, <span class="string">&quot;messageLength&quot;</span>, base.DEC)</span><br><span class="line"></span><br><span class="line">pulsar_protocol.fields = &#123; message_length &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>pulsar.message_length</code>可以用在过滤器字段中。<code>messageLength</code>是子树中的<code>label</code>。第三个字段决定了这个值会被如何展示</p>
+<p>最后，我们把长度值加入到Wireshark的tree中</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">subtree:add(message_length, buffer(<span class="number">0</span>,<span class="number">4</span>))</span><br></pre></td></tr></table></figure>
+
+<p>pulsar的协议是大端序，我们使用<code>add</code>函数。如果协议是小端序，我们就可以使用<code>addle</code>函数。</p>
+<p><img src="/Images/wireshark-lua-plugin5.png" alt="image-20210908153825471"></p>
+<p>我们添加的<code>message_length</code>字段已经可以显示在Wireshark中了</p>
+<h3 id="添加额外信息"><a href="#添加额外信息" class="headerlink" title="添加额外信息"></a>添加额外信息</h3><h2 id="protoc加入到wireshark"><a href="#protoc加入到wireshark" class="headerlink" title="protoc加入到wireshark"></a>protoc加入到wireshark</h2><h2 id="参考及附录"><a href="#参考及附录" class="headerlink" title="参考及附录"></a>参考及附录</h2><h3 id="proto-field函数列表"><a href="#proto-field函数列表" class="headerlink" title="proto field函数列表"></a>proto field函数列表</h3><p><a target="_blank" rel="noopener" href="https://www.wireshark.org/docs/wsdg_html_chunked/lua_module_Proto.html#lua_fn_ProtoField_char_abbr___name____base____valuestring____mask____desc">https://www.wireshark.org/docs/wsdg_html_chunked/lua_module_Proto.html#lua_fn_ProtoField_char_abbr___name____base____valuestring____mask____desc</a>__</p>
+<h3 id="wireshark解析protobuf"><a href="#wireshark解析protobuf" class="headerlink" title="wireshark解析protobuf"></a>wireshark解析protobuf</h3><p><a target="_blank" rel="noopener" href="https://ask.wireshark.org/question/15787/how-to-decode-protobuf-by-wireshark/">https://ask.wireshark.org/question/15787/how-to-decode-protobuf-by-wireshark/</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/12/16/Java%20maven%20lint%E6%8E%A8%E8%8D%90%E9%85%8D%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -801,7 +903,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/java-maven-lint" class="post-title-link post-title-link-external" itemprop="url">java maven lint推荐配置<i class="fa fa-external-link-alt"></i></a>
+          <a href="/java-maven-lint" class="post-title-link post-title-link-external" itemprop="url">Java Maven lint推荐配置<i class="fa fa-external-link-alt"></i></a>
           
         </h2>
 
@@ -820,7 +922,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
     </span>
 
   
@@ -924,7 +1026,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
     </span>
 
   
@@ -1022,7 +1124,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
     </span>
 
   
@@ -1111,7 +1213,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
+      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
     </span>
 
   
@@ -1150,122 +1252,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/10/Java%E6%8C%87%E6%A0%87%E7%BB%9F%E8%AE%A1%E6%96%B9%E6%A1%88%E5%8F%8A%E4%BB%A3%E7%A0%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/java-metrics-statistic" class="post-title-link post-title-link-external" itemprop="url">java指标统计方案及代码<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-10 21:30:18" itemprop="dateCreated datePublished" datetime="2021-08-10T21:30:18+08:00">2021-08-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-18 10:37:30" itemprop="dateModified" datetime="2025-10-18T10:37:30+08:00">2025-10-18</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="java-根据线程统计CPU"><a href="#java-根据线程统计CPU" class="headerlink" title="java 根据线程统计CPU"></a>java 根据线程统计CPU</h1><h2 id="设计思路"><a href="#设计思路" class="headerlink" title="设计思路"></a>设计思路</h2><p>java的ThreadMXBean可以获取每个线程CPU执行的nanoTime，那么可以以这个为基础，除以中间系统经过的纳秒数，就获得了该线程的<code>CPU</code>占比</p>
-<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>首先，我们定义一个结构体，用来存放一个线程上次统计时的纳秒数和当时的系统纳秒数</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadMetricsAux</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> usedNanoTime;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> lastNanoTime;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ThreadMetricsAux</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ThreadMetricsAux</span><span class="params">(<span class="type">long</span> usedNanoTime, <span class="type">long</span> lastNanoTime)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.usedNanoTime = usedNanoTime;</span><br><span class="line">        <span class="built_in">this</span>.lastNanoTime = lastNanoTime;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后我们在SpringBoot中定义一个定时任务，它将定时地统计计算每个线程的CPU信息，并输出到<code>MeterRegistry</code>，当你调用<code>SpringActuator</code>的接口时，你将能获取到这个指标。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.google.common.util.concurrent.AtomicDouble;</span><br><span class="line"><span class="keyword">import</span> io.micrometer.core.instrument.Meter;</span><br><span class="line"><span class="keyword">import</span> io.micrometer.core.instrument.MeterRegistry;</span><br><span class="line"><span class="keyword">import</span> io.micrometer.core.instrument.Tags;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Scheduled;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.management.ManagementFactory;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ThreadInfo;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ThreadMXBean;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadMetricService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> MeterRegistry meterRegistry;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ThreadMXBean</span> <span class="variable">threadBean</span> <span class="operator">=</span> ManagementFactory.getThreadMXBean();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;Long, ThreadMetricsAux&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;Meter.Id, AtomicDouble&gt; dynamicGauges = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * one minutes</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Scheduled(cron = &quot;0 * * * * ?&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">schedule</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">long</span>[] allThreadIds = threadBean.getAllThreadIds();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">long</span> threadId : allThreadIds) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">ThreadInfo</span> <span class="variable">threadInfo</span> <span class="operator">=</span> threadBean.getThreadInfo(threadId);</span><br><span class="line">            <span class="keyword">if</span> (threadInfo == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">long</span> <span class="variable">threadNanoTime</span> <span class="operator">=</span> getThreadCPUTime(threadId);</span><br><span class="line">            <span class="keyword">if</span> (threadNanoTime == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">// 如果threadNanoTime为0，则识别为异常数据，不处理，并清理历史数据</span></span><br><span class="line">                map.remove(threadId);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">long</span> <span class="variable">nanoTime</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">            <span class="type">ThreadMetricsAux</span> <span class="variable">oldMetrics</span> <span class="operator">=</span> map.get(threadId);</span><br><span class="line">            <span class="comment">// 判断是否有历史的metrics信息</span></span><br><span class="line">            <span class="keyword">if</span> (oldMetrics != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 如果有，则计算CPU信息并上报</span></span><br><span class="line">                <span class="type">double</span> <span class="variable">percent</span> <span class="operator">=</span> (<span class="type">double</span>) (threadNanoTime - oldMetrics.getUsedNanoTime()) / (<span class="type">double</span>) (nanoTime - oldMetrics.getLastNanoTime());</span><br><span class="line">                handleDynamicGauge(<span class="string">&quot;jvm.threads.cpu&quot;</span>, <span class="string">&quot;threadName&quot;</span>, threadInfo.getThreadName(), percent);</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(threadId, <span class="keyword">new</span> <span class="title class_">ThreadMetricsAux</span>(threadNanoTime, nanoTime));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// meter Gauge相关代码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">handleDynamicGauge</span><span class="params">(String meterName, String labelKey, String labelValue, <span class="type">double</span> snapshot)</span> &#123;</span><br><span class="line">        Meter.<span class="type">Id</span> <span class="variable">id</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Meter</span>.Id(meterName, Tags.of(labelKey, labelValue), <span class="literal">null</span>, <span class="literal">null</span>, Meter.Type.GAUGE);</span><br><span class="line"></span><br><span class="line">        dynamicGauges.compute(id, (key, current) -&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (current == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">AtomicDouble</span> <span class="variable">initialValue</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicDouble</span>(snapshot);</span><br><span class="line">                meterRegistry.gauge(key.getName(), key.getTags(), initialValue);</span><br><span class="line">                <span class="keyword">return</span> initialValue;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                current.set(snapshot);</span><br><span class="line">                <span class="keyword">return</span> current;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">long</span> <span class="title function_">getThreadCPUTime</span><span class="params">(<span class="type">long</span> threadId)</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">time</span> <span class="operator">=</span> threadBean.getThreadCpuTime(threadId);</span><br><span class="line">        <span class="comment">/* thread of the specified ID is not alive or does not exist */</span></span><br><span class="line">        <span class="keyword">return</span> time == -<span class="number">1</span> ? <span class="number">0</span> : time;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="其他配置"><a href="#其他配置" class="headerlink" title="其他配置"></a>其他配置</h2><h3 id="依赖配置"><a href="#依赖配置" class="headerlink" title="依赖配置"></a>依赖配置</h3><p><code>pom</code>文件中</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.micrometer<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>micrometer-registry-prometheus<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Prometheus接口配置"><a href="#Prometheus接口配置" class="headerlink" title="Prometheus接口配置"></a>Prometheus接口配置</h3><p><code>application.yaml</code>中</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">management:</span></span><br><span class="line">  <span class="attr">endpoints:</span></span><br><span class="line">    <span class="attr">web:</span></span><br><span class="line">      <span class="attr">exposure:</span></span><br><span class="line">        <span class="attr">include:</span> <span class="string">health,info,prometheus</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>通过<code>curl</code>命令调用<code>curl localhost:20001/actuator/prometheus|grep cpu</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">jvm_threads_cpu&#123;threadName=&quot;RMI Scheduler(0)&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-10&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Signal Dispatcher&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Common-Cleaner&quot;,&#125; 3.1664628758074733E-7</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-Poller&quot;,&#125; 7.772143763853949E-5</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-Acceptor&quot;,&#125; 8.586978352515361E-5</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;DestroyJavaVM&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Monitor Ctrl-Break&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;AsyncHttpClient-timer-8-1&quot;,&#125; 2.524386571545477E-4</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Attach Listener&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;scheduling-1&quot;,&#125; 1.2269694160981585E-4</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;container-0&quot;,&#125; 1.999795692406262E-6</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-9&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-7&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-8&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-5&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Notification Thread&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-6&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-3&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-4&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Reference Handler&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-1&quot;,&#125; 0.0012674719289349648</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-2&quot;,&#125; 6.542541277148053E-5</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;RMI TCP Connection(idle)&quot;,&#125; 1.3998786340454562E-6</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Finalizer&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Catalina-utility-2&quot;,&#125; 7.920883054498174E-5</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;RMI TCP Accept-0&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Catalina-utility-1&quot;,&#125; 6.80101662787773E-5</span><br></pre></td></tr></table></figure>
-
-<h1 id="Java计算磁盘使用率"><a href="#Java计算磁盘使用率" class="headerlink" title="Java计算磁盘使用率"></a>Java计算磁盘使用率</h1><p><a target="_blank" rel="noopener" href="https://support.huaweicloud.com/bestpractice-bms/bms_bp_2009.html">https://support.huaweicloud.com/bestpractice-bms/bms_bp_2009.html</a></p>
-<p>华为云文档上的材料值得学习。</p>
-<p>翻阅资料</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://www.kernel.org/doc/Documentation/ABI/testing/procfs-diskstats</span><br><span class="line"></span><br><span class="line">13 - time spent doing I/Os (ms)</span><br></pre></td></tr></table></figure>
-
-<p>这就意味着如果我想统计一个磁盘在一定周期内的利用率，只需要对这两个数字做差，除以统计的间隔，即就是这段时间内磁盘的利用率</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/diskstats</span><br><span class="line"> 253       0 vda 24046 771 2042174 180187 20689748 21411881 527517532 18028256 0 14610513 18201352</span><br><span class="line"> 253       1 vda1 23959 771 2038022 180153 20683957 21411881 527517532 18028066 0 14610312 18201129</span><br></pre></td></tr></table></figure>
-
-<p>样例代码</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">package com.github.hezhangjian.demo.metrics;</span><br><span class="line"></span><br><span class="line">import com.github.hezhangjian.demo.base.module.ShellResult;</span><br><span class="line">import com.github.hezhangjian.demo.base.util.LogUtil;</span><br><span class="line">import com.github.hezhangjian.demo.base.util.ShellUtil;</span><br><span class="line">import com.github.hezhangjian.demo.base.util.StringUtil;</span><br><span class="line">import lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line">import java.util.concurrent.Executors;</span><br><span class="line">import java.util.concurrent.ScheduledExecutorService;</span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author hezhangjian</span><br><span class="line"> */</span><br><span class="line">@Slf4j</span><br><span class="line">public class DiskUtilizationMetrics &#123;</span><br><span class="line"></span><br><span class="line">    private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();</span><br><span class="line"></span><br><span class="line">    private static long lastTime = -1;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        LogUtil.configureLog();</span><br><span class="line">        String diskName = &quot;vda1&quot;;</span><br><span class="line">        scheduledExecutor.scheduleAtFixedRate(() -&gt; metrics(diskName), 0, 10, TimeUnit.SECONDS);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static void metrics(String diskName) &#123;</span><br><span class="line">        //假设统计vda磁盘</span><br><span class="line">        String[] cmd = &#123;</span><br><span class="line">                &quot;/bin/bash&quot;,</span><br><span class="line">                &quot;-c&quot;,</span><br><span class="line">                &quot;cat /proc/diskstats |grep &quot; + diskName + &quot;|awk &#x27;&#123;print $13&#125;&#x27;&quot;</span><br><span class="line">        &#125;;</span><br><span class="line">        ShellResult shellResult = ShellUtil.executeCmd(cmd);</span><br><span class="line">        String timeStr = shellResult.getInputContent().substring(0, shellResult.getInputContent().length() - 1);</span><br><span class="line">        long time = Long.parseLong(timeStr);</span><br><span class="line">        if (lastTime == -1) &#123;</span><br><span class="line">            log.info(&quot;first time cal, usage time is [&#123;&#125;]&quot;, time);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            double usage = (time - lastTime) / (double) 10_000;</span><br><span class="line">            log.info(&quot;usage time is [&#123;&#125;]&quot;, usage);</span><br><span class="line">        &#125;</span><br><span class="line">        lastTime = time;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h1 id="打印CPU使用"><a href="#打印CPU使用" class="headerlink" title="打印CPU使用"></a>打印CPU使用</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">printCpuUsage</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> com.sun.management.<span class="type">OperatingSystemMXBean</span> <span class="variable">platformMXBean</span> <span class="operator">=</span> ManagementFactory.getPlatformMXBean(com.sun.management.OperatingSystemMXBean.class);</span><br><span class="line">        <span class="type">double</span> <span class="variable">cpuLoad</span> <span class="operator">=</span> platformMXBean.getProcessCpuLoad();</span><br><span class="line">        System.out.println(cpuLoad);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="打印线程堆栈"><a href="#打印线程堆栈" class="headerlink" title="打印线程堆栈"></a>打印线程堆栈</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">printThreadDump</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">StringBuilder</span> <span class="variable">dump</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">ThreadMXBean</span> <span class="variable">threadMXBean</span> <span class="operator">=</span> ManagementFactory.getThreadMXBean();</span><br><span class="line">        <span class="comment">// 100代表线程堆栈的层级</span></span><br><span class="line">        <span class="keyword">final</span> ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), <span class="number">100</span>);</span><br><span class="line">        <span class="keyword">for</span> (ThreadInfo threadInfo : threadInfos) &#123;</span><br><span class="line">            dump.append(<span class="string">&#x27;&quot;&#x27;</span>);</span><br><span class="line">            dump.append(threadInfo.getThreadName());</span><br><span class="line">            dump.append(<span class="string">&quot;\&quot; &quot;</span>);</span><br><span class="line">            <span class="keyword">final</span> Thread.<span class="type">State</span> <span class="variable">state</span> <span class="operator">=</span> threadInfo.getThreadState();</span><br><span class="line">            dump.append(<span class="string">&quot;\n   java.lang.Thread.State: &quot;</span>);</span><br><span class="line">            dump.append(state);</span><br><span class="line">            <span class="keyword">final</span> StackTraceElement[] stackTraceElements = threadInfo.getStackTrace();</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">final</span> StackTraceElement stackTraceElement : stackTraceElements) &#123;</span><br><span class="line">                dump.append(<span class="string">&quot;\n        at &quot;</span>);</span><br><span class="line">                dump.append(stackTraceElement);</span><br><span class="line">            &#125;</span><br><span class="line">            dump.append(<span class="string">&quot;\n\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(dump);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="打印内存统计信息"><a href="#打印内存统计信息" class="headerlink" title="打印内存统计信息"></a>打印内存统计信息</h1><p>引入依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.jerolba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jmnemohistosyne<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.2.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">printClassHisto</span><span class="params">()</span> &#123;</span><br><span class="line">       <span class="type">Histogramer</span> <span class="variable">histogramer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Histogramer</span>();</span><br><span class="line">       <span class="type">MemoryHistogram</span> <span class="variable">histogram</span> <span class="operator">=</span> histogramer.createHistogram();</span><br><span class="line"></span><br><span class="line">       <span class="type">HistogramEntry</span> <span class="variable">arrayList</span> <span class="operator">=</span> histogram.get(<span class="string">&quot;java.util.ArrayList&quot;</span>);</span><br><span class="line">       System.out.println(arrayList.getInstances());</span><br><span class="line">       System.out.println(arrayList.getSize());</span><br><span class="line"></span><br><span class="line">       <span class="keyword">for</span> (HistogramEntry entry : histogram) &#123;</span><br><span class="line">           System.out.println(entry);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="打印死锁"><a href="#打印死锁" class="headerlink" title="打印死锁"></a>打印死锁</h1><p>javadoc中指出，这是一个开销较大的操作</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">printDeadLock</span><span class="params">()</span> &#123;</span><br><span class="line">       <span class="keyword">final</span> <span class="type">ThreadMXBean</span> <span class="variable">threadMXBean</span> <span class="operator">=</span> ManagementFactory.getThreadMXBean();</span><br><span class="line">       <span class="keyword">final</span> <span class="type">long</span>[] deadlockedThreads = threadMXBean.findDeadlockedThreads();</span><br><span class="line">       <span class="keyword">for</span> (<span class="type">long</span> deadlockedThread : deadlockedThreads) &#123;</span><br><span class="line">           <span class="keyword">final</span> <span class="type">ThreadInfo</span> <span class="variable">threadInfo</span> <span class="operator">=</span> threadMXBean.getThreadInfo(deadlockedThread);</span><br><span class="line">           System.out.println(threadInfo + <span class="string">&quot;deadLocked&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
