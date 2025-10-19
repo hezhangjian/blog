@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-count">89</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-count">42</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -241,7 +241,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -355,7 +355,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -463,7 +463,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -543,6 +543,123 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/06/14/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E%E6%B5%81%E8%BD%AC%E5%88%B0S3%E5%AF%B9%E6%AF%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/06/14/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E%E6%B5%81%E8%BD%AC%E5%88%B0S3%E5%AF%B9%E6%AF%94/" class="post-title-link" itemprop="url">物联网平台规则引擎流转到S3对比</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-14 18:48:57" itemprop="dateCreated datePublished" datetime="2021-06-14T18:48:57+08:00">2021-06-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>对于物联网平台来说，规则引擎是其中一个很重要的功能，也叫消息流转功能，将消息流转到各类中间件、云产品中。在华为、AWS、Azure、阿里这四个物联网平台中，阿里不支持流转到S3&#x2F;类S3存储中。本文对比一下华为云、AWS、Azure把设备消息流转到S3&#x2F;类S3存储的功能</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.amazonaws.cn/general/latest/gr/iot-core.html#limits_iot">https://docs.amazonaws.cn/general/latest/gr/iot-core.html#limits_iot</a></li>
+</ul>
+<h2 id="华为云"><a href="#华为云" class="headerlink" title="华为云"></a>华为云</h2><h3 id="规则粒度和限制"><a href="#规则粒度和限制" class="headerlink" title="规则粒度和限制"></a>规则粒度和限制</h3><ul>
+<li><p>规则配置粒度到<strong>OBS</strong>桶</p>
+</li>
+<li><p>限制单用户配置100条规则，每个规则10个Action</p>
+</li>
+</ul>
+<h3 id="功能实现"><a href="#功能实现" class="headerlink" title="功能实现"></a>功能实现</h3><p>针对华为云，我测试了设备的消息上报转发到华为云OBS的功能。</p>
+<p>流转规则需要指定obs桶，随后运行之后，华为云OBS体现为</p>
+<ul>
+<li>设备的每条消息都会在obs中存储为一个文件</li>
+<li>名称采用deviceId+毫秒级时间戳+后面4位数字</li>
+</ul>
+<h3 id="关键路径截图"><a href="#关键路径截图" class="headerlink" title="关键路径截图"></a>关键路径截图</h3><h4 id="配置规则时指定到obs桶"><a href="#配置规则时指定到obs桶" class="headerlink" title="配置规则时指定到obs桶"></a>配置规则时指定到obs桶</h4><p><img src="/Images/iot-push-s31.png" alt="image-20210614184348066"></p>
+<h4 id="单条消息单个文件"><a href="#单条消息单个文件" class="headerlink" title="单条消息单个文件"></a>单条消息单个文件</h4><p><img src="/Images/iot-push-s32.png" alt="image-20210614184522958"></p>
+<h3 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h3><p>可以非常轻易地查询出单个设备的消息，因为文件名携带有毫秒级时间戳，还可以指定具体</p>
+<h3 id="劣势"><a href="#劣势" class="headerlink" title="劣势"></a>劣势</h3><p>用来做MapReduce的话，文件数目太多，由于S3云厂商往往通过API调用次数收费，不仅是速度，成本也会很高。</p>
+<h2 id="AWS"><a href="#AWS" class="headerlink" title="AWS"></a>AWS</h2><h3 id="规则粒度和限制-1"><a href="#规则粒度和限制-1" class="headerlink" title="规则粒度和限制"></a>规则粒度和限制</h3><ul>
+<li>规则配置粒度到桶及Key，相当于华为云OBS桶+文件名</li>
+<li>限制规则每秒进行20k次运算</li>
+<li>限制最多拥有1000条规则</li>
+<li>限制每个规则最多10个action</li>
+</ul>
+<h3 id="功能实现-1"><a href="#功能实现-1" class="headerlink" title="功能实现"></a>功能实现</h3><p>再次上报数据触发规则会把obs中的数据替换。（通过版本控制可以获取到老的数据）</p>
+<h3 id="关键路径截图-1"><a href="#关键路径截图-1" class="headerlink" title="关键路径截图"></a>关键路径截图</h3><h4 id="配置规则指定粒度到Key"><a href="#配置规则指定粒度到Key" class="headerlink" title="配置规则指定粒度到Key"></a>配置规则指定粒度到Key</h4><p><img src="/Images/iot-push-s33.png" alt="image-20210614165708645"> </p>
+<h4 id="仅有一个Key，新值覆盖旧值"><a href="#仅有一个Key，新值覆盖旧值" class="headerlink" title="仅有一个Key，新值覆盖旧值"></a>仅有一个Key，新值覆盖旧值</h4><p><img src="/Images/iot-push-s34.png" alt="image-20210614170447237"></p>
+<h3 id="优劣势"><a href="#优劣势" class="headerlink" title="优劣势"></a>优劣势</h3><p>AWS的这个模式很适合存储每个设备的最新数据。不过由于规则数量上的限制，最多只能在S3上存储1000个键值对。可用性较低。可用于数量小于1000的设备，存储、查询最新数据。</p>
+<h2 id="Azure转发"><a href="#Azure转发" class="headerlink" title="Azure转发"></a>Azure转发</h2><h3 id="规则粒度限制"><a href="#规则粒度限制" class="headerlink" title="规则粒度限制"></a>规则粒度限制</h3><ul>
+<li>规则配置粒度到存储容器</li>
+<li>Azure可配置存储入存储容器的批量频率和大小限制</li>
+<li>编码支持Avro和Json两种格式</li>
+<li>最多100条路由</li>
+</ul>
+<h3 id="功能实现-2"><a href="#功能实现-2" class="headerlink" title="功能实现"></a>功能实现</h3><p>自上报事件，到存储中出现数据，azure是最慢的，azure做了批量的缓冲，达到batch的大小和时间要求后才会写入存储。</p>
+<h3 id="关键路径截图-2"><a href="#关键路径截图-2" class="headerlink" title="关键路径截图"></a>关键路径截图</h3><h4 id="配置路由规则"><a href="#配置路由规则" class="headerlink" title="配置路由规则"></a>配置路由规则</h4><p><img src="/Images/iot-push-s35.png" alt="image-20210614181514437"></p>
+<h4 id="存储中批量数据"><a href="#存储中批量数据" class="headerlink" title="存储中批量数据"></a>存储中批量数据</h4><p>因为选择了avro格式，所以vim打开是乱码，不过明显可以看到是多条数据</p>
+<p><img src="/Images/iot-push-s36.png" alt="image-20210614181738380"></p>
+<h3 id="优势-1"><a href="#优势-1" class="headerlink" title="优势"></a>优势</h3><p>Azure的这种方式，比较适合做MapReduce类操作，相对华为云来说，Azure的文件数量大大减少，如果用于做MapReduce这类操作，因为文件碎片小，作业速度会比华为云快，而且由于云厂商对存储，通常以api调用次数收费，价格也会比华为云低。</p>
+<h3 id="劣势-1"><a href="#劣势-1" class="headerlink" title="劣势"></a>劣势</h3><p>不易针对单个设备进行查询。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/05/30/%E5%A4%A7%E5%9E%8B%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -580,7 +697,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -689,7 +806,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -845,7 +962,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -944,7 +1061,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -975,6 +1092,170 @@
 <h3 id="客户网段和其他网段又做了peering"><a href="#客户网段和其他网段又做了peering" class="headerlink" title="客户网段和其他网段又做了peering"></a>客户网段和其他网段又做了peering</h3><p><img src="/Images/pulsar-third-vendor2.png" alt="pulsar-third-vendor2"></p>
 <p>这个问题其实还好，就是路由规则配置麻烦</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Peering打通对用户来说已经比较方便了，相信做到自动化也没有太大的技术难度，只是时间和人力投入的问题。统一接入因为网络打通的原因，不好使用<code>kop</code>、<code>mop</code>这些高级特性，此外还有不小的公网带宽成本，羊毛出在羊身上，比较大量的用户也会倾向于Peering打通的模式吧。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/14/%E5%8D%8E%E4%B8%BA%E4%BA%91%E7%89%A9%E8%81%94%E7%BD%91%E5%9B%9B%E5%B9%B4%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/config-center" class="post-title-link post-title-link-external" itemprop="url">华为云物联网四年配置中心实践<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-14 08:11:47" itemprop="dateCreated datePublished" datetime="2021-04-14T08:11:47+08:00">2021-04-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>  自17年入职华为之后，一直在使用配置中心，4年期间经历了自研配置中心到<code>Apollo</code>再到自研配置中心和<code>Apollo</code>并存的场景。总结了一下这几年的配置中心演进流程，想把我们在配置中心上的一些实践分享给大家，实现共同进步。<code>Apollo</code>是一款非常优秀的开源软件，是国人的骄傲。如果对<code>Apollo</code>存在理解错误，还望大家不吝赐教，谢谢。</p>
+<h2 id="使用到的配置分类"><a href="#使用到的配置分类" class="headerlink" title="使用到的配置分类"></a>使用到的配置分类</h2><h3 id="从场景分类"><a href="#从场景分类" class="headerlink" title="从场景分类"></a>从场景分类</h3><h4 id="运维配置，即程序只读的配置"><a href="#运维配置，即程序只读的配置" class="headerlink" title="运维配置，即程序只读的配置"></a>运维配置，即程序只读的配置</h4><p>人工配置。通过人工在配置中心界面进行配置，而程序只进行读取，如数据库配置、邮箱服务器配置、网卡配置、子网地址配置等。这部分配置数据不要求代码动态写入。</p>
+<h4 id="业务配置，即程序可写的配置"><a href="#业务配置，即程序可写的配置" class="headerlink" title="业务配置，即程序可写的配置"></a>业务配置，即程序可写的配置</h4><p>我们是一个SaaS服务，每个用户在上面都有一些业务配置。如用户的证书配置、用户服务器的流控配置等，这些业务配置相对<strong>运维配置</strong>来说更加复杂，且可能会有唯一性限制，如按用户id唯一。这部分配置数据一般由用户操作触发，代码动态写入，并且通知到各个微服务实例。通常，我们希望这些配置能在界面展示，且支持人为修改。上述逻辑如果由各微服务自己实现，会存在大量重复代码，并且质量无法保证。我们希望由一个公共组件来统一实现这个能力。</p>
+<h3 id="从配置是否会有列表可分为单值配置或多值配置"><a href="#从配置是否会有列表可分为单值配置或多值配置" class="headerlink" title="从配置是否会有列表可分为单值配置或多值配置"></a>从配置是否会有列表可分为单值配置或多值配置</h3><h4 id="单值配置"><a href="#单值配置" class="headerlink" title="单值配置"></a>单值配置</h4><p>整个配置下只是多对key、value。value不是很复杂的格式，往往是整数或字符串。</p>
+<p><img src="/Images/config-center1.png" alt="image-20210330171658154"></p>
+<h4 id="多值配置"><a href="#多值配置" class="headerlink" title="多值配置"></a>多值配置</h4><p>多值配置更加复杂，往往是<strong>单值配置</strong>在不同的key下，有不同的值。比如下面的配置，用户一和用户二的线程池大小和队列不同</p>
+<p><img src="/Images/config-center2.jpg" alt="img"></p>
+<h2 id="第一阶段-自研配置中心"><a href="#第一阶段-自研配置中心" class="headerlink" title="第一阶段 自研配置中心"></a>第一阶段 自研配置中心</h2><p>在做云服务之前，我们的配置中心层级数较少。我们以软件的形式交付给客户，软件运行时分为管理面和业务面，配置中心管理着管理面和业务面的配置，最为复杂的场景是多套业务面，这个时候需要保证不同集群、不同微服务下的配置不冲突，配置层级为 集群、微服务、配置。</p>
+<p><img src="/Images/config-center3.png" alt="image-20210324204231586"></p>
+<p>此时的配置中心是完全自研的，不包含蓝绿、灰度配置这些功能，它独具特色的地方有以下两点：</p>
+<h3 id="单配置单表"><a href="#单配置单表" class="headerlink" title="单配置单表"></a>单配置单表</h3><ul>
+<li>在存储模型上，每个配置对应一张数据表。</li>
+<li>对多值配置比较友好，尤其是复杂业务配置，可以支持各种主键约束。对单值配置，稍微重型了一些。</li>
+<li>配置的强Schema限制。这些限制包括类型、大小、长度、是否敏感等限制。这种限制既能为界面修改配置提供良好的体验（如：不同格式不同的输入框、敏感字段，前台输入明文，后台入库加密等），也能在通过接口写入配置时做充分的校验。</li>
+</ul>
+<h3 id="通过回调方式来确保配置的可靠"><a href="#通过回调方式来确保配置的可靠" class="headerlink" title="通过回调方式来确保配置的可靠"></a>通过回调方式来确保配置的可靠</h3><p>举个例子，添加一个配置的流程是这样的</p>
+<p><img src="/Images/config-center4.png" alt="image-20210324205828998"></p>
+<p>可能这里，有读者想要问了，这个流程能确保什么可靠呢。这个流程通过调用微服务接口来校验配置是否可靠，如IP地址是否合法、对端地址是否可达、配置数量是否超过规格等等，来保证配置基本可用。</p>
+<p>总的来说，这个自研的配置中心在当时综合体验还是不错的。但是也有一些问题有待改进，比如单配置下配置项数量过多时，因为底层有部分接口单配置下所有数据都通过一个http请求来承载，会导致响应超时等问题。</p>
+<h2 id="第二阶段-Apollo"><a href="#第二阶段-Apollo" class="headerlink" title="第二阶段 Apollo"></a>第二阶段 Apollo</h2><p>开始第二阶段实践的原因主要是，我们进行了组织切换，业务重心转向做云服务，同时团队进行DevOps转型。原先的老配置中心是由另一个团队维护的，组织切换完之后，如果还要使用，就要我们自己维护。所以我们需要在继续维护老配置中心和引入开源<code>Apollo</code>中间进行选择。除了上文中提到的运维配置和业务配置，这个时候我们的需求还有改变：</p>
+<ul>
+<li>配置的层级愈发丰富了</li>
+<li>要构建灰度发布微服务的能力</li>
+</ul>
+<p>老配置中心一方面由于组织切换原因不提供维护了，另一方面不能支撑丰富的配置层级，也不具备灰度发布的能力。这个时候，<code>Apollo</code>的一些特性吸引了我们，这些特性正是老配置中心所缺乏的，例如（部分引用自<code>Apollo</code>github主页）</p>
+<ul>
+<li>丰富的层级，从<code>app_id</code>到<code>cluster</code>,<code>namespace</code>,<code>key-value</code>的层级能满足我们region、集群、微服务的层级诉求</li>
+<li>支持配置的灰度发布，比如点了发布后，只对部分应用实例生效，等观察一段时间没问题后再推给所有应用实例。</li>
+<li>所有的配置发布都有版本概念，从而可以方便的支持配置的回滚。</li>
+<li>应用和配置的管理都有完善的权限管理机制，对配置的管理还分为了编辑和发布两个环节，从而减少人为的错误。</li>
+<li>所有的操作都有审计日志，可以方便的追踪问题。</li>
+</ul>
+<p>因此我们选型引入了<code>Apollo</code>，我和我的主管，还有一个其他同事参与了这项工作。我们在Apollo开源代码的基础上做了比较大的改动，主要原因有以下几点</p>
+<ul>
+<li>节约成本，将注册中心、数据库替换成我们当前正在使用的组件，因为这两个依赖不是<code>Apollo</code>的核心依赖</li>
+<li>继承老配置中心强<code>Schema</code>的优点。</li>
+<li>保留回调确认配置的流程，提前拦截错误的配置，降低代码处理异常配置的复杂度</li>
+<li>通过spi或环境变量的方式兼容存量老局点使用老配置中心的场景</li>
+</ul>
+<p>结合上述原因，我们最终是这么实践的</p>
+<ul>
+<li><p>数据库切换为<code>postgre</code>数据库、注册中心切换到<code>servicecomb</code></p>
+</li>
+<li><p>在namespace上实现了<code>Schema</code>，每个namespace都可以注册对应的<code>Schema</code>，<code>Schema</code>要求数据必须是json格式，且json内对应的value必须满足Schema定义的规范（如ip地址、小数、整数等）</p>
+<p>Schema举例</p>
+</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;name&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;string&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;age&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;int&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;max&quot;</span><span class="punctuation">:</span><span class="number">120</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;ip&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;ipv4&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+<p> 那么数据应该是这样的</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;hezhangjian&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span><span class="number">23</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ip&quot;</span><span class="punctuation">:</span><span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在添加或修改配置的时候，实现了回调功能，由回调业务服务确认配置能否添加或修改</li>
+<li>配置分层：云服务对应<code>Apollo</code>的<code>app_id</code>，把内部的环境对应到<code>Apollo</code>上的集群，然后将微服务名+配置名拼接成配置名称。</li>
+</ul>
+<p>下图展示了业务概念和<code>Apollo</code>概念的对应关系，有些配置是单值配置，有些是多值配置，所以配置项这一层级是可选的。</p>
+<p><img src="/Images/config-center5.png" alt="配置分层示意图"></p>
+<p>在这段时间的实践中，我们也发现如下问题</p>
+<h3 id="并发问题"><a href="#并发问题" class="headerlink" title="并发问题"></a>并发问题</h3><p>其中最致命的就是并发问题，首先<code>Apollo</code>所有配置都存在一张表中，其次由于<code>Apollo</code>设计之初主要考虑的是运维人员手动在界面上操作，代码无并发语义（或者说没给客户端并发语义），使得我们通过代码写入配置时难以解决并发问题。</p>
+<h3 id="性能问题"><a href="#性能问题" class="headerlink" title="性能问题"></a>性能问题</h3><p>打开<code>namespace</code>列表页面，需要显示这个<code>app_id</code>下的所有<code>namespace</code>,因为我们单<code>app_id</code>会存放单个云服务的所有配置，这个量很大，且界面不支持分页，导致页面加载缓慢</p>
+<h3 id="体验问题"><a href="#体验问题" class="headerlink" title="体验问题"></a>体验问题</h3><p><code>Apollo</code>的<code>namespace</code>界面未提供搜索功能（可能Apollo设计之初也没想支持这么多），想要从<code>namespace</code>中定位到我们想要查看或修改的namespace，只能借助浏览器的搜索能力。</p>
+<h2 id="第三阶段-Apollo与自研配置中心并存"><a href="#第三阶段-Apollo与自研配置中心并存" class="headerlink" title="第三阶段 Apollo与自研配置中心并存"></a>第三阶段 Apollo与自研配置中心并存</h2><p>除了上述几个问题，还有一些原因使得我们开始了第三阶段的实践</p>
+<ul>
+<li>原来自上而下的配置分层模型，微服务间配置没隔离，不仅不易进行权限管理，而且不适合<code>DevOps</code> 单微服务自治的发布理念。</li>
+<li>第二阶段对<code>Apollo</code>改动太多，组织结构变动，没有足够的人力维护</li>
+<li>随着集群越来越多，回调功能需要网络的双向打通，网络维护不太方便</li>
+<li>我们对<code>Apollo</code>界面以及接口基于业务做的改动较多，导致其他兄弟部门难以共用<code>Apollo</code></li>
+</ul>
+<p>当时大家对是否保留<strong>Schema</strong>、<strong>回调检查</strong>、<strong>代码写配置</strong>这三个功能点有较大的争议。我个人最希望保留<strong>Schema</strong>、<strong>回调检查</strong>，因为它们优点显著，而且接口是兼容的，可以与其他部门共用，但是增加了<strong>Schema</strong>这个概念和<strong>回调检查</strong>这个流程，会增加学习成本。而代码写配置，由于要解决并发问题，代码改动量较大，我不建议保留。</p>
+<p>大家经过激烈的讨论，最终还是废弃了<strong>Schema</strong>、<strong>回调检查</strong>、<strong>代码写配置</strong>这三个功能点，仅仅把运维配置放在<code>Apollo</code>。</p>
+<p>然后，我们把业务配置，放在了一个自研的强Schema的配置中心上，这个配置中心，仅负责单集群的配置，每个集群部署一套，满足了我们的业务需求。自研强Schema配置中心的核心要点有，单配置单表、通过注册中心回调来检测配置是否合法、借助mqtt协议来实现长链接推送，无单点瓶颈。</p>
+<p>而我们的运维配置中心<code>Apollo</code>回归到了开源的版本，重整了配置的结构，</p>
+<p><img src="/Images/config-center6.png" alt="image-20210405224010878"></p>
+<p>对运维配置而言好处有</p>
+<ul>
+<li>配置模型适合单微服务发布</li>
+<li>配置按微服务组织，一个页面上的namespace不会很多</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>Schema缺失后，不会对操作人员在界面的配置进行校验，即使配置格式或者内容错误也能配置成功。界面上配置密码不支持明文（Apollo无法感知是否为敏感字段），必须提前使用其他工具将明文转换为密文，然后再进行配置。</li>
+<li>回调检查功能去掉后，有些配置，如网卡网段配错，操作人员不能即时得到响应</li>
+</ul>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p>业务配置经过我们的实践，确实不适合使用开源的<code>Apollo</code>。运维配置使用原生的<code>Apollo</code>，但是现在还不具备<strong>回调检查</strong>和<strong>Schema</strong>的功能，希望<code>Apollo</code>能在后续版本中支持<strong>Schema</strong>，或者弱化的<strong>json</strong>格式检查功能。下面是我们在如下场景下的最佳实践</p>
+<h3 id="SRE在界面上的运维配置"><a href="#SRE在界面上的运维配置" class="headerlink" title="SRE在界面上的运维配置"></a>SRE在界面上的运维配置</h3><p>通过<code>Apollo</code>来实现功能，至于配置如何组织，根据大家的组织结构、技术架构来对应<code>Apollo</code>上的概念，可按照<code>微服务-&gt;部署环境</code>或<code>部署环境 -&gt; 微服务</code>的层级来组织配置</p>
+<h3 id="复杂的参数校验"><a href="#复杂的参数校验" class="headerlink" title="复杂的参数校验"></a>复杂的参数校验</h3><p>建议在<code>Apollo</code>上面自建portal包裹一层，后端服务可先进行一层处理，这一层处理可以做比较复杂的格式化校验甚至<strong>回调检查</strong>，再调用<code>Apollo OpenApi</code>将配置写入<code>Apollo</code>。</p>
+<h3 id="业务配置的技术选型"><a href="#业务配置的技术选型" class="headerlink" title="业务配置的技术选型"></a>业务配置的技术选型</h3><p>最大的挑战是业务配置由用户触发，请求的并发不易处理。思路有两个，一个是在<code>Apollo</code>原生代码的基础上，通过数据库分布式锁来解决并发问题。第二个是借鉴我们的思路，通过单配置单表、mqtt协议实现通知等核心技术点，自研业务配置中心。</p>
+<h3 id="业务配置的部署"><a href="#业务配置的部署" class="headerlink" title="业务配置的部署"></a>业务配置的部署</h3><p>需要根据业务配置的数量来考虑是否合设业务配置中心。单集群场景下，毫无疑问只需要一个业务配置中心，甚至如果使用<code>Apollo</code>实现，可以考虑和运维配置中心合设。多集群场景下，部署一个业务配置中心，还是多个业务配置中心，我们自己的实践中，一个集群往往要支撑数万用户，我们采取了每个业务集群部署一套业务配置中心的策略。</p>
 
       
     </div>
@@ -1038,7 +1319,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -1084,225 +1365,6 @@
 <p><img src="/Images/kubernetes-pod-api2.png" alt="kubernetes-pod-api2"></p>
 <h3 id="修改部署模板重启后调用api正常"><a href="#修改部署模板重启后调用api正常" class="headerlink" title="修改部署模板重启后调用api正常"></a>修改部署模板重启后调用api正常</h3><p>再次尝试上述命令，api结果返回正常</p>
 <p><img src="/Images/kubernetes-pod-api3.png" alt="kubernetes-pod-api3"></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/10/Apache%20ZooKeeper%E5%9C%A8%E5%8D%8E%E4%B8%BA%E4%BA%91IoT%E6%9C%8D%E5%8A%A1%E4%BA%A7%E5%93%81%E9%83%A8%E7%9A%84%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/zookeeper-huaweicloud-usage" class="post-title-link post-title-link-external" itemprop="url">Apache ZooKeeper在华为云IoT服务产品部的使用<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-10 19:25:22" itemprop="dateCreated datePublished" datetime="2021-04-10T19:25:22+08:00">2021-04-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>华为云IoT服务产品部致力于提供极简接入、智能化、安全可信等全栈全场景服务和开发、集成、托管、运营等一站式工具服务，助力合作伙伴&#x2F;客户轻松、快速地构建5G、AI万物互联的场景化物联网解决方案。</p>
-<p>架构方面，华为云IoT服务产品部采用云原生微服务架构，ZooKeeper组件在华为云IoT服务产品部的架构中扮演着重要的角色，本文将介绍华为云IoT服务产品部在ZooKeeper的使用。</p>
-<h2 id="Apache-ZooKeeper-简介"><a href="#Apache-ZooKeeper-简介" class="headerlink" title="Apache ZooKeeper 简介"></a>Apache ZooKeeper 简介</h2><p>Apache ZooKeeper是一个分布式、开源的分布式协调服务，由Apache Hadoop的子项目发展而来。作为一个分布式原语的基石服务，几乎所有分布式功能都可以借助ZooKeeper来实现，例如：应用的主备选举，分布式锁，分布式任务分配，缓存通知，甚至是消息队列、配置中心等。</p>
-<p>抛开应用场景，讨论某个组件是否适合，并没有绝对正确的答案。尽管Apache ZooKeeper作为消息队列、配置中心时，性能不用想就知道很差。但是，倘若系统里面只有ZooKeeper，应用场景性能要求又不高，那使用ZooKeeper不失为一个好的选择。但ZooKeeper 客户端的编码难度较高，对开发人员的技术水平要求较高，尽量使用一些成熟开源的ZooKeeper客户端、框架，如：Curator、Spring Cloud ZooKeeper等。</p>
-<h2 id="Apache-ZooKeeper-核心概念"><a href="#Apache-ZooKeeper-核心概念" class="headerlink" title="Apache ZooKeeper 核心概念"></a>Apache ZooKeeper 核心概念</h2><h3 id="ZNode"><a href="#ZNode" class="headerlink" title="ZNode"></a>ZNode</h3><p>ZNode是ZooKeeper的数据节点，ZooKeeper的数据模型是树形结构，每个ZNode都可以存储数据，同时可以有多个子节点，每个ZNode都有一个路径标识，类似于文件系统的路径，例如：&#x2F;iot-service&#x2F;iot-device&#x2F;iot-device-1。</p>
-<h1 id="Apache-ZooKeeper在华为云IoT服务产品部的使用"><a href="#Apache-ZooKeeper在华为云IoT服务产品部的使用" class="headerlink" title="Apache ZooKeeper在华为云IoT服务产品部的使用"></a>Apache ZooKeeper在华为云IoT服务产品部的使用</h1><p><img src="/Images/zookeeper-huaweicloud-usage.png" alt="zookeeper-huaweicloud-usage"></p>
-<h2 id="支撑系统内关键组件"><a href="#支撑系统内关键组件" class="headerlink" title="支撑系统内关键组件"></a>支撑系统内关键组件</h2><p>很多开源组件都依赖ZooKeeper，如<code>Flink</code>、<code>Ignite</code>、<code>Pulsar</code>等，通过自建和优化ZooKeeper环境，我们能够为这些高级组件提供更加可靠和高效的服务支持，确保服务的平稳运行。</p>
-<h2 id="严格分布式锁"><a href="#严格分布式锁" class="headerlink" title="严格分布式锁"></a>严格分布式锁</h2><p>分布式锁是非常常见的需求，相比集群Redis、主备Mysql等，ZooKeeper更容易实现理论上的严格分布式锁。</p>
-<h2 id="分布式缓存通知"><a href="#分布式缓存通知" class="headerlink" title="分布式缓存通知"></a>分布式缓存通知</h2><p>ZooKeeper的分布式缓存通知能够帮助我们实现分布式缓存的一致性，例如：我们可以在ZooKeeper上注册一个节点，然后在其他节点上监听这个节点，当这个节点发生变化时，其他节点就能够收到通知，然后更新本地缓存。</p>
-<p>这种方式的缺点是，ZooKeeper的性能不高，不适合频繁变更的场景，但是，对于一些不经常变更的配置，这种方式是非常适合的。如果系统中存在消息队列，那么可以使用消息队列来实现分布式缓存通知，这种方式的性能会更好、扩展性更强。</p>
-<h2 id="分布式Id生成器"><a href="#分布式Id生成器" class="headerlink" title="分布式Id生成器"></a>分布式Id生成器</h2><h3 id="直接使用ZooKeeper的有序节点"><a href="#直接使用ZooKeeper的有序节点" class="headerlink" title="直接使用ZooKeeper的有序节点"></a>直接使用ZooKeeper的有序节点</h3><p>应用程序可以直接使用ZooKeeper的有序节点来生成分布式Id，但是，这种方式的缺点是，ZooKeeper的性能不高，不适合频繁生成的场景。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.zookeeper.CreateMode;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooDefs;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooKeeper;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.data.Stat;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Optional;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ZkDirectIdGenerator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ZooKeeper zooKeeper;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> <span class="string">&quot;/zk-direct-id&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">PATH_PREFIX</span> <span class="operator">=</span> <span class="string">&quot;/id-&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ZkDirectIdGenerator</span><span class="params">(String connectionString, <span class="type">int</span> sessionTimeout)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="built_in">this</span>.zooKeeper = <span class="keyword">new</span> <span class="title class_">ZooKeeper</span>(connectionString, sessionTimeout, event -&gt; &#123;&#125;);</span><br><span class="line">        initializePath();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">initializePath</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Stat</span> <span class="variable">stat</span> <span class="operator">=</span> zooKeeper.exists(path, <span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">if</span> (stat == <span class="literal">null</span>) &#123;</span><br><span class="line">            zooKeeper.create(path, <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">0</span>], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Optional&lt;String&gt; <span class="title function_">generateId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">fullPath</span> <span class="operator">=</span> zooKeeper.create(path + PATH_PREFIX, <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">0</span>], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);</span><br><span class="line">            <span class="keyword">return</span> Optional.of(extractId(fullPath));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;create znode failed, exception is &quot;</span>, e);</span><br><span class="line">            <span class="keyword">return</span> Optional.empty();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">extractId</span><span class="params">(String fullPath)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> fullPath.substring(fullPath.lastIndexOf(PATH_PREFIX) + PATH_PREFIX.length());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="使用ZooKeeper生成机器号"><a href="#使用ZooKeeper生成机器号" class="headerlink" title="使用ZooKeeper生成机器号"></a>使用ZooKeeper生成机器号</h3><p>应用程序可以使用ZooKeeper生成机器号，然后使用机器号+时间戳+序列号来生成分布式Id。来解决ZooKeeper有序节点性能不高的问题。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.CreateMode;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooDefs;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooKeeper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.time.LocalDateTime;</span><br><span class="line"><span class="keyword">import</span> java.util.Optional;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicReference;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ZkIdGenerator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> <span class="string">&quot;/zk-id&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">AtomicInteger</span> <span class="variable">atomicInteger</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AtomicReference&lt;String&gt; machinePrefix = <span class="keyword">new</span> <span class="title class_">AtomicReference</span>&lt;&gt;(<span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String[] AUX_ARRAY = &#123;<span class="string">&quot;&quot;</span>, <span class="string">&quot;0&quot;</span>, <span class="string">&quot;00&quot;</span>, <span class="string">&quot;000&quot;</span>, <span class="string">&quot;0000&quot;</span>, <span class="string">&quot;00000&quot;</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 通过zk获取不一样的机器号，机器号取有序节点最后三位</span></span><br><span class="line"><span class="comment">     * id格式：</span></span><br><span class="line"><span class="comment">     * 机器号 + 日期 + 小时 + 分钟 + 秒 + 5位递增号码</span></span><br><span class="line"><span class="comment">     * 一秒可分近10w个id</span></span><br><span class="line"><span class="comment">     * 需要对齐可以在每一位补零</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> Optional&lt;String&gt; <span class="title function_">genId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (machinePrefix.get().isEmpty()) &#123;</span><br><span class="line">            acquireMachinePrefix();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (machinePrefix.get().isEmpty()) &#123;</span><br><span class="line">            <span class="comment">// get id failed</span></span><br><span class="line">            <span class="keyword">return</span> Optional.empty();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">LocalDateTime</span> <span class="variable">now</span> <span class="operator">=</span> LocalDateTime.now();</span><br><span class="line">        <span class="type">int</span> <span class="variable">aux</span> <span class="operator">=</span> atomicInteger.getAndAccumulate(<span class="number">1</span>, ((left, right) -&gt; &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">val</span> <span class="operator">=</span> left + right;</span><br><span class="line">            <span class="keyword">return</span> val &gt; <span class="number">99999</span> ? <span class="number">1</span> : val;</span><br><span class="line">        &#125;));</span><br><span class="line">        <span class="type">String</span> <span class="variable">time</span> <span class="operator">=</span> conv2Str(now.getDayOfYear(), <span class="number">3</span>) + conv2Str(now.getHour(), <span class="number">2</span>) + conv2Str(now.getMinute(), <span class="number">2</span>) + conv2Str(now.getSecond(), <span class="number">2</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">suffix</span> <span class="operator">=</span> conv2Str(aux, <span class="number">5</span>);</span><br><span class="line">        <span class="keyword">return</span> Optional.of(machinePrefix.get() + time + suffix);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">acquireMachinePrefix</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!machinePrefix.get().isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">ZooKeeper</span> <span class="variable">zooKeeper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ZooKeeper</span>(ZooKeeperConstant.SERVERS, <span class="number">30_000</span>, <span class="literal">null</span>);</span><br><span class="line">            <span class="keyword">final</span> <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> zooKeeper.create(path, <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">0</span>], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);</span><br><span class="line">            <span class="keyword">if</span> (s.length() &gt; <span class="number">3</span>) &#123;</span><br><span class="line">                machinePrefix.compareAndSet(<span class="string">&quot;&quot;</span>, s.substring(s.length() - <span class="number">3</span>));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;connect to zookeeper failed, exception is &quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String <span class="title function_">conv2Str</span><span class="params">(<span class="type">int</span> value, <span class="type">int</span> length)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (length &gt; <span class="number">5</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;length should be less than 5&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">String</span> <span class="variable">str</span> <span class="operator">=</span> String.valueOf(value);</span><br><span class="line">        <span class="keyword">return</span> AUX_ARRAY[length - str.length()] + str;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="微服务注册中心"><a href="#微服务注册中心" class="headerlink" title="微服务注册中心"></a>微服务注册中心</h2><p>相比其他微服务引擎，如阿里云的<code>MSE</code>、<code>Nacos</code>等，已有的Zookeeper集群作为微服务的注册中心，既能满足微服务数量较少时的功能需求，并且更加节约成本</p>
-<h2 id="数据库连接均衡"><a href="#数据库连接均衡" class="headerlink" title="数据库连接均衡"></a>数据库连接均衡</h2><p>在此前的架构中，我们采用了一种随机策略来分配微服务与数据库的连接地址。下图展示了这种随机分配可能导致的场景。考虑两个微服务：微服务B和微服务C。尽管微服务C的实例较多，但其对数据库的操作相对较少。相比之下，微服务B在运行期间对数据库的操作更为频繁。这种连接方式可能导致数据库Data2节点的连接数和CPU使用率持续居高，从而成为系统的瓶颈。</p>
-<p><img src="/Images/zookeeper-database-before.png" alt="zookeeper-database-before.png"></p>
-<p>启发于<strong>Kafka</strong>中的<code>partition</code>分配算法，我们提出了一种新的连接策略。例如，如果微服务B1连接到了Data1和Data2节点，那么微服务B2将连接到Data3和Data4节点。如果存在B3实例，它将再次连接到Data1和Data2节点。对于微服务C1，其连接将从Data1和Data2节点开始。然而，由于微服务的数量与数据库实例数量的两倍（每个微服务建立两个连接）并非总是能整除，这可能导致Data1和Data2节点的负载不均衡。</p>
-<p>为了解决这一问题，我们进一步优化了策略：第一个微服务实例在选择数据库节点时，将从一个随机起点开始。这种方法旨在确保Data1和Data2节点的负载均衡。具体的分配策略如下图所示。</p>
-<p><img src="/Images/zookeeper-database-after.png" alt="zookeeper-database-after.png"></p>
-<h1 id="Apache-ZooKeeper在华为云IoT产品部的部署-运维"><a href="#Apache-ZooKeeper在华为云IoT产品部的部署-运维" class="headerlink" title="Apache ZooKeeper在华为云IoT产品部的部署&#x2F;运维"></a>Apache ZooKeeper在华为云IoT产品部的部署&#x2F;运维</h1><h2 id="服务端部署方式"><a href="#服务端部署方式" class="headerlink" title="服务端部署方式"></a>服务端部署方式</h2><p>我们所有微服务和中间件均采用容器化部署，选择3节点（没有learner）规格。使用<strong>statefulset</strong>和<strong>PVC</strong>的模式部署。为什么使用<strong>statefulset</strong>进行部署？<strong>statefulset</strong>非常适合用于像<code>Zookeeper</code>这样有持久化存储需求的服务，每个Pod可以和对应的存储资源绑定，保证数据的持久化，同时也简化了部署，如果想使用<strong>deploy</strong>的部署模式，需要规划、固定每个pod的虚拟机部署。</p>
-<p><code>Zookeeper</code>本身对云硬盘的要求并不高，普通IO，几十G存储就已经能够支撑<code>Zookeeper</code>平稳运行了。<code>Zookeeper</code>本身运行的资源，使用量不是很大，在我们的场景，规格主要取决于Pulsar的topic数量，如果<code>Pulsar</code>的topic不多，那么0.5核、2G内存已经能保证<code>Zookeeper</code>平稳运行了。</p>
-<h2 id="客户端连接方式"><a href="#客户端连接方式" class="headerlink" title="客户端连接方式"></a>客户端连接方式</h2><p>借助coredns，客户端使用域名的方式连接<code>Zookeeper</code>，这样可以避免<code>Zookeeper</code>的IP地址变更导致客户端连接失败的问题，如zookeeper-0.zookeeper:2181,zookeeper-1.zookeeper:2181,zookeeper-2.zookeeper:2181</p>
-<h2 id="重要监控指标"><a href="#重要监控指标" class="headerlink" title="重要监控指标"></a>重要监控指标</h2><ul>
-<li><p>readlantency、updatelantency</p>
-<p>zk的读写延迟</p>
-</li>
-<li><p>approximate_data_size</p>
-<p>zk中数据的平均大小估计</p>
-</li>
-<li><p>outstanding_requests</p>
-<p>等待<code>Zookeeper</code>处理的请求数</p>
-</li>
-<li><p>znode_count</p>
-<p><code>Zookeeper</code>当前的<code>znode</code>总数</p>
-</li>
-<li><p>num_alive_connections</p>
-<p><code>Zookeeper</code>当前活跃的连接数</p>
-</li>
-</ul>
-<h1 id="Apache-ZooKeeper在华为云IoT产品部的问题"><a href="#Apache-ZooKeeper在华为云IoT产品部的问题" class="headerlink" title="Apache ZooKeeper在华为云IoT产品部的问题"></a>Apache ZooKeeper在华为云IoT产品部的问题</h1><h2 id="readiness合理设置"><a href="#readiness合理设置" class="headerlink" title="readiness合理设置"></a>readiness合理设置</h2><p>这是碰到的最有趣的问题，<strong>readiness</strong>接口是<strong>k8s</strong>判断pod是否正常的依据，那么对于<strong>Zookeeper</strong>集群来说，最合理的就是，当这个<strong>Zookeeper</strong>节点加入集群，获得了属于自己的<strong>Leader</strong>或<strong>Follower</strong>状态，就算pod正常。可是，当初次部署的时候，只有一个节点可用，该节点一个实例无法完成选举流程，导致无法部署。</p>
-<p>综上，我们把<strong>readiness</strong>的策略修改为：</p>
-<p><img src="/Images/zookeeper-readiness-strategy.png" alt="zookeeper-readiness-strategy.png"></p>
-<p>PS：为了让<strong>readiness</strong>检查不通过时，<strong>Zookeeper</strong>集群也能选主成功，需要配置<strong>publishNotReadyAddresses</strong>为true，示例如下</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">zookeeper</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line">  <span class="attr">clusterIP:</span> <span class="string">None</span></span><br><span class="line">  <span class="attr">sessionAffinity:</span> <span class="string">None</span></span><br><span class="line">  <span class="attr">publishNotReadyAddresses:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">2181</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">client</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">2888</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">peer</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">3888</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">leader</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="jute-maxbuffer超过上限"><a href="#jute-maxbuffer超过上限" class="headerlink" title="jute.maxbuffer超过上限"></a>jute.maxbuffer超过上限</h2><p>jute.maxbuffer，这个是znode中存储数据大小的上限，在客户端和服务端都需要配置，根据自己在znode上存储的数据合理配置</p>
-<h2 id="zookeeper的Prometheus全0监听"><a href="#zookeeper的Prometheus全0监听" class="headerlink" title="zookeeper的Prometheus全0监听"></a>zookeeper的Prometheus全0监听</h2><p>不满足网络监听最小可见原则。修改策略，添加一个可配置参数来配置监听的IP <code>metricsProvider.httpHost</code>，PR已合入，见 <a target="_blank" rel="noopener" href="https://github.com/apache/zookeeper/pull/1574/files">https://github.com/apache/zookeeper/pull/1574/files</a></p>
-<h2 id="客户端版本号过低，域名无法及时刷新"><a href="#客户端版本号过低，域名无法及时刷新" class="headerlink" title="客户端版本号过低，域名无法及时刷新"></a>客户端版本号过低，域名无法及时刷新</h2><p>客户端使用域名进行连接，但在客户端版本号过低的情况下，客户端并不会刷新新的ip，还是会用旧的ip尝试连接。升级客户端版本号到curator-4.3.0以上、zookeeper-3.6.2以上版本后解决。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文详细介绍了华为云IoT服务产品部如何使用Apache ZooKeeper来优化其云原生微服务架构。ZooKeeper作为分布式协调服务，在华为云IoT服务中发挥了重要作用，用于主备选举、分布式锁、任务分配和缓存通知等。文中还讨论了ZooKeeper在分布式ID生成、微服务注册中心、数据库连接均衡等方面的应用。此外，文章还覆盖了ZooKeeper在华为云IoT产品部的部署、运维策略和所遇到的挑战，包括容器化部署、监控指标和配置问题。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/03/22/%E4%BC%98%E9%9B%85%E5%90%AF%E5%81%9CVS%E9%87%8D%E8%AF%95%EF%BC%8C%E8%B0%81%E8%83%BD%E6%9B%B4%E5%A5%BD%E5%9C%B0%E4%BF%9D%E8%AF%81RPC%E6%97%A0%E6%8D%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/rpc-lossless" class="post-title-link post-title-link-external" itemprop="url">优雅启停VS重试，谁能更好地保证RPC无损<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-03-22 18:57:18" itemprop="dateCreated datePublished" datetime="2021-03-22T18:57:18+08:00">2021-03-22</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>我们的业务有些时候总是在升级期间<code>rpc</code>业务有一些呼损，想总结一下让<code>rpc</code>调用零呼损的两种方式：重试和优雅启停。我先介绍这两种方式，再描述一下这两种方式的优缺点</p>
-<p><img src="/Images/rpc-lossless.png" alt="rpc-lossless"></p>
-<p>A是一个微服务</p>
-<p>B也是一个微服务</p>
-<p>蓝色的是常见的注册中心，有<code>zookeeper</code>、<code>eureka</code>等实现。</p>
-<h2 id="重试"><a href="#重试" class="headerlink" title="重试"></a>重试</h2><p>重试，在发生可重试错误的时候，重试一次。什么是可重试错误呢？就是重试一次，可能会成功。比如400 BadRequest，那出现这种错误，基本上重试也没有用，就不要浪费我们宝贵的服务器资源了。常见的如<code>servicecomb</code>框架就有重试几次、重试间隔这样的参数。值得一提的是，如果你指望通过重试让升级零呼损，那么你的重试次数，要比你的并行升级实例数大才行。</p>
-<p>这也很容易理解，比如A服务调用B服务，B服务有5个实例,B1~B5。这个时候，同时升级B1和B2，A第一次调用了B1，接下来重试，如果运气不好，恰好重试到了B2节点，那么业务还是会失败的。如果防异常故障，就得重试三次才行。</p>
-<p>如果是防止单数据中心宕机，重试次数大于同时宕机节点数，这个规则可能就没那么靠谱了。现在，企业部署十几个乃至二十几个微服务实例，已经不是什么新闻了，假设分3数据中心部署，总不能重试接近10次吧，这种时候，最好重试策略和数据中心相关，重试的时候，选择另一个az的实例。目前<code>servicecomb</code>还不支持这种功能。</p>
-<h2 id="优雅启停"><a href="#优雅启停" class="headerlink" title="优雅启停"></a>优雅启停</h2><h3 id="优雅停止"><a href="#优雅停止" class="headerlink" title="优雅停止"></a>优雅停止</h3><p>优雅停止，就是说当微服务快要宕机的时候，先从注册中心进行去注册，然后把发送给微服务的消息，处理完毕后，再彻底关闭。这个方式，可以有效地防止升级期间，发送到老节点的呼损。</p>
-<h3 id="优雅启动"><a href="#优雅启动" class="headerlink" title="优雅启动"></a>优雅启动</h3><p>优雅启动，当微服务实例，能够处理<code>rpc</code>请求的时候，再将实例自己注册到注册中心。避免请求发进来，实例却无法处理。</p>
-<p>这里有一个要求，就是调用方发现被调用方（即A发现B）的注册中心，要和B注册、去注册的注册中心是一个注册中心。有案例是，发现采用k8s发现，注册、去注册却使用微服务引擎，导致呼损。</p>
-<h1 id="优劣对比"><a href="#优劣对比" class="headerlink" title="优劣对比"></a>优劣对比</h1><h2 id="可预知节点升级的场景"><a href="#可预知节点升级的场景" class="headerlink" title="可预知节点升级的场景"></a>可预知节点升级的场景</h2><p>重试相对于优雅启停，在预知节点升级的场景没那么优雅，重试次数可能还要和并行升级的节点挂钩，非常的不优雅，且难以维护</p>
-<h2 id="不可预知节点升级的场景"><a href="#不可预知节点升级的场景" class="headerlink" title="不可预知节点升级的场景"></a>不可预知节点升级的场景</h2><p>优雅启停无法对不可预知节点升级的场景生效。只有重试能在这个场景发挥作用</p>
-<h2 id="其他场景"><a href="#其他场景" class="headerlink" title="其他场景"></a>其他场景</h2><p>重试可以很好地处理网络闪断、长链接中断等场景</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>想要实现<code>rpc</code>调用零呼损，重试和优雅启停都不可或缺，都需要实现。</p>
 
       
     </div>

@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-count">89</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-count">42</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,213 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2020/01/23/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%BA%B2%E5%92%8C%E5%8F%8D%E4%BA%B2%E5%92%8C%E9%83%A8%E7%BD%B2%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E6%97%A5%E5%BF%97%E6%89%93%E5%8D%B0%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2020/01/23/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%BA%B2%E5%92%8C%E5%8F%8D%E4%BA%B2%E5%92%8C%E9%83%A8%E7%BD%B2%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E6%97%A5%E5%BF%97%E6%89%93%E5%8D%B0%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">未命名</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-01-23 15:20:09" itemprop="dateCreated datePublished" datetime="2020-01-23T15:20:09+08:00">2020-01-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="灵活部署要求"><a href="#灵活部署要求" class="headerlink" title="灵活部署要求"></a>灵活部署要求</h3><p>常见的微服务开发下,可能会对微服务的日志打印有一些要求.常见的一种模式是,将日志文件挂载在主机路径中,然后在主机上启动filebeat收集日志.</p>
+<p>以我的一个demo工程rabbitmq-adapt为例: </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">容器内打印路径: /opt/sh/logs/file.log</span><br><span class="line">容器外挂载路径: /opt/log/rabbitmq/file.log</span><br></pre></td></tr></table></figure>
+
+<p>但是这样子,如果我们需要在一个虚拟机上跑两个rabbitmq-adapt的时候,日志路径会重复,这种情况下,不仅我们在虚拟机很难定位问题,而且filebeat也很难给日志标记上不同实例的标签.</p>
+<p>所以首先,我们得把日志路径按pod实例的方式隔离,选择k8s中HOSTNAME环境变量作为文件路径前缀是一个不错的选择</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">akka@AkkadeMacBook-Pro ~ % kubectl <span class="built_in">exec</span> -it rabbitmq-58c5f4ff6b-zthg4 bash</span><br><span class="line">[root@rabbitmq-58c5f4ff6b-zthg4 /]# <span class="built_in">env</span></span><br><span class="line">LANG=en_US.UTF-8</span><br><span class="line">HOSTNAME=rabbitmq-58c5f4ff6b-zthg4</span><br><span class="line">KUBERNETES_PORT_443_TCP_PROTO=tcp</span><br><span class="line">KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1</span><br><span class="line">KUBERNETES_PORT=tcp://10.96.0.1:443</span><br><span class="line">POD_NAME=rabbitmq-58c5f4ff6b-zthg4</span><br><span class="line">PWD=/</span><br><span class="line">HOME=/root</span><br><span class="line">NODE_NAME=minikube</span><br><span class="line">KUBERNETES_SERVICE_PORT_HTTPS=443</span><br><span class="line">KUBERNETES_PORT_443_TCP_PORT=443</span><br><span class="line">KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443</span><br><span class="line">TERM=xterm</span><br><span class="line">SHLVL=1</span><br><span class="line">KUBERNETES_SERVICE_PORT=443</span><br><span class="line">PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin</span><br><span class="line">POD_IP=172.17.0.2</span><br><span class="line">KUBERNETES_SERVICE_HOST=10.96.0.1</span><br><span class="line">LESSOPEN=||/usr/bin/lesspipe.sh %s</span><br><span class="line">_=/usr/bin/env</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="k8s-subPathExpr方案-查阅资料-官方推荐的是这个方案"><a href="#k8s-subPathExpr方案-查阅资料-官方推荐的是这个方案" class="headerlink" title="k8s subPathExpr方案: 查阅资料,官方推荐的是这个方案"></a>k8s subPathExpr方案: 查阅资料,官方推荐的是这个方案</h4><p>这个时候,你的映射关系是 &#x2F;opt&#x2F;sh&#x2F;logs &lt;&#x3D;&#x3D;&gt; &#x2F;opt&#x2F;log&#x2F;rabbitmq&#x2F;${POD_NAME}</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">rabbitmq</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">rabbitmq</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">rabbitmq</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">rabbitmq</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">rabbitmq</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">NODE_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">spec.nodeName</span>        </span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">POD_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">metadata.name</span>            </span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">POD_IP</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">status.podIP</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">hezhangjian/rabbitmq-adapt:0.0.1</span></span><br><span class="line">        <span class="attr">readinessProbe:</span></span><br><span class="line">          <span class="attr">httpGet:</span></span><br><span class="line">            <span class="attr">path:</span> <span class="string">/readiness</span></span><br><span class="line">            <span class="attr">port:</span> <span class="number">8083</span></span><br><span class="line">          <span class="attr">initialDelaySeconds:</span> <span class="number">3</span></span><br><span class="line">          <span class="attr">periodSeconds:</span> <span class="number">3</span></span><br><span class="line">        <span class="attr">volumeMounts:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">mountPath:</span> <span class="string">/opt/sh/log</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">rabbitmq-log</span></span><br><span class="line">            <span class="comment"># subPath的方案很好,但对版本号要求很高,&gt;=1.14</span></span><br><span class="line">            <span class="attr">subPathExpr:</span> <span class="string">$(POD_NAME)</span></span><br><span class="line">        <span class="attr">resources:</span></span><br><span class="line">          <span class="attr">limits:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">4G</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">1000m</span></span><br><span class="line">          <span class="attr">requests:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">500M</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">250m</span></span><br><span class="line">        <span class="attr">securityContext:</span></span><br><span class="line">            <span class="attr">privileged:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">    <span class="comment">#   - name: rabbitmq-data</span></span><br><span class="line">    <span class="comment">#     hostPath: </span></span><br><span class="line">    <span class="comment">#       path: &quot;/Users/akka/rabbitmq&quot;</span></span><br><span class="line">    <span class="comment">#       type: DirectoryOrCreate        </span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">rabbitmq-log</span></span><br><span class="line">        <span class="attr">hostPath:</span></span><br><span class="line">          <span class="attr">path:</span> <span class="string">/opt/log/rabbitmq</span></span><br><span class="line">          <span class="attr">type:</span> <span class="string">DirectoryOrCreate</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可以达到如下的效果:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">minikube/                  rabbitmq-6df8f7565c-kh2h6/ rabbitmq-6df8f7565c-ss92l/</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="log4j2环境变量隔离方案-适用于在你的k8s版本还不够的情况下"><a href="#log4j2环境变量隔离方案-适用于在你的k8s版本还不够的情况下" class="headerlink" title="log4j2环境变量隔离方案:适用于在你的k8s版本还不够的情况下"></a>log4j2环境变量隔离方案:适用于在你的k8s版本还不够的情况下</h4><p>这个时候,你的文件映射关系还是 &#x2F;opt&#x2F;sh&#x2F;logs &lt;&#x3D;&#x3D;&gt; &#x2F;opt&#x2F;log&#x2F;rabbitmq</p>
+<p>但是真正在打印日志的时候,把日志都打印到&#x2F;opt&#x2F;sh&#x2F;logs&#x2F;${POD_NAME}下,这样子也可以在一台vm上跑多个实例</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span> ?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">Configuration</span> <span class="attr">status</span>=<span class="string">&quot;warn&quot;</span> <span class="attr">monitorInterval</span>=<span class="string">&quot;10&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Appenders</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Console</span> <span class="attr">name</span>=<span class="string">&quot;Console&quot;</span> <span class="attr">target</span>=<span class="string">&quot;SYSTEM_OUT&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">PatternLayout</span> <span class="attr">pattern</span>=<span class="string">&quot;%d&#123;yyyy-MM-dd,HH:mm:ss,SSSXXX&#125;(%r):%4p%X[%t#%T]%l--&gt;%m%n&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">Console</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">File</span> <span class="attr">name</span>=<span class="string">&quot;FILE&quot;</span> <span class="attr">fileName</span>=<span class="string">&quot;$&#123;env:HOSTNAME&#125;/file.log&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">PatternLayout</span> <span class="attr">pattern</span>=<span class="string">&quot;%d&#123;yyyy-MM-dd,HH:mm:ss,SSSXXX&#125;(%r):%4p%X[%t#%T]%l--&gt;%m%n&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">File</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Appenders</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Loggers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Root</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">AppenderRef</span> <span class="attr">ref</span>=<span class="string">&quot;Console&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">AppenderRef</span> <span class="attr">ref</span>=<span class="string">&quot;FILE&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">Root</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Loggers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们解决了两个容器在一个vm上打印日志的问题,紧接着,我们要分析filebeat的能力,filebeat能否区分这两个路径,把这两个路径打上不同的标签</p>
+<p>运行并配置好filebeat,配置文件如下</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">filebeat.inputs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">type:</span> <span class="string">log</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">paths:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/opt/sh/collect/log/es/*/*.log</span></span><br><span class="line">    <span class="attr">tags:</span> [<span class="string">&quot;es&quot;</span>]</span><br><span class="line"><span class="attr">filebeat.config.modules:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">$&#123;path.config&#125;/modules.d/*.yml</span></span><br><span class="line">  <span class="attr">reload.enabled:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">reload.period:</span> <span class="string">10s</span></span><br><span class="line"><span class="attr">setup.template.settings:</span></span><br><span class="line">  <span class="attr">index.number_of_shards:</span> <span class="number">1</span></span><br><span class="line"><span class="attr">fields:</span></span><br><span class="line">  <span class="attr">fields_under_root:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">setup.kibana:</span></span><br><span class="line"><span class="attr">output.elasticsearch:</span></span><br><span class="line">  <span class="attr">hosts:</span> [<span class="string">&quot;localhost:9200&quot;</span>]</span><br><span class="line"><span class="attr">processors:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">add_host_metadata:</span> <span class="string">~</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">add_docker_metadata:</span> <span class="string">~</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">add_kubernetes_metadata:</span></span><br><span class="line">      <span class="attr">kube_config:</span> <span class="string">/opt/sh/collect/log/config</span></span><br><span class="line"><span class="attr">logging.level:</span> <span class="string">debug</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>,查询收集上来的数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl 127.0.0.1:9200/filebeat-7.5.1-2020.01.23-000001/_search?pretty</span><br><span class="line">收集上来的数据存在hostname字段,能区分代表单个实例的信息.</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用ES-processor添加实例id信息"><a href="#使用ES-processor添加实例id信息" class="headerlink" title="使用ES processor添加实例id信息"></a>使用ES processor添加实例id信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">&quot;localhost:9200/_ingest/pipeline/attach_instance?pretty&quot;</span> -H <span class="string">&#x27;Content-Type: application/json&#x27;</span> -d<span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">  &quot;processors&quot;: [</span></span><br><span class="line"><span class="string">    &#123;</span></span><br><span class="line"><span class="string">      &quot;grok&quot;: &#123;</span></span><br><span class="line"><span class="string">        &quot;field&quot;: &quot;log.file.path&quot;,</span></span><br><span class="line"><span class="string">        &quot;patterns&quot;: [&quot;/opt/sh/collect/log/es/%&#123;WORD:instanceId&#125;/es.log&quot;]</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  ]</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后修改filebeat配置文件</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">filebeat.inputs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">type:</span> <span class="string">log</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">paths:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/opt/sh/collect/log/es/*/*.log</span></span><br><span class="line">    <span class="attr">tags:</span> [<span class="string">&quot;es&quot;</span>]</span><br><span class="line"><span class="attr">filebeat.config.modules:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">$&#123;path.config&#125;/modules.d/*.yml</span></span><br><span class="line">  <span class="attr">reload.enabled:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">reload.period:</span> <span class="string">10s</span></span><br><span class="line"><span class="attr">setup.template.settings:</span></span><br><span class="line">  <span class="attr">index.number_of_shards:</span> <span class="number">1</span></span><br><span class="line"><span class="attr">fields:</span></span><br><span class="line">  <span class="attr">fields_under_root:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">setup.kibana:</span></span><br><span class="line"><span class="attr">output.elasticsearch:</span></span><br><span class="line">  <span class="attr">hosts:</span> [<span class="string">&quot;localhost:9200&quot;</span>]</span><br><span class="line">  <span class="attr">pipeline:</span> <span class="string">attach_instance</span></span><br><span class="line"><span class="attr">processors:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">add_host_metadata:</span> <span class="string">~</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">add_docker_metadata:</span> <span class="string">~</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">add_kubernetes_metadata:</span></span><br><span class="line">      <span class="attr">kube_config:</span> <span class="string">/opt/sh/collect/log/config</span></span><br><span class="line"><span class="attr">logging.level:</span> <span class="string">debug</span></span><br></pre></td></tr></table></figure>
+<p>查询结果就会出现在instanceId字段</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>三种方案均可以方便地实现同一vm上部署两个容器. 方案一只需要修改tosca模板,但要1.14版本才支持.方案二需要修改少量代码. </p>
+<p>但前两种均不适合配置了hostnetwork,即独占主机的网络,原因,主机网络独占之后,两个容器的hostname都相同,实际中,已经独占网络的容器,还需要部署在一个节点的需求,应该比较少.</p>
+<p>如果有,可以使用在es处处理文件路径,加上instanceId字段</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2020/01/12/Java%20Ping%E5%91%BD%E4%BB%A4%E5%BF%83%E8%B7%B3%E6%8E%A2%E6%B5%8B%20InetAddress%20isReachable%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/java-ping" class="post-title-link post-title-link-external" itemprop="url">Java Ping命令心跳探测 InetAddress isReachable分析<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-01-12 09:35:09" itemprop="dateCreated datePublished" datetime="2020-01-12T09:35:09+08:00">2020-01-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="业务需求分析与解决方案"><a href="#业务需求分析与解决方案" class="headerlink" title="业务需求分析与解决方案"></a>业务需求分析与解决方案</h1><p>在业务场景中，当需要利用ping命令对主机进行心跳探测时，直接在代码中fork进程执行ping命令虽然可行，但这种方法开销较大，并且处理流程易出错，与使用标准库相比缺乏优雅性。因此，本文探讨了使用Java的InetAddress类的isReachable方法作为替代方案。</p>
+<p>根据资料指出，Java的InetAddress类在root用户权限下通过执行ping命令进行探测，在非root用户权限下则通过访问TCP端口7进行探测。为验证这一点，本文撰写了相应的demo代码并进行了测试（详见：<a target="_blank" rel="noopener" href="https://github.com/hezhangjian/heart-beat">GitHub - heart-beat</a>）。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">import lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line">import java.net.InetAddress;</span><br><span class="line"></span><br><span class="line">@Slf4j</span><br><span class="line">public class PingTestMain &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws Exception &#123;</span><br><span class="line">        String testIp = System.getProperty(&quot;TestIp&quot;);</span><br><span class="line">        InetAddress inetAddress = InetAddress.getByName(testIp);</span><br><span class="line">        boolean addressReachable = inetAddress.isReachable(500);</span><br><span class="line">        log.info(&quot;address is reachable is &#123;&#125;&quot;, addressReachable);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="测试实验"><a href="#测试实验" class="headerlink" title="测试实验"></a>测试实验</h1><h2 id="root用户下执行程序"><a href="#root用户下执行程序" class="headerlink" title="root用户下执行程序"></a>root用户下执行程序</h2><p><img src="/Images/java-ping-root-success.png" alt="java-ping-root-success.png"></p>
+<p>java程序打印结果也是true</p>
+<h2 id="在普通用户权限下的测试"><a href="#在普通用户权限下的测试" class="headerlink" title="在普通用户权限下的测试"></a>在普通用户权限下的测试</h2><p><img src="/Images/java-ping-user-fail.png" alt="java-ping-user-fail.png"></p>
+<p>此时可以看到,我们的客户端程序向目标tcp7端口发送了一个报文,虽然java程序打印结果为true,但是因为收到了RST包导致的.在当今的网络安全要求下,7端口往往不会开放</p>
+<h2 id="在目标网络屏蔽TCP端口7的情况下执行程序"><a href="#在目标网络屏蔽TCP端口7的情况下执行程序" class="headerlink" title="在目标网络屏蔽TCP端口7的情况下执行程序"></a>在目标网络屏蔽TCP端口7的情况下执行程序</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -A INPUT -p tcp --dport 7 -j DROP</span><br></pre></td></tr></table></figure>
+
+<p>发送的报文没有收到RST包,此时java程序返回false.不是我们预期的结果</p>
+<h2 id="普通用户权限下携带特权的测试"><a href="#普通用户权限下携带特权的测试" class="headerlink" title="普通用户权限下携带特权的测试"></a>普通用户权限下携带特权的测试</h2><p>进一步的研究发现，Java程序发送ping命令需要创建raw socket，这要求程序具有root权限或cap_net_raw权限。赋予Java程序创建raw socket的权限后重新测试，发现程序能够正确发送ping命令，达到预期效果。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setcap cap_net_raw+ep /usr/java/jdk-13.0.1/bin/java</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>发现如下报错</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java: error while loading shared libraries: libjli.so: cannot open shared object file: No such file or directory</span><br></pre></td></tr></table></figure>
+<p>使用<a target="_blank" rel="noopener" href="https://askubuntu.com/questions/334365/how-to-add-a-directory-to-linker-command-line-in-linux%E8%A7%84%E9%81%BF%E6%B7%BB%E5%8A%A0so%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90">https://askubuntu.com/questions/334365/how-to-add-a-directory-to-linker-command-line-in-linux规避添加so文件权限</a></p>
+<p>随后抓包,发现还是发送了ping命令,达到了我们预期的效果</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文通过一系列测试得出结论，root用户权限下的Java程序会使用ping命令进行探测。若普通用户不具备相应权限，则会尝试探测TCP端口7，但在安全组未开启该端口的情况下会导致预期结果不一致。推荐赋予java程序特权,使得InetAddress类能够使用ping命令进行探测</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +448,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -335,7 +542,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -455,7 +662,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -562,7 +769,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -790,7 +997,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -956,7 +1163,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   
@@ -1039,7 +1246,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 13:21:29" itemprop="dateModified" datetime="2025-10-19T13:21:29+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
     </span>
 
   

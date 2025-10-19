@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="前言  自17年入职华为之后，一直在使用配置中心，4年期间经历了自研配置中心到Apollo再到自研配置中心和Apollo并存的场景。总结了一下这几年的配置中心演进流程，想把我们在配置中心上的一些实践分享给大家，实现共同进步。Apollo是一款非常优秀的开源软件，是国人的骄傲。如果对Apollo存在理解错误，还望大家不吝赐教，谢谢。 使用到的配置分类从场景分类运维配置，即程序只读的配置人工配置。通过">
+<meta property="og:type" content="article">
+<meta property="og:title" content="华为云物联网四年配置中心实践">
+<meta property="og:url" content="https://hezhangjian.com/2021/04/14/%E5%8D%8E%E4%B8%BA%E4%BA%91%E7%89%A9%E8%81%94%E7%BD%91%E5%9B%9B%E5%B9%B4%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="前言  自17年入职华为之后，一直在使用配置中心，4年期间经历了自研配置中心到Apollo再到自研配置中心和Apollo并存的场景。总结了一下这几年的配置中心演进流程，想把我们在配置中心上的一些实践分享给大家，实现共同进步。Apollo是一款非常优秀的开源软件，是国人的骄傲。如果对Apollo存在理解错误，还望大家不吝赐教，谢谢。 使用到的配置分类从场景分类运维配置，即程序只读的配置人工配置。通过">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/config-center1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/config-center2.jpg">
+<meta property="og:image" content="https://hezhangjian.com/Images/config-center3.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/config-center4.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/config-center5.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/config-center6.png">
+<meta property="article:published_time" content="2021-04-14T00:11:47.000Z">
+<meta property="article:modified_time" content="2025-10-19T11:07:18.620Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="HuaweiCloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/config-center1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/04/14/%E5%8D%8E%E4%B8%BA%E4%BA%91%E7%89%A9%E8%81%94%E7%BD%91%E5%9B%9B%E5%B9%B4%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%AE%9E%E8%B7%B5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/04/14/%E5%8D%8E%E4%B8%BA%E4%BA%91%E7%89%A9%E8%81%94%E7%BD%91%E5%9B%9B%E5%B9%B4%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%AE%9E%E8%B7%B5/","path":"2021/04/14/华为云物联网四年配置中心实践/","title":"华为云物联网四年配置中心实践"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>华为云物联网四年配置中心实践 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%88%B0%E7%9A%84%E9%85%8D%E7%BD%AE%E5%88%86%E7%B1%BB"><span class="nav-number">2.</span> <span class="nav-text">使用到的配置分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB"><span class="nav-number">2.1.</span> <span class="nav-text">从场景分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE%EF%BC%8C%E5%8D%B3%E7%A8%8B%E5%BA%8F%E5%8F%AA%E8%AF%BB%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.1.</span> <span class="nav-text">运维配置，即程序只读的配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%EF%BC%8C%E5%8D%B3%E7%A8%8B%E5%BA%8F%E5%8F%AF%E5%86%99%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.2.</span> <span class="nav-text">业务配置，即程序可写的配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E9%85%8D%E7%BD%AE%E6%98%AF%E5%90%A6%E4%BC%9A%E6%9C%89%E5%88%97%E8%A1%A8%E5%8F%AF%E5%88%86%E4%B8%BA%E5%8D%95%E5%80%BC%E9%85%8D%E7%BD%AE%E6%88%96%E5%A4%9A%E5%80%BC%E9%85%8D%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">从配置是否会有列表可分为单值配置或多值配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E5%80%BC%E9%85%8D%E7%BD%AE"><span class="nav-number">2.2.1.</span> <span class="nav-text">单值配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E5%80%BC%E9%85%8D%E7%BD%AE"><span class="nav-number">2.2.2.</span> <span class="nav-text">多值配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5-%E8%87%AA%E7%A0%94%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-number">3.</span> <span class="nav-text">第一阶段 自研配置中心</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E9%85%8D%E7%BD%AE%E5%8D%95%E8%A1%A8"><span class="nav-number">3.1.</span> <span class="nav-text">单配置单表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E5%9B%9E%E8%B0%83%E6%96%B9%E5%BC%8F%E6%9D%A5%E7%A1%AE%E4%BF%9D%E9%85%8D%E7%BD%AE%E7%9A%84%E5%8F%AF%E9%9D%A0"><span class="nav-number">3.2.</span> <span class="nav-text">通过回调方式来确保配置的可靠</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5-Apollo"><span class="nav-number">4.</span> <span class="nav-text">第二阶段 Apollo</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E9%97%AE%E9%A2%98"><span class="nav-number">4.1.</span> <span class="nav-text">并发问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.</span> <span class="nav-text">性能问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%93%E9%AA%8C%E9%97%AE%E9%A2%98"><span class="nav-number">4.3.</span> <span class="nav-text">体验问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5-Apollo%E4%B8%8E%E8%87%AA%E7%A0%94%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%B9%B6%E5%AD%98"><span class="nav-number">5.</span> <span class="nav-text">第三阶段 Apollo与自研配置中心并存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">6.</span> <span class="nav-text">最佳实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SRE%E5%9C%A8%E7%95%8C%E9%9D%A2%E4%B8%8A%E7%9A%84%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE"><span class="nav-number">6.1.</span> <span class="nav-text">SRE在界面上的运维配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E6%9D%82%E7%9A%84%E5%8F%82%E6%95%B0%E6%A0%A1%E9%AA%8C"><span class="nav-number">6.2.</span> <span class="nav-text">复杂的参数校验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%E7%9A%84%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B"><span class="nav-number">6.3.</span> <span class="nav-text">业务配置的技术选型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%E7%9A%84%E9%83%A8%E7%BD%B2"><span class="nav-number">6.4.</span> <span class="nav-text">业务配置的部署</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">89</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/14/%E5%8D%8E%E4%B8%BA%E4%BA%91%E7%89%A9%E8%81%94%E7%BD%91%E5%9B%9B%E5%B9%B4%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="华为云物联网四年配置中心实践 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/config-center" class="post-title-link post-title-link-external" itemprop="url">华为云物联网四年配置中心实践<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-14 08:11:47" itemprop="dateCreated datePublished" datetime="2021-04-14T08:11:47+08:00">2021-04-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>  自17年入职华为之后，一直在使用配置中心，4年期间经历了自研配置中心到<code>Apollo</code>再到自研配置中心和<code>Apollo</code>并存的场景。总结了一下这几年的配置中心演进流程，想把我们在配置中心上的一些实践分享给大家，实现共同进步。<code>Apollo</code>是一款非常优秀的开源软件，是国人的骄傲。如果对<code>Apollo</code>存在理解错误，还望大家不吝赐教，谢谢。</p>
+<h2 id="使用到的配置分类"><a href="#使用到的配置分类" class="headerlink" title="使用到的配置分类"></a>使用到的配置分类</h2><h3 id="从场景分类"><a href="#从场景分类" class="headerlink" title="从场景分类"></a>从场景分类</h3><h4 id="运维配置，即程序只读的配置"><a href="#运维配置，即程序只读的配置" class="headerlink" title="运维配置，即程序只读的配置"></a>运维配置，即程序只读的配置</h4><p>人工配置。通过人工在配置中心界面进行配置，而程序只进行读取，如数据库配置、邮箱服务器配置、网卡配置、子网地址配置等。这部分配置数据不要求代码动态写入。</p>
+<h4 id="业务配置，即程序可写的配置"><a href="#业务配置，即程序可写的配置" class="headerlink" title="业务配置，即程序可写的配置"></a>业务配置，即程序可写的配置</h4><p>我们是一个SaaS服务，每个用户在上面都有一些业务配置。如用户的证书配置、用户服务器的流控配置等，这些业务配置相对<strong>运维配置</strong>来说更加复杂，且可能会有唯一性限制，如按用户id唯一。这部分配置数据一般由用户操作触发，代码动态写入，并且通知到各个微服务实例。通常，我们希望这些配置能在界面展示，且支持人为修改。上述逻辑如果由各微服务自己实现，会存在大量重复代码，并且质量无法保证。我们希望由一个公共组件来统一实现这个能力。</p>
+<h3 id="从配置是否会有列表可分为单值配置或多值配置"><a href="#从配置是否会有列表可分为单值配置或多值配置" class="headerlink" title="从配置是否会有列表可分为单值配置或多值配置"></a>从配置是否会有列表可分为单值配置或多值配置</h3><h4 id="单值配置"><a href="#单值配置" class="headerlink" title="单值配置"></a>单值配置</h4><p>整个配置下只是多对key、value。value不是很复杂的格式，往往是整数或字符串。</p>
+<p><img src="/Images/config-center1.png" alt="image-20210330171658154"></p>
+<h4 id="多值配置"><a href="#多值配置" class="headerlink" title="多值配置"></a>多值配置</h4><p>多值配置更加复杂，往往是<strong>单值配置</strong>在不同的key下，有不同的值。比如下面的配置，用户一和用户二的线程池大小和队列不同</p>
+<p><img src="/Images/config-center2.jpg" alt="img"></p>
+<h2 id="第一阶段-自研配置中心"><a href="#第一阶段-自研配置中心" class="headerlink" title="第一阶段 自研配置中心"></a>第一阶段 自研配置中心</h2><p>在做云服务之前，我们的配置中心层级数较少。我们以软件的形式交付给客户，软件运行时分为管理面和业务面，配置中心管理着管理面和业务面的配置，最为复杂的场景是多套业务面，这个时候需要保证不同集群、不同微服务下的配置不冲突，配置层级为 集群、微服务、配置。</p>
+<p><img src="/Images/config-center3.png" alt="image-20210324204231586"></p>
+<p>此时的配置中心是完全自研的，不包含蓝绿、灰度配置这些功能，它独具特色的地方有以下两点：</p>
+<h3 id="单配置单表"><a href="#单配置单表" class="headerlink" title="单配置单表"></a>单配置单表</h3><ul>
+<li>在存储模型上，每个配置对应一张数据表。</li>
+<li>对多值配置比较友好，尤其是复杂业务配置，可以支持各种主键约束。对单值配置，稍微重型了一些。</li>
+<li>配置的强Schema限制。这些限制包括类型、大小、长度、是否敏感等限制。这种限制既能为界面修改配置提供良好的体验（如：不同格式不同的输入框、敏感字段，前台输入明文，后台入库加密等），也能在通过接口写入配置时做充分的校验。</li>
+</ul>
+<h3 id="通过回调方式来确保配置的可靠"><a href="#通过回调方式来确保配置的可靠" class="headerlink" title="通过回调方式来确保配置的可靠"></a>通过回调方式来确保配置的可靠</h3><p>举个例子，添加一个配置的流程是这样的</p>
+<p><img src="/Images/config-center4.png" alt="image-20210324205828998"></p>
+<p>可能这里，有读者想要问了，这个流程能确保什么可靠呢。这个流程通过调用微服务接口来校验配置是否可靠，如IP地址是否合法、对端地址是否可达、配置数量是否超过规格等等，来保证配置基本可用。</p>
+<p>总的来说，这个自研的配置中心在当时综合体验还是不错的。但是也有一些问题有待改进，比如单配置下配置项数量过多时，因为底层有部分接口单配置下所有数据都通过一个http请求来承载，会导致响应超时等问题。</p>
+<h2 id="第二阶段-Apollo"><a href="#第二阶段-Apollo" class="headerlink" title="第二阶段 Apollo"></a>第二阶段 Apollo</h2><p>开始第二阶段实践的原因主要是，我们进行了组织切换，业务重心转向做云服务，同时团队进行DevOps转型。原先的老配置中心是由另一个团队维护的，组织切换完之后，如果还要使用，就要我们自己维护。所以我们需要在继续维护老配置中心和引入开源<code>Apollo</code>中间进行选择。除了上文中提到的运维配置和业务配置，这个时候我们的需求还有改变：</p>
+<ul>
+<li>配置的层级愈发丰富了</li>
+<li>要构建灰度发布微服务的能力</li>
+</ul>
+<p>老配置中心一方面由于组织切换原因不提供维护了，另一方面不能支撑丰富的配置层级，也不具备灰度发布的能力。这个时候，<code>Apollo</code>的一些特性吸引了我们，这些特性正是老配置中心所缺乏的，例如（部分引用自<code>Apollo</code>github主页）</p>
+<ul>
+<li>丰富的层级，从<code>app_id</code>到<code>cluster</code>,<code>namespace</code>,<code>key-value</code>的层级能满足我们region、集群、微服务的层级诉求</li>
+<li>支持配置的灰度发布，比如点了发布后，只对部分应用实例生效，等观察一段时间没问题后再推给所有应用实例。</li>
+<li>所有的配置发布都有版本概念，从而可以方便的支持配置的回滚。</li>
+<li>应用和配置的管理都有完善的权限管理机制，对配置的管理还分为了编辑和发布两个环节，从而减少人为的错误。</li>
+<li>所有的操作都有审计日志，可以方便的追踪问题。</li>
+</ul>
+<p>因此我们选型引入了<code>Apollo</code>，我和我的主管，还有一个其他同事参与了这项工作。我们在Apollo开源代码的基础上做了比较大的改动，主要原因有以下几点</p>
+<ul>
+<li>节约成本，将注册中心、数据库替换成我们当前正在使用的组件，因为这两个依赖不是<code>Apollo</code>的核心依赖</li>
+<li>继承老配置中心强<code>Schema</code>的优点。</li>
+<li>保留回调确认配置的流程，提前拦截错误的配置，降低代码处理异常配置的复杂度</li>
+<li>通过spi或环境变量的方式兼容存量老局点使用老配置中心的场景</li>
+</ul>
+<p>结合上述原因，我们最终是这么实践的</p>
+<ul>
+<li><p>数据库切换为<code>postgre</code>数据库、注册中心切换到<code>servicecomb</code></p>
+</li>
+<li><p>在namespace上实现了<code>Schema</code>，每个namespace都可以注册对应的<code>Schema</code>，<code>Schema</code>要求数据必须是json格式，且json内对应的value必须满足Schema定义的规范（如ip地址、小数、整数等）</p>
+<p>Schema举例</p>
+</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;name&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;string&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;age&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;int&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;max&quot;</span><span class="punctuation">:</span><span class="number">120</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;ip&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;ipv4&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+<p> 那么数据应该是这样的</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;hezhangjian&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span><span class="number">23</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ip&quot;</span><span class="punctuation">:</span><span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在添加或修改配置的时候，实现了回调功能，由回调业务服务确认配置能否添加或修改</li>
+<li>配置分层：云服务对应<code>Apollo</code>的<code>app_id</code>，把内部的环境对应到<code>Apollo</code>上的集群，然后将微服务名+配置名拼接成配置名称。</li>
+</ul>
+<p>下图展示了业务概念和<code>Apollo</code>概念的对应关系，有些配置是单值配置，有些是多值配置，所以配置项这一层级是可选的。</p>
+<p><img src="/Images/config-center5.png" alt="配置分层示意图"></p>
+<p>在这段时间的实践中，我们也发现如下问题</p>
+<h3 id="并发问题"><a href="#并发问题" class="headerlink" title="并发问题"></a>并发问题</h3><p>其中最致命的就是并发问题，首先<code>Apollo</code>所有配置都存在一张表中，其次由于<code>Apollo</code>设计之初主要考虑的是运维人员手动在界面上操作，代码无并发语义（或者说没给客户端并发语义），使得我们通过代码写入配置时难以解决并发问题。</p>
+<h3 id="性能问题"><a href="#性能问题" class="headerlink" title="性能问题"></a>性能问题</h3><p>打开<code>namespace</code>列表页面，需要显示这个<code>app_id</code>下的所有<code>namespace</code>,因为我们单<code>app_id</code>会存放单个云服务的所有配置，这个量很大，且界面不支持分页，导致页面加载缓慢</p>
+<h3 id="体验问题"><a href="#体验问题" class="headerlink" title="体验问题"></a>体验问题</h3><p><code>Apollo</code>的<code>namespace</code>界面未提供搜索功能（可能Apollo设计之初也没想支持这么多），想要从<code>namespace</code>中定位到我们想要查看或修改的namespace，只能借助浏览器的搜索能力。</p>
+<h2 id="第三阶段-Apollo与自研配置中心并存"><a href="#第三阶段-Apollo与自研配置中心并存" class="headerlink" title="第三阶段 Apollo与自研配置中心并存"></a>第三阶段 Apollo与自研配置中心并存</h2><p>除了上述几个问题，还有一些原因使得我们开始了第三阶段的实践</p>
+<ul>
+<li>原来自上而下的配置分层模型，微服务间配置没隔离，不仅不易进行权限管理，而且不适合<code>DevOps</code> 单微服务自治的发布理念。</li>
+<li>第二阶段对<code>Apollo</code>改动太多，组织结构变动，没有足够的人力维护</li>
+<li>随着集群越来越多，回调功能需要网络的双向打通，网络维护不太方便</li>
+<li>我们对<code>Apollo</code>界面以及接口基于业务做的改动较多，导致其他兄弟部门难以共用<code>Apollo</code></li>
+</ul>
+<p>当时大家对是否保留<strong>Schema</strong>、<strong>回调检查</strong>、<strong>代码写配置</strong>这三个功能点有较大的争议。我个人最希望保留<strong>Schema</strong>、<strong>回调检查</strong>，因为它们优点显著，而且接口是兼容的，可以与其他部门共用，但是增加了<strong>Schema</strong>这个概念和<strong>回调检查</strong>这个流程，会增加学习成本。而代码写配置，由于要解决并发问题，代码改动量较大，我不建议保留。</p>
+<p>大家经过激烈的讨论，最终还是废弃了<strong>Schema</strong>、<strong>回调检查</strong>、<strong>代码写配置</strong>这三个功能点，仅仅把运维配置放在<code>Apollo</code>。</p>
+<p>然后，我们把业务配置，放在了一个自研的强Schema的配置中心上，这个配置中心，仅负责单集群的配置，每个集群部署一套，满足了我们的业务需求。自研强Schema配置中心的核心要点有，单配置单表、通过注册中心回调来检测配置是否合法、借助mqtt协议来实现长链接推送，无单点瓶颈。</p>
+<p>而我们的运维配置中心<code>Apollo</code>回归到了开源的版本，重整了配置的结构，</p>
+<p><img src="/Images/config-center6.png" alt="image-20210405224010878"></p>
+<p>对运维配置而言好处有</p>
+<ul>
+<li>配置模型适合单微服务发布</li>
+<li>配置按微服务组织，一个页面上的namespace不会很多</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>Schema缺失后，不会对操作人员在界面的配置进行校验，即使配置格式或者内容错误也能配置成功。界面上配置密码不支持明文（Apollo无法感知是否为敏感字段），必须提前使用其他工具将明文转换为密文，然后再进行配置。</li>
+<li>回调检查功能去掉后，有些配置，如网卡网段配错，操作人员不能即时得到响应</li>
+</ul>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p>业务配置经过我们的实践，确实不适合使用开源的<code>Apollo</code>。运维配置使用原生的<code>Apollo</code>，但是现在还不具备<strong>回调检查</strong>和<strong>Schema</strong>的功能，希望<code>Apollo</code>能在后续版本中支持<strong>Schema</strong>，或者弱化的<strong>json</strong>格式检查功能。下面是我们在如下场景下的最佳实践</p>
+<h3 id="SRE在界面上的运维配置"><a href="#SRE在界面上的运维配置" class="headerlink" title="SRE在界面上的运维配置"></a>SRE在界面上的运维配置</h3><p>通过<code>Apollo</code>来实现功能，至于配置如何组织，根据大家的组织结构、技术架构来对应<code>Apollo</code>上的概念，可按照<code>微服务-&gt;部署环境</code>或<code>部署环境 -&gt; 微服务</code>的层级来组织配置</p>
+<h3 id="复杂的参数校验"><a href="#复杂的参数校验" class="headerlink" title="复杂的参数校验"></a>复杂的参数校验</h3><p>建议在<code>Apollo</code>上面自建portal包裹一层，后端服务可先进行一层处理，这一层处理可以做比较复杂的格式化校验甚至<strong>回调检查</strong>，再调用<code>Apollo OpenApi</code>将配置写入<code>Apollo</code>。</p>
+<h3 id="业务配置的技术选型"><a href="#业务配置的技术选型" class="headerlink" title="业务配置的技术选型"></a>业务配置的技术选型</h3><p>最大的挑战是业务配置由用户触发，请求的并发不易处理。思路有两个，一个是在<code>Apollo</code>原生代码的基础上，通过数据库分布式锁来解决并发问题。第二个是借鉴我们的思路，通过单配置单表、mqtt协议实现通知等核心技术点，自研业务配置中心。</p>
+<h3 id="业务配置的部署"><a href="#业务配置的部署" class="headerlink" title="业务配置的部署"></a>业务配置的部署</h3><p>需要根据业务配置的数量来考虑是否合设业务配置中心。单集群场景下，毫无疑问只需要一个业务配置中心，甚至如果使用<code>Apollo</code>实现，可以考虑和运维配置中心合设。多集群场景下，部署一个业务配置中心，还是多个业务配置中心，我们自己的实践中，一个集群往往要支撑数万用户，我们采取了每个业务集群部署一套业务配置中心的策略。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/HuaweiCloud/" rel="tag"># HuaweiCloud</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/13/Kubernetes%20pod%E5%86%85%E8%B0%83%E7%94%A8API/" rel="prev" title="Kubernetes pod内调用API">
+                  <i class="fa fa-angle-left"></i> Kubernetes pod内调用API
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/04/20/%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%98%AF%E5%85%AC%E6%9C%89%E4%BA%91%E7%9A%84%E4%BE%9B%E5%BA%94%E5%95%86%EF%BC%8C%E8%83%BD%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84Pulsar%E6%9C%8D%E5%8A%A1%E4%BD%93%E9%AA%8C/" rel="next" title="如果不是公有云的供应商，能提供什么样的Pulsar服务体验">
+                  如果不是公有云的供应商，能提供什么样的Pulsar服务体验 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
