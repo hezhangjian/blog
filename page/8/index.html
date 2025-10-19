@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">89</span>
+          <span class="site-state-item-count">90</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">43</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,115 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/13/Kubernetes%20pod%E5%86%85%E8%B0%83%E7%94%A8API/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/kubernetes-pod-api" class="post-title-link post-title-link-external" itemprop="url">Kubernetes pod内调用API<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-13 21:17:20" itemprop="dateCreated datePublished" datetime="2021-04-13T21:17:20+08:00">2021-04-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Kubernetes pod内调用API的流程总体分为以下步骤</p>
+<ul>
+<li>创建role</li>
+<li>创建serviceaccount</li>
+<li>绑定role到serviceaccount</li>
+<li>指定pod使用serviceaccount</li>
+</ul>
+<p>我们以查pod为例，演示一下整个流程</p>
+<h2 id="创建role"><a href="#创建role" class="headerlink" title="创建role"></a>创建role</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># role.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">role-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiGroups:</span> [<span class="string">&quot;&quot;</span>]</span><br><span class="line">    <span class="attr">resources:</span> [<span class="string">&quot;pods&quot;</span>]</span><br><span class="line">    <span class="attr">verbs:</span> [<span class="string">&quot;get&quot;</span>,<span class="string">&quot;list&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f role.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建serviceaccount"><a href="#创建serviceaccount" class="headerlink" title="创建serviceaccount"></a>创建serviceaccount</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># serviceaccount.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">serviceaccount-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f serviceaccount.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="绑定role"><a href="#绑定role" class="headerlink" title="绑定role"></a>绑定role</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rolebinding.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">RoleBinding</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">rolebinding-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">serviceaccount-hzj</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">role-hzj</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f rolebinding.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="部署pod进行测试"><a href="#部署pod进行测试" class="headerlink" title="部署pod进行测试"></a>部署pod进行测试</h2><h3 id="部署一个zookeeper进行测试"><a href="#部署一个zookeeper进行测试" class="headerlink" title="部署一个zookeeper进行测试"></a>部署一个zookeeper进行测试</h3><p>手上刚好有zookeeper的模板文件</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">zookeeper</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">hostNetwork:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">dnsPolicy:</span> <span class="string">ClusterFirstWithHostNet</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">zookeeper</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">ttbb/zookeeper:stand-alone</span></span><br><span class="line">        <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">        <span class="attr">resources:</span></span><br><span class="line">          <span class="attr">limits:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">2G</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">1000m</span></span><br><span class="line">          <span class="attr">requests:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">2G</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">1000m</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">NODE_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">spec.nodeName</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">POD_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">metadata.name</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">PS1</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&#x27;[\u@zookeeper@\W]\$ &#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="调用API"><a href="#调用API" class="headerlink" title="调用API"></a>调用API</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Point to the internal API server hostname</span></span><br><span class="line">APISERVER=https://kubernetes.default.svc</span><br><span class="line"><span class="comment"># Path to ServiceAccount token</span></span><br><span class="line">SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount</span><br><span class="line"><span class="comment"># Read this Pod&#x27;s namespace</span></span><br><span class="line">NAMESPACE=$(<span class="built_in">cat</span> <span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/namespace)</span><br><span class="line"><span class="comment"># Read the ServiceAccount bearer token</span></span><br><span class="line">TOKEN=$(<span class="built_in">cat</span> <span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/token)</span><br><span class="line"><span class="comment"># Reference the internal certificate authority (CA)</span></span><br><span class="line">CACERT=<span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/ca.crt</span><br><span class="line"><span class="comment"># Explore the API with TOKEN</span></span><br><span class="line">curl --cacert <span class="variable">$&#123;CACERT&#125;</span> --header <span class="string">&quot;Authorization: Bearer <span class="variable">$&#123;TOKEN&#125;</span>&quot;</span> -X GET <span class="variable">$&#123;APISERVER&#125;</span>/api</span><br><span class="line">curl --cacert <span class="variable">$&#123;CACERT&#125;</span> --header <span class="string">&quot;Authorization: Bearer <span class="variable">$&#123;TOKEN&#125;</span>&quot;</span> -X GET <span class="variable">$&#123;APISERVER&#125;</span>/api/v1/namespaces/default/pods</span><br></pre></td></tr></table></figure>
+
+<p><img src="/Images/kubernetes-pod-api1.png" alt="kubernetes-pod-api1"></p>
+<p>发现这里，调用后面的api，403错误。第一个api不报错，是因为该接口不需要鉴权。</p>
+<h3 id="修改pod对应的serviceaccount"><a href="#修改pod对应的serviceaccount" class="headerlink" title="修改pod对应的serviceaccount"></a>修改pod对应的serviceaccount</h3><p>让我们修改部署模板对应的ServiceAccountName，注入权限。在pod的spec下，设置serviceAccountName</p>
+<p><img src="/Images/kubernetes-pod-api2.png" alt="kubernetes-pod-api2"></p>
+<h3 id="修改部署模板重启后调用api正常"><a href="#修改部署模板重启后调用api正常" class="headerlink" title="修改部署模板重启后调用api正常"></a>修改部署模板重启后调用api正常</h3><p>再次尝试上述命令，api结果返回正常</p>
+<p><img src="/Images/kubernetes-pod-api3.png" alt="kubernetes-pod-api3"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +350,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -369,7 +478,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -460,7 +569,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -548,7 +657,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -651,7 +760,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -741,7 +850,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -877,7 +986,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -971,7 +1080,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -1067,7 +1176,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -1083,129 +1192,6 @@
           <h2 id="Hash-based-multipath-routing"><a href="#Hash-based-multipath-routing" class="headerlink" title="Hash-based multipath routing"></a>Hash-based multipath routing</h2><p>该特性在Linux4.4版本引入，一个难以被大家发现的好处是，基于源地址路由，没有做地址转换，并不会在nf_conntrack中添加记录<br>它是对源IP和目标IP进行哈希处理(端口不参与哈希的计算)计算选路。配置的命令如下:<br>weight代表权重</p>
 <h3 id="通过网关负载均衡"><a href="#通过网关负载均衡" class="headerlink" title="通过网关负载均衡"></a>通过网关负载均衡</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ip route add default  proto static scope global \</span><br><span class="line">nexthop  via &lt;gw_1&gt; weight 1 \</span><br><span class="line">nexthop  via &lt;gw_2&gt; weight 1</span><br></pre></td></tr></table></figure>
 <h3 id="通过网卡负载均衡"><a href="#通过网卡负载均衡" class="headerlink" title="通过网卡负载均衡"></a>通过网卡负载均衡</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ip route add default  proto static scope global \</span><br><span class="line"> nexthop  dev &lt;if_1&gt; weight 1 \</span><br><span class="line"> nexthop  dev &lt;if_2&gt; weight 1</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2020/08/19/%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E4%BB%AC%E6%83%B3%E8%A6%81%E4%B8%9A%E5%8A%A1%E4%B8%BB%E9%94%AE%EF%BC%8C%E6%83%B3%E8%A6%81%E5%B9%82%E7%AD%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/08/19/%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E4%BB%AC%E6%83%B3%E8%A6%81%E4%B8%9A%E5%8A%A1%E4%B8%BB%E9%94%AE%EF%BC%8C%E6%83%B3%E8%A6%81%E5%B9%82%E7%AD%89/" class="post-title-link" itemprop="url">为什么我们想要业务主键，想要幂等</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-08-19 15:51:45" itemprop="dateCreated datePublished" datetime="2020-08-19T15:51:45+08:00">2020-08-19</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h3 id="为什么我们想要业务主键，想要幂等"><a href="#为什么我们想要业务主键，想要幂等" class="headerlink" title="为什么我们想要业务主键，想要幂等"></a>为什么我们想要业务主键，想要幂等</h3><p>​	在分布式微服务场景下，有太多的环节可以引发错误的处理（包括丢失或者重复处理），如果业务本身有幂等的特性，我们可以以较低的代价解决大部分问题。</p>
-<p>​	我们假设我们在k8s集群中维护着下面的系统，部署了数个网关实例，数个业务处理服务，一套Kafka集群，数个消费者服务，一个数据库，平时的业务流程是这样子的：</p>
-<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">客户---&gt;(step1) 网关---&gt;(step2) 业务处理服务--&gt;(step3)消息中间件如Kafka--&gt;(step4)消费者消费--&gt;(step5) 写入数据库</span><br></pre></td></tr></table></figure>
-
-
-
-<p>而我们希望做到的是，在海量数据量的情况下，仅仅付出较小的代价，使得客户的每一条消息都存入到我们的数据库，没有丢失或者重复。</p>
-<p>在分布式的环境下，有很多地方都会出错，会引发消息的丢失或者重复，我们先假设上述系统没有做太多的可靠性加固，是如下工作的：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. 客户简单地发送到网关</span><br><span class="line">2. 网关发送到后端处理服务</span><br><span class="line">3. 后端处理服务接收到请求，做简单校验后直接返回成功/失败，异步发送消息到Kafka</span><br><span class="line">4. 消费者从Kafka拉取消息，拉取到消息就提交，不考虑写入数据库的成功或失败</span><br><span class="line">5. 写入到数据库</span><br></pre></td></tr></table></figure>
-
-<p>举几个例子，那么我们会碰到类似这样的问题:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 客户发送到网关不考虑结果，即时我们返回失败，也不处理。显然会丢失消息，我们的系统并不能保证100%的消息处理成功</span><br><span class="line">2. 网关在与业务处理服务的TCP的四次挥手阶段处理异常，导致业务处理成功(已发送到Kafka)，但实际返回客户失败。导致消息重复</span><br><span class="line">3. 消费者拉取到消息后，写入数据库失败，但此时offset已提交。消息丢失</span><br></pre></td></tr></table></figure>
-
-<p>我们先不考虑客户，先看平台侧，我们构筑了一个什么样的系统呢？</p>
-<p>它既不能保证至少发一次(AT_LEAST_ONCE),也不能保证最多发一次(AT_MOST_ONCE)，我们构筑了一个即可能多发也有可能少发的系统，当然，现在的基础设施很好，照着这样跑，可能丢失的数据也就是万中一二，但我们做技术，还是要有点追求，实现别人难以实现的事情才是我们的竞争力。</p>
-<h3 id="平台如何实现精确一次"><a href="#平台如何实现精确一次" class="headerlink" title="平台如何实现精确一次"></a>平台如何实现精确一次</h3><p>实现端到端一次的技术核心是两阶段提交，以上述业务流程为例，实现了两阶段提交的流程应该是这样的:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 消费者从Kafka消费到一批数据，但并不commit提交</span><br><span class="line">2. 消费者向数据库prepare这批数据</span><br><span class="line">3. 消费者向Kafka提交Offset</span><br><span class="line">4. 消费者向数据库commit这批数据</span><br></pre></td></tr></table></figure>
-
-<p>按照这个流程，还会有一些异常场景，比如</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.消费者向Kafka提交Offset后，突然宕机，重启的消费者无法恢复事务，消息丢失</span><br><span class="line">2.消费者commit失败，消息丢失</span><br></pre></td></tr></table></figure>
-
-<p>第二种情况属于极端场景，因为我们执行的业务简单，只是insert操作，prepare成功，commit失败，可以打日志，报告警人工处理。但第一种情况是需要自动化解决的，因为我们不能对每条提交失败的事务都人工处理。那么我们需要的是：</p>
-<p>我们需要消费者在进程级失败的时候，可以判断处于prepare阶段的事务是否需要恢复，这个可以对比Mysql，Mysql也使用了两阶段提交协议，每次重启的时候会判断redolog处于prepare状态，binlog是否完整，如果binlog完整，则恢复。这里redo log就像我们的数据库，binlog就是kafka。但我们现在的业务没有主键，每条消息都是独立的，我们无法区分，那些是要被正常放弃的事务，那些是重启的时候需要恢复的事务。这种情况我们无法处理。</p>
-<p>但如果这时候我们有了主键，我们有了幂等，我们只要做到至少一次就可以保证平台达到端到端一次。因为多次向数据库插入相同的数据，并不会发生什么事。</p>
-<h3 id="平台如何实现至少一次"><a href="#平台如何实现至少一次" class="headerlink" title="平台如何实现至少一次"></a>平台如何实现至少一次</h3><p>实现至少一次的核心技术是如果处理不成功就打死不提交，报告警等人工操作都不提交! 其他队列，缓存区，滑窗只不过是提升性能的手段。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 消费者从Kafka消费到一批数据，但并不commit提交</span><br><span class="line">2. 消费者向数据库prepare这批数据</span><br><span class="line">3. 消费者向数据库commit这批数据</span><br><span class="line">4. 消费者向Kafka提交Offset</span><br></pre></td></tr></table></figure>
-
-<p>接下来我们来看与客户的通信，这次我们先看如何做到至少一次</p>
-<h3 id="与客户侧通信如何做到至少一次"><a href="#与客户侧通信如何做到至少一次" class="headerlink" title="与客户侧通信如何做到至少一次"></a>与客户侧通信如何做到至少一次</h3><p>前面说到客户可能不处理你的返回值，碰到这样的客户其实是你赚了，客户的系统连这个都不重视，那想必也不会在意你是否做到了端到端一次吧，丢失了数据想必也不是特别在意。一个端到端一次的系统，一定需要输入端和输出端的配合，正如我前面举例:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">客户发送到网关不考虑结果，即时我们返回失败，也不处理。显然会丢失消息，</span><br></pre></td></tr></table></figure>
-
-<p>那么我们也需要客户的配合，客户检测到我们回复的结果是失败，重试一下，确保成功。现在我们已经实现了至少一次了吗？</p>
-<p>没有，还记得我前面说的这个吗？</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3. 后端处理服务接收到请求，做简单校验后直接返回成功/失败，异步发送消息到Kafka</span><br></pre></td></tr></table></figure>
-
-<p>我们需要后端处理服务接收到请求后，确保发送Kafka成功，再回复用户成功</p>
-<h3 id="与客户侧通信做到精确一次"><a href="#与客户侧通信做到精确一次" class="headerlink" title="与客户侧通信做到精确一次"></a>与客户侧通信做到精确一次</h3><p>假设前面的方案我都已经做了，在什么情况下我们会重复呢？</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 网关在与业务处理服务的TCP的四次挥手阶段处理异常，导致业务处理成功(已发送到Kafka)，但实际返回客户失败。导致消息重复</span><br><span class="line">2. 业务处理服务与网关的TCP的四次挥手阶段处理异常，导致业务处理成功，但实际返回客户失败</span><br><span class="line">3. 客户的系统重启，成功应答并没有成功传达</span><br></pre></td></tr></table></figure>
-
-<p>为了实现两阶段提交协议，客户在发送前需要确认这个消息是否已经处理过了，但是没有主键，我们无法提供给客户这样子的信息。（如果考虑性能的话，整个系统端到端的事务，基本与高吞吐无缘了）<br>而且，两阶段提交协议也需要客户做很多的工作，实际中也很难落地。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
-<li>我们需要一个业务上的主键，它可以是组合主键(mysql, mongo)，或者是single主键(更适合cassandra和redis)，使得我们可以提供更高QOS的保证，为此，仅需付出极小的代码，可能仅仅是数据库的主键一致性检查。</li>
-<li>如果系统和业务无关，任谁也难言真正的端到端一次。Flink无疑是流系统里面端到端一次的佼佼者，但上面也有着诸多限制。</li>
-</ul>
-<h3 id="备注"><a href="#备注" class="headerlink" title="备注"></a>备注</h3><ul>
-<li>事实上，要实现精确一次，系统的每两个环节之间都要做两阶段提交，为行文方便，省去网关，业务处理服务之间的两阶段提交</li>
-<li>推荐书籍 《基于Apache Flink的流处理》</li>
-</ul>
 
       
     </div>

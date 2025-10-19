@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="从简单通信协议开始最近工作中又需要处理协议解析，我对协议解析和网络抓包其实还是小有研究，17年刚毕业的时候，就用Netty手写过SMPP协议的对接。（其实做协议解析是一个很枯燥的工作，如果协议解析可以像antlr那样子写grammar自动解析应该会很酷？）本文总结一下协议在tcp下编码拆包粘包的三种解决方案。 网上有一些人对拆包粘包的说法不是很认可，但是我觉得这个术语还是挺形象的。 首先，让我们来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络编程经验总结 TCP拆包粘包常见解决方案">
+<meta property="og:url" content="https://hezhangjian.com/2021/07/04/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93%20TCP%E6%8B%86%E5%8C%85%E7%B2%98%E5%8C%85%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="从简单通信协议开始最近工作中又需要处理协议解析，我对协议解析和网络抓包其实还是小有研究，17年刚毕业的时候，就用Netty手写过SMPP协议的对接。（其实做协议解析是一个很枯燥的工作，如果协议解析可以像antlr那样子写grammar自动解析应该会很酷？）本文总结一下协议在tcp下编码拆包粘包的三种解决方案。 网上有一些人对拆包粘包的说法不是很认可，但是我觉得这个术语还是挺形象的。 首先，让我们来">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/network-tcp-codec1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/network-tcp-codec2.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/network-tcp-codec3.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/network-tcp-codec4.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/network-tcp-codec5.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/network-tcp-codec6.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/network-tcp-codec7.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/network-tcp-codec8.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/network-tcp-codec9.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/network-tcp-codec10.png">
+<meta property="article:published_time" content="2021-07-04T05:23:05.000Z">
+<meta property="article:modified_time" content="2025-10-19T14:38:19.147Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="Network">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/network-tcp-codec1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/07/04/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93%20TCP%E6%8B%86%E5%8C%85%E7%B2%98%E5%8C%85%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/07/04/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93%20TCP%E6%8B%86%E5%8C%85%E7%B2%98%E5%8C%85%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/","path":"2021/07/04/网络编程经验总结 TCP拆包粘包常见解决方案/","title":"网络编程经验总结 TCP拆包粘包常见解决方案"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>网络编程经验总结 TCP拆包粘包常见解决方案 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8E%E7%AE%80%E5%8D%95%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%A7%8B"><span class="nav-number">1.</span> <span class="nav-text">从简单通信协议开始</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="nav-number">1.1.</span> <span class="nav-text">服务端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">1.2.</span> <span class="nav-text">客户端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%AD%E7%A7%98%E6%97%B6%E5%88%BB"><span class="nav-number">2.</span> <span class="nav-text">揭秘时刻</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP%E5%8D%8F%E8%AE%AE"><span class="nav-number">2.1.</span> <span class="nav-text">TCP协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82%E8%AF%BB%E5%8F%96"><span class="nav-number">2.2.</span> <span class="nav-text">应用层读取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81TCP%E5%8D%8F%E8%AE%AE%E5%AE%9A%E4%B9%89%E6%96%B9%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">常见TCP协议定义方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E9%95%BF%E7%BC%96%E7%A0%81"><span class="nav-number">3.1.</span> <span class="nav-text">定长编码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%88%86%E9%9A%94%E7%AC%A6"><span class="nav-number">3.2.</span> <span class="nav-text">基于分隔符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%9B%BA%E5%AE%9A%E8%A1%8C%E6%95%B0%E7%9A%84%E7%BC%96%E7%A0%81"><span class="nav-number">3.3.</span> <span class="nav-text">基于固定行数的编码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%95%BF%E5%BA%A6%E7%BC%96%E7%A0%81"><span class="nav-number">3.4.</span> <span class="nav-text">长度编码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE%E4%BD%BF%E7%94%A8%E7%9A%84%E7%BC%96%E7%A0%81%E6%96%B9%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">其他网络协议使用的编码方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MQTT"><span class="nav-number">4.1.</span> <span class="nav-text">MQTT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AMQP"><span class="nav-number">4.2.</span> <span class="nav-text">AMQP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E9%95%BF%E5%9C%BA%E6%99%AF"><span class="nav-number">4.2.1.</span> <span class="nav-text">定长场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%95%BF%E5%BA%A6%E5%AD%97%E6%AE%B5%E6%A8%A1%E5%BC%8F"><span class="nav-number">4.2.2.</span> <span class="nav-text">长度字段模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%9C%B0%E5%9D%80"><span class="nav-number">5.</span> <span class="nav-text">代码地址</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/04/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93%20TCP%E6%8B%86%E5%8C%85%E7%B2%98%E5%8C%85%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="网络编程经验总结 TCP拆包粘包常见解决方案 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          网络编程经验总结 TCP拆包粘包常见解决方案
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-04 13:23:05" itemprop="dateCreated datePublished" datetime="2021-07-04T13:23:05+08:00">2021-07-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="从简单通信协议开始"><a href="#从简单通信协议开始" class="headerlink" title="从简单通信协议开始"></a>从简单通信协议开始</h2><p>最近工作中又需要处理协议解析，我对协议解析和网络抓包其实还是小有研究，17年刚毕业的时候，就用Netty手写过SMPP协议的对接。（其实做协议解析是一个很枯燥的工作，如果协议解析可以像antlr那样子写grammar自动解析应该会很酷？）本文总结一下协议在tcp下编码拆包粘包的三种解决方案。</p>
+<p>网上有一些人对拆包粘包的说法不是很认可，但是我觉得这个术语还是挺形象的。</p>
+<p>首先，让我们来设计一个简单地通信协议，<strong>Sorry</strong>，客户端一直对服务器发送<code>I am Sorry</code>，服务端回复<code>That&#39;s ok</code>。如下图所示</p>
+<p><img src="/Images/network-tcp-codec1.png" alt="image-20210704104926698"></p>
+<p>让我们来写个demo程序实现这个协议</p>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	listen, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, <span class="string">&quot;localhost:1997&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> listen.Close()</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		conn, err := listen.Accept()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="built_in">panic</span>(err)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">go</span> handleRequest(conn)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// handle incoming requests</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handleRequest</span><span class="params">(conn net.Conn)</span></span> &#123;</span><br><span class="line">	<span class="comment">// make a buffer to hold incoming data</span></span><br><span class="line">	buf := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">1024</span>)</span><br><span class="line">	<span class="comment">// Read the incoming connection into the buffer</span></span><br><span class="line">	reqLen, err := conn.Read(buf)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;error reading: &quot;</span>, err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> reqLen != <span class="number">10</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;invalid request size &quot;</span>, reqLen)</span><br><span class="line">	&#125;</span><br><span class="line">	_, err = conn.Write([]<span class="type">byte</span>(<span class="string">&quot;That&#x27;s ok&quot;</span>))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;error sending: &quot;</span>, err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::io::&#123;Read, Write&#125;;</span><br><span class="line"><span class="keyword">use</span> std::net::TcpStream;</span><br><span class="line"><span class="keyword">use</span> std::<span class="type">str</span>::from_utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">match</span> TcpStream::<span class="title function_ invoke__">connect</span>(<span class="string">&quot;localhost:1997&quot;</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(<span class="keyword">mut</span> stream) =&gt; &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;success connect to 1997&quot;</span>);</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">msg</span> = <span class="string">b&quot;I am Sorry&quot;</span>;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">expect_resp</span> = <span class="string">b&quot;That&#x27;s ok&quot;</span>;</span><br><span class="line">            stream.<span class="title function_ invoke__">write</span>(msg);</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;Send hello, awaiting reply&quot;</span>);</span><br><span class="line">            <span class="comment">// use 9 byte buffer</span></span><br><span class="line">            <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">data</span> = [<span class="number">0</span> <span class="keyword">as</span> <span class="type">u8</span>; <span class="number">9</span>];</span><br><span class="line">            <span class="keyword">match</span> stream.<span class="title function_ invoke__">read_exact</span>(&amp;<span class="keyword">mut</span> data) &#123;</span><br><span class="line">                <span class="title function_ invoke__">Ok</span>(_) =&gt; &#123;</span><br><span class="line">                    <span class="keyword">if</span> &amp;data == expect_resp &#123;</span><br><span class="line">                        <span class="built_in">println!</span>(<span class="string">&quot;Reply is ok&quot;</span>)</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="keyword">let</span> <span class="variable">text</span> = <span class="title function_ invoke__">from_utf8</span>(&amp;data).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">                        <span class="built_in">println!</span>(<span class="string">&quot;Unexpected reply: &#123;&#125;&quot;</span>, text);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="title function_ invoke__">Err</span>(e) =&gt; &#123;</span><br><span class="line">                    <span class="built_in">println!</span>(<span class="string">&quot;Failed to receive data: &#123;&#125;&quot;</span>, e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(e) =&gt; &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;Failed to connect: &#123;&#125;&quot;</span>, e)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意上面在服务端的实现中，我们校验了请求体的大小。</p>
+<p>运行成功，我们在<code>Wireshark</code>上可以看到</p>
+<p><img src="/Images/network-tcp-codec2.png" alt="image-20210704115955993"></p>
+<p>目标端口为1997，这是客户端发出的报文。当然也能看到响应的报文</p>
+<p><img src="/Images/network-tcp-codec3.png" alt="image-20210704120027704"></p>
+<p>那么，如果客户端是个十分礼貌的人，他如果连续发送10个<code>I am Sorry</code>呢？我们将代码修改为</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> <span class="variable">_</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">10</span> &#123;</span><br><span class="line">    stream.<span class="title function_ invoke__">write</span>(msg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>服务端报错了，服务端收到了一个请求，大小为100。并不是新手预期的10个大小为10的消息，</p>
+<p><img src="/Images/network-tcp-codec4.png" alt="image-20210704120639637"></p>
+<p>那么实际在网络中是如何传输的呢？一定是1个大小为100的消息吗？答案是否定的。在我的这次测试中，在<code>TCP</code>层，分成了两组消息，第一个大小为10，包含一个<code>I am Sorry</code></p>
+<p><img src="/Images/network-tcp-codec5.png" alt="image-20210704120759769"></p>
+<p>另一个大小为90，包含9个</p>
+<p><img src="/Images/network-tcp-codec6.png" alt="image-20210704120818834"></p>
+<h2 id="揭秘时刻"><a href="#揭秘时刻" class="headerlink" title="揭秘时刻"></a>揭秘时刻</h2><h3 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h3><p><strong>TCP</strong>和<strong>UDP</strong>不同，它是一个基于流的协议，<strong>TCP</strong>并不识别你定义的协议规则，只负责将这些报文打包发送，它可以基于<code>TCP_NODELAY</code>、<code>Nagle</code>算法等，任意的对你的报文进行切分发送。有两个典型的场景：第一个像上文中的例子，两个及以上的包在一个TCP数据包发送了，有个很形象的名字叫<code>粘包</code>。还有一个，因为报文过大，拆分成两个<code>TCP</code>报文发送，这叫拆包。</p>
+<h3 id="应用层读取"><a href="#应用层读取" class="headerlink" title="应用层读取"></a>应用层读取</h3><p>常见API，应用层读取也不保证单次操作一定仅仅读取一个<code>tcp</code>数据包，会根据你提供的buffer大小，尽量提供数据。你读取到的可能是上一个<code>TCP</code>包的末尾和下一个<code>TCP</code>包的开头部分。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>TCP</strong>是基于流的协议，并非基于报文。<strong>TCP</strong>提供了保序的语义保证，这要求应用程序，尤其是接收者，需要能够从报文流中提取出协议信息，<strong>TCP</strong>决不保证读取到的报文恰好是发送者一次<code>write</code>写入的报文，即使能在测试环境通过<code>case</code>，那也只不过是你运气好而已。</p>
+<p>像我们上面，读取到100大小的消息。根据协议大小请求固定为10，我们就可以将100消息分割为10条协议报文。如果读取到的大小为96，那就先处理前90个字节，剩下6个字节，待后面4个字节到达之后再合并处理。下一节我们详细介绍一下几种常见方式。</p>
+<h2 id="常见TCP协议定义方式"><a href="#常见TCP协议定义方式" class="headerlink" title="常见TCP协议定义方式"></a>常见TCP协议定义方式</h2><h3 id="定长编码"><a href="#定长编码" class="headerlink" title="定长编码"></a>定长编码</h3><p>就像我们例子中的那样一样，定义一个定长宽度，然后切分</p>
+<p>使用Go的gnet库的<code>Server</code>例子</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	codec := gnet.NewFixedLengthFrameCodec(<span class="number">10</span>)</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(codec))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于分隔符"><a href="#基于分隔符" class="headerlink" title="基于分隔符"></a>基于分隔符</h3><p>基于分隔符的编码也十分容易理解，双方约定好一个字符，并在正常报文中不出现这个字符（出现则需要转义），比较类似的是以太网的<code>7d7d</code>?这个计算机网络链路层相关的知乎，学太久了，忘记了。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	codec := gnet.NewDelimiterBasedFrameCodec(<span class="number">0x11</span>)</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(codec))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于固定行数的编码"><a href="#基于固定行数的编码" class="headerlink" title="基于固定行数的编码"></a>基于固定行数的编码</h3><p>这个也很简单，协议内容不换行，发送完再发送一个换行符，比较类似的有HTTP的<code>\r\n</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(&amp;gnet.LineBasedFrameCodec&#123;&#125;))</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="长度编码"><a href="#长度编码" class="headerlink" title="长度编码"></a>长度编码</h3><p>长度编码是使用最多的，最流行的一种编码方式。最简单的一种工作方式是，在报文的最开始数个字节（常见为4个字节，足以编码4个G长度，相比之下两个字节仅能存放64K消息），声明报文剩余内容的长度。以<code>Kafka</code>协议举例</p>
+<p><img src="/Images/network-tcp-codec7.png" alt="image-20210704125652379"></p>
+<p>Kafka这条消息，在<strong>TCP</strong>层占据的总长度为87字节，其中前4个字节<code>00 00 00 53</code>声明为83长度，为其余报文的长度。</p>
+<p>这一模式还有很多变体，如</p>
+<ul>
+<li>声明的长度包括其长度字段本身的长度</li>
+<li>长度字段并不是打头的字段</li>
+<li>长度字段的长度</li>
+</ul>
+<p>等等。这也就是下面解码器，拥有的参数非常多的原因，都是为了适配这些变体</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;encoding/binary&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	encoderConfig := gnet.EncoderConfig&#123;</span><br><span class="line">		ByteOrder:                       binary.BigEndian,</span><br><span class="line">		LengthFieldLength:               <span class="number">4</span>,</span><br><span class="line">		LengthAdjustment:                <span class="number">0</span>,</span><br><span class="line">		LengthIncludesLengthFieldLength: <span class="literal">true</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	decoderConfig := gnet.DecoderConfig&#123;</span><br><span class="line">		ByteOrder:           binary.BigEndian,</span><br><span class="line">		LengthFieldOffset:   <span class="number">0</span>,</span><br><span class="line">		LengthFieldLength:   <span class="number">4</span>,</span><br><span class="line">		LengthAdjustment:    <span class="number">-4</span>,</span><br><span class="line">		InitialBytesToStrip: <span class="number">4</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	codec := gnet.NewLengthFieldBasedFrameCodec(encoderConfig, decoderConfig)</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(codec))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>事实上，长度字段编码格式是我见过开源代码使用最多的格式，像MQTT、KAFKA、SMPP等都使用这种格式。其中原因，个人觉得在于声明长度之后，buffer申请及释放，可以简化很多，性能最好。</p>
+<h2 id="其他网络协议使用的编码方式"><a href="#其他网络协议使用的编码方式" class="headerlink" title="其他网络协议使用的编码方式"></a>其他网络协议使用的编码方式</h2><h3 id="MQTT"><a href="#MQTT" class="headerlink" title="MQTT"></a>MQTT</h3><p>使用长度字段编码格式</p>
+<p><img src="/Images/network-tcp-codec8.png" alt="image-20210704131034560"></p>
+<h3 id="AMQP"><a href="#AMQP" class="headerlink" title="AMQP"></a>AMQP</h3><p>AMQP的解析较为麻烦，它根据协议目前的状态，同时使用定长编码和长度字段两种编码方式。这就要求解码器不仅仅要处理报文，还要处理当前协议交互到那个状态了。</p>
+<h4 id="定长场景"><a href="#定长场景" class="headerlink" title="定长场景"></a>定长场景</h4><p><img src="/Images/network-tcp-codec9.png" alt="image-20210704131231757"></p>
+<h4 id="长度字段模式"><a href="#长度字段模式" class="headerlink" title="长度字段模式"></a>长度字段模式</h4><p><img src="/Images/network-tcp-codec10.png" alt="image-20210704131317098"></p>
+<h2 id="代码地址"><a href="#代码地址" class="headerlink" title="代码地址"></a>代码地址</h2><ul>
+<li>Go代码: <a target="_blank" rel="noopener" href="https://github.com/hezhangjian/go_demo/tree/main/demo_gnet/codec">https://github.com/hezhangjian/go_demo/tree/main/demo_gnet/codec</a></li>
+<li>Rust代码:<a target="_blank" rel="noopener" href="https://github.com/hezhangjian/rust-demo/blob/main/demo-tcp-client/src/main.rs">https://github.com/hezhangjian/rust-demo/blob/main/demo-tcp-client/src/main.rs</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Network/" rel="tag"># Network</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/07/04/%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AAfilebeat%20output%20websocket%E6%8F%92%E4%BB%B6/" rel="prev" title="开发一个filebeat output websocket插件">
+                  <i class="fa fa-angle-left"></i> 开发一个filebeat output websocket插件
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/08/09/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%98%AF%E5%BC%80%E7%AE%B1%E5%8D%B3%E7%94%A8%E7%9A%84%E5%90%97%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%BC%80%E5%8F%91%E4%B8%AD%E9%97%B4%E4%BB%B6adapter%EF%BC%9F/" rel="next" title="中间件是开箱即用的吗？为什么要开发中间件adapter？">
+                  中间件是开箱即用的吗？为什么要开发中间件adapter？ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

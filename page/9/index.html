@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">89</span>
+          <span class="site-state-item-count">90</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">43</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,129 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2020/08/19/%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E4%BB%AC%E6%83%B3%E8%A6%81%E4%B8%9A%E5%8A%A1%E4%B8%BB%E9%94%AE%EF%BC%8C%E6%83%B3%E8%A6%81%E5%B9%82%E7%AD%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2020/08/19/%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E4%BB%AC%E6%83%B3%E8%A6%81%E4%B8%9A%E5%8A%A1%E4%B8%BB%E9%94%AE%EF%BC%8C%E6%83%B3%E8%A6%81%E5%B9%82%E7%AD%89/" class="post-title-link" itemprop="url">为什么我们想要业务主键，想要幂等</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-08-19 15:51:45" itemprop="dateCreated datePublished" datetime="2020-08-19T15:51:45+08:00">2020-08-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="为什么我们想要业务主键，想要幂等"><a href="#为什么我们想要业务主键，想要幂等" class="headerlink" title="为什么我们想要业务主键，想要幂等"></a>为什么我们想要业务主键，想要幂等</h3><p>​	在分布式微服务场景下，有太多的环节可以引发错误的处理（包括丢失或者重复处理），如果业务本身有幂等的特性，我们可以以较低的代价解决大部分问题。</p>
+<p>​	我们假设我们在k8s集群中维护着下面的系统，部署了数个网关实例，数个业务处理服务，一套Kafka集群，数个消费者服务，一个数据库，平时的业务流程是这样子的：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">客户---&gt;(step1) 网关---&gt;(step2) 业务处理服务--&gt;(step3)消息中间件如Kafka--&gt;(step4)消费者消费--&gt;(step5) 写入数据库</span><br></pre></td></tr></table></figure>
+
+
+
+<p>而我们希望做到的是，在海量数据量的情况下，仅仅付出较小的代价，使得客户的每一条消息都存入到我们的数据库，没有丢失或者重复。</p>
+<p>在分布式的环境下，有很多地方都会出错，会引发消息的丢失或者重复，我们先假设上述系统没有做太多的可靠性加固，是如下工作的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. 客户简单地发送到网关</span><br><span class="line">2. 网关发送到后端处理服务</span><br><span class="line">3. 后端处理服务接收到请求，做简单校验后直接返回成功/失败，异步发送消息到Kafka</span><br><span class="line">4. 消费者从Kafka拉取消息，拉取到消息就提交，不考虑写入数据库的成功或失败</span><br><span class="line">5. 写入到数据库</span><br></pre></td></tr></table></figure>
+
+<p>举几个例子，那么我们会碰到类似这样的问题:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 客户发送到网关不考虑结果，即时我们返回失败，也不处理。显然会丢失消息，我们的系统并不能保证100%的消息处理成功</span><br><span class="line">2. 网关在与业务处理服务的TCP的四次挥手阶段处理异常，导致业务处理成功(已发送到Kafka)，但实际返回客户失败。导致消息重复</span><br><span class="line">3. 消费者拉取到消息后，写入数据库失败，但此时offset已提交。消息丢失</span><br></pre></td></tr></table></figure>
+
+<p>我们先不考虑客户，先看平台侧，我们构筑了一个什么样的系统呢？</p>
+<p>它既不能保证至少发一次(AT_LEAST_ONCE),也不能保证最多发一次(AT_MOST_ONCE)，我们构筑了一个即可能多发也有可能少发的系统，当然，现在的基础设施很好，照着这样跑，可能丢失的数据也就是万中一二，但我们做技术，还是要有点追求，实现别人难以实现的事情才是我们的竞争力。</p>
+<h3 id="平台如何实现精确一次"><a href="#平台如何实现精确一次" class="headerlink" title="平台如何实现精确一次"></a>平台如何实现精确一次</h3><p>实现端到端一次的技术核心是两阶段提交，以上述业务流程为例，实现了两阶段提交的流程应该是这样的:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 消费者从Kafka消费到一批数据，但并不commit提交</span><br><span class="line">2. 消费者向数据库prepare这批数据</span><br><span class="line">3. 消费者向Kafka提交Offset</span><br><span class="line">4. 消费者向数据库commit这批数据</span><br></pre></td></tr></table></figure>
+
+<p>按照这个流程，还会有一些异常场景，比如</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.消费者向Kafka提交Offset后，突然宕机，重启的消费者无法恢复事务，消息丢失</span><br><span class="line">2.消费者commit失败，消息丢失</span><br></pre></td></tr></table></figure>
+
+<p>第二种情况属于极端场景，因为我们执行的业务简单，只是insert操作，prepare成功，commit失败，可以打日志，报告警人工处理。但第一种情况是需要自动化解决的，因为我们不能对每条提交失败的事务都人工处理。那么我们需要的是：</p>
+<p>我们需要消费者在进程级失败的时候，可以判断处于prepare阶段的事务是否需要恢复，这个可以对比Mysql，Mysql也使用了两阶段提交协议，每次重启的时候会判断redolog处于prepare状态，binlog是否完整，如果binlog完整，则恢复。这里redo log就像我们的数据库，binlog就是kafka。但我们现在的业务没有主键，每条消息都是独立的，我们无法区分，那些是要被正常放弃的事务，那些是重启的时候需要恢复的事务。这种情况我们无法处理。</p>
+<p>但如果这时候我们有了主键，我们有了幂等，我们只要做到至少一次就可以保证平台达到端到端一次。因为多次向数据库插入相同的数据，并不会发生什么事。</p>
+<h3 id="平台如何实现至少一次"><a href="#平台如何实现至少一次" class="headerlink" title="平台如何实现至少一次"></a>平台如何实现至少一次</h3><p>实现至少一次的核心技术是如果处理不成功就打死不提交，报告警等人工操作都不提交! 其他队列，缓存区，滑窗只不过是提升性能的手段。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 消费者从Kafka消费到一批数据，但并不commit提交</span><br><span class="line">2. 消费者向数据库prepare这批数据</span><br><span class="line">3. 消费者向数据库commit这批数据</span><br><span class="line">4. 消费者向Kafka提交Offset</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们来看与客户的通信，这次我们先看如何做到至少一次</p>
+<h3 id="与客户侧通信如何做到至少一次"><a href="#与客户侧通信如何做到至少一次" class="headerlink" title="与客户侧通信如何做到至少一次"></a>与客户侧通信如何做到至少一次</h3><p>前面说到客户可能不处理你的返回值，碰到这样的客户其实是你赚了，客户的系统连这个都不重视，那想必也不会在意你是否做到了端到端一次吧，丢失了数据想必也不是特别在意。一个端到端一次的系统，一定需要输入端和输出端的配合，正如我前面举例:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">客户发送到网关不考虑结果，即时我们返回失败，也不处理。显然会丢失消息，</span><br></pre></td></tr></table></figure>
+
+<p>那么我们也需要客户的配合，客户检测到我们回复的结果是失败，重试一下，确保成功。现在我们已经实现了至少一次了吗？</p>
+<p>没有，还记得我前面说的这个吗？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3. 后端处理服务接收到请求，做简单校验后直接返回成功/失败，异步发送消息到Kafka</span><br></pre></td></tr></table></figure>
+
+<p>我们需要后端处理服务接收到请求后，确保发送Kafka成功，再回复用户成功</p>
+<h3 id="与客户侧通信做到精确一次"><a href="#与客户侧通信做到精确一次" class="headerlink" title="与客户侧通信做到精确一次"></a>与客户侧通信做到精确一次</h3><p>假设前面的方案我都已经做了，在什么情况下我们会重复呢？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 网关在与业务处理服务的TCP的四次挥手阶段处理异常，导致业务处理成功(已发送到Kafka)，但实际返回客户失败。导致消息重复</span><br><span class="line">2. 业务处理服务与网关的TCP的四次挥手阶段处理异常，导致业务处理成功，但实际返回客户失败</span><br><span class="line">3. 客户的系统重启，成功应答并没有成功传达</span><br></pre></td></tr></table></figure>
+
+<p>为了实现两阶段提交协议，客户在发送前需要确认这个消息是否已经处理过了，但是没有主键，我们无法提供给客户这样子的信息。（如果考虑性能的话，整个系统端到端的事务，基本与高吞吐无缘了）<br>而且，两阶段提交协议也需要客户做很多的工作，实际中也很难落地。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>我们需要一个业务上的主键，它可以是组合主键(mysql, mongo)，或者是single主键(更适合cassandra和redis)，使得我们可以提供更高QOS的保证，为此，仅需付出极小的代码，可能仅仅是数据库的主键一致性检查。</li>
+<li>如果系统和业务无关，任谁也难言真正的端到端一次。Flink无疑是流系统里面端到端一次的佼佼者，但上面也有着诸多限制。</li>
+</ul>
+<h3 id="备注"><a href="#备注" class="headerlink" title="备注"></a>备注</h3><ul>
+<li>事实上，要实现精确一次，系统的每两个环节之间都要做两阶段提交，为行文方便，省去网关，业务处理服务之间的两阶段提交</li>
+<li>推荐书籍 《基于Apache Flink的流处理》</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +363,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -355,7 +478,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -448,7 +571,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -542,7 +665,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -662,7 +785,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -769,7 +892,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -997,7 +1120,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -1163,7 +1286,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -1246,7 +1369,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   

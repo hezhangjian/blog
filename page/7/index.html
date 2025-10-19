@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">89</span>
+          <span class="site-state-item-count">90</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">43</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -241,7 +241,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -355,7 +355,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -426,6 +426,142 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/04/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93%20TCP%E6%8B%86%E5%8C%85%E7%B2%98%E5%8C%85%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/07/04/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93%20TCP%E6%8B%86%E5%8C%85%E7%B2%98%E5%8C%85%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" class="post-title-link" itemprop="url">网络编程经验总结 TCP拆包粘包常见解决方案</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-04 13:23:05" itemprop="dateCreated datePublished" datetime="2021-07-04T13:23:05+08:00">2021-07-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="从简单通信协议开始"><a href="#从简单通信协议开始" class="headerlink" title="从简单通信协议开始"></a>从简单通信协议开始</h2><p>最近工作中又需要处理协议解析，我对协议解析和网络抓包其实还是小有研究，17年刚毕业的时候，就用Netty手写过SMPP协议的对接。（其实做协议解析是一个很枯燥的工作，如果协议解析可以像antlr那样子写grammar自动解析应该会很酷？）本文总结一下协议在tcp下编码拆包粘包的三种解决方案。</p>
+<p>网上有一些人对拆包粘包的说法不是很认可，但是我觉得这个术语还是挺形象的。</p>
+<p>首先，让我们来设计一个简单地通信协议，<strong>Sorry</strong>，客户端一直对服务器发送<code>I am Sorry</code>，服务端回复<code>That&#39;s ok</code>。如下图所示</p>
+<p><img src="/Images/network-tcp-codec1.png" alt="image-20210704104926698"></p>
+<p>让我们来写个demo程序实现这个协议</p>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	listen, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, <span class="string">&quot;localhost:1997&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> listen.Close()</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		conn, err := listen.Accept()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="built_in">panic</span>(err)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">go</span> handleRequest(conn)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// handle incoming requests</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handleRequest</span><span class="params">(conn net.Conn)</span></span> &#123;</span><br><span class="line">	<span class="comment">// make a buffer to hold incoming data</span></span><br><span class="line">	buf := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">1024</span>)</span><br><span class="line">	<span class="comment">// Read the incoming connection into the buffer</span></span><br><span class="line">	reqLen, err := conn.Read(buf)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;error reading: &quot;</span>, err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> reqLen != <span class="number">10</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;invalid request size &quot;</span>, reqLen)</span><br><span class="line">	&#125;</span><br><span class="line">	_, err = conn.Write([]<span class="type">byte</span>(<span class="string">&quot;That&#x27;s ok&quot;</span>))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;error sending: &quot;</span>, err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::io::&#123;Read, Write&#125;;</span><br><span class="line"><span class="keyword">use</span> std::net::TcpStream;</span><br><span class="line"><span class="keyword">use</span> std::<span class="type">str</span>::from_utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">match</span> TcpStream::<span class="title function_ invoke__">connect</span>(<span class="string">&quot;localhost:1997&quot;</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(<span class="keyword">mut</span> stream) =&gt; &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;success connect to 1997&quot;</span>);</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">msg</span> = <span class="string">b&quot;I am Sorry&quot;</span>;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">expect_resp</span> = <span class="string">b&quot;That&#x27;s ok&quot;</span>;</span><br><span class="line">            stream.<span class="title function_ invoke__">write</span>(msg);</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;Send hello, awaiting reply&quot;</span>);</span><br><span class="line">            <span class="comment">// use 9 byte buffer</span></span><br><span class="line">            <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">data</span> = [<span class="number">0</span> <span class="keyword">as</span> <span class="type">u8</span>; <span class="number">9</span>];</span><br><span class="line">            <span class="keyword">match</span> stream.<span class="title function_ invoke__">read_exact</span>(&amp;<span class="keyword">mut</span> data) &#123;</span><br><span class="line">                <span class="title function_ invoke__">Ok</span>(_) =&gt; &#123;</span><br><span class="line">                    <span class="keyword">if</span> &amp;data == expect_resp &#123;</span><br><span class="line">                        <span class="built_in">println!</span>(<span class="string">&quot;Reply is ok&quot;</span>)</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="keyword">let</span> <span class="variable">text</span> = <span class="title function_ invoke__">from_utf8</span>(&amp;data).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">                        <span class="built_in">println!</span>(<span class="string">&quot;Unexpected reply: &#123;&#125;&quot;</span>, text);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="title function_ invoke__">Err</span>(e) =&gt; &#123;</span><br><span class="line">                    <span class="built_in">println!</span>(<span class="string">&quot;Failed to receive data: &#123;&#125;&quot;</span>, e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(e) =&gt; &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;Failed to connect: &#123;&#125;&quot;</span>, e)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意上面在服务端的实现中，我们校验了请求体的大小。</p>
+<p>运行成功，我们在<code>Wireshark</code>上可以看到</p>
+<p><img src="/Images/network-tcp-codec2.png" alt="image-20210704115955993"></p>
+<p>目标端口为1997，这是客户端发出的报文。当然也能看到响应的报文</p>
+<p><img src="/Images/network-tcp-codec3.png" alt="image-20210704120027704"></p>
+<p>那么，如果客户端是个十分礼貌的人，他如果连续发送10个<code>I am Sorry</code>呢？我们将代码修改为</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> <span class="variable">_</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">10</span> &#123;</span><br><span class="line">    stream.<span class="title function_ invoke__">write</span>(msg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>服务端报错了，服务端收到了一个请求，大小为100。并不是新手预期的10个大小为10的消息，</p>
+<p><img src="/Images/network-tcp-codec4.png" alt="image-20210704120639637"></p>
+<p>那么实际在网络中是如何传输的呢？一定是1个大小为100的消息吗？答案是否定的。在我的这次测试中，在<code>TCP</code>层，分成了两组消息，第一个大小为10，包含一个<code>I am Sorry</code></p>
+<p><img src="/Images/network-tcp-codec5.png" alt="image-20210704120759769"></p>
+<p>另一个大小为90，包含9个</p>
+<p><img src="/Images/network-tcp-codec6.png" alt="image-20210704120818834"></p>
+<h2 id="揭秘时刻"><a href="#揭秘时刻" class="headerlink" title="揭秘时刻"></a>揭秘时刻</h2><h3 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h3><p><strong>TCP</strong>和<strong>UDP</strong>不同，它是一个基于流的协议，<strong>TCP</strong>并不识别你定义的协议规则，只负责将这些报文打包发送，它可以基于<code>TCP_NODELAY</code>、<code>Nagle</code>算法等，任意的对你的报文进行切分发送。有两个典型的场景：第一个像上文中的例子，两个及以上的包在一个TCP数据包发送了，有个很形象的名字叫<code>粘包</code>。还有一个，因为报文过大，拆分成两个<code>TCP</code>报文发送，这叫拆包。</p>
+<h3 id="应用层读取"><a href="#应用层读取" class="headerlink" title="应用层读取"></a>应用层读取</h3><p>常见API，应用层读取也不保证单次操作一定仅仅读取一个<code>tcp</code>数据包，会根据你提供的buffer大小，尽量提供数据。你读取到的可能是上一个<code>TCP</code>包的末尾和下一个<code>TCP</code>包的开头部分。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>TCP</strong>是基于流的协议，并非基于报文。<strong>TCP</strong>提供了保序的语义保证，这要求应用程序，尤其是接收者，需要能够从报文流中提取出协议信息，<strong>TCP</strong>决不保证读取到的报文恰好是发送者一次<code>write</code>写入的报文，即使能在测试环境通过<code>case</code>，那也只不过是你运气好而已。</p>
+<p>像我们上面，读取到100大小的消息。根据协议大小请求固定为10，我们就可以将100消息分割为10条协议报文。如果读取到的大小为96，那就先处理前90个字节，剩下6个字节，待后面4个字节到达之后再合并处理。下一节我们详细介绍一下几种常见方式。</p>
+<h2 id="常见TCP协议定义方式"><a href="#常见TCP协议定义方式" class="headerlink" title="常见TCP协议定义方式"></a>常见TCP协议定义方式</h2><h3 id="定长编码"><a href="#定长编码" class="headerlink" title="定长编码"></a>定长编码</h3><p>就像我们例子中的那样一样，定义一个定长宽度，然后切分</p>
+<p>使用Go的gnet库的<code>Server</code>例子</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	codec := gnet.NewFixedLengthFrameCodec(<span class="number">10</span>)</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(codec))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于分隔符"><a href="#基于分隔符" class="headerlink" title="基于分隔符"></a>基于分隔符</h3><p>基于分隔符的编码也十分容易理解，双方约定好一个字符，并在正常报文中不出现这个字符（出现则需要转义），比较类似的是以太网的<code>7d7d</code>?这个计算机网络链路层相关的知乎，学太久了，忘记了。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	codec := gnet.NewDelimiterBasedFrameCodec(<span class="number">0x11</span>)</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(codec))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于固定行数的编码"><a href="#基于固定行数的编码" class="headerlink" title="基于固定行数的编码"></a>基于固定行数的编码</h3><p>这个也很简单，协议内容不换行，发送完再发送一个换行符，比较类似的有HTTP的<code>\r\n</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(&amp;gnet.LineBasedFrameCodec&#123;&#125;))</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="长度编码"><a href="#长度编码" class="headerlink" title="长度编码"></a>长度编码</h3><p>长度编码是使用最多的，最流行的一种编码方式。最简单的一种工作方式是，在报文的最开始数个字节（常见为4个字节，足以编码4个G长度，相比之下两个字节仅能存放64K消息），声明报文剩余内容的长度。以<code>Kafka</code>协议举例</p>
+<p><img src="/Images/network-tcp-codec7.png" alt="image-20210704125652379"></p>
+<p>Kafka这条消息，在<strong>TCP</strong>层占据的总长度为87字节，其中前4个字节<code>00 00 00 53</code>声明为83长度，为其余报文的长度。</p>
+<p>这一模式还有很多变体，如</p>
+<ul>
+<li>声明的长度包括其长度字段本身的长度</li>
+<li>长度字段并不是打头的字段</li>
+<li>长度字段的长度</li>
+</ul>
+<p>等等。这也就是下面解码器，拥有的参数非常多的原因，都是为了适配这些变体</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;encoding/binary&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	encoderConfig := gnet.EncoderConfig&#123;</span><br><span class="line">		ByteOrder:                       binary.BigEndian,</span><br><span class="line">		LengthFieldLength:               <span class="number">4</span>,</span><br><span class="line">		LengthAdjustment:                <span class="number">0</span>,</span><br><span class="line">		LengthIncludesLengthFieldLength: <span class="literal">true</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	decoderConfig := gnet.DecoderConfig&#123;</span><br><span class="line">		ByteOrder:           binary.BigEndian,</span><br><span class="line">		LengthFieldOffset:   <span class="number">0</span>,</span><br><span class="line">		LengthFieldLength:   <span class="number">4</span>,</span><br><span class="line">		LengthAdjustment:    <span class="number">-4</span>,</span><br><span class="line">		InitialBytesToStrip: <span class="number">4</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	codec := gnet.NewLengthFieldBasedFrameCodec(encoderConfig, decoderConfig)</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(codec))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>事实上，长度字段编码格式是我见过开源代码使用最多的格式，像MQTT、KAFKA、SMPP等都使用这种格式。其中原因，个人觉得在于声明长度之后，buffer申请及释放，可以简化很多，性能最好。</p>
+<h2 id="其他网络协议使用的编码方式"><a href="#其他网络协议使用的编码方式" class="headerlink" title="其他网络协议使用的编码方式"></a>其他网络协议使用的编码方式</h2><h3 id="MQTT"><a href="#MQTT" class="headerlink" title="MQTT"></a>MQTT</h3><p>使用长度字段编码格式</p>
+<p><img src="/Images/network-tcp-codec8.png" alt="image-20210704131034560"></p>
+<h3 id="AMQP"><a href="#AMQP" class="headerlink" title="AMQP"></a>AMQP</h3><p>AMQP的解析较为麻烦，它根据协议目前的状态，同时使用定长编码和长度字段两种编码方式。这就要求解码器不仅仅要处理报文，还要处理当前协议交互到那个状态了。</p>
+<h4 id="定长场景"><a href="#定长场景" class="headerlink" title="定长场景"></a>定长场景</h4><p><img src="/Images/network-tcp-codec9.png" alt="image-20210704131231757"></p>
+<h4 id="长度字段模式"><a href="#长度字段模式" class="headerlink" title="长度字段模式"></a>长度字段模式</h4><p><img src="/Images/network-tcp-codec10.png" alt="image-20210704131317098"></p>
+<h2 id="代码地址"><a href="#代码地址" class="headerlink" title="代码地址"></a>代码地址</h2><ul>
+<li>Go代码: <a target="_blank" rel="noopener" href="https://github.com/hezhangjian/go_demo/tree/main/demo_gnet/codec">https://github.com/hezhangjian/go_demo/tree/main/demo_gnet/codec</a></li>
+<li>Rust代码:<a target="_blank" rel="noopener" href="https://github.com/hezhangjian/rust-demo/blob/main/demo-tcp-client/src/main.rs">https://github.com/hezhangjian/rust-demo/blob/main/demo-tcp-client/src/main.rs</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/04/%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AAfilebeat%20output%20websocket%E6%8F%92%E4%BB%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -463,7 +599,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -579,7 +715,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -697,7 +833,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -806,7 +942,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -962,7 +1098,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -1061,7 +1197,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -1155,7 +1291,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
+      <time title="修改时间：2025-10-19 22:38:19" itemprop="dateModified" datetime="2025-10-19T22:38:19+08:00">2025-10-19</time>
     </span>
 
   
@@ -1256,115 +1392,6 @@
 <h3 id="复杂的参数校验"><a href="#复杂的参数校验" class="headerlink" title="复杂的参数校验"></a>复杂的参数校验</h3><p>建议在<code>Apollo</code>上面自建portal包裹一层，后端服务可先进行一层处理，这一层处理可以做比较复杂的格式化校验甚至<strong>回调检查</strong>，再调用<code>Apollo OpenApi</code>将配置写入<code>Apollo</code>。</p>
 <h3 id="业务配置的技术选型"><a href="#业务配置的技术选型" class="headerlink" title="业务配置的技术选型"></a>业务配置的技术选型</h3><p>最大的挑战是业务配置由用户触发，请求的并发不易处理。思路有两个，一个是在<code>Apollo</code>原生代码的基础上，通过数据库分布式锁来解决并发问题。第二个是借鉴我们的思路，通过单配置单表、mqtt协议实现通知等核心技术点，自研业务配置中心。</p>
 <h3 id="业务配置的部署"><a href="#业务配置的部署" class="headerlink" title="业务配置的部署"></a>业务配置的部署</h3><p>需要根据业务配置的数量来考虑是否合设业务配置中心。单集群场景下，毫无疑问只需要一个业务配置中心，甚至如果使用<code>Apollo</code>实现，可以考虑和运维配置中心合设。多集群场景下，部署一个业务配置中心，还是多个业务配置中心，我们自己的实践中，一个集群往往要支撑数万用户，我们采取了每个业务集群部署一套业务配置中心的策略。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/13/Kubernetes%20pod%E5%86%85%E8%B0%83%E7%94%A8API/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-pod-api" class="post-title-link post-title-link-external" itemprop="url">Kubernetes pod内调用API<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-13 21:17:20" itemprop="dateCreated datePublished" datetime="2021-04-13T21:17:20+08:00">2021-04-13</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-19 19:07:18" itemprop="dateModified" datetime="2025-10-19T19:07:18+08:00">2025-10-19</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Kubernetes pod内调用API的流程总体分为以下步骤</p>
-<ul>
-<li>创建role</li>
-<li>创建serviceaccount</li>
-<li>绑定role到serviceaccount</li>
-<li>指定pod使用serviceaccount</li>
-</ul>
-<p>我们以查pod为例，演示一下整个流程</p>
-<h2 id="创建role"><a href="#创建role" class="headerlink" title="创建role"></a>创建role</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># role.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">role-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiGroups:</span> [<span class="string">&quot;&quot;</span>]</span><br><span class="line">    <span class="attr">resources:</span> [<span class="string">&quot;pods&quot;</span>]</span><br><span class="line">    <span class="attr">verbs:</span> [<span class="string">&quot;get&quot;</span>,<span class="string">&quot;list&quot;</span>]</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f role.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="创建serviceaccount"><a href="#创建serviceaccount" class="headerlink" title="创建serviceaccount"></a>创建serviceaccount</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># serviceaccount.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">serviceaccount-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f serviceaccount.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="绑定role"><a href="#绑定role" class="headerlink" title="绑定role"></a>绑定role</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rolebinding.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">RoleBinding</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">rolebinding-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">serviceaccount-hzj</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">role-hzj</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f rolebinding.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="部署pod进行测试"><a href="#部署pod进行测试" class="headerlink" title="部署pod进行测试"></a>部署pod进行测试</h2><h3 id="部署一个zookeeper进行测试"><a href="#部署一个zookeeper进行测试" class="headerlink" title="部署一个zookeeper进行测试"></a>部署一个zookeeper进行测试</h3><p>手上刚好有zookeeper的模板文件</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">zookeeper</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">hostNetwork:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">dnsPolicy:</span> <span class="string">ClusterFirstWithHostNet</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">zookeeper</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">ttbb/zookeeper:stand-alone</span></span><br><span class="line">        <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">        <span class="attr">resources:</span></span><br><span class="line">          <span class="attr">limits:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">2G</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">1000m</span></span><br><span class="line">          <span class="attr">requests:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">2G</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">1000m</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">NODE_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">spec.nodeName</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">POD_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">metadata.name</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">PS1</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&#x27;[\u@zookeeper@\W]\$ &#x27;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="调用API"><a href="#调用API" class="headerlink" title="调用API"></a>调用API</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Point to the internal API server hostname</span></span><br><span class="line">APISERVER=https://kubernetes.default.svc</span><br><span class="line"><span class="comment"># Path to ServiceAccount token</span></span><br><span class="line">SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount</span><br><span class="line"><span class="comment"># Read this Pod&#x27;s namespace</span></span><br><span class="line">NAMESPACE=$(<span class="built_in">cat</span> <span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/namespace)</span><br><span class="line"><span class="comment"># Read the ServiceAccount bearer token</span></span><br><span class="line">TOKEN=$(<span class="built_in">cat</span> <span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/token)</span><br><span class="line"><span class="comment"># Reference the internal certificate authority (CA)</span></span><br><span class="line">CACERT=<span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/ca.crt</span><br><span class="line"><span class="comment"># Explore the API with TOKEN</span></span><br><span class="line">curl --cacert <span class="variable">$&#123;CACERT&#125;</span> --header <span class="string">&quot;Authorization: Bearer <span class="variable">$&#123;TOKEN&#125;</span>&quot;</span> -X GET <span class="variable">$&#123;APISERVER&#125;</span>/api</span><br><span class="line">curl --cacert <span class="variable">$&#123;CACERT&#125;</span> --header <span class="string">&quot;Authorization: Bearer <span class="variable">$&#123;TOKEN&#125;</span>&quot;</span> -X GET <span class="variable">$&#123;APISERVER&#125;</span>/api/v1/namespaces/default/pods</span><br></pre></td></tr></table></figure>
-
-<p><img src="/Images/kubernetes-pod-api1.png" alt="kubernetes-pod-api1"></p>
-<p>发现这里，调用后面的api，403错误。第一个api不报错，是因为该接口不需要鉴权。</p>
-<h3 id="修改pod对应的serviceaccount"><a href="#修改pod对应的serviceaccount" class="headerlink" title="修改pod对应的serviceaccount"></a>修改pod对应的serviceaccount</h3><p>让我们修改部署模板对应的ServiceAccountName，注入权限。在pod的spec下，设置serviceAccountName</p>
-<p><img src="/Images/kubernetes-pod-api2.png" alt="kubernetes-pod-api2"></p>
-<h3 id="修改部署模板重启后调用api正常"><a href="#修改部署模板重启后调用api正常" class="headerlink" title="修改部署模板重启后调用api正常"></a>修改部署模板重启后调用api正常</h3><p>再次尝试上述命令，api结果返回正常</p>
-<p><img src="/Images/kubernetes-pod-api3.png" alt="kubernetes-pod-api3"></p>
 
       
     </div>
