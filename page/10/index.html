@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-count">135</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,553 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/06/20/Go%20%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E5%85%AB%E7%A7%8D%E6%96%B9%E5%BC%8F%E4%B8%8E%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/06/20/Go%20%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E5%85%AB%E7%A7%8D%E6%96%B9%E5%BC%8F%E4%B8%8E%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/" class="post-title-link" itemprop="url">Go 生成随机字符串的八种方式与性能测试</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-20 13:57:42" itemprop="dateCreated datePublished" datetime="2021-06-20T13:57:42+08:00">2021-06-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这是**<a target="_blank" rel="noopener" href="https://stackoverflow.com/users/1705598/icza">icza</a>**<br>在StackOverflow上的一篇<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go/22892986#22892986">回答</a><br>，质量很高，翻译一下，大家一起学习</p>
+<p>问题是：在go，有没有什么最快最简单的方法，用来生成只包含英文字母的随机字符串</p>
+<p>icza给出了8个方案，最简单的方法并不是最快的方法，它们各有优劣，末尾附上性能测试结果：</p>
+<h3 id="1-Runes"><a href="#1-Runes" class="headerlink" title="1. Runes"></a>1. Runes</h3><p>比较简单的答案，声明一个rune数组，通过随机数选取rune字符，拼接成结果</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach1</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> letters = []<span class="type">rune</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">rune</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		b[i] = letters[rand.Intn(<span class="built_in">len</span>(letters))]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach1</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach1</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Bytes"><a href="#2-Bytes" class="headerlink" title="2. Bytes"></a>2. Bytes</h3><p>如果随机挑选的字符只包含英文字母，我们可以直接使用bytes，因为在UTF-8编码模式下，英文字符和Bytes是一对一的（Go正是使用UTF-8模式编码）</p>
+<p>所以可以把</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> letters = []<span class="type">rune</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>用这个替代</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> letters = []<span class="type">byte</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>或者更好</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>现在我们有很大的进展了，我们把它变为了一个常数，在go里面，只有string常数，可并没有slice常数。额外的收获，表达式<code>len(letters)</code><br>也变为了一个常数（如果<code>s</code>为常数，那么<code>len(s)</code>也将是常数)</p>
+<p>我们没有付出什么代码，现在<code>letters</code>可以通过下标访问其中的bytes了，这正是我们需要的。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach2</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		b[i] = letters[rand.Intn(<span class="built_in">len</span>(letters))]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach2</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach2</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-Remainder"><a href="#3-Remainder" class="headerlink" title="3. Remainder"></a>3. Remainder</h3><p>上面的解决方法通过<code>rand.Intn()</code>来获得一个随机字母，这个方法底层调用了<code>Rand.Intn()</code>，然后调用了<code>Rand.Int31n()</code></p>
+<p>相比于生成63个随机bits的函数<code>rand.Int63()</code>来说，<code>Rand.Int31n()</code>很慢。</p>
+<p>我们可以简单地调用<code>rand.Int63()</code>然后除以<code>len(letterBytes)</code>，使用它的余数来生成字母</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach3</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		b[i] = letters[rand.Int63() % <span class="type">int64</span>(<span class="built_in">len</span>(letters))]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach3</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach3</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这个算法能正常工作并且非常快，不过它牺牲了部分精确性，字母出现的概率并不是精确一样的（假设<code>rand.Int63()</code><br>生成63比特的数字是等概率的）。由于字母总共才52个，远小于 1&lt;&lt;63 - 1，因此失真非常小，因此实际上这完全没问题。</p>
+<p>解释: 假设你想要0<del>5的随机数，如果使用3位的bit，3位的bit等概率出现0</del>7，所以出现0和1的概率是出现2、3、4概率的两倍。使用5位的<br>bit，0和1出现的概率是<code>6/32</code>，2、3、4出现的概率是<code>5/32</code>。现在接近了一些了，是吧？不断地增加比特位，这个差距就会变得越小，当你有63位地时候，这差别已经可忽略不计。</p>
+<h3 id="4-Masking"><a href="#4-Masking" class="headerlink" title="4. Masking"></a>4. Masking</h3><p>在上一个方案的基础上，我们通过仅使用随机数的最低n位保持均匀分布，n为表示所有字符的数量。比如我们有52个字母，我们需要6位（52 &#x3D;<br>110100b）。所以我们仅仅使用了<code>rand.Int63()</code>的最后6位。并且，为了保持所有字符的均匀分布，我们决定只接受在<br><code>0..len(letterBytes)-1</code>的数字即0~51。（译者注：这里已经没有第三个方案的不准确问题了）</p>
+<p>最低几位大于等于<code>len(letterBytes)</code>的概率一般小于<code>0.5</code><br>（平均值为0.25），这意味着出现这种情况，只要重试就好。重试n次之后，我们仍然需要丢弃这个数字的概率远小于0.5的n次方（这是上界了，实际会低于这个值）。以本文的52个字母为例，最低6位需要丢弃的概率只有<br><code>(64-52)/64=0.19</code>。这意味着，重复10次，仍然没有数字的概率是1*10^-8。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach4</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// 6 bits to represent a letters index</span></span><br><span class="line">	letterIdBits = <span class="number">6</span></span><br><span class="line">	<span class="comment">// All 1-bits as many as letterIdBits</span></span><br><span class="line">	letterIdMask = <span class="number">1</span> &lt;&lt;letterIdBits - <span class="number">1</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		<span class="keyword">if</span> idx := <span class="type">int</span>(rand.Int63() &amp; letterIdMask); idx &lt; <span class="built_in">len</span>(letters) &#123;</span><br><span class="line">			b[i] = letters[idx]</span><br><span class="line">			i++</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach4</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach4</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-Masking-Improved"><a href="#5-Masking-Improved" class="headerlink" title="5. Masking Improved"></a>5. Masking Improved</h3><p>第4节的方案只使用了<code>rand.Int63()</code>方法返回的64个随机字节的后6位。这实在是太浪费了，因为<code>rand.Int63()</code>是我们算法中最耗时的部分了。</p>
+<p>如果我们有52个字母，6位就能生成一个随机字符串。所以63个随机字节，可以利用<code>63/6=10</code>次。</p>
+<p>译者注：使用了缓存，缓存了<code>rand.Int63()</code>方法返回的内容，使用10次，不过已经并不是协程安全的了。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach5</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// 6 bits to represent a letter index</span></span><br><span class="line">	letterIdBits = <span class="number">6</span></span><br><span class="line">	<span class="comment">// All 1-bits as many as letterIdBits</span></span><br><span class="line">	letterIdMask = <span class="number">1</span>&lt;&lt;letterIdBits - <span class="number">1</span></span><br><span class="line">	letterIdMax  = <span class="number">63</span> / letterIdBits</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="comment">// A rand.Int63() generates 63 random bits, enough for letterIdMax letters!</span></span><br><span class="line">	<span class="keyword">for</span> i, cache, remain := n<span class="number">-1</span>, rand.Int63(), letterIdMax; i &gt;= <span class="number">0</span>; &#123;</span><br><span class="line">		<span class="keyword">if</span> remain == <span class="number">0</span> &#123;</span><br><span class="line">			cache, remain = rand.Int63(), letterIdMax</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> idx := <span class="type">int</span>(cache &amp; letterIdMask); idx &lt; <span class="built_in">len</span>(letters) &#123;</span><br><span class="line">			b[i] = letters[idx]</span><br><span class="line">			i--</span><br><span class="line">		&#125;</span><br><span class="line">		cache &gt;&gt;= letterIdBits</span><br><span class="line">		remain--</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach5</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach5</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-Source"><a href="#6-Source" class="headerlink" title="6. Source"></a>6. Source</h3><p>第5个方案非常好，能改进的点并不多。我们可以但不值得搞得很复杂。</p>
+<p>让我们来找可以改进的点：<strong>随机数的生成源</strong></p>
+<p><code>crypto/rand</code>的包提供了<code>Read(b []byte)</code>的函数，可以通过这个函数获得需要的随机比特数，只需要一次调用。不过并不能提升性能，因为<br><code>crypto/rand</code>实现了一个密码学上的安全伪随机数，所以速度比较慢。</p>
+<p>所以让我们坚持使用<code>math/rand</code>包，<code>rand.Rand</code>使用<code>rand.Source</code>作为随机位的来源，<code>rand.Source</code>是一个声明了<code>Int63() int64</code><br>的接口：正是我们在最新解决方案中需要和使用的唯一方法。</p>
+<p>所以我们不是真的需要<code>rand.Rand</code>，<code>rand.Source</code>包对于我们来说已经足够了</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach6</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> src = rand.NewSource(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// 6 bits to represent a letter index</span></span><br><span class="line">	letterIdBits = <span class="number">6</span></span><br><span class="line">	<span class="comment">// All 1-bits as many as letterIdBits</span></span><br><span class="line">	letterIdMask = <span class="number">1</span>&lt;&lt;letterIdBits - <span class="number">1</span></span><br><span class="line">	letterIdMax  = <span class="number">63</span> / letterIdBits</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="comment">// A rand.Int63() generates 63 random bits, enough for letterIdMax letters!</span></span><br><span class="line">	<span class="keyword">for</span> i, cache, remain := n<span class="number">-1</span>, src.Int63(), letterIdMax; i &gt;= <span class="number">0</span>; &#123;</span><br><span class="line">		<span class="keyword">if</span> remain == <span class="number">0</span> &#123;</span><br><span class="line">			cache, remain = src.Int63(), letterIdMax</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> idx := <span class="type">int</span>(cache &amp; letterIdMask); idx &lt; <span class="built_in">len</span>(letters) &#123;</span><br><span class="line">			b[i] = letters[idx]</span><br><span class="line">			i--</span><br><span class="line">		&#125;</span><br><span class="line">		cache &gt;&gt;= letterIdBits</span><br><span class="line">		remain--</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach6</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach6</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意到这里我们没有使用种子初始化rand了，取而代之的是初始化了<code>rand.Source</code></p>
+<p>还有一件需要注意的事，<code>math/rand</code>的文档指出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">默认的Source是协程安全的</span><br></pre></td></tr></table></figure>
+
+<p>所以默认的Source比通过<code>rand.NewSource()</code>创建出来的<code>Source</code>要慢。不用处理协程并发场景，当然慢啦。</p>
+<h3 id="7-使用-strings-Builder"><a href="#7-使用-strings-Builder" class="headerlink" title="7. 使用 strings.Builder"></a>7. 使用 strings.Builder</h3><p>之前的解决方案都返回了通过slice构造的字符串。最后的一次转换进行了一次拷贝，因为字符串是不可变的，如果转换的时候不进行拷贝，就无法保证转换完成之后，byte<br>slice再被修改后，字符串仍能保持不变。</p>
+<p>Go1.10引入了<strong>strings.Builder</strong>，这是一个新的类型，和bytes.Buffer类似，用来构造字符串。底层使用<code>[]byte</code><br>来构造内容，正是我们现在在做的，最后可以通过<code>Builder.String()</code>方法来获得最终的字符串值。但它很酷的地方在于，它无需执行刚才谈到的复制即可完成此操作。它敢这么做是因为它底层构造的<br><code>[]byte</code>从未暴露出来，所以仍然可以保证没有人可以无意地、恶意地来修改已经生成的不可变字符串。</p>
+<p>所以我们的下一个想法不是在slice中构建随机字符串，而是在 strings.Builder 的帮助下，一旦我们完成，我们就可以获取并返回结果，而无需复制。<br>这可能在速度方面有所帮助，并且在内存使用和分配方面肯定会有所帮助（译者注：等会在benchmark中会清晰地看到）。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/06/14/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E%E6%B5%81%E8%BD%AC%E5%88%B0S3%E5%AF%B9%E6%AF%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/06/14/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E%E6%B5%81%E8%BD%AC%E5%88%B0S3%E5%AF%B9%E6%AF%94/" class="post-title-link" itemprop="url">物联网平台规则引擎流转到S3对比</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-14 18:48:57" itemprop="dateCreated datePublished" datetime="2021-06-14T18:48:57+08:00">2021-06-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>对于物联网平台来说，规则引擎是其中一个很重要的功能，也叫消息流转功能，将消息流转到各类中间件、云产品中。在华为、AWS、Azure、阿里这四个物联网平台中，阿里不支持流转到S3&#x2F;类S3存储中。本文对比一下华为云、AWS、Azure把设备消息流转到S3&#x2F;类S3存储的功能</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.amazonaws.cn/general/latest/gr/iot-core.html#limits_iot">https://docs.amazonaws.cn/general/latest/gr/iot-core.html#limits_iot</a></li>
+</ul>
+<h2 id="华为云"><a href="#华为云" class="headerlink" title="华为云"></a>华为云</h2><h3 id="规则粒度和限制"><a href="#规则粒度和限制" class="headerlink" title="规则粒度和限制"></a>规则粒度和限制</h3><ul>
+<li><p>规则配置粒度到<strong>OBS</strong>桶</p>
+</li>
+<li><p>限制单用户配置100条规则，每个规则10个Action</p>
+</li>
+</ul>
+<h3 id="功能实现"><a href="#功能实现" class="headerlink" title="功能实现"></a>功能实现</h3><p>针对华为云，我测试了设备的消息上报转发到华为云OBS的功能。</p>
+<p>流转规则需要指定obs桶，随后运行之后，华为云OBS体现为</p>
+<ul>
+<li>设备的每条消息都会在obs中存储为一个文件</li>
+<li>名称采用deviceId+毫秒级时间戳+后面4位数字</li>
+</ul>
+<h3 id="关键路径截图"><a href="#关键路径截图" class="headerlink" title="关键路径截图"></a>关键路径截图</h3><h4 id="配置规则时指定到obs桶"><a href="#配置规则时指定到obs桶" class="headerlink" title="配置规则时指定到obs桶"></a>配置规则时指定到obs桶</h4><p><img src="/Images/iot-push-s31.png" alt="image-20210614184348066"></p>
+<h4 id="单条消息单个文件"><a href="#单条消息单个文件" class="headerlink" title="单条消息单个文件"></a>单条消息单个文件</h4><p><img src="/Images/iot-push-s32.png" alt="image-20210614184522958"></p>
+<h3 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h3><p>可以非常轻易地查询出单个设备的消息，因为文件名携带有毫秒级时间戳，还可以指定具体</p>
+<h3 id="劣势"><a href="#劣势" class="headerlink" title="劣势"></a>劣势</h3><p>用来做MapReduce的话，文件数目太多，由于S3云厂商往往通过API调用次数收费，不仅是速度，成本也会很高。</p>
+<h2 id="AWS"><a href="#AWS" class="headerlink" title="AWS"></a>AWS</h2><h3 id="规则粒度和限制-1"><a href="#规则粒度和限制-1" class="headerlink" title="规则粒度和限制"></a>规则粒度和限制</h3><ul>
+<li>规则配置粒度到桶及Key，相当于华为云OBS桶+文件名</li>
+<li>限制规则每秒进行20k次运算</li>
+<li>限制最多拥有1000条规则</li>
+<li>限制每个规则最多10个action</li>
+</ul>
+<h3 id="功能实现-1"><a href="#功能实现-1" class="headerlink" title="功能实现"></a>功能实现</h3><p>再次上报数据触发规则会把obs中的数据替换。（通过版本控制可以获取到老的数据）</p>
+<h3 id="关键路径截图-1"><a href="#关键路径截图-1" class="headerlink" title="关键路径截图"></a>关键路径截图</h3><h4 id="配置规则指定粒度到Key"><a href="#配置规则指定粒度到Key" class="headerlink" title="配置规则指定粒度到Key"></a>配置规则指定粒度到Key</h4><p><img src="/Images/iot-push-s33.png" alt="image-20210614165708645"> </p>
+<h4 id="仅有一个Key，新值覆盖旧值"><a href="#仅有一个Key，新值覆盖旧值" class="headerlink" title="仅有一个Key，新值覆盖旧值"></a>仅有一个Key，新值覆盖旧值</h4><p><img src="/Images/iot-push-s34.png" alt="image-20210614170447237"></p>
+<h3 id="优劣势"><a href="#优劣势" class="headerlink" title="优劣势"></a>优劣势</h3><p>AWS的这个模式很适合存储每个设备的最新数据。不过由于规则数量上的限制，最多只能在S3上存储1000个键值对。可用性较低。可用于数量小于1000的设备，存储、查询最新数据。</p>
+<h2 id="Azure转发"><a href="#Azure转发" class="headerlink" title="Azure转发"></a>Azure转发</h2><h3 id="规则粒度限制"><a href="#规则粒度限制" class="headerlink" title="规则粒度限制"></a>规则粒度限制</h3><ul>
+<li>规则配置粒度到存储容器</li>
+<li>Azure可配置存储入存储容器的批量频率和大小限制</li>
+<li>编码支持Avro和Json两种格式</li>
+<li>最多100条路由</li>
+</ul>
+<h3 id="功能实现-2"><a href="#功能实现-2" class="headerlink" title="功能实现"></a>功能实现</h3><p>自上报事件，到存储中出现数据，azure是最慢的，azure做了批量的缓冲，达到batch的大小和时间要求后才会写入存储。</p>
+<h3 id="关键路径截图-2"><a href="#关键路径截图-2" class="headerlink" title="关键路径截图"></a>关键路径截图</h3><h4 id="配置路由规则"><a href="#配置路由规则" class="headerlink" title="配置路由规则"></a>配置路由规则</h4><p><img src="/Images/iot-push-s35.png" alt="image-20210614181514437"></p>
+<h4 id="存储中批量数据"><a href="#存储中批量数据" class="headerlink" title="存储中批量数据"></a>存储中批量数据</h4><p>因为选择了avro格式，所以vim打开是乱码，不过明显可以看到是多条数据</p>
+<p><img src="/Images/iot-push-s36.png" alt="image-20210614181738380"></p>
+<h3 id="优势-1"><a href="#优势-1" class="headerlink" title="优势"></a>优势</h3><p>Azure的这种方式，比较适合做MapReduce类操作，相对华为云来说，Azure的文件数量大大减少，如果用于做MapReduce这类操作，因为文件碎片小，作业速度会比华为云快，而且由于云厂商对存储，通常以api调用次数收费，价格也会比华为云低。</p>
+<h3 id="劣势-1"><a href="#劣势-1" class="headerlink" title="劣势"></a>劣势</h3><p>不易针对单个设备进行查询。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/06/04/%E4%BA%91%E5%8E%9F%E7%94%9F%E4%B8%AD%E9%97%B4%E4%BB%B6%E4%B8%8E%E8%87%AA%E8%BF%90%E7%BB%B4%E4%B8%AD%E9%97%B4%E4%BB%B6%E4%BD%BF%E7%94%A8%E5%AF%B9%E6%AF%94%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/06/04/%E4%BA%91%E5%8E%9F%E7%94%9F%E4%B8%AD%E9%97%B4%E4%BB%B6%E4%B8%8E%E8%87%AA%E8%BF%90%E7%BB%B4%E4%B8%AD%E9%97%B4%E4%BB%B6%E4%BD%BF%E7%94%A8%E5%AF%B9%E6%AF%94%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">云原生中间件与自运维中间件使用对比分析</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-04 17:13:53" itemprop="dateCreated datePublished" datetime="2021-06-04T17:13:53+08:00">2021-06-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="需要了解的概念"><a href="#需要了解的概念" class="headerlink" title="需要了解的概念"></a>需要了解的概念</h2><ul>
+<li>DNAT映射：网络报文，目的地址转换。</li>
+<li>胖客户端：像Cassandra 客户端、Kafka客户端，客户端感知中间件拓扑，即客户端感知中间件部署、均衡，把请求发给指定的中间件服务器。</li>
+<li>VPC：用户的私有网络环境。</li>
+<li>VPC Peering：多个网段不冲突的VPC之间网络打通的方式，可跨用户。</li>
+<li>三方厂家：非公有云厂商的PaaS供应商。</li>
+<li>中间件用户：需要在公有云上运行中间件的公有云用户。</li>
+</ul>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>现在，在公有云上买<code>redis</code>和<code>kafka</code>这类组件已经变得非常普遍，由公有云提供的中间件往往能给你带来良好的体验，现在中间件在公有云上的交付模式大致分为三种。我对<br><code>Pulsar</code>较为熟悉一些，大部分图例以<strong>消息中间件Pulsar</strong>举例。本文中成本指用在云服务或三方厂商上的成本，指人力成本时，会注明人力成本。</p>
+<p><img src="/Images/middleware-delivery-modes-comparison1.png" alt="image-20210424145257826"></p>
+<h2 id="公有云模式"><a href="#公有云模式" class="headerlink" title="公有云模式"></a>公有云模式</h2><p>公有云提供的中间件有得天独厚的优势，主要优势在以下几点</p>
+<h3 id="低廉的成本"><a href="#低廉的成本" class="headerlink" title="低廉的成本"></a>低廉的成本</h3><ul>
+<li>和三方厂家相比，对<strong>中间件用户</strong>来说，云厂商自运营的价格要低于三方厂家。</li>
+<li>和租户自运维相比，对<strong>中间件用户</strong>来说，云厂商价格略高一点点，但省去了大量的运维人力。</li>
+</ul>
+<h3 id="使用方便"><a href="#使用方便" class="headerlink" title="使用方便"></a>使用方便</h3><p>云厂商可以把中间件的ip地址申请在你的vpc内，对任何应用程序来说，连接都是最方便的。无论是容器化部署、虚拟机部署、还是本vpc和其他vpc<br>peering打通的场景，都可以通信。</p>
+<h3 id="监控、运维系统对接"><a href="#监控、运维系统对接" class="headerlink" title="监控、运维系统对接"></a>监控、运维系统对接</h3><p>得力于云厂商的积累，能够方便地和云厂商的告警、统计系统对接，接收告警通知和报表等。甚至可以在手机app上查看云中间件的监控指标。</p>
+<h3 id="安全"><a href="#安全" class="headerlink" title="安全"></a>安全</h3><ul>
+<li>公有云有专门的团队时刻关注中间件安全漏洞，及时打上补丁</li>
+<li>有些白帽组织会在发现漏洞并公开发布前通知一些大的使用者，大的厂家可以在漏洞公布前提前预防</li>
+</ul>
+<p>主要的劣势有</p>
+<ul>
+<li>云厂商提供的中间件有限，不是所有中间件的所有版本都支持</li>
+<li>即使业务有强烈诉求，也很难在中间件上做定制修改</li>
+</ul>
+<h2 id="租户自运维模式"><a href="#租户自运维模式" class="headerlink" title="租户自运维模式"></a>租户自运维模式</h2><p>租户自运维，就是用户自己部署中间件维护，仅利用云上的基础设施。主要的优势有</p>
+<ul>
+<li>可以在中间件上做定制修改</li>
+<li>可按任意规则进行部署，节约成本</li>
+<li>可部署任意版本中间件，比如代码一定要Kafka 0.11版本，公有云上该版本已停止售卖，代码不能改，那就只好自己部署Kafka的该版本了。</li>
+</ul>
+<p>主要的劣势有</p>
+<ul>
+<li>和运维系统对接，需要人力成本。因为业务本身也需要对接运维系统，这部分人力成本较低，常见的困难点在于中间件的技术栈和团队不符（如Java团队尝试在go语言开发的中间件上对接运维系统）。</li>
+<li>中间件的网上运维、问题处理需要很大的人力成本，且对人员技术水平要求高。</li>
+<li>安全问题、漏洞，可能处理不及时，存在安全隐患。</li>
+</ul>
+<h2 id="三方厂家模式"><a href="#三方厂家模式" class="headerlink" title="三方厂家模式"></a>三方厂家模式</h2><p>三方厂家的主要优势有</p>
+<ul>
+<li>安全性方面，如果是社区主导者，有些白帽组织可能会提前告知发现的漏洞</li>
+<li>如果是社区的主导者，可以将您的新的合理需求优先级提高开发。</li>
+</ul>
+<p>主要劣势</p>
+<ul>
+<li>运维上无法和公有云打通，三方厂家需要自己构建一套运维系统并通知到客户，对客户来说，也要适配三方厂家的运维方案。</li>
+<li>成本比公有云模式高</li>
+<li>易用性上面，网络是三方厂家的痛点，这点值得单独在下一小节详细描述</li>
+</ul>
+<h3 id="三方厂家网络模式"><a href="#三方厂家网络模式" class="headerlink" title="三方厂家网络模式"></a>三方厂家网络模式</h3><p>三方厂家最难做的就是，如何在<strong>厂家用户</strong>和<strong>中间件用户</strong>隔离的情况下，提供中间件的接入点，可行的方式有以下几种</p>
+<h4 id="VPC-Peering打通模式"><a href="#VPC-Peering打通模式" class="headerlink" title="VPC Peering打通模式"></a>VPC Peering打通模式</h4><p>Peering可以说是最简单的网络打通模式，可以给用户不错的私网体验（如果走公网，数据至少要是tls加密的，不然会有数据在公网上被人监听的风险）。只需要跟用户规划一个不冲突的网段。</p>
+<p><img src="/Images/middleware-delivery-modes-comparison2.png" alt="image-20210424110409903"></p>
+<p>这个网段不需要很大，一般26、27就可以满足要求，27的网段已经可以部署30台虚拟机了，值得一提的是，这种打通模式下，一般不会选择容器化部署，都是虚拟机部署，原因有二</p>
+<ul>
+<li>如果客户也使用k8s容器化部署，两个容器化集群互通，对网设的要求很高，限制很大。</li>
+<li>仅仅部署一个中间件的话，加上k8s集群的部署，成本占比太高</li>
+</ul>
+<p>VPC Peering的主要挑战有</p>
+<ul>
+<li>自动化：自动化较为困难，需要考虑如何获取尽量少的客户权限，自动化完成整个流程。</li>
+<li>成本：Peering的模式下，三方厂商几乎只能针对每个用户的集群单独Peering，很多地方无法均摊成本。想要客户购买，需要对客户有很强的吸引力。</li>
+<li>网络规划受限，路由规则配置复杂：如果客户不仅仅和三方厂家建立了Peering关系，又和其他VPC建立了Peering关系，这三方网络不能冲突，还要互相配置路由规则。这需要进行细致的网络规划，毕竟网络一旦冲突，解决的代价很大。</li>
+</ul>
+<h4 id="LB接入模式"><a href="#LB接入模式" class="headerlink" title="LB接入模式"></a>LB接入模式</h4><p>LB接入模式，在三方厂家模式下，只能通过公网的方式接入，一般给用户提供域名或ip地址接入，域名使用的较多，像华为云设备接入服务、Azure<br>物联网服务等都是提供域名，主要的原因</p>
+<p>在EIP资源有限的情况下，将部分用户的域名解析成一个地址，既能节约EIP资源，也能在一些基础设施上共用资源，节约成本（如共k8s、共数据库、共Bookkeeper等）</p>
+<p><img src="/Images/middleware-delivery-modes-comparison3.png" alt="image-20210507194200489"></p>
+<p>LB接入的限制是，中间件需要支持可负载均衡访问，如果中间件的客户端是有状态的胖客户端（如Pulsar、Cassandra），需要中间有一层无状态的代理。</p>
+<h4 id="华为云VPCEP模式"><a href="#华为云VPCEP模式" class="headerlink" title="华为云VPCEP模式"></a>华为云VPCEP模式</h4><p>VPCEP，VPC终端节点，是华为云的云服务，可以将一个VPC的地址，映射到另一个VPC的地址，在客户端的视角来看，本质上是做了一次DNAT地址映射。</p>
+<p><img src="/Images/middleware-delivery-modes-comparison4.png" alt="image-20210424230158506"></p>
+<p>VPCEP的主要限制是连接中间件经过了DNAT映射。需要对应中间件支持DNAT的方式访问。另一方面其他云上不一定有该能力。三方厂商一般也希望做一个统一的方案来适配所有云厂商，所以目前使用的并不是很多。</p>
+<p>三方厂商模式的劣势主要是</p>
+<ul>
+<li>公网的方式下，时延高，难以满足有低时延要求的客户，且带宽费用也占比很大</li>
+<li>Peering模式，成本高，费用贵</li>
+</ul>
+<p>并且如果公有云厂商没有提供新的用于用户和用户之间打通网络的方案，那么对三方厂商来说，在接入方面，恐怕很难再有所突破了。</p>
+<p>注：这里的网络打通三种方式不限于三方场景和用户之间，还可以扩展到用户和用户之间网络打通进行通信，这里不再扩展了。</p>
+<h2 id="建议选型流程"><a href="#建议选型流程" class="headerlink" title="建议选型流程"></a>建议选型流程</h2><p>中型和长尾用户可按照下图流程进行选型。</p>
+<p>对于大型用户，可能会维护自己的核心中间件，紧密联系自己的业务，在上面做定制开发，不但降低成本，并且提升业务竞争力。非核心中间件，也可参照下图流程进行选型。</p>
+<p><img src="/Images/middleware-delivery-modes-comparison5.png" alt="image-20210507195340204"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><table>
+<thead>
+<tr>
+<th></th>
+<th>公有云</th>
+<th>三方厂商</th>
+<th>自建</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>机器成本</td>
+<td>低</td>
+<td>高</td>
+<td>低</td>
+</tr>
+<tr>
+<td>处理测试、网上问题工作量</td>
+<td>低</td>
+<td>低</td>
+<td>高</td>
+</tr>
+<tr>
+<td>运维系统对接开发量</td>
+<td>低</td>
+<td>中</td>
+<td>中</td>
+</tr>
+<tr>
+<td>接入灵活性</td>
+<td>高</td>
+<td>中</td>
+<td>高</td>
+</tr>
+<tr>
+<td>安全</td>
+<td>高</td>
+<td>高</td>
+<td>低</td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/05/30/%E5%A4%A7%E5%9E%8B%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/cert-manager" class="post-title-link post-title-link-external" itemprop="url">大型系统中的证书管理<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-30 22:47:05" itemprop="dateCreated datePublished" datetime="2021-05-30T22:47:05+08:00">2021-05-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="大型系统中的证书管理"><a href="#大型系统中的证书管理" class="headerlink" title="大型系统中的证书管理"></a>大型系统中的证书管理</h1><p>随着安全的要求，现在我们在越来越多的通信中使用TLS加密。下图是一个微服务架构下数据流向的例子</p>
+<p><img src="/Images/cert-manager1.png" alt="cert-manager1"></p>
+<ul>
+<li>蓝色部分，即和三方交互时需要TLS加密认证</li>
+<li>红色部分，各个微服务、消息中间件等通信需要TLS加密认证</li>
+<li>绿色部分，各个微服务和存储层通信也需要TLS加密认证</li>
+</ul>
+<p>安全上对我们的要求逐步变化为，仅蓝色使用TLS&#x3D;》蓝色和红色使用TLS&#x3D;》全部使用TLS加密</p>
+<h2 id="证书管理的必要性"><a href="#证书管理的必要性" class="headerlink" title="证书管理的必要性"></a>证书管理的必要性</h2><p>从安全的角度上来说，我们最好能支持证书的更换和热加载。如果您的业务当前使用加密的场景不多，可能暂时看不到证书管理的意义。但是当你在各个方面使用TLS更加频繁之后，会发现证书管理可带来如下好处：</p>
+<ul>
+<li>可以通过抽象出场景，通过场景和证书的关联联系，在各个地方通信使用的证书，可以统一更换。</li>
+<li>统一提供证书过期告警等功能</li>
+<li>统一提供证书的变更通知，通知到各个实例</li>
+</ul>
+<p>以我在工作中接触到的两个基础PAAS平台，都有证书管理的功能，可见证书管理的必要性。</p>
+<p>PS: 开源组件大多都拥有证书配置能力，没有可对接证书管理的能力，但这个能力很难贡献给社区，需要自己开发。</p>
+<h2 id="证书管理概念"><a href="#证书管理概念" class="headerlink" title="证书管理概念"></a>证书管理概念</h2><p>在TLS会话中，从依赖的证书文件角度来看，可以分为加密流程和验证流程。</p>
+<h3 id="加密证书"><a href="#加密证书" class="headerlink" title="加密证书"></a>加密证书</h3><p>TLS加密流程的证书，包含证书链文件和密钥</p>
+<h3 id="验证证书"><a href="#验证证书" class="headerlink" title="验证证书"></a>验证证书</h3><p>TLS验证流程的证书，仅包含证书链文件</p>
+<h3 id="拆分为加密流程和验证流程的合理性"><a href="#拆分为加密流程和验证流程的合理性" class="headerlink" title="拆分为加密流程和验证流程的合理性"></a>拆分为加密流程和验证流程的合理性</h3><p>这使得加密流程证书和验证流程证书可以互相独立的替换，更方便在大型场景下复用证书。</p>
+<p>让我们来假设如下的场景：</p>
+<p><img src="/Images/cert-manager2.png" alt="cert-manager2"></p>
+<p>客户A、客户B、客户C、客户D的验证流程证书自然不相同，但服务跟客户交互的时候，使用的加密流程证书确实同一份。如果将两个阶段的证书合一，那么在更换证书的时候，就需要更新4份数据，当你有1000名用户的时候，这个数字将会是1000，这对于存储和应用程序来说都是不小的冲击。</p>
+<h3 id="Scene"><a href="#Scene" class="headerlink" title="Scene"></a>Scene</h3><p>Scene是在一个会话中，代表会话和请求证书、验证证书的绑定关系。Scene和请求证书、验证证书都是1：1的关系。这使得我们不仅仅可以修改证书文件，也可以对TLS会话中使用的证书进行修改。在证书无法复用，且证书绑定了多个场景的时候，针对单个场景修改其绑定的证书。</p>
+<p>以上图作为例子，假设客户D有特殊的要求，要求加密流程使用特定的证书或密钥，我们就可以将客户D的场景绑定到客户D独有的加密证书</p>
+<h3 id="多集群管理"><a href="#多集群管理" class="headerlink" title="多集群管理"></a>多集群管理</h3><p>如果证书管理需要管理多个集群，那么证书和Scene前面可以加上层级来隔离，如环境、集群等。</p>
+<h3 id="对小型系统的建议"><a href="#对小型系统的建议" class="headerlink" title="对小型系统的建议"></a>对小型系统的建议</h3><p>如果规模不大，且TLS场景有限，需要考虑一下有无拆分加密证书和验证证书的必要，可以合一，应用程序直接以合一的证书id来关联，而非场景id。虽不方便复用，但大大降低了复杂性。</p>
+<h2 id="证书管理的功能"><a href="#证书管理的功能" class="headerlink" title="证书管理的功能"></a>证书管理的功能</h2><p><img src="/Images/cert-manager3.png" alt="cert-manager3"></p>
+<h2 id="证书管理场景"><a href="#证书管理场景" class="headerlink" title="证书管理场景"></a>证书管理场景</h2><h3 id="设定一个TLS会话"><a href="#设定一个TLS会话" class="headerlink" title="设定一个TLS会话"></a>设定一个TLS会话</h3><p><img src="/Images/cert-manager4.png" alt="cert-manager4"></p>
+<h3 id="使用TLS会话"><a href="#使用TLS会话" class="headerlink" title="使用TLS会话"></a>使用TLS会话</h3><p>这要求应用程序持久化场景信息</p>
+<p><img src="/Images/cert-manager5.png" alt="cert-manager5"></p>
+<h2 id="组织架构相关"><a href="#组织架构相关" class="headerlink" title="组织架构相关"></a>组织架构相关</h2><p>大型系统下，证书管理是一个必须的组件，且一定是由团队最底层的组织架构承接。如若不然，那么由底层组织架构维护的组件，因为依赖关系，无法基于证书管理来统一实现证书的更换和过期告警。除非不基于证书管理自己构筑一套能力。</p>
+<h2 id="TLDR"><a href="#TLDR" class="headerlink" title="TLDR"></a>TLDR</h2><p>随着组件和使用加密场景的不断扩大，证书管理是一个必须的组件，通过抽象出场景的概念来复用证书，通过变更通知在微服务模式下快速更换所有微服务实例上的证书，并提供统一的证书过期告警功能来提醒管理员更换证书。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +788,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -396,7 +943,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -497,7 +1044,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -755,7 +1302,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -886,7 +1433,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -985,7 +1532,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -1034,509 +1581,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/14/%E5%8D%8E%E4%B8%BA%E4%BA%91%E7%89%A9%E8%81%94%E7%BD%91%E5%9B%9B%E5%B9%B4%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%AE%9E%E8%B7%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/config-center" class="post-title-link post-title-link-external" itemprop="url">华为云物联网四年配置中心实践<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-14 08:11:47" itemprop="dateCreated datePublished" datetime="2021-04-14T08:11:47+08:00">2021-04-14</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>  自17年入职华为之后，一直在使用配置中心，4年期间经历了自研配置中心到<code>Apollo</code>再到自研配置中心和<code>Apollo</code>并存的场景。总结了一下这几年的配置中心演进流程，想把我们在配置中心上的一些实践分享给大家，实现共同进步。<code>Apollo</code>是一款非常优秀的开源软件，是国人的骄傲。如果对<code>Apollo</code>存在理解错误，还望大家不吝赐教，谢谢。</p>
-<h2 id="使用到的配置分类"><a href="#使用到的配置分类" class="headerlink" title="使用到的配置分类"></a>使用到的配置分类</h2><h3 id="从场景分类"><a href="#从场景分类" class="headerlink" title="从场景分类"></a>从场景分类</h3><h4 id="运维配置，即程序只读的配置"><a href="#运维配置，即程序只读的配置" class="headerlink" title="运维配置，即程序只读的配置"></a>运维配置，即程序只读的配置</h4><p>人工配置。通过人工在配置中心界面进行配置，而程序只进行读取，如数据库配置、邮箱服务器配置、网卡配置、子网地址配置等。这部分配置数据不要求代码动态写入。</p>
-<h4 id="业务配置，即程序可写的配置"><a href="#业务配置，即程序可写的配置" class="headerlink" title="业务配置，即程序可写的配置"></a>业务配置，即程序可写的配置</h4><p>我们是一个SaaS服务，每个用户在上面都有一些业务配置。如用户的证书配置、用户服务器的流控配置等，这些业务配置相对<strong>运维配置</strong>来说更加复杂，且可能会有唯一性限制，如按用户id唯一。这部分配置数据一般由用户操作触发，代码动态写入，并且通知到各个微服务实例。通常，我们希望这些配置能在界面展示，且支持人为修改。上述逻辑如果由各微服务自己实现，会存在大量重复代码，并且质量无法保证。我们希望由一个公共组件来统一实现这个能力。</p>
-<h3 id="从配置是否会有列表可分为单值配置或多值配置"><a href="#从配置是否会有列表可分为单值配置或多值配置" class="headerlink" title="从配置是否会有列表可分为单值配置或多值配置"></a>从配置是否会有列表可分为单值配置或多值配置</h3><h4 id="单值配置"><a href="#单值配置" class="headerlink" title="单值配置"></a>单值配置</h4><p>整个配置下只是多对key、value。value不是很复杂的格式，往往是整数或字符串。</p>
-<p><img src="/Images/config-center1.png" alt="image-20210330171658154"></p>
-<h4 id="多值配置"><a href="#多值配置" class="headerlink" title="多值配置"></a>多值配置</h4><p>多值配置更加复杂，往往是<strong>单值配置</strong>在不同的key下，有不同的值。比如下面的配置，用户一和用户二的线程池大小和队列不同</p>
-<p><img src="/Images/config-center2.jpg" alt="img"></p>
-<h2 id="第一阶段-自研配置中心"><a href="#第一阶段-自研配置中心" class="headerlink" title="第一阶段 自研配置中心"></a>第一阶段 自研配置中心</h2><p>在做云服务之前，我们的配置中心层级数较少。我们以软件的形式交付给客户，软件运行时分为管理面和业务面，配置中心管理着管理面和业务面的配置，最为复杂的场景是多套业务面，这个时候需要保证不同集群、不同微服务下的配置不冲突，配置层级为 集群、微服务、配置。</p>
-<p><img src="/Images/config-center3.png" alt="image-20210324204231586"></p>
-<p>此时的配置中心是完全自研的，不包含蓝绿、灰度配置这些功能，它独具特色的地方有以下两点：</p>
-<h3 id="单配置单表"><a href="#单配置单表" class="headerlink" title="单配置单表"></a>单配置单表</h3><ul>
-<li>在存储模型上，每个配置对应一张数据表。</li>
-<li>对多值配置比较友好，尤其是复杂业务配置，可以支持各种主键约束。对单值配置，稍微重型了一些。</li>
-<li>配置的强Schema限制。这些限制包括类型、大小、长度、是否敏感等限制。这种限制既能为界面修改配置提供良好的体验（如：不同格式不同的输入框、敏感字段，前台输入明文，后台入库加密等），也能在通过接口写入配置时做充分的校验。</li>
-</ul>
-<h3 id="通过回调方式来确保配置的可靠"><a href="#通过回调方式来确保配置的可靠" class="headerlink" title="通过回调方式来确保配置的可靠"></a>通过回调方式来确保配置的可靠</h3><p>举个例子，添加一个配置的流程是这样的</p>
-<p><img src="/Images/config-center4.png" alt="image-20210324205828998"></p>
-<p>可能这里，有读者想要问了，这个流程能确保什么可靠呢。这个流程通过调用微服务接口来校验配置是否可靠，如IP地址是否合法、对端地址是否可达、配置数量是否超过规格等等，来保证配置基本可用。</p>
-<p>总的来说，这个自研的配置中心在当时综合体验还是不错的。但是也有一些问题有待改进，比如单配置下配置项数量过多时，因为底层有部分接口单配置下所有数据都通过一个http请求来承载，会导致响应超时等问题。</p>
-<h2 id="第二阶段-Apollo"><a href="#第二阶段-Apollo" class="headerlink" title="第二阶段 Apollo"></a>第二阶段 Apollo</h2><p>开始第二阶段实践的原因主要是，我们进行了组织切换，业务重心转向做云服务，同时团队进行DevOps转型。原先的老配置中心是由另一个团队维护的，组织切换完之后，如果还要使用，就要我们自己维护。所以我们需要在继续维护老配置中心和引入开源<code>Apollo</code>中间进行选择。除了上文中提到的运维配置和业务配置，这个时候我们的需求还有改变：</p>
-<ul>
-<li>配置的层级愈发丰富了</li>
-<li>要构建灰度发布微服务的能力</li>
-</ul>
-<p>老配置中心一方面由于组织切换原因不提供维护了，另一方面不能支撑丰富的配置层级，也不具备灰度发布的能力。这个时候，<code>Apollo</code>的一些特性吸引了我们，这些特性正是老配置中心所缺乏的，例如（部分引用自<code>Apollo</code>github主页）</p>
-<ul>
-<li>丰富的层级，从<code>app_id</code>到<code>cluster</code>,<code>namespace</code>,<code>key-value</code>的层级能满足我们region、集群、微服务的层级诉求</li>
-<li>支持配置的灰度发布，比如点了发布后，只对部分应用实例生效，等观察一段时间没问题后再推给所有应用实例。</li>
-<li>所有的配置发布都有版本概念，从而可以方便的支持配置的回滚。</li>
-<li>应用和配置的管理都有完善的权限管理机制，对配置的管理还分为了编辑和发布两个环节，从而减少人为的错误。</li>
-<li>所有的操作都有审计日志，可以方便的追踪问题。</li>
-</ul>
-<p>因此我们选型引入了<code>Apollo</code>，我和我的主管，还有一个其他同事参与了这项工作。我们在Apollo开源代码的基础上做了比较大的改动，主要原因有以下几点</p>
-<ul>
-<li>节约成本，将注册中心、数据库替换成我们当前正在使用的组件，因为这两个依赖不是<code>Apollo</code>的核心依赖</li>
-<li>继承老配置中心强<code>Schema</code>的优点。</li>
-<li>保留回调确认配置的流程，提前拦截错误的配置，降低代码处理异常配置的复杂度</li>
-<li>通过spi或环境变量的方式兼容存量老局点使用老配置中心的场景</li>
-</ul>
-<p>结合上述原因，我们最终是这么实践的</p>
-<ul>
-<li><p>数据库切换为<code>postgre</code>数据库、注册中心切换到<code>servicecomb</code></p>
-</li>
-<li><p>在namespace上实现了<code>Schema</code>，每个namespace都可以注册对应的<code>Schema</code>，<code>Schema</code>要求数据必须是json格式，且json内对应的value必须满足Schema定义的规范（如ip地址、小数、整数等）</p>
-<p>Schema举例</p>
-</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;name&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;string&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;age&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;int&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;max&quot;</span><span class="punctuation">:</span><span class="number">120</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;ip&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;ipv4&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
-<p> 那么数据应该是这样的</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;hezhangjian&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span><span class="number">23</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ip&quot;</span><span class="punctuation">:</span><span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>在添加或修改配置的时候，实现了回调功能，由回调业务服务确认配置能否添加或修改</li>
-<li>配置分层：云服务对应<code>Apollo</code>的<code>app_id</code>，把内部的环境对应到<code>Apollo</code>上的集群，然后将微服务名+配置名拼接成配置名称。</li>
-</ul>
-<p>下图展示了业务概念和<code>Apollo</code>概念的对应关系，有些配置是单值配置，有些是多值配置，所以配置项这一层级是可选的。</p>
-<p><img src="/Images/config-center5.png" alt="配置分层示意图"></p>
-<p>在这段时间的实践中，我们也发现如下问题</p>
-<h3 id="并发问题"><a href="#并发问题" class="headerlink" title="并发问题"></a>并发问题</h3><p>其中最致命的就是并发问题，首先<code>Apollo</code>所有配置都存在一张表中，其次由于<code>Apollo</code>设计之初主要考虑的是运维人员手动在界面上操作，代码无并发语义（或者说没给客户端并发语义），使得我们通过代码写入配置时难以解决并发问题。</p>
-<h3 id="性能问题"><a href="#性能问题" class="headerlink" title="性能问题"></a>性能问题</h3><p>打开<code>namespace</code>列表页面，需要显示这个<code>app_id</code>下的所有<code>namespace</code>,因为我们单<code>app_id</code>会存放单个云服务的所有配置，这个量很大，且界面不支持分页，导致页面加载缓慢</p>
-<h3 id="体验问题"><a href="#体验问题" class="headerlink" title="体验问题"></a>体验问题</h3><p><code>Apollo</code>的<code>namespace</code>界面未提供搜索功能（可能Apollo设计之初也没想支持这么多），想要从<code>namespace</code>中定位到我们想要查看或修改的namespace，只能借助浏览器的搜索能力。</p>
-<h2 id="第三阶段-Apollo与自研配置中心并存"><a href="#第三阶段-Apollo与自研配置中心并存" class="headerlink" title="第三阶段 Apollo与自研配置中心并存"></a>第三阶段 Apollo与自研配置中心并存</h2><p>除了上述几个问题，还有一些原因使得我们开始了第三阶段的实践</p>
-<ul>
-<li>原来自上而下的配置分层模型，微服务间配置没隔离，不仅不易进行权限管理，而且不适合<code>DevOps</code> 单微服务自治的发布理念。</li>
-<li>第二阶段对<code>Apollo</code>改动太多，组织结构变动，没有足够的人力维护</li>
-<li>随着集群越来越多，回调功能需要网络的双向打通，网络维护不太方便</li>
-<li>我们对<code>Apollo</code>界面以及接口基于业务做的改动较多，导致其他兄弟部门难以共用<code>Apollo</code></li>
-</ul>
-<p>当时大家对是否保留<strong>Schema</strong>、<strong>回调检查</strong>、<strong>代码写配置</strong>这三个功能点有较大的争议。我个人最希望保留<strong>Schema</strong>、<strong>回调检查</strong>，因为它们优点显著，而且接口是兼容的，可以与其他部门共用，但是增加了<strong>Schema</strong>这个概念和<strong>回调检查</strong>这个流程，会增加学习成本。而代码写配置，由于要解决并发问题，代码改动量较大，我不建议保留。</p>
-<p>大家经过激烈的讨论，最终还是废弃了<strong>Schema</strong>、<strong>回调检查</strong>、<strong>代码写配置</strong>这三个功能点，仅仅把运维配置放在<code>Apollo</code>。</p>
-<p>然后，我们把业务配置，放在了一个自研的强Schema的配置中心上，这个配置中心，仅负责单集群的配置，每个集群部署一套，满足了我们的业务需求。自研强Schema配置中心的核心要点有，单配置单表、通过注册中心回调来检测配置是否合法、借助mqtt协议来实现长链接推送，无单点瓶颈。</p>
-<p>而我们的运维配置中心<code>Apollo</code>回归到了开源的版本，重整了配置的结构，</p>
-<p><img src="/Images/config-center6.png" alt="image-20210405224010878"></p>
-<p>对运维配置而言好处有</p>
-<ul>
-<li>配置模型适合单微服务发布</li>
-<li>配置按微服务组织，一个页面上的namespace不会很多</li>
-</ul>
-<p>缺点</p>
-<ul>
-<li>Schema缺失后，不会对操作人员在界面的配置进行校验，即使配置格式或者内容错误也能配置成功。界面上配置密码不支持明文（Apollo无法感知是否为敏感字段），必须提前使用其他工具将明文转换为密文，然后再进行配置。</li>
-<li>回调检查功能去掉后，有些配置，如网卡网段配错，操作人员不能即时得到响应</li>
-</ul>
-<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p>业务配置经过我们的实践，确实不适合使用开源的<code>Apollo</code>。运维配置使用原生的<code>Apollo</code>，但是现在还不具备<strong>回调检查</strong>和<strong>Schema</strong>的功能，希望<code>Apollo</code>能在后续版本中支持<strong>Schema</strong>，或者弱化的<strong>json</strong>格式检查功能。下面是我们在如下场景下的最佳实践</p>
-<h3 id="SRE在界面上的运维配置"><a href="#SRE在界面上的运维配置" class="headerlink" title="SRE在界面上的运维配置"></a>SRE在界面上的运维配置</h3><p>通过<code>Apollo</code>来实现功能，至于配置如何组织，根据大家的组织结构、技术架构来对应<code>Apollo</code>上的概念，可按照<code>微服务-&gt;部署环境</code>或<code>部署环境 -&gt; 微服务</code>的层级来组织配置</p>
-<h3 id="复杂的参数校验"><a href="#复杂的参数校验" class="headerlink" title="复杂的参数校验"></a>复杂的参数校验</h3><p>建议在<code>Apollo</code>上面自建portal包裹一层，后端服务可先进行一层处理，这一层处理可以做比较复杂的格式化校验甚至<strong>回调检查</strong>，再调用<code>Apollo OpenApi</code>将配置写入<code>Apollo</code>。</p>
-<h3 id="业务配置的技术选型"><a href="#业务配置的技术选型" class="headerlink" title="业务配置的技术选型"></a>业务配置的技术选型</h3><p>最大的挑战是业务配置由用户触发，请求的并发不易处理。思路有两个，一个是在<code>Apollo</code>原生代码的基础上，通过数据库分布式锁来解决并发问题。第二个是借鉴我们的思路，通过单配置单表、mqtt协议实现通知等核心技术点，自研业务配置中心。</p>
-<h3 id="业务配置的部署"><a href="#业务配置的部署" class="headerlink" title="业务配置的部署"></a>业务配置的部署</h3><p>需要根据业务配置的数量来考虑是否合设业务配置中心。单集群场景下，毫无疑问只需要一个业务配置中心，甚至如果使用<code>Apollo</code>实现，可以考虑和运维配置中心合设。多集群场景下，部署一个业务配置中心，还是多个业务配置中心，我们自己的实践中，一个集群往往要支撑数万用户，我们采取了每个业务集群部署一套业务配置中心的策略。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/13/Kubernetes%20pod%E5%86%85%E8%B0%83%E7%94%A8API/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-pod-api" class="post-title-link post-title-link-external" itemprop="url">Kubernetes pod内调用API<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-13 21:17:20" itemprop="dateCreated datePublished" datetime="2021-04-13T21:17:20+08:00">2021-04-13</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Kubernetes pod内调用API的流程总体分为以下步骤</p>
-<ul>
-<li>创建role</li>
-<li>创建serviceaccount</li>
-<li>绑定role到serviceaccount</li>
-<li>指定pod使用serviceaccount</li>
-</ul>
-<p>我们以查pod为例，演示一下整个流程</p>
-<h2 id="创建role"><a href="#创建role" class="headerlink" title="创建role"></a>创建role</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># role.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">role-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiGroups:</span> [<span class="string">&quot;&quot;</span>]</span><br><span class="line">    <span class="attr">resources:</span> [<span class="string">&quot;pods&quot;</span>]</span><br><span class="line">    <span class="attr">verbs:</span> [<span class="string">&quot;get&quot;</span>,<span class="string">&quot;list&quot;</span>]</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f role.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="创建serviceaccount"><a href="#创建serviceaccount" class="headerlink" title="创建serviceaccount"></a>创建serviceaccount</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># serviceaccount.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">serviceaccount-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f serviceaccount.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="绑定role"><a href="#绑定role" class="headerlink" title="绑定role"></a>绑定role</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rolebinding.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">RoleBinding</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">rolebinding-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">serviceaccount-hzj</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">role-hzj</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f rolebinding.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="部署pod进行测试"><a href="#部署pod进行测试" class="headerlink" title="部署pod进行测试"></a>部署pod进行测试</h2><h3 id="部署一个zookeeper进行测试"><a href="#部署一个zookeeper进行测试" class="headerlink" title="部署一个zookeeper进行测试"></a>部署一个zookeeper进行测试</h3><p>手上刚好有zookeeper的模板文件</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">zookeeper</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">hostNetwork:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">dnsPolicy:</span> <span class="string">ClusterFirstWithHostNet</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">zookeeper</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">ttbb/zookeeper:stand-alone</span></span><br><span class="line">        <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">        <span class="attr">resources:</span></span><br><span class="line">          <span class="attr">limits:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">2G</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">1000m</span></span><br><span class="line">          <span class="attr">requests:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">2G</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">1000m</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">NODE_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">spec.nodeName</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">POD_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">metadata.name</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">PS1</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&#x27;[\u@zookeeper@\W]\$ &#x27;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="调用API"><a href="#调用API" class="headerlink" title="调用API"></a>调用API</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Point to the internal API server hostname</span></span><br><span class="line">APISERVER=https://kubernetes.default.svc</span><br><span class="line"><span class="comment"># Path to ServiceAccount token</span></span><br><span class="line">SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount</span><br><span class="line"><span class="comment"># Read this Pod&#x27;s namespace</span></span><br><span class="line">NAMESPACE=$(<span class="built_in">cat</span> <span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/namespace)</span><br><span class="line"><span class="comment"># Read the ServiceAccount bearer token</span></span><br><span class="line">TOKEN=$(<span class="built_in">cat</span> <span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/token)</span><br><span class="line"><span class="comment"># Reference the internal certificate authority (CA)</span></span><br><span class="line">CACERT=<span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/ca.crt</span><br><span class="line"><span class="comment"># Explore the API with TOKEN</span></span><br><span class="line">curl --cacert <span class="variable">$&#123;CACERT&#125;</span> --header <span class="string">&quot;Authorization: Bearer <span class="variable">$&#123;TOKEN&#125;</span>&quot;</span> -X GET <span class="variable">$&#123;APISERVER&#125;</span>/api</span><br><span class="line">curl --cacert <span class="variable">$&#123;CACERT&#125;</span> --header <span class="string">&quot;Authorization: Bearer <span class="variable">$&#123;TOKEN&#125;</span>&quot;</span> -X GET <span class="variable">$&#123;APISERVER&#125;</span>/api/v1/namespaces/default/pods</span><br></pre></td></tr></table></figure>
-
-<p><img src="/Images/kubernetes-pod-api1.png" alt="kubernetes-pod-api1"></p>
-<p>发现这里，调用后面的api，403错误。第一个api不报错，是因为该接口不需要鉴权。</p>
-<h3 id="修改pod对应的serviceaccount"><a href="#修改pod对应的serviceaccount" class="headerlink" title="修改pod对应的serviceaccount"></a>修改pod对应的serviceaccount</h3><p>让我们修改部署模板对应的ServiceAccountName，注入权限。在pod的spec下，设置serviceAccountName</p>
-<p><img src="/Images/kubernetes-pod-api2.png" alt="kubernetes-pod-api2"></p>
-<h3 id="修改部署模板重启后调用api正常"><a href="#修改部署模板重启后调用api正常" class="headerlink" title="修改部署模板重启后调用api正常"></a>修改部署模板重启后调用api正常</h3><p>再次尝试上述命令，api结果返回正常</p>
-<p><img src="/Images/kubernetes-pod-api3.png" alt="kubernetes-pod-api3"></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/13/UCloud%E6%90%AD%E5%BB%BAkubernetes/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/04/13/UCloud%E6%90%AD%E5%BB%BAkubernetes/" class="post-title-link" itemprop="url">UCloud搭建kubernetes</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-13 20:41:56" itemprop="dateCreated datePublished" datetime="2021-04-13T20:41:56+08:00">2021-04-13</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近因为业务的需求，在学习etcd，想了解一下<code>kubernetes</code>是如何使用etcd集群的，不如动手搭建一个<code>kubernetes</code>集群，也顺手体验一下友商UCloud。后面有时间仔细分析一下kubeadm搭建的时候都做了哪些事情</p>
-<p>选择香港Region进行搭建，下载国外的镜像比较方便。</p>
-<h2 id="购买三台ECS"><a href="#购买三台ECS" class="headerlink" title="购买三台ECS"></a>购买三台ECS</h2><h3 id="基础配置"><a href="#基础配置" class="headerlink" title="基础配置"></a>基础配置</h3><p>三台4U16G，基础镜像选择Centos8版本</p>
-<h2 id="ApiServer创建ELB"><a href="#ApiServer创建ELB" class="headerlink" title="ApiServer创建ELB"></a>ApiServer创建ELB</h2><h3 id="创建LB实例"><a href="#创建LB实例" class="headerlink" title="创建LB实例"></a>创建LB实例</h3><p><img src="/Images/ucloud-kubernetes1.png" alt="image-20210413104514588"></p>
-<h3 id="添加一个6443端口的Vserver"><a href="#添加一个6443端口的Vserver" class="headerlink" title="添加一个6443端口的Vserver"></a>添加一个6443端口的Vserver</h3><p><img src="/Images/ucloud-kubernetes2.png" alt="image-20210413104700767"></p>
-<p>这里Vserver和LVS上的Virtual Service的概念相同。</p>
-<h3 id="向6443端口添加Rs"><a href="#向6443端口添加Rs" class="headerlink" title="向6443端口添加Rs"></a>向6443端口添加Rs</h3><p>把三台虚拟机的6643端口都添加到负载均衡上</p>
-<p>现在6443端口显示异常不要紧，后面安装过程中，各个节点的6443端口才会逐渐可用，让各个节点访问。</p>
-<h2 id="初始化Master集群"><a href="#初始化Master集群" class="headerlink" title="初始化Master集群"></a>初始化Master集群</h2><h3 id="虚拟机上安装必须组件"><a href="#虚拟机上安装必须组件" class="headerlink" title="虚拟机上安装必须组件"></a>虚拟机上安装必须组件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">yum install -y yum-utils</span><br><span class="line">yum remove -y runc</span><br><span class="line">yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo</span><br><span class="line">yum install -y docker-ce docker-ce-cli containerd.io</span><br><span class="line">systemctl start docker</span><br><span class="line"><span class="built_in">cat</span> &lt;&lt;<span class="string">EOF | sudo tee /etc/yum.repos.d/kubernetes.repo</span></span><br><span class="line"><span class="string">[kubernetes]</span></span><br><span class="line"><span class="string">name=Kubernetes</span></span><br><span class="line"><span class="string">baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch</span></span><br><span class="line"><span class="string">enabled=1</span></span><br><span class="line"><span class="string">gpgcheck=1</span></span><br><span class="line"><span class="string">repo_gpgcheck=1</span></span><br><span class="line"><span class="string">gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg</span></span><br><span class="line"><span class="string">exclude=kubelet kubeadm kubectl</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Set SELinux in permissive mode (effectively disabling it)</span></span><br><span class="line"><span class="built_in">sudo</span> setenforce 0</span><br><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&#x27;s/^SELINUX=enforcing$/SELINUX=permissive/&#x27;</span> /etc/selinux/config</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> --now kubelet</span><br><span class="line">kubeadm config images pull</span><br></pre></td></tr></table></figure>
-
-<h3 id="初始化master-001节点"><a href="#初始化master-001节点" class="headerlink" title="初始化master-001节点"></a>初始化master-001节点</h3><p>这里这个IP地址填负载均衡的地址，这样子才能搭建出高可用集群</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm init --control-plane-endpoint &quot;10.7.157.12:6443&quot; --upload-certs</span><br></pre></td></tr></table></figure>
-
-<p>初始化成功，返回以下提示信息</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">Your Kubernetes control-plane has initialized successfully!</span><br><span class="line"></span><br><span class="line">To start using your cluster, you need to run the following as a regular user:</span><br><span class="line"></span><br><span class="line">  mkdir -p $HOME/.kube</span><br><span class="line">  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line">  sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br><span class="line"></span><br><span class="line">Alternatively, if you are the root user, you can run:</span><br><span class="line"></span><br><span class="line">  export KUBECONFIG=/etc/kubernetes/admin.conf</span><br><span class="line"></span><br><span class="line">You should now deploy a pod network to the cluster.</span><br><span class="line">Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at:</span><br><span class="line">  https://kubernetes.io/docs/concepts/cluster-administration/addons/</span><br><span class="line"></span><br><span class="line">You can now join any number of the control-plane node running the following command on each as root:</span><br><span class="line"></span><br><span class="line">  kubeadm join 10.7.157.12:6443 --token bj4vpt.o999hbp96p1bvw5q \</span><br><span class="line">	--discovery-token-ca-cert-hash sha256:8560fa9211dbfdb55609d22ef0f0b428c6cb73b6e85a70c7a9e13d88b0b8400c \</span><br><span class="line">	--control-plane --certificate-key 85c86678b3d54b6017ac3fab2f2a92337f332c7172dfaf4b5a18ee1da679cd7d</span><br><span class="line"></span><br><span class="line">Please note that the certificate-key gives access to cluster sensitive data, keep it secret!</span><br><span class="line">As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use</span><br><span class="line">&quot;kubeadm init phase upload-certs --upload-certs&quot; to reload certs afterward.</span><br><span class="line"></span><br><span class="line">Then you can join any number of worker nodes by running the following on each as root:</span><br><span class="line"></span><br><span class="line">kubeadm join 10.7.157.12:6443 --token bj4vpt.o999hbp96p1bvw5q \</span><br><span class="line">	--discovery-token-ca-cert-hash sha256:8560fa9211dbfdb55609d22ef0f0b428c6cb73b6e85a70c7a9e13d88b0b8400c</span><br></pre></td></tr></table></figure>
-
-<p>其他节点上执行kubeadm join</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubeadm join 10.7.157.12:6443 --token bj4vpt.o999hbp96p1bvw5q \</span><br><span class="line">--discovery-token-ca-cert-hash sha256:8560fa9211dbfdb55609d22ef0f0b428c6cb73b6e85a70c7a9e13d88b0b8400c \</span><br><span class="line">--control-plane --certificate-key 85c86678b3d54b6017ac3fab2f2a92337f332c7172dfaf4b5a18ee1da679cd7d</span><br></pre></td></tr></table></figure>
-
-<p>调整kubectl命令行</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p $HOME/.kube</span><br><span class="line">	sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line">	sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br></pre></td></tr></table></figure>
-<h3 id="安装cni插件"><a href="#安装cni插件" class="headerlink" title="安装cni插件"></a>安装cni插件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f <span class="string">&quot;https://cloud.weave.works/k8s/net?k8s-version=<span class="subst">$(kubectl version | base64 | tr -d &#x27;\n&#x27;)</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>至此，kubernetes搭建完成。</p>
-<p><img src="/Images/ucloud-kubernetes3.png" alt="image-20210413162451762"></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/10/Apache%20ZooKeeper%E5%9C%A8%E5%8D%8E%E4%B8%BA%E4%BA%91IoT%E6%9C%8D%E5%8A%A1%E4%BA%A7%E5%93%81%E9%83%A8%E7%9A%84%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/zookeeper-huaweicloud-usage" class="post-title-link post-title-link-external" itemprop="url">Apache ZooKeeper在华为云IoT服务产品部的使用<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-10 19:25:22" itemprop="dateCreated datePublished" datetime="2021-04-10T19:25:22+08:00">2021-04-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>华为云IoT服务产品部致力于提供极简接入、智能化、安全可信等全栈全场景服务和开发、集成、托管、运营等一站式工具服务，助力合作伙伴&#x2F;客户轻松、快速地构建5G、AI万物互联的场景化物联网解决方案。</p>
-<p>架构方面，华为云IoT服务产品部采用云原生微服务架构，ZooKeeper组件在华为云IoT服务产品部的架构中扮演着重要的角色，本文将介绍华为云IoT服务产品部在ZooKeeper的使用。</p>
-<h2 id="Apache-ZooKeeper-简介"><a href="#Apache-ZooKeeper-简介" class="headerlink" title="Apache ZooKeeper 简介"></a>Apache ZooKeeper 简介</h2><p>Apache ZooKeeper是一个分布式、开源的分布式协调服务，由Apache Hadoop的子项目发展而来。作为一个分布式原语的基石服务，几乎所有分布式功能都可以借助ZooKeeper来实现，例如：应用的主备选举，分布式锁，分布式任务分配，缓存通知，甚至是消息队列、配置中心等。</p>
-<p>抛开应用场景，讨论某个组件是否适合，并没有绝对正确的答案。尽管Apache ZooKeeper作为消息队列、配置中心时，性能不用想就知道很差。但是，倘若系统里面只有ZooKeeper，应用场景性能要求又不高，那使用ZooKeeper不失为一个好的选择。但ZooKeeper 客户端的编码难度较高，对开发人员的技术水平要求较高，尽量使用一些成熟开源的ZooKeeper客户端、框架，如：Curator、Spring Cloud ZooKeeper等。</p>
-<h2 id="Apache-ZooKeeper-核心概念"><a href="#Apache-ZooKeeper-核心概念" class="headerlink" title="Apache ZooKeeper 核心概念"></a>Apache ZooKeeper 核心概念</h2><h3 id="ZNode"><a href="#ZNode" class="headerlink" title="ZNode"></a>ZNode</h3><p>ZNode是ZooKeeper的数据节点，ZooKeeper的数据模型是树形结构，每个ZNode都可以存储数据，同时可以有多个子节点，每个ZNode都有一个路径标识，类似于文件系统的路径，例如：&#x2F;iot-service&#x2F;iot-device&#x2F;iot-device-1。</p>
-<h1 id="Apache-ZooKeeper在华为云IoT服务产品部的使用"><a href="#Apache-ZooKeeper在华为云IoT服务产品部的使用" class="headerlink" title="Apache ZooKeeper在华为云IoT服务产品部的使用"></a>Apache ZooKeeper在华为云IoT服务产品部的使用</h1><p><img src="/Images/zookeeper-huaweicloud-usage.png" alt="zookeeper-huaweicloud-usage"></p>
-<h2 id="支撑系统内关键组件"><a href="#支撑系统内关键组件" class="headerlink" title="支撑系统内关键组件"></a>支撑系统内关键组件</h2><p>很多开源组件都依赖ZooKeeper，如<code>Flink</code>、<code>Ignite</code>、<code>Pulsar</code>等，通过自建和优化ZooKeeper环境，我们能够为这些高级组件提供更加可靠和高效的服务支持，确保服务的平稳运行。</p>
-<h2 id="严格分布式锁"><a href="#严格分布式锁" class="headerlink" title="严格分布式锁"></a>严格分布式锁</h2><p>分布式锁是非常常见的需求，相比集群Redis、主备Mysql等，ZooKeeper更容易实现理论上的严格分布式锁。</p>
-<h2 id="分布式缓存通知"><a href="#分布式缓存通知" class="headerlink" title="分布式缓存通知"></a>分布式缓存通知</h2><p>ZooKeeper的分布式缓存通知能够帮助我们实现分布式缓存的一致性，例如：我们可以在ZooKeeper上注册一个节点，然后在其他节点上监听这个节点，当这个节点发生变化时，其他节点就能够收到通知，然后更新本地缓存。</p>
-<p>这种方式的缺点是，ZooKeeper的性能不高，不适合频繁变更的场景，但是，对于一些不经常变更的配置，这种方式是非常适合的。如果系统中存在消息队列，那么可以使用消息队列来实现分布式缓存通知，这种方式的性能会更好、扩展性更强。</p>
-<h2 id="分布式Id生成器"><a href="#分布式Id生成器" class="headerlink" title="分布式Id生成器"></a>分布式Id生成器</h2><h3 id="直接使用ZooKeeper的有序节点"><a href="#直接使用ZooKeeper的有序节点" class="headerlink" title="直接使用ZooKeeper的有序节点"></a>直接使用ZooKeeper的有序节点</h3><p>应用程序可以直接使用ZooKeeper的有序节点来生成分布式Id，但是，这种方式的缺点是，ZooKeeper的性能不高，不适合频繁生成的场景。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.zookeeper.CreateMode;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooDefs;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooKeeper;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.data.Stat;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Optional;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ZkDirectIdGenerator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ZooKeeper zooKeeper;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> <span class="string">&quot;/zk-direct-id&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">PATH_PREFIX</span> <span class="operator">=</span> <span class="string">&quot;/id-&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ZkDirectIdGenerator</span><span class="params">(String connectionString, <span class="type">int</span> sessionTimeout)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="built_in">this</span>.zooKeeper = <span class="keyword">new</span> <span class="title class_">ZooKeeper</span>(connectionString, sessionTimeout, event -&gt; &#123;&#125;);</span><br><span class="line">        initializePath();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">initializePath</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Stat</span> <span class="variable">stat</span> <span class="operator">=</span> zooKeeper.exists(path, <span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">if</span> (stat == <span class="literal">null</span>) &#123;</span><br><span class="line">            zooKeeper.create(path, <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">0</span>], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Optional&lt;String&gt; <span class="title function_">generateId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">fullPath</span> <span class="operator">=</span> zooKeeper.create(path + PATH_PREFIX, <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">0</span>], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);</span><br><span class="line">            <span class="keyword">return</span> Optional.of(extractId(fullPath));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;create znode failed, exception is &quot;</span>, e);</span><br><span class="line">            <span class="keyword">return</span> Optional.empty();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">extractId</span><span class="params">(String fullPath)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> fullPath.substring(fullPath.lastIndexOf(PATH_PREFIX) + PATH_PREFIX.length());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="使用ZooKeeper生成机器号"><a href="#使用ZooKeeper生成机器号" class="headerlink" title="使用ZooKeeper生成机器号"></a>使用ZooKeeper生成机器号</h3><p>应用程序可以使用ZooKeeper生成机器号，然后使用机器号+时间戳+序列号来生成分布式Id。来解决ZooKeeper有序节点性能不高的问题。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.CreateMode;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooDefs;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooKeeper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.time.LocalDateTime;</span><br><span class="line"><span class="keyword">import</span> java.util.Optional;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicReference;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ZkIdGenerator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> <span class="string">&quot;/zk-id&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">AtomicInteger</span> <span class="variable">atomicInteger</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AtomicReference&lt;String&gt; machinePrefix = <span class="keyword">new</span> <span class="title class_">AtomicReference</span>&lt;&gt;(<span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String[] AUX_ARRAY = &#123;<span class="string">&quot;&quot;</span>, <span class="string">&quot;0&quot;</span>, <span class="string">&quot;00&quot;</span>, <span class="string">&quot;000&quot;</span>, <span class="string">&quot;0000&quot;</span>, <span class="string">&quot;00000&quot;</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 通过zk获取不一样的机器号，机器号取有序节点最后三位</span></span><br><span class="line"><span class="comment">     * id格式：</span></span><br><span class="line"><span class="comment">     * 机器号 + 日期 + 小时 + 分钟 + 秒 + 5位递增号码</span></span><br><span class="line"><span class="comment">     * 一秒可分近10w个id</span></span><br><span class="line"><span class="comment">     * 需要对齐可以在每一位补零</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> Optional&lt;String&gt; <span class="title function_">genId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (machinePrefix.get().isEmpty()) &#123;</span><br><span class="line">            acquireMachinePrefix();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (machinePrefix.get().isEmpty()) &#123;</span><br><span class="line">            <span class="comment">// get id failed</span></span><br><span class="line">            <span class="keyword">return</span> Optional.empty();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">LocalDateTime</span> <span class="variable">now</span> <span class="operator">=</span> LocalDateTime.now();</span><br><span class="line">        <span class="type">int</span> <span class="variable">aux</span> <span class="operator">=</span> atomicInteger.getAndAccumulate(<span class="number">1</span>, ((left, right) -&gt; &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">val</span> <span class="operator">=</span> left + right;</span><br><span class="line">            <span class="keyword">return</span> val &gt; <span class="number">99999</span> ? <span class="number">1</span> : val;</span><br><span class="line">        &#125;));</span><br><span class="line">        <span class="type">String</span> <span class="variable">time</span> <span class="operator">=</span> conv2Str(now.getDayOfYear(), <span class="number">3</span>) + conv2Str(now.getHour(), <span class="number">2</span>) + conv2Str(now.getMinute(), <span class="number">2</span>) + conv2Str(now.getSecond(), <span class="number">2</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">suffix</span> <span class="operator">=</span> conv2Str(aux, <span class="number">5</span>);</span><br><span class="line">        <span class="keyword">return</span> Optional.of(machinePrefix.get() + time + suffix);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">acquireMachinePrefix</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!machinePrefix.get().isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">ZooKeeper</span> <span class="variable">zooKeeper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ZooKeeper</span>(ZooKeeperConstant.SERVERS, <span class="number">30_000</span>, <span class="literal">null</span>);</span><br><span class="line">            <span class="keyword">final</span> <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> zooKeeper.create(path, <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">0</span>], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);</span><br><span class="line">            <span class="keyword">if</span> (s.length() &gt; <span class="number">3</span>) &#123;</span><br><span class="line">                machinePrefix.compareAndSet(<span class="string">&quot;&quot;</span>, s.substring(s.length() - <span class="number">3</span>));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;connect to zookeeper failed, exception is &quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String <span class="title function_">conv2Str</span><span class="params">(<span class="type">int</span> value, <span class="type">int</span> length)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (length &gt; <span class="number">5</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;length should be less than 5&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">String</span> <span class="variable">str</span> <span class="operator">=</span> String.valueOf(value);</span><br><span class="line">        <span class="keyword">return</span> AUX_ARRAY[length - str.length()] + str;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="微服务注册中心"><a href="#微服务注册中心" class="headerlink" title="微服务注册中心"></a>微服务注册中心</h2><p>相比其他微服务引擎，如阿里云的<code>MSE</code>、<code>Nacos</code>等，已有的Zookeeper集群作为微服务的注册中心，既能满足微服务数量较少时的功能需求，并且更加节约成本</p>
-<h2 id="数据库连接均衡"><a href="#数据库连接均衡" class="headerlink" title="数据库连接均衡"></a>数据库连接均衡</h2><p>在此前的架构中，我们采用了一种随机策略来分配微服务与数据库的连接地址。下图展示了这种随机分配可能导致的场景。考虑两个微服务：微服务B和微服务C。尽管微服务C的实例较多，但其对数据库的操作相对较少。相比之下，微服务B在运行期间对数据库的操作更为频繁。这种连接方式可能导致数据库Data2节点的连接数和CPU使用率持续居高，从而成为系统的瓶颈。</p>
-<p><img src="/Images/zookeeper-database-before.png" alt="zookeeper-database-before.png"></p>
-<p>启发于<strong>Kafka</strong>中的<code>partition</code>分配算法，我们提出了一种新的连接策略。例如，如果微服务B1连接到了Data1和Data2节点，那么微服务B2将连接到Data3和Data4节点。如果存在B3实例，它将再次连接到Data1和Data2节点。对于微服务C1，其连接将从Data1和Data2节点开始。然而，由于微服务的数量与数据库实例数量的两倍（每个微服务建立两个连接）并非总是能整除，这可能导致Data1和Data2节点的负载不均衡。</p>
-<p>为了解决这一问题，我们进一步优化了策略：第一个微服务实例在选择数据库节点时，将从一个随机起点开始。这种方法旨在确保Data1和Data2节点的负载均衡。具体的分配策略如下图所示。</p>
-<p><img src="/Images/zookeeper-database-after.png" alt="zookeeper-database-after.png"></p>
-<h1 id="Apache-ZooKeeper在华为云IoT产品部的部署-运维"><a href="#Apache-ZooKeeper在华为云IoT产品部的部署-运维" class="headerlink" title="Apache ZooKeeper在华为云IoT产品部的部署&#x2F;运维"></a>Apache ZooKeeper在华为云IoT产品部的部署&#x2F;运维</h1><h2 id="服务端部署方式"><a href="#服务端部署方式" class="headerlink" title="服务端部署方式"></a>服务端部署方式</h2><p>我们所有微服务和中间件均采用容器化部署，选择3节点（没有learner）规格。使用<strong>statefulset</strong>和<strong>PVC</strong>的模式部署。为什么使用<strong>statefulset</strong>进行部署？<strong>statefulset</strong>非常适合用于像<code>Zookeeper</code>这样有持久化存储需求的服务，每个Pod可以和对应的存储资源绑定，保证数据的持久化，同时也简化了部署，如果想使用<strong>deploy</strong>的部署模式，需要规划、固定每个pod的虚拟机部署。</p>
-<p><code>Zookeeper</code>本身对云硬盘的要求并不高，普通IO，几十G存储就已经能够支撑<code>Zookeeper</code>平稳运行了。<code>Zookeeper</code>本身运行的资源，使用量不是很大，在我们的场景，规格主要取决于Pulsar的topic数量，如果<code>Pulsar</code>的topic不多，那么0.5核、2G内存已经能保证<code>Zookeeper</code>平稳运行了。</p>
-<h2 id="客户端连接方式"><a href="#客户端连接方式" class="headerlink" title="客户端连接方式"></a>客户端连接方式</h2><p>借助coredns，客户端使用域名的方式连接<code>Zookeeper</code>，这样可以避免<code>Zookeeper</code>的IP地址变更导致客户端连接失败的问题，如zookeeper-0.zookeeper:2181,zookeeper-1.zookeeper:2181,zookeeper-2.zookeeper:2181</p>
-<h2 id="重要监控指标"><a href="#重要监控指标" class="headerlink" title="重要监控指标"></a>重要监控指标</h2><ul>
-<li><p>readlantency、updatelantency</p>
-<p>zk的读写延迟</p>
-</li>
-<li><p>approximate_data_size</p>
-<p>zk中数据的平均大小估计</p>
-</li>
-<li><p>outstanding_requests</p>
-<p>等待<code>Zookeeper</code>处理的请求数</p>
-</li>
-<li><p>znode_count</p>
-<p><code>Zookeeper</code>当前的<code>znode</code>总数</p>
-</li>
-<li><p>num_alive_connections</p>
-<p><code>Zookeeper</code>当前活跃的连接数</p>
-</li>
-</ul>
-<h1 id="Apache-ZooKeeper在华为云IoT产品部的问题"><a href="#Apache-ZooKeeper在华为云IoT产品部的问题" class="headerlink" title="Apache ZooKeeper在华为云IoT产品部的问题"></a>Apache ZooKeeper在华为云IoT产品部的问题</h1><h2 id="readiness合理设置"><a href="#readiness合理设置" class="headerlink" title="readiness合理设置"></a>readiness合理设置</h2><p>这是碰到的最有趣的问题，<strong>readiness</strong>接口是<strong>k8s</strong>判断pod是否正常的依据，那么对于<strong>Zookeeper</strong>集群来说，最合理的就是，当这个<strong>Zookeeper</strong>节点加入集群，获得了属于自己的<strong>Leader</strong>或<strong>Follower</strong>状态，就算pod正常。可是，当初次部署的时候，只有一个节点可用，该节点一个实例无法完成选举流程，导致无法部署。</p>
-<p>综上，我们把<strong>readiness</strong>的策略修改为：</p>
-<p><img src="/Images/zookeeper-readiness-strategy.png" alt="zookeeper-readiness-strategy.png"></p>
-<p>PS：为了让<strong>readiness</strong>检查不通过时，<strong>Zookeeper</strong>集群也能选主成功，需要配置<strong>publishNotReadyAddresses</strong>为true，示例如下</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">zookeeper</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line">  <span class="attr">clusterIP:</span> <span class="string">None</span></span><br><span class="line">  <span class="attr">sessionAffinity:</span> <span class="string">None</span></span><br><span class="line">  <span class="attr">publishNotReadyAddresses:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">2181</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">client</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">2888</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">peer</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">3888</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">leader</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="jute-maxbuffer超过上限"><a href="#jute-maxbuffer超过上限" class="headerlink" title="jute.maxbuffer超过上限"></a>jute.maxbuffer超过上限</h2><p>jute.maxbuffer，这个是znode中存储数据大小的上限，在客户端和服务端都需要配置，根据自己在znode上存储的数据合理配置</p>
-<h2 id="zookeeper的Prometheus全0监听"><a href="#zookeeper的Prometheus全0监听" class="headerlink" title="zookeeper的Prometheus全0监听"></a>zookeeper的Prometheus全0监听</h2><p>不满足网络监听最小可见原则。修改策略，添加一个可配置参数来配置监听的IP <code>metricsProvider.httpHost</code>，PR已合入，见 <a target="_blank" rel="noopener" href="https://github.com/apache/zookeeper/pull/1574/files">https://github.com/apache/zookeeper/pull/1574/files</a></p>
-<h2 id="客户端版本号过低，域名无法及时刷新"><a href="#客户端版本号过低，域名无法及时刷新" class="headerlink" title="客户端版本号过低，域名无法及时刷新"></a>客户端版本号过低，域名无法及时刷新</h2><p>客户端使用域名进行连接，但在客户端版本号过低的情况下，客户端并不会刷新新的ip，还是会用旧的ip尝试连接。升级客户端版本号到curator-4.3.0以上、zookeeper-3.6.2以上版本后解决。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文详细介绍了华为云IoT服务产品部如何使用Apache ZooKeeper来优化其云原生微服务架构。ZooKeeper作为分布式协调服务，在华为云IoT服务中发挥了重要作用，用于主备选举、分布式锁、任务分配和缓存通知等。文中还讨论了ZooKeeper在分布式ID生成、微服务注册中心、数据库连接均衡等方面的应用。此外，文章还覆盖了ZooKeeper在华为云IoT产品部的部署、运维策略和所遇到的挑战，包括容器化部署、监控指标和配置问题。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/9/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/11/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/9/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/11/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-count">135</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,302 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/28/%E9%AB%98%E5%8F%AF%E7%94%A8%E6%97%A0%E5%8D%95%E7%82%B9%E6%9E%B6%E6%9E%84%E4%B9%8B%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/kubernetes-registry-ha" class="post-title-link post-title-link-external" itemprop="url">高可用无单点架构之镜像仓库<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-28 18:30:18" itemprop="dateCreated datePublished" datetime="2021-08-28T18:30:18+08:00">2021-08-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>本篇文章探讨镜像仓库<code>registry</code>的高可用</p>
+<h1 id="镜像仓库高可用无单点故障涉及那些场景"><a href="#镜像仓库高可用无单点故障涉及那些场景" class="headerlink" title="镜像仓库高可用无单点故障涉及那些场景"></a>镜像仓库高可用无单点故障涉及那些场景</h1><h2 id="镜像仓库对外提供访问无单点故障"><a href="#镜像仓库对外提供访问无单点故障" class="headerlink" title="镜像仓库对外提供访问无单点故障"></a>镜像仓库对外提供访问无单点故障</h2><p>镜像仓库对外提供的访问点保持高可用</p>
+<h2 id="镜像仓库的数据存储高可用"><a href="#镜像仓库的数据存储高可用" class="headerlink" title="镜像仓库的数据存储高可用"></a>镜像仓库的数据存储高可用</h2><p>存储在镜像仓库中的数据都得是高可用的</p>
+<h1 id="镜像仓库无单点故障技术关键点"><a href="#镜像仓库无单点故障技术关键点" class="headerlink" title="镜像仓库无单点故障技术关键点"></a>镜像仓库无单点故障技术关键点</h1><h2 id="镜像仓库对外提供访问无单点故障-1"><a href="#镜像仓库对外提供访问无单点故障-1" class="headerlink" title="镜像仓库对外提供访问无单点故障"></a>镜像仓库对外提供访问无单点故障</h2><p>和上一篇文章一样，如果<code>IaaS</code>能提供<code>ELB</code>，我们最好是使用<code>ELB</code>，或者使用浮动IP的方式替换</p>
+<h2 id="镜像仓库的数据存储高可用-1"><a href="#镜像仓库的数据存储高可用-1" class="headerlink" title="镜像仓库的数据存储高可用"></a>镜像仓库的数据存储高可用</h2><ul>
+<li>配置镜像仓库使用<code>IaaS</code>的S3存储</li>
+<li>配置镜像仓库使用本地存储，通过共享文件路径存储来实现高可用，如<code>Glusterfs</code>等</li>
+<li>配置镜像仓库使用S3存储，自建兼容S3 API的存储<code>Server</code></li>
+</ul>
+<p>通常会使用共享存储来做到镜像仓库存储的高可用</p>
+<h1 id="方案概述"><a href="#方案概述" class="headerlink" title="方案概述"></a>方案概述</h1><p>那么其实镜像仓库的高可用方案就是对上面方案的组合，下面我们举几个例子</p>
+<h2 id="镜像仓库依赖组件部署方式"><a href="#镜像仓库依赖组件部署方式" class="headerlink" title="镜像仓库依赖组件部署方式"></a>镜像仓库依赖组件部署方式</h2><p><code>MinIo</code>、<code>KeepAlived</code>、<code>registry</code>都推荐使用容器部署，方便运维管理，但是镜像推荐内置到虚拟机中，不依赖镜像仓库或其他组件，避免循环依赖</p>
+<h2 id="使用IaaS的S3存储-负载均衡组件"><a href="#使用IaaS的S3存储-负载均衡组件" class="headerlink" title="使用IaaS的S3存储 + 负载均衡组件"></a>使用IaaS的S3存储 + 负载均衡组件</h2><p>这是最简单的方案，得益于云厂商提供的S3存储和负载均衡组件，我们可以进行很简单的配置，并部署一台以上的<code>registry</code>,如下图所示</p>
+<p><img src="/Images/kubernetes-registry-ha-s3.png" alt="kubernetes-registry-ha-s3"></p>
+<h2 id="自建兼容S3存储-KeepAlived浮动Ip"><a href="#自建兼容S3存储-KeepAlived浮动Ip" class="headerlink" title="自建兼容S3存储 + KeepAlived浮动Ip"></a>自建兼容S3存储 + KeepAlived浮动Ip</h2><p>我们可以自己搭建<code>MinIo</code>集群来作为兼容S3存储，由于MINIO最低部署4个节点，我们需要根据故障域机器来选择部署MINIO的数目，比如，故障域是三台物理机，我们部署4节点就不妥。原因是，4节点，总会有一台物理机上会部署2个minio节点，如果这台物理机挂掉，就会导致单点故障。所以，如果故障域为三台物理机，我们最好部署6节点，可容忍一台物理机宕机。其他的节点，读者也可以自行测算。</p>
+<p>下图是假设三台物理机，<code>minio</code>6副本场景下的部署示意图</p>
+<p><img src="/Images/kubernetes-registry-ha-minio.png" alt="kubernetes-registry-ha-minio"></p>
+<p>注，为了图的美观，并未画出所有的连线</p>
+<h3 id="MINIO关键配置"><a href="#MINIO关键配置" class="headerlink" title="MINIO关键配置"></a>MINIO关键配置</h3><ul>
+<li>节点数目6个</li>
+<li>EC2</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/28/%E9%AB%98%E5%8F%AF%E7%94%A8%E6%97%A0%E5%8D%95%E7%82%B9%E6%9E%B6%E6%9E%84%E4%B9%8Bkubernetes%E9%9B%86%E7%BE%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/kubernetes-ha" class="post-title-link post-title-link-external" itemprop="url">高可用无单点架构之kubernetes集群<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-28 08:20:33" itemprop="dateCreated datePublished" datetime="2021-08-28T08:20:33+08:00">2021-08-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="k8s高可用无单点故障涉及那些场景"><a href="#k8s高可用无单点故障涉及那些场景" class="headerlink" title="k8s高可用无单点故障涉及那些场景"></a>k8s高可用无单点故障涉及那些场景</h1><h2 id="k8s-节点添加、pod添加等增删查改无单点故障"><a href="#k8s-节点添加、pod添加等增删查改无单点故障" class="headerlink" title="k8s 节点添加、pod添加等增删查改无单点故障"></a>k8s 节点添加、pod添加等增删查改无单点故障</h2><p>需要元数据的存储和处理能力高可用</p>
+<h2 id="k8s对外的apiServer（如worker）无单点故障"><a href="#k8s对外的apiServer（如worker）无单点故障" class="headerlink" title="k8s对外的apiServer（如worker）无单点故障"></a>k8s对外的apiServer（如worker）无单点故障</h2><p>worker node和其他组件访问<code>apiServer</code>路径高可用</p>
+<h1 id="k8s无单点故障技术关键点"><a href="#k8s无单点故障技术关键点" class="headerlink" title="k8s无单点故障技术关键点"></a>k8s无单点故障技术关键点</h1><h2 id="元数据存储"><a href="#元数据存储" class="headerlink" title="元数据存储"></a>元数据存储</h2><p>通过etcd存储元数据，etcd三节点集群保证高可用</p>
+<h2 id="元数据处理"><a href="#元数据处理" class="headerlink" title="元数据处理"></a>元数据处理</h2><p>通过多个<code>kube-controller</code>和<code>kube-scheduler</code>节点来保证高可用</p>
+<h2 id="worker节点请求数据通过多ip或负载均衡来保证"><a href="#worker节点请求数据通过多ip或负载均衡来保证" class="headerlink" title="worker节点请求数据通过多ip或负载均衡来保证"></a>worker节点请求数据通过多ip或负载均衡来保证</h2><p>节点请求通信通过多Ip或负载均衡来保证高可用，这里也有几种方式</p>
+<h3 id="IaaS厂商可提供负载均衡的场景下"><a href="#IaaS厂商可提供负载均衡的场景下" class="headerlink" title="IaaS厂商可提供负载均衡的场景下"></a>IaaS厂商可提供负载均衡的场景下</h3><p>如下图所示，可将worker node的访问地址指向负载均衡的地址</p>
+<p><img src="/Images/kubernetes-ha-iaas-lb.png" alt="kubernetes-ha-iaas-lb"></p>
+<h3 id="私有化部署KeepAlived"><a href="#私有化部署KeepAlived" class="headerlink" title="私有化部署KeepAlived"></a>私有化部署KeepAlived</h3><p>私有化部署场景常用keepAlived提供浮动IP来给<code>worker node</code>或其他组件访问，如下图所示</p>
+<p><img src="/Images/kubernetes-ha-keepalived.png" alt="kubernetes-ha-keepalived"></p>
+<h3 id="私有化部署加上负载均衡组件"><a href="#私有化部署加上负载均衡组件" class="headerlink" title="私有化部署加上负载均衡组件"></a>私有化部署加上负载均衡组件</h3><p>如果你觉得同一时刻只有单个apiServer工作会成瓶颈，也可以使用<code>KeepAlived</code>加<code>Nginx</code>或<code>HaProxy</code>来对<code>ApiServer</code>做负载均衡</p>
+<p><img src="/Images/kubernetes-ha-keepalived-nginx.png" alt="kubernetes-ha-keepalived-nginx"></p>
+<p>为了简化图像，只画出了master1上的Nginx向后转发的场景。</p>
+<p>至于Nginx和KeepAlived如何部署，推荐采用容器化的部署模式，方便进行监控和运维；但是镜像不从镜像仓库拉取，而是保存在<code>master</code>节点上，这样虽然升级复杂一点，但是这样子<code>kubernetes</code>的高可用就不依赖镜像仓库了，不会和镜像仓库形成循环依赖，更不会影响镜像仓库的高可用方案，大大简化了后续的技术方案。（因为镜像仓库可能会占据较大的存储空间，可能会和<code>master</code>节点分离部署，这时会作为<code>worker</code>节点连接<code>master</code>节点）。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/20/GoFrame%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84Update%E9%9B%B6%E5%80%BC%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/08/20/GoFrame%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84Update%E9%9B%B6%E5%80%BC%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">GoFrame框架中的Update零值问题</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-20 20:16:14" itemprop="dateCreated datePublished" datetime="2021-08-20T20:16:14+08:00">2021-08-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>前几天，我的同事碰到了一个问题，是关于<strong>GoFrame</strong> 框架中数据字段的更新问题，数据中有一个<code>status</code>字段，他本来不想更新，但是却更新成了0。</p>
+<p>相信看到描述，已经有经验丰富的专家可以猜到是数据部分更新导致的问题。</p>
+<p>没错，就是因为数据库部分更新，把0这个值当成了需要更新的值刷新到了数据库中。</p>
+<p>中间是复现问题的流程及代码细节，不感兴趣的可以直接拉到最后</p>
+<h2 id="复现问题"><a href="#复现问题" class="headerlink" title="复现问题"></a>复现问题</h2><h3 id="创建一个数据表"><a href="#创建一个数据表" class="headerlink" title="创建一个数据表"></a>创建一个数据表</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> health_check</span><br><span class="line">(</span><br><span class="line">    id           <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    str_null     <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NULL</span>,</span><br><span class="line">    str_not_null <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    int_null     <span class="type">INT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    int_not_null <span class="type">INT</span>         <span class="keyword">NOT NULL</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h3 id="插入一条数据"><a href="#插入一条数据" class="headerlink" title="插入一条数据"></a>插入一条数据</h3><p><img src="/Images/go-frame-update-zero1.png" alt="image-20210819104835758"></p>
+<h3 id="数据库module的声明"><a href="#数据库module的声明" class="headerlink" title="数据库module的声明"></a>数据库module的声明</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> HealthCheck <span class="keyword">struct</span> &#123;</span><br><span class="line">	Id         <span class="type">string</span>  <span class="string">`orm:&quot;id&quot;`</span></span><br><span class="line">	StrNull    *<span class="type">string</span> <span class="string">`orm:&quot;str_null&quot;`</span></span><br><span class="line">	StrNotNull <span class="type">string</span>  <span class="string">`orm:&quot;str_not_null&quot;`</span></span><br><span class="line">	IntNull    *<span class="type">int</span>    <span class="string">`orm:&quot;int_null&quot;`</span></span><br><span class="line">	IntNotNull <span class="type">int</span>     <span class="string">`orm:&quot;int_not_null&quot;`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="更新数据"><a href="#更新数据" class="headerlink" title="更新数据"></a>更新数据</h3><p>这时，只想把IntNotNull字段更新成0</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UpdateHealth</span><span class="params">()</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	table := g.DB().Schema(healthDb).Table(healthTable)</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">6</span></span><br><span class="line">	healthCheck.IntNull = &amp;i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="执行完毕之后"><a href="#执行完毕之后" class="headerlink" title="执行完毕之后"></a>执行完毕之后</h3><p>除了我要更新的<code>int_not_null</code>字段，其他值都被修改了</p>
+<p><img src="/Images/go-frame-update-zero2.png" alt="image-20210819111903460"></p>
+<p>这肯定不是我们想要的效果，我们只想更新一个字段。</p>
+<p>这个时候GoFrame框架提供了<code>OmitEmpty</code>方法，可以忽略0值，也就是达到没传值不修改的效果，让我们加上<code>OmitEmpty</code>试试</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">table := g.DB().Schema(healthDb).Table(healthTable).OmitEmpty()</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">0</span></span><br><span class="line">	healthCheck.IntNotNull = i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br></pre></td></tr></table></figure>
+
+<p>重新导入数据</p>
+<p><img src="/Images/go-frame-update-zero3.png" alt="image-20210819110235646"></p>
+<p>操作update</p>
+<p><img src="/Images/go-frame-update-zero4.png" alt="image-20210819111954946"></p>
+<p>可是什么都没有更新，原来OmitEmpty把数字0当做是0值，没有进行更新，那么要怎么写呢，答案是使用<code>*int</code>类型</p>
+<p>让我们使用定位为<code>*int</code>类型的字段来更新一下<code>int_not_null</code>，代码如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UpdateHealth</span><span class="params">()</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	table := g.DB().Schema(healthDb).Table(healthTable).OmitEmpty()</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">0</span></span><br><span class="line">	healthCheck.IntNull = &amp;i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再次操作Update</p>
+<p><img src="/Images/go-frame-update-zero5.png" alt="image-20210819112254854"></p>
+<p>效果达成.</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>GoFrame的框架默认会对全量字段进行更新，无论你的字段有没有复制</li>
+<li>OmitEmpty可以让框架跳过空值，但是int类型的0，也会跳过</li>
+<li>如果你还是想用<code>OmitEmpty</code>跳过空值的情况下，写入0，请使用<code>*int</code>类型</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +536,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -324,7 +620,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -408,7 +704,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -522,7 +818,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -629,7 +925,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -748,7 +1044,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -877,7 +1173,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -932,369 +1228,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/12/Go%20%E4%BD%BF%E7%94%A8Delve%E5%AF%B9Go%E7%A8%8B%E5%BA%8FCoreDump%E8%BF%9B%E8%A1%8CDebug/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/07/12/Go%20%E4%BD%BF%E7%94%A8Delve%E5%AF%B9Go%E7%A8%8B%E5%BA%8FCoreDump%E8%BF%9B%E8%A1%8CDebug/" class="post-title-link" itemprop="url">Go 使用Delve对Go程序CoreDump进行Debug</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-07-12 18:53:37" itemprop="dateCreated datePublished" datetime="2021-07-12T18:53:37+08:00">2021-07-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="使用Delve对Go程序进行Debug"><a href="#使用Delve对Go程序进行Debug" class="headerlink" title="使用Delve对Go程序进行Debug"></a>使用Delve对Go程序进行Debug</h1><h2 id="翻译自"><a href="#翻译自" class="headerlink" title="翻译自"></a>翻译自</h2><p><a target="_blank" rel="noopener" href="https://medium.com/a-journey-with-go/go-debugging-with-delve-core-dumps-384145b2e8d9">https://medium.com/a-journey-with-go/go-debugging-with-delve-core-dumps-384145b2e8d9</a></p>
-<p>CoreDump是异常退出程序的内存快照。可以用来死后debug来找出crash发生的原因以及牵连的变量。通过<code>GOTRACEBACK</code>，<code>Go</code>提供了控制程序崩溃时的输出。变量还可以强制生成CoreDump，使得debug成为可能。</p>
-<h2 id="GOTRACEBACK"><a href="#GOTRACEBACK" class="headerlink" title="GOTRACEBACK"></a>GOTRACEBACK</h2><p><code>GOTRACEBACK</code>控制着程序崩溃时的输出，可以取以下的值</p>
-<ul>
-<li><code>none</code> 不展示任何协程堆栈追踪</li>
-<li><code>single</code> 默认选项，打印当前协程堆栈</li>
-<li><code>all</code> 展示所有用户创建的协程堆栈</li>
-<li><code>system</code> 展示所有协程堆栈，包括go运行时</li>
-<li><code>crash</code> 和<code>system</code>相似，不过同时会生成core dump文件</li>
-</ul>
-<p>最后一个选项给了我们在crash的时候，debug程序的能力。如果您没有获得足够的日志，或者崩溃不可重现，这可能是一个不错的选择。 让我们以下面的程序为例</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;math/rand&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">var</span> sum <span class="type">int</span></span><br><span class="line">		n := rand.Intn(<span class="number">1e6</span>)</span><br><span class="line">		sum += n</span><br><span class="line">		<span class="keyword">if</span> sum % <span class="number">42</span> == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="built_in">panic</span>(<span class="string">&quot;:(&quot;</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>程序将很快<code>crash</code></p>
-<p><img src="/Images/delve-debug1.png" alt="image-20210712180555586"></p>
-<p>我们不能从堆栈看出来什么值导致了crash。添加日志可能是一个解决方案，但是我们不是所有情况都知道在哪里添加日志。当一个问题无法重现时，添加日志只是一个后知后觉，不断寻找的思路。</p>
-<p>让我们加上环境变量<code>GOTRACEBACK=crash</code>。由于所有协程和runtime堆栈都会输出，输出更加详细。并且我们还有了coredump文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">go build -gcflags=all=<span class="string">&quot;-N -l&quot;</span> .</span><br><span class="line"><span class="built_in">export</span> GOTRACEBACK=crash</span><br><span class="line">./core_dump</span><br><span class="line"><span class="comment"># 如果您的core_dump没有生成，可能是coredump size配置为0，如下命令将coredump配置为1MB大小</span></span><br><span class="line"><span class="built_in">ulimit</span> -c 1048576</span><br></pre></td></tr></table></figure>
-
-<p>我们有</p>
-<p><img src="/Images/delve-debug2.png" alt="image-20210712183024428"></p>
-<p>Core-dump文件可被Go delve或GDB分析</p>
-<h2 id="Delve"><a href="#Delve" class="headerlink" title="Delve"></a>Delve</h2><p>安装Delve</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go install github.com/go-delve/delve/cmd/dlv@latest</span><br></pre></td></tr></table></figure>
-
-<p>Delve 是用 Go 编写的 Go 程序的调试器。 它允许通过在用户代码和运行时的任何位置添加断点来逐步调试，甚至可以使用将二进制文件和CoreDump作为参数的命令 dlv core 调试CoreDump。</p>
-<p>通过<code>dlv core core_dump core.2716</code>来调试coredump。然后通过<code>bt</code>命令打印堆栈，并且展示程序造成的<code>panic</code>。</p>
-<p><img src="/Images/delve-debug3.png" alt="image-20210712183456364"></p>
-<p>我们看到7发生了panic，然后通过<code>frame 9</code>查看第9个堆栈</p>
-<p><img src="/Images/delve-debug4.png" alt="image-20210712185150712"></p>
-<p>这展示了panic时的代码，然后通过命令<code>locals</code>打印本地变量，帮助我们搞明白什么变量参与了<code>crash</code></p>
-<p><img src="/Images/delve-debug5.png" alt="image-20210712185206700"></p>
-<p>随机生成的n的值是203300。sum呢？通过<code>vars main</code>来查看main包里的<code>sum</code>的值</p>
-<p><img src="/Images/delve-debug6.png" alt="image-20210712185307402"></p>
-<p>通过这个就可以推理出，sum的和刚好整除42，导致程序panic</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/12/Go%20%E6%8C%87%E9%92%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/07/12/Go%20%E6%8C%87%E9%92%88/" class="post-title-link" itemprop="url">Go 指针</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-07-12 11:38:17" itemprop="dateCreated datePublished" datetime="2021-07-12T11:38:17+08:00">2021-07-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Go中的指针"><a href="#Go中的指针" class="headerlink" title="Go中的指针"></a>Go中的指针</h1><h2 id="翻译自"><a href="#翻译自" class="headerlink" title="翻译自"></a>翻译自</h2><p><a target="_blank" rel="noopener" href="https://go101.org/article/pointer.html">https://go101.org/article/pointer.html</a></p>
-<p>尽管Go吸收了很多其他语言的特性，但Go总体来说是一个C家族语言。其中一个证据就是Go也支持指针。Go指针和C指针在许多方面非常相似，但其中也有一些不同。本文将会列举Go指针的概念和细节。</p>
-<h2 id="Memory-Address-内存地址"><a href="#Memory-Address-内存地址" class="headerlink" title="Memory Address 内存地址"></a>Memory Address 内存地址</h2><p>内存地址指的是整个系统管理（通常由操作系统管理）的内存空间中的偏移量（byte的个数）。</p>
-<p>通常，内存地址被存储成一个无符号（整型）字。字长在32位机器上是4字节，在64位机器上是8字节。所以理论最大寻址范围，在32位机器上是<br><code>2^32</code>，也就是4GB。在64位机器上是<code>2^64</code>，也就是16EB（1EB&#x3D;1024PB，1PB&#x3D;1024TB，1TB&#x3D;1024GB）。</p>
-<p>内存地址通常用Hex表达模式书写，如<code>0x1234CDEF</code></p>
-<h2 id="Value-Address-值地址"><a href="#Value-Address-值地址" class="headerlink" title="Value Address 值地址"></a>Value Address 值地址</h2><p>值的地址代表这个值在内存段中的起始地址</p>
-<h2 id="什么是指针？"><a href="#什么是指针？" class="headerlink" title="什么是指针？"></a>什么是指针？</h2><p>指针是Go的一种类型。指针用来存储内存地址。跟C语言不同，为了安全的原因，Go指针上有一些限制。</p>
-<h2 id="Go指针类型和值"><a href="#Go指针类型和值" class="headerlink" title="Go指针类型和值"></a>Go指针类型和值</h2><p>在Go中，未定义的指针类型可以被写成<code>*T</code>，<code>T</code>可以是任意类型。<code>T</code>是<code>*T</code>的基础类型。</p>
-<p>我们也可以自定义指针类型，通常由于未定义指针类型拥有更好的可读性，不推荐使用自定义指针类型。</p>
-<p>如果一个定义的指针类型的底层类型（underlying type）是<code>*T</code>，那么该指针的基础类型是<code>T</code>。这个基础类型相同的指针也是同一种类型。样例</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 未定义的指针类型，基础类型是int</span></span><br><span class="line">*<span class="type">int</span></span><br><span class="line"><span class="comment">// 未定义的指针类型，基础类型是*int</span></span><br><span class="line">**<span class="type">int</span> </span><br><span class="line"></span><br><span class="line"><span class="comment">// Ptr是一个定义指针类型，基础类型是int</span></span><br><span class="line"><span class="keyword">type</span> Ptr *<span class="type">int</span> </span><br><span class="line"><span class="comment">// PP是一个定义指针类型，基础类型是Ptr</span></span><br><span class="line"><span class="keyword">type</span> PP *Ptr</span><br></pre></td></tr></table></figure>
-
-<p>指针的零值是<code>nil</code>，不存储任何地址。</p>
-<p>基础类型为<code>T</code>的指针仅能存储<code>T</code>类型值的地址</p>
-<h2 id="如何获得指针值、什么是可寻址值"><a href="#如何获得指针值、什么是可寻址值" class="headerlink" title="如何获得指针值、什么是可寻址值"></a>如何获得指针值、什么是可寻址值</h2><p>有两种方式可用于获取非nil的指针值</p>
-<ul>
-<li>go内置的<code>new</code>函数，可以分配任何类型的内存。<code>new(T)</code>在内存中分配一个<code>T</code>值的空间，然后返回<code>T</code>值的地址。分配的值是<code>T</code><br>类型的零值。返回的地址就是一个<code>T</code>类型的指针</li>
-<li>我们还可以直接获取可寻址值的地址。对于一个可寻址类型<code>T</code>的值<code>t</code>，我们可以使用<code>&amp;t</code>来获取<code>t</code>的地址，&#96;&amp;操作符用来获取值地址。</li>
-</ul>
-<p>通常上来说，可寻址值意味着该值存放在内存中的某处。现在，我们只需要知道任何变量都是可寻址的，同时常数、函数调用和显示转换的结果是不可寻址的。变量声明的时候，Go运行时将会为这个变量分配一片内存，这片内存的开始地址就是这个变量的地址。</p>
-<h2 id="Pointer-Derefernece-指针解引用"><a href="#Pointer-Derefernece-指针解引用" class="headerlink" title="Pointer Derefernece 指针解引用"></a>Pointer Derefernece 指针解引用</h2><p>对于一个基础类型为<code>T</code>的指针类型<code>p</code>，你如何获取指针中存储的值（或者说，被指针指向的值）？只需要使用表达式<code>*p</code>，<code>*</code><br>被称为解引用操作符。指针的解引用是取地址的逆运算。<code>*p</code>的返回值是<code>T</code>类型，也就是<code>p</code>的基础类型。</p>
-<p>对<code>nil</code>指针进行解引用会导致运行时异常。</p>
-<p>这个程序展示了地址获取和解引用的例子:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// p0指向int的零值</span></span><br><span class="line">	p0 := <span class="built_in">new</span>(<span class="type">int</span>)</span><br><span class="line">	<span class="comment">// hex表达的地址</span></span><br><span class="line">	fmt.Println(p0)</span><br><span class="line">	<span class="comment">// 0</span></span><br><span class="line">	fmt.Println(*p0)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// x是p0指向值的拷贝</span></span><br><span class="line">	x := *p0</span><br><span class="line">	<span class="comment">// 都取得x的地址</span></span><br><span class="line">	<span class="comment">// x, *p1, *p2 的值相同</span></span><br><span class="line">	p1, p2 := &amp;x, &amp;x</span><br><span class="line">	<span class="comment">// true</span></span><br><span class="line">	fmt.Println(p1 == p2)</span><br><span class="line">	<span class="comment">// false</span></span><br><span class="line">	fmt.Println(p0 == p1)</span><br><span class="line">	<span class="comment">// p3 和 p0 也存储相同的地址</span></span><br><span class="line">	p3 := &amp;*p0</span><br><span class="line">	fmt.Println(p0 == p3)</span><br><span class="line">	*p0, *p1 = <span class="number">123</span>, <span class="number">789</span></span><br><span class="line">	<span class="comment">// 789 789 123</span></span><br><span class="line">	fmt.Println(*p2, x, *p3)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// int, int</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;%T, %T \n&quot;</span>, *p0, x)</span><br><span class="line">	<span class="comment">// *int, *int</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;%T, %T \n&quot;</span>, p0, p1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>下图揭示了上面程序存储的值间关系</p>
-<p><img src="/Images/go-pointer1.png" alt="image-20210712093648121"></p>
-<h2 id="为什么我们需要指针"><a href="#为什么我们需要指针" class="headerlink" title="为什么我们需要指针"></a>为什么我们需要指针</h2><p>让我们先来看一个样例程序</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">double</span><span class="params">(x <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	x += x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> a = <span class="number">3</span></span><br><span class="line">	double(a)</span><br><span class="line">	fmt.Println(a) <span class="comment">// 3</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>上例中的<code>double</code>函数预期对输入值进行双倍处理。但是它失败了。为什么？因为所有值的分配，包括函数参数的传递，都是值拷贝。<code>double</code><br>函数操作的<code>x</code>只是<code>a</code>变量的拷贝，而不是<code>a</code>变量。</p>
-<p>修复上例的一种方式是让double函数返回一个新值。但这并不是所有场景都适用。下例展示了另一种使用指针的方案</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">double</span><span class="params">(x *<span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	*x += *x</span><br><span class="line">    <span class="comment">// 这行只为了解释用途</span></span><br><span class="line">	x = <span class="literal">nil</span> </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> a = <span class="number">3</span></span><br><span class="line">	double(&amp;a)</span><br><span class="line">	fmt.Println(a) <span class="comment">// 6</span></span><br><span class="line">	p := &amp;a</span><br><span class="line">	double(p)</span><br><span class="line">	fmt.Println(a, p == <span class="literal">nil</span>) <span class="comment">// 12 false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们可以发现，通过将参数改为指针类型，传递的指针参数<code>&amp;a</code>和它的拷贝<code>x</code>都指向相同的值，所以在<code>*x</code>上进行的修改，在<code>a</code><br>上也体现了出来。同时，因为参数传递都是值拷贝，上面将<code>x</code>赋值为nil，在p上也不生效。</p>
-<p>简而言之，指针提供了操作值的间接方式。大部分语言没有指针的概念。然而，指针的概念只是隐藏在了语言的其他概念中。</p>
-<h2 id="返回局部变量指针在Go是安全的"><a href="#返回局部变量指针在Go是安全的" class="headerlink" title="返回局部变量指针在Go是安全的"></a>返回局部变量指针在Go是安全的</h2><p>和C语言不通，Go支持垃圾回收，所以返回局部变量的指针在Go中是绝对安全的</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newInt</span><span class="params">()</span></span> *<span class="type">int</span> &#123;</span><br><span class="line">	a := <span class="number">3</span></span><br><span class="line">	<span class="keyword">return</span> &amp;a</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Go指针的限制"><a href="#Go指针的限制" class="headerlink" title="Go指针的限制"></a>Go指针的限制</h2><p>为了安全原因，相比C语言来说，Go在指针上做了一些限制。通过这些限制，Go保持了指针带来的收益，并且避免了危险的指针使用。</p>
-<h3 id="Go指针不支持算术操作"><a href="#Go指针不支持算术操作" class="headerlink" title="Go指针不支持算术操作"></a>Go指针不支持算术操作</h3><p>在Go中，指针不能进行算术运算。对于指针<code>p</code>，<code>p++</code>和<code>p-2</code>都是非法的。</p>
-<p>如果指针p指向一个数值，编译器会将*p++识别为一个合法的语句，并解析为<code>(*p)++</code>。换句话说，<code>*p</code>操作的优先级高于<code>++</code>、<code>--</code>操作符。样例</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a := <span class="type">int64</span>(<span class="number">5</span>)</span><br><span class="line">	p := &amp;a</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 下面的语句无法编译</span></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	p++</span></span><br><span class="line"><span class="comment">	p = (&amp;a) + 8</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line"></span><br><span class="line">	*p++</span><br><span class="line">	fmt.Println(*p, a)   <span class="comment">// 6 6</span></span><br><span class="line">	fmt.Println(p == &amp;a) <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">	*&amp;a++</span><br><span class="line">	*&amp;*&amp;a++</span><br><span class="line">	**&amp;p++</span><br><span class="line">	*&amp;*p++</span><br><span class="line">	fmt.Println(*p, a) <span class="comment">// 10 10</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="指针值不能转换为任意的指针类型"><a href="#指针值不能转换为任意的指针类型" class="headerlink" title="指针值不能转换为任意的指针类型"></a>指针值不能转换为任意的指针类型</h3><p>在Go中，<code>T1</code>的指针值可以被隐式或是显示地转换为<code>T2</code>，需要满足如下两个条件</p>
-<ul>
-<li><code>T1</code>和<code>T2</code>的底层类型相同（忽略结构体Tag）。特别地，如果<code>T1</code>和<code>T2</code>都是未定义类型并且它们的底层类型相同（考虑结构体Tag），可以进行隐式转换。</li>
-<li><code>T1</code>和<code>T2</code>都是未定义指针类型，并且它们的基础类型的底层类型相同（忽略结构体Tag）</li>
-</ul>
-<p>举个例子，有如下类型</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MyInt <span class="type">int64</span></span><br><span class="line"><span class="keyword">type</span> Ta *<span class="type">int64</span></span><br><span class="line"><span class="keyword">type</span> Tb *MyInt</span><br></pre></td></tr></table></figure>
-
-<p>有如下事实</p>
-<ul>
-<li><code>*int64</code>类型的值可以被隐式转换为<code>Ta</code>类型，反过来也是可以的。因为它们的底层类型都是<code>*int64</code></li>
-<li><code>*MyInt</code>类型的值可以被隐式转换为<code>Tb</code>类型，反过来也行。因为它们的底层类型都是<code>*MyInt</code></li>
-<li><code>*MyInt</code>类型的值可以被限制转换为<code>*int64</code>，反之亦然。因为它们的基础类型的底层类型都是<code>int64</code></li>
-<li>即使是显示转换，<code>Ta</code>类型的值也不能直接转换为<code>Tb</code>。因为<code>Ta</code>和底层类型和<code>Tb</code>不同，并且都是定义指针类型。不过可以进行连续几次转换，将<br><code>Ta</code>类型的<code>pa</code>间接转化为<code>Tb</code>类型。 先将<code>pa</code>转化为<code>*int64</code>类型（因为基础类型的底层类型都是<code>int64</code>），再将<code>*int64</code>类型转换为<br><code>*MyInt</code>类型，再将<code>*MyInt</code>类型转化为<code>*Tb</code>类型。<code>Tb((*MyInt)((*int64)(pa)))</code></li>
-</ul>
-<p>上面的值通过任何安全的手段，都不能转化为类型<code>*uint64</code></p>
-<h3 id="任意两个指针的值不能比较"><a href="#任意两个指针的值不能比较" class="headerlink" title="任意两个指针的值不能比较"></a>任意两个指针的值不能比较</h3><p>在Go中，指针可以通过<code>==</code>和<code>!=</code>符号比较。如果满足如下任意一个条件，那么两个Go指针的值可以进行比较</p>
-<ul>
-<li>两个Go指针类型一致</li>
-<li>指针值可以隐式转换为另一类型</li>
-<li>两个指针中的一个且仅一个用无类型 nil 标识符表示。</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">type</span> MyInt <span class="type">int64</span></span><br><span class="line">	<span class="keyword">type</span> Ta    *<span class="type">int64</span></span><br><span class="line">	<span class="keyword">type</span> Tb    *MyInt</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 4个不同类型的指针零值</span></span><br><span class="line">	<span class="keyword">var</span> pa0 Ta</span><br><span class="line">	<span class="keyword">var</span> pa1 *<span class="type">int64</span></span><br><span class="line">	<span class="keyword">var</span> pb0 Tb</span><br><span class="line">	<span class="keyword">var</span> pb1 *MyInt</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 下面这6行都可以正常编译</span></span><br><span class="line">	<span class="comment">// 比较结果都为true</span></span><br><span class="line">    <span class="comment">// 指针可以隐式转换</span></span><br><span class="line">	_ = pa0 == pa1</span><br><span class="line">    <span class="comment">// 指针类型一致</span></span><br><span class="line">	_ = pb0 == pb1</span><br><span class="line">	_ = pa0 == <span class="literal">nil</span></span><br><span class="line">	_ = pa1 == <span class="literal">nil</span></span><br><span class="line">	_ = pb0 == <span class="literal">nil</span></span><br><span class="line">	_ = pb1 == <span class="literal">nil</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 这三行都不能正常编译</span></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	_ = pa0 == pb0</span></span><br><span class="line"><span class="comment">	_ = pa1 == pb1</span></span><br><span class="line"><span class="comment">	_ = pa0 == Tb(nil)</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="指针值不能赋值给其他指针类型"><a href="#指针值不能赋值给其他指针类型" class="headerlink" title="指针值不能赋值给其他指针类型"></a>指针值不能赋值给其他指针类型</h3><p>指针值互相赋值的条件和比较的条件一样</p>
-<h2 id="有手段打破Go对指针的限制"><a href="#有手段打破Go对指针的限制" class="headerlink" title="有手段打破Go对指针的限制"></a>有手段打破Go对指针的限制</h2><p>unsafe 标准包提供的机制（特别是 unsafe.Pointer 类型）可以用来打破 Go 中对指针的限制。 unsafe.Pointer 类型类似于 C 中的<br>void*。一般不推荐使用<code>unsafe</code>。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/09/Go%20Unsafe%E5%8C%85/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/07/09/Go%20Unsafe%E5%8C%85/" class="post-title-link" itemprop="url">Go Unsafe包</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-07-09 22:46:32" itemprop="dateCreated datePublished" datetime="2021-07-09T22:46:32+08:00">2021-07-09</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="翻译自"><a href="#翻译自" class="headerlink" title="翻译自"></a>翻译自</h2><p><a target="_blank" rel="noopener" href="https://medium.com/a-journey-with-go/go-what-is-the-unsafe-package-d2443da36350">https://medium.com/a-journey-with-go/go-what-is-the-unsafe-package-d2443da36350</a></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>包的名称指引着我们的使用。了解此包可能不安全的原因，让我们首先查看如下文档</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">unsafe包包含可以绕过Go程序类型安全的操作</span><br><span class="line">引用了unsafe的包，可能会无法跨平台、跨设备，并且Go1 兼容性指南不保证这些包的兼容</span><br></pre></td></tr></table></figure>
-
-<p>因此，该名称被用作对为 Go 提供类型的安全性的反面。 现在让我们深入研究文档中提到的这两点。</p>
-<h2 id="类型安全"><a href="#类型安全" class="headerlink" title="类型安全"></a>类型安全</h2><p>在Go中，每个变量都拥有一个类型，在赋值给另外一个变量之前，可以转换为另外的类型。在此转换期间，Go 执行此数据的转换以适应所请求的类型。 这是一个例子</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> unsafe_test</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;testing&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestConvert</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	<span class="comment">// -1 二进制表达 11111111</span></span><br><span class="line">	<span class="keyword">var</span> i <span class="type">int8</span> = <span class="number">-1</span></span><br><span class="line">	<span class="comment">// -1 二进制表达 11111111 11111111</span></span><br><span class="line">	<span class="keyword">var</span> j = <span class="type">int16</span>(i)</span><br><span class="line">	<span class="built_in">println</span>(i, j)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>输出</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-1 -1</span><br></pre></td></tr></table></figure>
-
-<p><code>unsafe</code>包让我们直接操作这个变量的内存地址，直接获取里面的二进制值。在绕过类型约束时，我们可以随意使用它。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> k <span class="type">uint8</span> = *(*<span class="type">uint8</span>)(unsafe.Pointer(&amp;i))</span><br><span class="line"><span class="built_in">println</span>(k)</span><br><span class="line"><span class="comment">// 255 is the uint8 value for the binary 11111111</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Go1-兼容性指南"><a href="#Go1-兼容性指南" class="headerlink" title="Go1 兼容性指南"></a>Go1 兼容性指南</h2><p>unsafe包可能会依赖于Go的底层实现。Go可能会做出破坏性的改动。</p>
-<h2 id="Go-反射包中使用Unsafe"><a href="#Go-反射包中使用Unsafe" class="headerlink" title="Go 反射包中使用Unsafe"></a>Go 反射包中使用Unsafe</h2><p><code>reflect</code>包是使用最多的一个包。反射基于空interface包含的数据。为了读取数据，Go只是将我们的变量转化为一个空接口，并通过映射一个结构体来读取它们，该结构体匹配空接口的内部表示与指针地址处的内存。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ValueOf</span><span class="params">(i <span class="keyword">interface</span>&#123;&#125;)</span></span> Value &#123;</span><br><span class="line">   [...]</span><br><span class="line">   <span class="keyword">return</span> unpackEface(i)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// unpackEface converts the empty interface i to a Value.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">unpackEface</span><span class="params">(i <span class="keyword">interface</span>&#123;&#125;)</span></span> Value &#123;</span><br><span class="line">   e := (*emptyInterface)(unsafe.Pointer(&amp;i))</span><br><span class="line">   [...]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>变量 e 现在包含有关该值的所有信息，例如类型或该值是否已导出。 反射还使用 unsafe 包通过直接在内存中更新值来修改反射变量的值。</p>
-<h2 id="Go-Sync包使用Unsafe"><a href="#Go-Sync包使用Unsafe" class="headerlink" title="Go Sync包使用Unsafe"></a>Go Sync包使用Unsafe</h2><p><code>sync.Pool</code> 这些池通过一段go协程都能访问的内存片段来共享数据。这访问模式和C语言数组的访问方式很像</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">indexLocal</span><span class="params">(l unsafe.Pointer, i <span class="type">int</span>)</span></span> *poolLocal &#123;</span><br><span class="line">   lp := unsafe.Pointer(<span class="type">uintptr</span>(l) + <span class="type">uintptr</span>(i)*unsafe.Sizeof(poolLocal&#123;&#125;))</span><br><span class="line">   <span class="keyword">return</span> (*poolLocal)(lp)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>l</code>是内存片段，<code>i</code>是数字。函数 <code>indexLocal</code> 只是读取这个内存段——它包含 X个poolLocal 结构——与它读取的索引相关的偏移量。 存储指向完整内存段的单个指针是实现共享池的一种非常轻量的方式。</p>
-<h2 id="在Go-runtime包中的使用"><a href="#在Go-runtime包中的使用" class="headerlink" title="在Go runtime包中的使用"></a>在Go runtime包中的使用</h2><p>Go 在<code>runtime</code>包也大量使用 unsafe 包，因为它必须处理内存操作，如栈分配或释放栈内存。 栈由其结构中的两个边界表示：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> stack <span class="keyword">struct</span> &#123;</span><br><span class="line">    lo <span class="type">uintptr</span></span><br><span class="line">    hi <span class="type">uintptr</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>unsafe</code>包可以完成这个操作</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">stackfree</span><span class="params">(stk stack)</span></span> &#123;</span><br><span class="line">    [...]</span><br><span class="line">    v := unsafe.Pointer(stk.lo)</span><br><span class="line">    n := stk.hi - stk.lo</span><br><span class="line">    <span class="comment">// 内存基于栈上的指针释放</span></span><br><span class="line">    [...]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="开发平时使用"><a href="#开发平时使用" class="headerlink" title="开发平时使用"></a>开发平时使用</h2><p><code>unsafe</code>包的一个很好的用法是转换具有相同底层数据结构的不同结构体，这是转换器无法实现的</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> unsafe</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;unsafe&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> A <span class="keyword">struct</span> &#123;</span><br><span class="line">	A <span class="type">int8</span></span><br><span class="line">	B <span class="type">string</span></span><br><span class="line">	C <span class="type">float32</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> B <span class="keyword">struct</span> &#123;</span><br><span class="line">	D <span class="type">int8</span></span><br><span class="line">	E <span class="type">string</span></span><br><span class="line">	F <span class="type">float32</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestStructConvert</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	a := A&#123;A: <span class="number">1</span>, B: <span class="string">`foo`</span>, C: <span class="number">1.23</span>&#125;</span><br><span class="line">	b := *(*B)(unsafe.Pointer(&amp;a))</span><br><span class="line">	<span class="built_in">println</span>(b.D, b.E, b.F) <span class="comment">// 1 foo 1.23</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/9/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/9/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

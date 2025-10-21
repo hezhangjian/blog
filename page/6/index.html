@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-count">135</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,103 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/11/15/%E8%AE%B0%E4%B8%80%E6%AC%A1kubernetes%E8%8E%B7%E5%8F%96internal%20Ip%E9%94%99%E8%AF%AF%E6%B5%81%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/kubernetes-internal-ip-error" class="post-title-link post-title-link-external" itemprop="url">记一次kubernetes获取internal Ip错误流程<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-11-15 12:00:44" itemprop="dateCreated datePublished" datetime="2022-11-15T12:00:44+08:00">2022-11-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>偶尔也回首一下处理的棘手问题吧。问题的现象是，通过kubernetes get node输出的ip不是期望的ip地址。大概如下所示</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ip addr</span><br><span class="line"></span><br><span class="line">eth0 ip1</span><br><span class="line">eth0:xxx ip2</span><br></pre></td></tr></table></figure>
+
+<p>最终输出的不是预期的ip1地址，而是ip2地址。</p>
+<p>按藤摸瓜，<strong>kubernetes</strong>把节点信息保存在<code>/registry/minions/$node-name</code>中的<strong>InternalIp</strong> 字段。</p>
+<p><strong>InternalIp</strong>是如何确定的呢，这段代码位于<code>pkg/kubelet/nodestatus/setters.go</code>中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 1) Use nodeIP if set (and not &quot;0.0.0.0&quot;/&quot;::&quot;)</span><br><span class="line">// 2) If the user has specified an IP to HostnameOverride, use it</span><br><span class="line">// 3) Lookup the IP from node name by DNS</span><br><span class="line">// 4) Try to get the IP from the network interface used as default gateway</span><br><span class="line">//</span><br><span class="line">// For steps 3 and 4, IPv4 addresses are preferred to IPv6 addresses</span><br><span class="line">// unless nodeIP is &quot;::&quot;, in which case it is reversed.</span><br></pre></td></tr></table></figure>
+
+<p>我们的场景下没有手动设置nodeIp，如需设置通过kubelet命令行即可设置 <strong>–node-ip&#x3D;localhost</strong>，最终通过如下的go函数获取ip地址</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">addrs, _ = net.LookupIP(node.Name)</span><br></pre></td></tr></table></figure>
+
+<p>对这行go函数进行strace追溯，最终调用了c函数，<strong>getaddrinfo</strong>函数。<strong>getaddrinfo</strong>底层是发起了<strong>netlink</strong>请求，开启<strong>netlink</strong>的抓包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">modprobe nlmon</span><br><span class="line">ip <span class="built_in">link</span> add nlmon0 <span class="built_in">type</span> nlmon</span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> dev nlmon0 up</span><br><span class="line">tcpdump -i nlmon0 -w netlinik.pcap</span><br><span class="line"><span class="comment"># 使用nlmon 驱动模块，这个nlmon 驱动模块会注册一个 netlink tap 口，用户态向内核发送 netlink 消息、内核向用户态发送 netlink 消息，报文都会经过这个 tap 口。</span></span><br></pre></td></tr></table></figure>
+
+<p>通过抓包我看到通过<strong>netlink</strong>报文请求返回的ip地址顺序都是合乎预期的，只能是<strong>getaddrinfo</strong>函数修改了返回的顺序</p>
+<p>Google了一下发现是<strong>getaddrinfo</strong>支持了<strong>rfc3484</strong>导致了ip的重新排序，代码地址<code>glibc/sysdeps/posix/getaddrinfo.c</code></p>
+<p><strong>RFC3484</strong> 总共有十个规则，比较关键的有</p>
+<h3 id="Rule9"><a href="#Rule9" class="headerlink" title="Rule9"></a>Rule9</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Rule 9:  Use longest matching prefix.</span><br><span class="line">When DA and DB belong to the same address family (both are IPv6 or</span><br><span class="line">both are IPv4): If CommonPrefixLen(DA, Source(DA)) &gt;</span><br><span class="line">CommonPrefixLen(DB, Source(DB)), then prefer DA.  Similarly, if</span><br><span class="line">CommonPrefixLen(DA, Source(DA)) &lt; CommonPrefixLen(DB, Source(DB)),</span><br><span class="line">then prefer DB.</span><br></pre></td></tr></table></figure>
+
+<p>举个例子，假如机器的ip地址是 <code>172.18.45.2/24</code>，它会更青睐于<code>172.18.45.6</code>而不是<code>172.31.80.8</code>。这个RFC存在较大的争议，它与dns轮询策略不兼容，如：dns服务器轮询返回多个ip地址，客户端总是选择第一个ip连接。与这个策略存在很大的冲突。并且社区内也有投票试图停止对<strong>RFC3484</strong> rule9的适配, 但是最终被拒绝了。</p>
+<p>根据分析，认为是ip2的地址小于ip1的地址，最终glibc排序的时候把ip2放在了前面。最终我们给kubelet配置了eth0地址的–node-ip，解决了这个问题。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +338,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -335,7 +432,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -441,7 +538,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -579,7 +676,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -671,7 +768,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/04/10/Java%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAMqtt%E7%BD%91%E5%85%B3(1)%E5%90%AF%E7%94%A8NettyServer/">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/04/10/Java%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAMqtt%E7%BD%91%E5%85%B3%2001%20%E5%90%AF%E7%94%A8NettyServer/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -689,7 +786,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/04/10/Java%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAMqtt%E7%BD%91%E5%85%B3(1)%E5%90%AF%E7%94%A8NettyServer/" class="post-title-link" itemprop="url">Java实现一个Mqtt网关(1)启用NettyServer</a>
+          <a href="/2022/04/10/Java%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAMqtt%E7%BD%91%E5%85%B3%2001%20%E5%90%AF%E7%94%A8NettyServer/" class="post-title-link" itemprop="url">Java实现一个Mqtt网关 01 启用NettyServer</a>
         </h2>
 
         <div class="post-meta-container">
@@ -707,7 +804,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -720,7 +817,114 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          
+          <p>物联网是现在比较热门的软件领域，众多云厂商都有自己的物联网平台，而物联网平台其中一个核心的模块就是Mqtt网关。</p>
+<p>使用Netty搭建高性能服务器是一个常见的选择，Netty自带Mqtt的编解码，我们很快就可以在Netty服务器中插入Mqtt的编解码handler，由netty已经编写好的模块帮助我们做mqtt的编解码，我们仅需自己处理mqtt协议业务的处理，如登录，订阅分发等。</p>
+<p>NettyServer使用MqttHandler编解码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.hezhangjian.demo.iot.mqtt.broker;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> io.netty.bootstrap.ServerBootstrap;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelFuture;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelInitializer;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelOption;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelPipeline;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.EventLoopGroup;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.nio.NioEventLoopGroup;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.socket.SocketChannel;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.socket.nio.NioServerSocketChannel;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttDecoder;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttEncoder;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.logging.LogLevel;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.logging.LoggingHandler;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hezhangjian</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MqttServer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">EventLoopGroup</span> <span class="variable">bossGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>(<span class="number">1</span>);</span><br><span class="line">        <span class="type">EventLoopGroup</span> <span class="variable">workerGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">ServerBootstrap</span> <span class="variable">b</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServerBootstrap</span>();</span><br><span class="line">            b.group(bossGroup, workerGroup)</span><br><span class="line">                    .channel(NioServerSocketChannel.class)</span><br><span class="line">                    .option(ChannelOption.SO_BACKLOG, <span class="number">100</span>)</span><br><span class="line">                    .handler(<span class="keyword">new</span> <span class="title class_">LoggingHandler</span>(LogLevel.INFO))</span><br><span class="line">                    .childHandler(<span class="keyword">new</span> <span class="title class_">ChannelInitializer</span>&lt;SocketChannel&gt;() &#123;</span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">initChannel</span><span class="params">(SocketChannel ch)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">                            <span class="type">ChannelPipeline</span> <span class="variable">p</span> <span class="operator">=</span> ch.pipeline();</span><br><span class="line">                            p.addLast(<span class="keyword">new</span> <span class="title class_">MqttDecoder</span>());</span><br><span class="line">                            p.addLast(MqttEncoder.INSTANCE);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Start the server.</span></span><br><span class="line">            <span class="type">ChannelFuture</span> <span class="variable">f</span> <span class="operator">=</span> b.bind(<span class="number">1883</span>).sync();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Wait until the server socket is closed.</span></span><br><span class="line">            f.channel().closeFuture().sync();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// Shut down all event loops to terminate all threads.</span></span><br><span class="line">            bossGroup.shutdownGracefully();</span><br><span class="line">            workerGroup.shutdownGracefully();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>客户端采用eclipse mqtt client</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.hezhangjian.demo.mqtt.client;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.eclipse.paho.client.mqttv3.MqttClient;</span><br><span class="line"><span class="keyword">import</span> org.eclipse.paho.client.mqttv3.MqttConnectOptions;</span><br><span class="line"><span class="keyword">import</span> org.eclipse.paho.client.mqttv3.MqttException;</span><br><span class="line"><span class="keyword">import</span> org.eclipse.paho.client.mqttv3.MqttMessage;</span><br><span class="line"><span class="keyword">import</span> org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hezhangjian</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MqttClientEx</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">topic</span> <span class="operator">=</span> <span class="string">&quot;MQTT Examples&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">content</span> <span class="operator">=</span> <span class="string">&quot;Message from MqttPublishSample&quot;</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">qos</span> <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">broker</span> <span class="operator">=</span> <span class="string">&quot;tcp://127.0.0.1:1883&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">clientId</span> <span class="operator">=</span> <span class="string">&quot;JavaSample&quot;</span>;</span><br><span class="line">        <span class="type">MemoryPersistence</span> <span class="variable">persistence</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MemoryPersistence</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">MqttClient</span> <span class="variable">sampleClient</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MqttClient</span>(broker, clientId, persistence);</span><br><span class="line">            <span class="type">MqttConnectOptions</span> <span class="variable">connOpts</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MqttConnectOptions</span>();</span><br><span class="line">            connOpts.setCleanSession(<span class="literal">true</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Connecting to broker: &quot;</span> + broker);</span><br><span class="line">            sampleClient.connect(connOpts);</span><br><span class="line">            System.out.println(<span class="string">&quot;Connected&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Publishing message: &quot;</span> + content);</span><br><span class="line">            <span class="type">MqttMessage</span> <span class="variable">message</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MqttMessage</span>(content.getBytes());</span><br><span class="line">            message.setQos(qos);</span><br><span class="line">            sampleClient.publish(topic, message);</span><br><span class="line">            System.out.println(<span class="string">&quot;Message published&quot;</span>);</span><br><span class="line">            sampleClient.disconnect();</span><br><span class="line">            System.out.println(<span class="string">&quot;Disconnected&quot;</span>);</span><br><span class="line">            System.exit(<span class="number">0</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (MqttException me) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;reason &quot;</span> + me.getReasonCode());</span><br><span class="line">            System.out.println(<span class="string">&quot;msg &quot;</span> + me.getMessage());</span><br><span class="line">            System.out.println(<span class="string">&quot;loc &quot;</span> + me.getLocalizedMessage());</span><br><span class="line">            System.out.println(<span class="string">&quot;cause &quot;</span> + me.getCause());</span><br><span class="line">            System.out.println(<span class="string">&quot;excep &quot;</span> + me);</span><br><span class="line">            me.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们先运行MqttServer，再运行MqttClient，发现MqttClient卡住了</p>
+<p><img src="/Images/java-mqtt-01-1.png" alt="image-20201218170957411"></p>
+<p>这是为什么呢，我们通过抓包发现仅仅只有客户端发送了Mqtt connect信息，服务端并没有响应</p>
+<p><img src="/Images/java-mqtt-01-2.png" alt="image-20201218171403188"></p>
+<p>但是根据mqtt标准协议，发送MqttConnect，必须有CONNAck</p>
+<p><img src="/Images/java-mqtt-01-3.png" alt="image-20201218180301759"></p>
+<p>所以我们要在mqttConn后，业务上返回ConnAck消息，下一节我们在这个基础上自己实现Handler返回Connack消息</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.p2hp.com/archives/4100">https://blog.p2hp.com/archives/4100</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/04/10/Java%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAMqtt%E7%BD%91%E5%85%B3%2002%20%E5%A4%84%E7%90%86MqttConn%E8%AF%B7%E6%B1%82/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/04/10/Java%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AAMqtt%E7%BD%91%E5%85%B3%2002%20%E5%A4%84%E7%90%86MqttConn%E8%AF%B7%E6%B1%82/" class="post-title-link" itemprop="url">Java实现一个Mqtt网关 02 处理MqttConn请求</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-04-10 12:42:06" itemprop="dateCreated datePublished" datetime="2022-04-10T12:42:06+08:00">2022-04-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>我们先创建一个MqttHandler，让他继承ChannelInboundHandlerAdapter, 用来接力MqttDecoder解码完成后的消息,这里要继承其中的channelRead方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.hezhangjian.demo.iot.mqtt.broker;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelHandlerContext;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelInboundHandlerAdapter;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 处理Mqtt协议栈</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hezhangjian</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MqttHandler</span> <span class="keyword">extends</span> <span class="title class_">ChannelInboundHandlerAdapter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="built_in">super</span>.channelRead(ctx, msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后把这个handler加入到netty的职责链中，解码顺序</p>
+<p><img src="/Images/java-mqtt-02-1.png" alt="image-20201218204356576"></p>
+<p>打印出connectMessage如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[MqttConnectMessage[fixedHeader=MqttFixedHeader[messageType=CONNECT, isDup=false, qosLevel=AT_MOST_ONCE, isRetain=false, remainingLength=22], variableHeader=MqttConnectVariableHeader[name=MQTT, version=4, hasUserName=false, hasPassword=false, isWillRetain=false, isWillFlag=false, isCleanSession=true, keepAliveTimeSeconds=60], payload=MqttConnectPayload[clientIdentifier=JavaSample, willTopic=null, willMessage=null, userName=null, password=null]]]</span><br></pre></td></tr></table></figure>
+
+<p>我们先忽略这些信息，无脑返回ack给他</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">final MqttConnAckMessage ackMessage = MqttMessageBuilders.connAck().returnCode(CONNECTION_ACCEPTED).build();</span><br></pre></td></tr></table></figure>
+
+<p>我们再运行起Server和Client，随后可以看到已经走过了Connect阶段，进入了publish message过程，接下来我们再实现更多的其他场景</p>
+<p>附上此阶段的MessageHandler代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.hezhangjian.demo.iot.mqtt.broker;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelHandlerContext;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelInboundHandlerAdapter;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttConnAckMessage;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttConnectMessage;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttConnectPayload;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttConnectVariableHeader;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttFixedHeader;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttMessageBuilders;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> io.netty.handler.codec.mqtt.MqttConnectReturnCode.CONNECTION_ACCEPTED;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 处理Mqtt协议栈</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hezhangjian</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MqttHandler</span> <span class="keyword">extends</span> <span class="title class_">ChannelInboundHandlerAdapter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="built_in">super</span>.channelRead(ctx, msg);</span><br><span class="line">        <span class="keyword">if</span> (msg <span class="keyword">instanceof</span> MqttConnectMessage) &#123;</span><br><span class="line">            handleConnect(ctx, (MqttConnectMessage) msg);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            log.error(<span class="string">&quot;Unsupported type msg [&#123;&#125;]&quot;</span>, msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">handleConnect</span><span class="params">(ChannelHandlerContext ctx, MqttConnectMessage connectMessage)</span> &#123;</span><br><span class="line">        log.info(<span class="string">&quot;connect msg is [&#123;&#125;]&quot;</span>, connectMessage);</span><br><span class="line">        <span class="keyword">final</span> <span class="type">MqttFixedHeader</span> <span class="variable">fixedHeader</span> <span class="operator">=</span> connectMessage.fixedHeader();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">MqttConnectVariableHeader</span> <span class="variable">variableHeader</span> <span class="operator">=</span> connectMessage.variableHeader();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">MqttConnectPayload</span> <span class="variable">connectPayload</span> <span class="operator">=</span> connectMessage.payload();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">MqttConnAckMessage</span> <span class="variable">ackMessage</span> <span class="operator">=</span> MqttMessageBuilders.connAck().returnCode(CONNECTION_ACCEPTED).build();</span><br><span class="line">        ctx.channel().writeAndFlush(ackMessage);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
       
     </div>
 
@@ -783,7 +987,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -895,7 +1099,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -997,7 +1201,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -1056,188 +1260,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/12/12/Go%20%E8%B0%83%E7%94%A8%E4%BA%A4%E4%BA%92%E5%BC%8Fshell/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/12/12/Go%20%E8%B0%83%E7%94%A8%E4%BA%A4%E4%BA%92%E5%BC%8Fshell/" class="post-title-link" itemprop="url">Go 调用交互式shell</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-12-12 17:34:56" itemprop="dateCreated datePublished" datetime="2021-12-12T17:34:56+08:00">2021-12-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>本文的代码已上传到<a target="_blank" rel="noopener" href="https://github.com/hezhangjian/go_demo/blob/main/demo_shell/interactive_shell_test.go">github</a></p>
-<p>交互式shell常用在输入密码的场景，为了防止密码泄露在<code>cmdline</code>中被<code>ps -ef</code>读取</p>
-<p>举个🌰</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">read</span> -s -p <span class="string">&quot;Enter Password: &quot;</span>  <span class="built_in">pwd</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\nYour password is: &quot;</span> <span class="variable">$pwd</span></span><br></pre></td></tr></table></figure>
-
-<p>go调用交互式shell代码样例如下</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestCallInteractiveShell</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	dir, err := os.Getwd()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	cmd := exec.Command(<span class="string">&quot;/bin/bash&quot;</span>, dir+<span class="string">&quot;/interactive_shell.sh&quot;</span>)</span><br><span class="line">	<span class="keyword">var</span> stdout, stderr bytes.Buffer</span><br><span class="line">	cmd.Stdout = &amp;stdout</span><br><span class="line">	cmd.Stderr = &amp;stderr</span><br><span class="line">	buffer := bytes.Buffer&#123;&#125;</span><br><span class="line">	buffer.Write([]<span class="type">byte</span>(<span class="string">&quot;ZhangJian&quot;</span>))</span><br><span class="line">	cmd.Stdin = &amp;buffer</span><br><span class="line">	err = cmd.Run()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	outStr, errStr := <span class="type">string</span>(stdout.Bytes()), <span class="type">string</span>(stderr.Bytes())</span><br><span class="line">	fmt.Println(<span class="string">&quot;output is &quot;</span>, outStr)</span><br><span class="line">	fmt.Println(<span class="string">&quot;err output is &quot;</span>, errStr)</span><br><span class="line">	fmt.Println(<span class="string">&quot;Execute Over&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>输出结果</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">=== RUN   TestCallInteractiveShell</span><br><span class="line">output is  Your password is:  ZhangJian</span><br><span class="line"></span><br><span class="line">err output is  </span><br><span class="line">Execute Over</span><br><span class="line">--- PASS: TestCallInteractiveShell (0.00s)</span><br><span class="line">PASS</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/11/29/Zookeeper%20%E9%85%8D%E7%BD%AETLS%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/11/29/Zookeeper%20%E9%85%8D%E7%BD%AETLS%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/" class="post-title-link" itemprop="url">Zookeeper 配置TLS安全认证</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-11-29 18:22:58" itemprop="dateCreated datePublished" datetime="2021-11-29T18:22:58+08:00">2021-11-29</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Java系的TLS一般都会要这么几个参数</p>
-<ul>
-<li>client.keystore</li>
-<li>client.truststore</li>
-<li>client.password</li>
-<li>server.keystore</li>
-<li>server.truststore</li>
-<li>server.password</li>
-</ul>
-<h3 id="生成证书"><a href="#生成证书" class="headerlink" title="生成证书"></a>生成证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">client_pass=zk_client_pwd</span><br><span class="line">server_pass=zk_server_pwd</span><br><span class="line">server_dname=<span class="string">&quot;C=CN,ST=GD,L=SZ,O=sh,OU=sh,CN=hezhangjian&quot;</span></span><br><span class="line">client_dname=<span class="string">&quot;C=CN,ST=GD,L=SZ,O=sh,OU=sh,CN=hezhangjian&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;generate client keystore&quot;</span></span><br><span class="line">keytool -genkeypair -keypass <span class="variable">$client_pass</span> -storepass <span class="variable">$client_pass</span> -dname <span class="variable">$client_dname</span> -keyalg RSA -keysize 2048 -validity 3650 -keystore zk_client_key.jks</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;generate server keystore&quot;</span></span><br><span class="line">keytool -genkeypair -keypass <span class="variable">$server_pass</span> -storepass <span class="variable">$server_pass</span> -dname <span class="variable">$server_dname</span> -keyalg RSA -keysize 2048 -validity 3650 -keystore zk_server_key.jks</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export server certificate&quot;</span></span><br><span class="line">keytool -exportcert -keystore zk_server_key.jks -file server.cer -storepass <span class="variable">$server_pass</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export client certificate&quot;</span></span><br><span class="line">keytool -exportcert -keystore zk_client_key.jks -file client.cer -storepass <span class="variable">$client_pass</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;add server cert to client trust keystore&quot;</span></span><br><span class="line">keytool -importcert -keystore zk_client_trust.jks -file server.cer -storepass <span class="variable">$client_pass</span> -noprompt</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;add client cert to server trust keystore&quot;</span></span><br><span class="line">keytool -importcert -keystore zk_server_trust.jks -file client.cer -storepass <span class="variable">$server_pass</span> -noprompt</span><br><span class="line"><span class="built_in">rm</span> -f server.cer</span><br><span class="line"><span class="built_in">rm</span> -f client.cer</span><br></pre></td></tr></table></figure>
-
-<h3 id="添加ZooKeeper配置"><a href="#添加ZooKeeper配置" class="headerlink" title="添加ZooKeeper配置"></a>添加ZooKeeper配置</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">secureClientPort</span>=<span class="string">2182</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="服务端启动"><a href="#服务端启动" class="headerlink" title="服务端启动"></a>服务端启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> SERVER_JVMFLAGS=<span class="string">&quot;</span></span><br><span class="line"><span class="string">-Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.location=<span class="variable">$CERT_DIR</span>/zk_server_key.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.password=zk_server_pwd</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.location=<span class="variable">$CERT_DIR</span>/zk_server_trust.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.password=zk_server_pwd&quot;</span></span><br><span class="line">/bin/bash <span class="variable">$ZOOKEEPER_HOME</span>/bin/zkServer.sh start</span><br></pre></td></tr></table></figure>
-
-<h3 id="客户端启动"><a href="#客户端启动" class="headerlink" title="客户端启动"></a>客户端启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> CLIENT_JVMFLAGS=<span class="string">&quot;</span></span><br><span class="line"><span class="string">-Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty</span></span><br><span class="line"><span class="string">-Dzookeeper.client.secure=true</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.hostnameVerification=false</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.location=<span class="variable">$CERT_DIR</span>/zk_client_key.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.password=zk_client_pwd</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.location=<span class="variable">$CERT_DIR</span>/zk_client_trust.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.password=zk_client_pwd&quot;</span></span><br><span class="line">bin/zkCli.sh -server localhost:2182</span><br></pre></td></tr></table></figure>
-
-<h3 id="启动成功"><a href="#启动成功" class="headerlink" title="启动成功"></a>启动成功</h3><p><img src="/Images/zookeeper-tls.png" alt="image-20211129182141882"></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

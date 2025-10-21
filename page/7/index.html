@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-count">135</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,186 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/12/12/Go%20%E8%B0%83%E7%94%A8%E4%BA%A4%E4%BA%92%E5%BC%8Fshell/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/12/12/Go%20%E8%B0%83%E7%94%A8%E4%BA%A4%E4%BA%92%E5%BC%8Fshell/" class="post-title-link" itemprop="url">Go 调用交互式shell</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-12-12 17:34:56" itemprop="dateCreated datePublished" datetime="2021-12-12T17:34:56+08:00">2021-12-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>本文的代码已上传到<a target="_blank" rel="noopener" href="https://github.com/hezhangjian/go_demo/blob/main/demo_shell/interactive_shell_test.go">github</a></p>
+<p>交互式shell常用在输入密码的场景，为了防止密码泄露在<code>cmdline</code>中被<code>ps -ef</code>读取</p>
+<p>举个🌰</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">read</span> -s -p <span class="string">&quot;Enter Password: &quot;</span>  <span class="built_in">pwd</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\nYour password is: &quot;</span> <span class="variable">$pwd</span></span><br></pre></td></tr></table></figure>
+
+<p>go调用交互式shell代码样例如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestCallInteractiveShell</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	dir, err := os.Getwd()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	cmd := exec.Command(<span class="string">&quot;/bin/bash&quot;</span>, dir+<span class="string">&quot;/interactive_shell.sh&quot;</span>)</span><br><span class="line">	<span class="keyword">var</span> stdout, stderr bytes.Buffer</span><br><span class="line">	cmd.Stdout = &amp;stdout</span><br><span class="line">	cmd.Stderr = &amp;stderr</span><br><span class="line">	buffer := bytes.Buffer&#123;&#125;</span><br><span class="line">	buffer.Write([]<span class="type">byte</span>(<span class="string">&quot;ZhangJian&quot;</span>))</span><br><span class="line">	cmd.Stdin = &amp;buffer</span><br><span class="line">	err = cmd.Run()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	outStr, errStr := <span class="type">string</span>(stdout.Bytes()), <span class="type">string</span>(stderr.Bytes())</span><br><span class="line">	fmt.Println(<span class="string">&quot;output is &quot;</span>, outStr)</span><br><span class="line">	fmt.Println(<span class="string">&quot;err output is &quot;</span>, errStr)</span><br><span class="line">	fmt.Println(<span class="string">&quot;Execute Over&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">=== RUN   TestCallInteractiveShell</span><br><span class="line">output is  Your password is:  ZhangJian</span><br><span class="line"></span><br><span class="line">err output is  </span><br><span class="line">Execute Over</span><br><span class="line">--- PASS: TestCallInteractiveShell (0.00s)</span><br><span class="line">PASS</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/11/29/Zookeeper%20%E9%85%8D%E7%BD%AETLS%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/11/29/Zookeeper%20%E9%85%8D%E7%BD%AETLS%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/" class="post-title-link" itemprop="url">Zookeeper 配置TLS安全认证</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-11-29 18:22:58" itemprop="dateCreated datePublished" datetime="2021-11-29T18:22:58+08:00">2021-11-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Java系的TLS一般都会要这么几个参数</p>
+<ul>
+<li>client.keystore</li>
+<li>client.truststore</li>
+<li>client.password</li>
+<li>server.keystore</li>
+<li>server.truststore</li>
+<li>server.password</li>
+</ul>
+<h3 id="生成证书"><a href="#生成证书" class="headerlink" title="生成证书"></a>生成证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">client_pass=zk_client_pwd</span><br><span class="line">server_pass=zk_server_pwd</span><br><span class="line">server_dname=<span class="string">&quot;C=CN,ST=GD,L=SZ,O=sh,OU=sh,CN=hezhangjian&quot;</span></span><br><span class="line">client_dname=<span class="string">&quot;C=CN,ST=GD,L=SZ,O=sh,OU=sh,CN=hezhangjian&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;generate client keystore&quot;</span></span><br><span class="line">keytool -genkeypair -keypass <span class="variable">$client_pass</span> -storepass <span class="variable">$client_pass</span> -dname <span class="variable">$client_dname</span> -keyalg RSA -keysize 2048 -validity 3650 -keystore zk_client_key.jks</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;generate server keystore&quot;</span></span><br><span class="line">keytool -genkeypair -keypass <span class="variable">$server_pass</span> -storepass <span class="variable">$server_pass</span> -dname <span class="variable">$server_dname</span> -keyalg RSA -keysize 2048 -validity 3650 -keystore zk_server_key.jks</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export server certificate&quot;</span></span><br><span class="line">keytool -exportcert -keystore zk_server_key.jks -file server.cer -storepass <span class="variable">$server_pass</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export client certificate&quot;</span></span><br><span class="line">keytool -exportcert -keystore zk_client_key.jks -file client.cer -storepass <span class="variable">$client_pass</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;add server cert to client trust keystore&quot;</span></span><br><span class="line">keytool -importcert -keystore zk_client_trust.jks -file server.cer -storepass <span class="variable">$client_pass</span> -noprompt</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;add client cert to server trust keystore&quot;</span></span><br><span class="line">keytool -importcert -keystore zk_server_trust.jks -file client.cer -storepass <span class="variable">$server_pass</span> -noprompt</span><br><span class="line"><span class="built_in">rm</span> -f server.cer</span><br><span class="line"><span class="built_in">rm</span> -f client.cer</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加ZooKeeper配置"><a href="#添加ZooKeeper配置" class="headerlink" title="添加ZooKeeper配置"></a>添加ZooKeeper配置</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">secureClientPort</span>=<span class="string">2182</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="服务端启动"><a href="#服务端启动" class="headerlink" title="服务端启动"></a>服务端启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> SERVER_JVMFLAGS=<span class="string">&quot;</span></span><br><span class="line"><span class="string">-Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.location=<span class="variable">$CERT_DIR</span>/zk_server_key.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.password=zk_server_pwd</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.location=<span class="variable">$CERT_DIR</span>/zk_server_trust.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.password=zk_server_pwd&quot;</span></span><br><span class="line">/bin/bash <span class="variable">$ZOOKEEPER_HOME</span>/bin/zkServer.sh start</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端启动"><a href="#客户端启动" class="headerlink" title="客户端启动"></a>客户端启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> CLIENT_JVMFLAGS=<span class="string">&quot;</span></span><br><span class="line"><span class="string">-Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty</span></span><br><span class="line"><span class="string">-Dzookeeper.client.secure=true</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.hostnameVerification=false</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.location=<span class="variable">$CERT_DIR</span>/zk_client_key.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.password=zk_client_pwd</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.location=<span class="variable">$CERT_DIR</span>/zk_client_trust.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.password=zk_client_pwd&quot;</span></span><br><span class="line">bin/zkCli.sh -server localhost:2182</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动成功"><a href="#启动成功" class="headerlink" title="启动成功"></a>启动成功</h3><p><img src="/Images/zookeeper-tls.png" alt="image-20211129182141882"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +420,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -321,7 +501,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -425,7 +605,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -530,7 +710,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -640,7 +820,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -663,6 +843,107 @@
 <h2 id="通过kill命令获取core-file"><a href="#通过kill命令获取core-file" class="headerlink" title="通过kill命令获取core file"></a>通过kill命令获取core file</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">kill</span> -11 <span class="variable">$pid</span></span><br></pre></td></tr></table></figure>
 
 <p><img src="/Images/mysql-core-dump2.png" alt="image-20211016233105059"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/10/12/%E5%B0%86Rust%E7%A8%8B%E5%BA%8F%E6%89%98%E7%AE%A1%E7%BB%99Systemd%E8%BF%90%E8%A1%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/10/12/%E5%B0%86Rust%E7%A8%8B%E5%BA%8F%E6%89%98%E7%AE%A1%E7%BB%99Systemd%E8%BF%90%E8%A1%8C/" class="post-title-link" itemprop="url">将Rust程序托管给Systemd运行</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-12 18:25:48" itemprop="dateCreated datePublished" datetime="2021-10-12T18:25:48+08:00">2021-10-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>将程序(以rust程序为例)托管为<code>Systemd</code>运行比较容易，步骤分为以下几步</p>
+<ul>
+<li>生成rust二进制文件</li>
+<li>创建专用用户和用户组（可省略）</li>
+<li>书写<code>.service</code>文件</li>
+<li>通过<code>systemctl</code>启动</li>
+</ul>
+<p>接下来我们以ubuntu、简单的rust web程序为例，演示一个简单的<code>rust</code>程序如何托管给<code>Systemd</code>运行</p>
+<h2 id="生成rust二进制文件"><a href="#生成rust二进制文件" class="headerlink" title="生成rust二进制文件"></a>生成rust二进制文件</h2><h3 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tokio = &#123; version = &quot;1&quot;, features = [&quot;full&quot;] &#125;</span><br><span class="line">warp = &quot;0.3&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="书写简单代码"><a href="#书写简单代码" class="headerlink" title="书写简单代码"></a>书写简单代码</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> warp::Filter;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// GET /hello/warp =&gt; 200 OK with body &quot;Hello, warp!&quot;</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">hello</span> = warp::path!(<span class="string">&quot;hello&quot;</span> / <span class="type">String</span>)</span><br><span class="line">        .<span class="title function_ invoke__">map</span>(|name| <span class="built_in">format!</span>(<span class="string">&quot;Hello, &#123;&#125;!&quot;</span>, name));</span><br><span class="line"></span><br><span class="line">    warp::<span class="title function_ invoke__">serve</span>(hello)</span><br><span class="line">        .<span class="title function_ invoke__">run</span>(([<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>], <span class="number">3030</span>))</span><br><span class="line">        .<span class="keyword">await</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="编译生成二进制"><a href="#编译生成二进制" class="headerlink" title="编译生成二进制"></a>编译生成二进制</h3><p><code>cargo build --release</code></p>
+<p>二进制就在<code>target/release</code>中</p>
+<h2 id="创建专用用户和用户组"><a href="#创建专用用户和用户组" class="headerlink" title="创建专用用户和用户组"></a>创建专用用户和用户组</h2><p>为了更细粒度地授权和文件权限控制，我们可以给守护程序创建专用的用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> useradd vmproxy -s /sbin/nologin -M</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="书写-service文件"><a href="#书写-service文件" class="headerlink" title="书写.service文件"></a>书写<code>.service</code>文件</h2><p><code>.service</code>文件在<code>ubuntu</code>应该放到<code>/lib/systemd/system/</code>路径下。样例如下<code>vm-proxy.service</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Vm Proxy</span><br><span class="line">ConditionPathExists=/home/ubuntu/rust/vm-proxy/target/release/vm-proxy-rust</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">User=vmproxy</span><br><span class="line">Group=vmproxy</span><br><span class="line">LimitNOFILE=1024</span><br><span class="line"></span><br><span class="line">Restart=on-failure</span><br><span class="line">RestartSec=10</span><br><span class="line"></span><br><span class="line">WorkingDirectory=/home/ubuntu/rust/vm-proxy/target/release</span><br><span class="line">ExecStart=/home/ubuntu/rust/vm-proxy/target/release/vm-proxy-rust</span><br><span class="line"></span><br><span class="line"># make sure log directory exists and owned by syslog</span><br><span class="line">PermissionsStartOnly=true</span><br><span class="line">ExecStartPre=/bin/mkdir -p /var/log/vm-proxy</span><br><span class="line">ExecStartPre=/bin/chown syslog:adm /var/log/vm-proxy</span><br><span class="line">ExecStartPre=/bin/chmod 755 /var/log/vm-proxy</span><br><span class="line">StandardOutput=syslog</span><br><span class="line">StandardError=syslog</span><br><span class="line">SyslogIdentifier=vm-proxy</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p><code>ConditionPathExists</code>、<code>WorkingDirectory</code>、 <code>ExecStart</code> 这三个参数需要根据自己的路径修改</p>
+<h2 id="通过Systemctl启动"><a href="#通过Systemctl启动" class="headerlink" title="通过Systemctl启动"></a>通过<code>Systemctl</code>启动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> vm-proxy.service</span><br><span class="line"><span class="built_in">sudo</span> systemctl start vm-proxy.service</span><br></pre></td></tr></table></figure>
+
+<h2 id="验证启动完成"><a href="#验证启动完成" class="headerlink" title="验证启动完成"></a>验证启动完成</h2><p><img src="/Images/rust-systemd1.png" alt="image-20211012165631993"></p>
 
       
     </div>
@@ -725,7 +1006,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -827,7 +1108,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -869,304 +1150,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/28/%E9%AB%98%E5%8F%AF%E7%94%A8%E6%97%A0%E5%8D%95%E7%82%B9%E6%9E%B6%E6%9E%84%E4%B9%8B%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-registry-ha" class="post-title-link post-title-link-external" itemprop="url">高可用无单点架构之镜像仓库<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-28 18:30:18" itemprop="dateCreated datePublished" datetime="2021-08-28T18:30:18+08:00">2021-08-28</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>本篇文章探讨镜像仓库<code>registry</code>的高可用</p>
-<h1 id="镜像仓库高可用无单点故障涉及那些场景"><a href="#镜像仓库高可用无单点故障涉及那些场景" class="headerlink" title="镜像仓库高可用无单点故障涉及那些场景"></a>镜像仓库高可用无单点故障涉及那些场景</h1><h2 id="镜像仓库对外提供访问无单点故障"><a href="#镜像仓库对外提供访问无单点故障" class="headerlink" title="镜像仓库对外提供访问无单点故障"></a>镜像仓库对外提供访问无单点故障</h2><p>镜像仓库对外提供的访问点保持高可用</p>
-<h2 id="镜像仓库的数据存储高可用"><a href="#镜像仓库的数据存储高可用" class="headerlink" title="镜像仓库的数据存储高可用"></a>镜像仓库的数据存储高可用</h2><p>存储在镜像仓库中的数据都得是高可用的</p>
-<h1 id="镜像仓库无单点故障技术关键点"><a href="#镜像仓库无单点故障技术关键点" class="headerlink" title="镜像仓库无单点故障技术关键点"></a>镜像仓库无单点故障技术关键点</h1><h2 id="镜像仓库对外提供访问无单点故障-1"><a href="#镜像仓库对外提供访问无单点故障-1" class="headerlink" title="镜像仓库对外提供访问无单点故障"></a>镜像仓库对外提供访问无单点故障</h2><p>和上一篇文章一样，如果<code>IaaS</code>能提供<code>ELB</code>，我们最好是使用<code>ELB</code>，或者使用浮动IP的方式替换</p>
-<h2 id="镜像仓库的数据存储高可用-1"><a href="#镜像仓库的数据存储高可用-1" class="headerlink" title="镜像仓库的数据存储高可用"></a>镜像仓库的数据存储高可用</h2><ul>
-<li>配置镜像仓库使用<code>IaaS</code>的S3存储</li>
-<li>配置镜像仓库使用本地存储，通过共享文件路径存储来实现高可用，如<code>Glusterfs</code>等</li>
-<li>配置镜像仓库使用S3存储，自建兼容S3 API的存储<code>Server</code></li>
-</ul>
-<p>通常会使用共享存储来做到镜像仓库存储的高可用</p>
-<h1 id="方案概述"><a href="#方案概述" class="headerlink" title="方案概述"></a>方案概述</h1><p>那么其实镜像仓库的高可用方案就是对上面方案的组合，下面我们举几个例子</p>
-<h2 id="镜像仓库依赖组件部署方式"><a href="#镜像仓库依赖组件部署方式" class="headerlink" title="镜像仓库依赖组件部署方式"></a>镜像仓库依赖组件部署方式</h2><p><code>MinIo</code>、<code>KeepAlived</code>、<code>registry</code>都推荐使用容器部署，方便运维管理，但是镜像推荐内置到虚拟机中，不依赖镜像仓库或其他组件，避免循环依赖</p>
-<h2 id="使用IaaS的S3存储-负载均衡组件"><a href="#使用IaaS的S3存储-负载均衡组件" class="headerlink" title="使用IaaS的S3存储 + 负载均衡组件"></a>使用IaaS的S3存储 + 负载均衡组件</h2><p>这是最简单的方案，得益于云厂商提供的S3存储和负载均衡组件，我们可以进行很简单的配置，并部署一台以上的<code>registry</code>,如下图所示</p>
-<p><img src="/Images/kubernetes-registry-ha-s3.png" alt="kubernetes-registry-ha-s3"></p>
-<h2 id="自建兼容S3存储-KeepAlived浮动Ip"><a href="#自建兼容S3存储-KeepAlived浮动Ip" class="headerlink" title="自建兼容S3存储 + KeepAlived浮动Ip"></a>自建兼容S3存储 + KeepAlived浮动Ip</h2><p>我们可以自己搭建<code>MinIo</code>集群来作为兼容S3存储，由于MINIO最低部署4个节点，我们需要根据故障域机器来选择部署MINIO的数目，比如，故障域是三台物理机，我们部署4节点就不妥。原因是，4节点，总会有一台物理机上会部署2个minio节点，如果这台物理机挂掉，就会导致单点故障。所以，如果故障域为三台物理机，我们最好部署6节点，可容忍一台物理机宕机。其他的节点，读者也可以自行测算。</p>
-<p>下图是假设三台物理机，<code>minio</code>6副本场景下的部署示意图</p>
-<p><img src="/Images/kubernetes-registry-ha-minio.png" alt="kubernetes-registry-ha-minio"></p>
-<p>注，为了图的美观，并未画出所有的连线</p>
-<h3 id="MINIO关键配置"><a href="#MINIO关键配置" class="headerlink" title="MINIO关键配置"></a>MINIO关键配置</h3><ul>
-<li>节点数目6个</li>
-<li>EC2</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/28/%E9%AB%98%E5%8F%AF%E7%94%A8%E6%97%A0%E5%8D%95%E7%82%B9%E6%9E%B6%E6%9E%84%E4%B9%8Bkubernetes%E9%9B%86%E7%BE%A4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-ha" class="post-title-link post-title-link-external" itemprop="url">高可用无单点架构之kubernetes集群<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-28 08:20:33" itemprop="dateCreated datePublished" datetime="2021-08-28T08:20:33+08:00">2021-08-28</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="k8s高可用无单点故障涉及那些场景"><a href="#k8s高可用无单点故障涉及那些场景" class="headerlink" title="k8s高可用无单点故障涉及那些场景"></a>k8s高可用无单点故障涉及那些场景</h1><h2 id="k8s-节点添加、pod添加等增删查改无单点故障"><a href="#k8s-节点添加、pod添加等增删查改无单点故障" class="headerlink" title="k8s 节点添加、pod添加等增删查改无单点故障"></a>k8s 节点添加、pod添加等增删查改无单点故障</h2><p>需要元数据的存储和处理能力高可用</p>
-<h2 id="k8s对外的apiServer（如worker）无单点故障"><a href="#k8s对外的apiServer（如worker）无单点故障" class="headerlink" title="k8s对外的apiServer（如worker）无单点故障"></a>k8s对外的apiServer（如worker）无单点故障</h2><p>worker node和其他组件访问<code>apiServer</code>路径高可用</p>
-<h1 id="k8s无单点故障技术关键点"><a href="#k8s无单点故障技术关键点" class="headerlink" title="k8s无单点故障技术关键点"></a>k8s无单点故障技术关键点</h1><h2 id="元数据存储"><a href="#元数据存储" class="headerlink" title="元数据存储"></a>元数据存储</h2><p>通过etcd存储元数据，etcd三节点集群保证高可用</p>
-<h2 id="元数据处理"><a href="#元数据处理" class="headerlink" title="元数据处理"></a>元数据处理</h2><p>通过多个<code>kube-controller</code>和<code>kube-scheduler</code>节点来保证高可用</p>
-<h2 id="worker节点请求数据通过多ip或负载均衡来保证"><a href="#worker节点请求数据通过多ip或负载均衡来保证" class="headerlink" title="worker节点请求数据通过多ip或负载均衡来保证"></a>worker节点请求数据通过多ip或负载均衡来保证</h2><p>节点请求通信通过多Ip或负载均衡来保证高可用，这里也有几种方式</p>
-<h3 id="IaaS厂商可提供负载均衡的场景下"><a href="#IaaS厂商可提供负载均衡的场景下" class="headerlink" title="IaaS厂商可提供负载均衡的场景下"></a>IaaS厂商可提供负载均衡的场景下</h3><p>如下图所示，可将worker node的访问地址指向负载均衡的地址</p>
-<p><img src="/Images/kubernetes-ha-iaas-lb.png" alt="kubernetes-ha-iaas-lb"></p>
-<h3 id="私有化部署KeepAlived"><a href="#私有化部署KeepAlived" class="headerlink" title="私有化部署KeepAlived"></a>私有化部署KeepAlived</h3><p>私有化部署场景常用keepAlived提供浮动IP来给<code>worker node</code>或其他组件访问，如下图所示</p>
-<p><img src="/Images/kubernetes-ha-keepalived.png" alt="kubernetes-ha-keepalived"></p>
-<h3 id="私有化部署加上负载均衡组件"><a href="#私有化部署加上负载均衡组件" class="headerlink" title="私有化部署加上负载均衡组件"></a>私有化部署加上负载均衡组件</h3><p>如果你觉得同一时刻只有单个apiServer工作会成瓶颈，也可以使用<code>KeepAlived</code>加<code>Nginx</code>或<code>HaProxy</code>来对<code>ApiServer</code>做负载均衡</p>
-<p><img src="/Images/kubernetes-ha-keepalived-nginx.png" alt="kubernetes-ha-keepalived-nginx"></p>
-<p>为了简化图像，只画出了master1上的Nginx向后转发的场景。</p>
-<p>至于Nginx和KeepAlived如何部署，推荐采用容器化的部署模式，方便进行监控和运维；但是镜像不从镜像仓库拉取，而是保存在<code>master</code>节点上，这样虽然升级复杂一点，但是这样子<code>kubernetes</code>的高可用就不依赖镜像仓库了，不会和镜像仓库形成循环依赖，更不会影响镜像仓库的高可用方案，大大简化了后续的技术方案。（因为镜像仓库可能会占据较大的存储空间，可能会和<code>master</code>节点分离部署，这时会作为<code>worker</code>节点连接<code>master</code>节点）。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/20/GoFrame%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84Update%E9%9B%B6%E5%80%BC%E9%97%AE%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/08/20/GoFrame%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84Update%E9%9B%B6%E5%80%BC%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">GoFrame框架中的Update零值问题</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-20 20:16:14" itemprop="dateCreated datePublished" datetime="2021-08-20T20:16:14+08:00">2021-08-20</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>前几天，我的同事碰到了一个问题，是关于<strong>GoFrame</strong> 框架中数据字段的更新问题，数据中有一个<code>status</code>字段，他本来不想更新，但是却更新成了0。</p>
-<p>相信看到描述，已经有经验丰富的专家可以猜到是数据部分更新导致的问题。</p>
-<p>没错，就是因为数据库部分更新，把0这个值当成了需要更新的值刷新到了数据库中。</p>
-<p>中间是复现问题的流程及代码细节，不感兴趣的可以直接拉到最后</p>
-<h2 id="复现问题"><a href="#复现问题" class="headerlink" title="复现问题"></a>复现问题</h2><h3 id="创建一个数据表"><a href="#创建一个数据表" class="headerlink" title="创建一个数据表"></a>创建一个数据表</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> health_check</span><br><span class="line">(</span><br><span class="line">    id           <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    str_null     <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NULL</span>,</span><br><span class="line">    str_not_null <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    int_null     <span class="type">INT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    int_not_null <span class="type">INT</span>         <span class="keyword">NOT NULL</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-
-<h3 id="插入一条数据"><a href="#插入一条数据" class="headerlink" title="插入一条数据"></a>插入一条数据</h3><p><img src="/Images/go-frame-update-zero1.png" alt="image-20210819104835758"></p>
-<h3 id="数据库module的声明"><a href="#数据库module的声明" class="headerlink" title="数据库module的声明"></a>数据库module的声明</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> HealthCheck <span class="keyword">struct</span> &#123;</span><br><span class="line">	Id         <span class="type">string</span>  <span class="string">`orm:&quot;id&quot;`</span></span><br><span class="line">	StrNull    *<span class="type">string</span> <span class="string">`orm:&quot;str_null&quot;`</span></span><br><span class="line">	StrNotNull <span class="type">string</span>  <span class="string">`orm:&quot;str_not_null&quot;`</span></span><br><span class="line">	IntNull    *<span class="type">int</span>    <span class="string">`orm:&quot;int_null&quot;`</span></span><br><span class="line">	IntNotNull <span class="type">int</span>     <span class="string">`orm:&quot;int_not_null&quot;`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="更新数据"><a href="#更新数据" class="headerlink" title="更新数据"></a>更新数据</h3><p>这时，只想把IntNotNull字段更新成0</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UpdateHealth</span><span class="params">()</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	table := g.DB().Schema(healthDb).Table(healthTable)</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">6</span></span><br><span class="line">	healthCheck.IntNull = &amp;i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="执行完毕之后"><a href="#执行完毕之后" class="headerlink" title="执行完毕之后"></a>执行完毕之后</h3><p>除了我要更新的<code>int_not_null</code>字段，其他值都被修改了</p>
-<p><img src="/Images/go-frame-update-zero2.png" alt="image-20210819111903460"></p>
-<p>这肯定不是我们想要的效果，我们只想更新一个字段。</p>
-<p>这个时候GoFrame框架提供了<code>OmitEmpty</code>方法，可以忽略0值，也就是达到没传值不修改的效果，让我们加上<code>OmitEmpty</code>试试</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">table := g.DB().Schema(healthDb).Table(healthTable).OmitEmpty()</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">0</span></span><br><span class="line">	healthCheck.IntNotNull = i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br></pre></td></tr></table></figure>
-
-<p>重新导入数据</p>
-<p><img src="/Images/go-frame-update-zero3.png" alt="image-20210819110235646"></p>
-<p>操作update</p>
-<p><img src="/Images/go-frame-update-zero4.png" alt="image-20210819111954946"></p>
-<p>可是什么都没有更新，原来OmitEmpty把数字0当做是0值，没有进行更新，那么要怎么写呢，答案是使用<code>*int</code>类型</p>
-<p>让我们使用定位为<code>*int</code>类型的字段来更新一下<code>int_not_null</code>，代码如下</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UpdateHealth</span><span class="params">()</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	table := g.DB().Schema(healthDb).Table(healthTable).OmitEmpty()</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">0</span></span><br><span class="line">	healthCheck.IntNull = &amp;i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>再次操作Update</p>
-<p><img src="/Images/go-frame-update-zero5.png" alt="image-20210819112254854"></p>
-<p>效果达成.</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li>GoFrame的框架默认会对全量字段进行更新，无论你的字段有没有复制</li>
-<li>OmitEmpty可以让框架跳过空值，但是int类型的0，也会跳过</li>
-<li>如果你还是想用<code>OmitEmpty</code>跳过空值的情况下，写入0，请使用<code>*int</code>类型</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/8/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/8/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-count">135</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,88 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/07/08/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E8%B6%85%E6%97%B6%E4%B9%8B%E5%90%8E%E8%AF%A5%E4%B8%8D%E8%AF%A5%E9%87%8D%E5%90%AF%E5%AE%A2%E6%88%B7%E7%AB%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/07/08/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E8%B6%85%E6%97%B6%E4%B9%8B%E5%90%8E%E8%AF%A5%E4%B8%8D%E8%AF%A5%E9%87%8D%E5%90%AF%E5%AE%A2%E6%88%B7%E7%AB%AF/" class="post-title-link" itemprop="url">网络通信超时之后该不该重启客户端</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-08 14:06:21" itemprop="dateCreated datePublished" datetime="2023-07-08T14:06:21+08:00">2023-07-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>我写这篇文章来论证“超时之后要不要重启客户端”、“如何重启客户端”。简而言之，重启客户端还是为了让系统能够达到自愈，是比较高的可靠性要求。如果你的软件没有这么高的可靠性要求，像是人机交互程序等对可靠性要求较低的场景，可以选择不考虑这个功能。毕竟实现这个功能的时间至少够300倍你重新点击按钮&#x2F;重启的时间了。</p>
+<p>如果是一些串口协议，通过传输的间隙来判断报文的间隔，比如modbus协议，3.5个时间内不发送，就计算做一个协议报文的开始，那么故障时的报文毫无疑问会处理失败（因为存在CRC校验，奇偶校验等）。等待故障结束，又3.5个时间后，就会恢复正常。</p>
+<p>如果能确保网络通信报文不会遭到篡改、也没有宇宙射线&#x2F;太阳黑子修改你的比特位的场景下，笔者认为没有特别大的必要对客户端进行重启操作，因为不见得重启后就比之前更好，这种超时通常是由服务端处理时间长导致的。没做到建链限制的情况下，贸然重启，还可能会引起建链的波峰。</p>
+<p>但是，在实际复杂的网络环境下，如<strong>网络报文遭到篡改</strong>、<strong>部分字节丢失</strong>等的情况下，一切就大不一样了，不重启客户端就无法自愈。这其中的关键在于，切分报文是否正确。</p>
+<p>比如基于TCP的网络协议，这也是本文重点讨论的场景，假设应用协议采用最常见的LengthBasedFrame分包方式，这种协议，通常根据前0~4个字节来判断协议的总长度，比如前面的字节是<strong>00000014</strong>，那这个报文长度就是<code>1*16 + 4 = 20</code>长度。这种时候，一旦发生了报文篡改&#x2F;丢包，会导致通信端计算报文长度出错，一直在傻等，无法自愈。</p>
+<p>比如上面的例子一旦发生篡改，将4篡改5，那么就会导致客户端&#x2F;服务器一直在等待不存在的第21个字节，这种情况下，如果不做超时重建，那么这条链路就会一直处于等待状态，无法自愈。</p>
+<p>综上所述，实际复杂的网络环境下出现通信超时，这条链路可能会无法自愈。这种情况下，笔者推荐对针对tcp链路做超时重建，业内的一些例子像是：bookkeeper client没有做，kafka client做了。至于重建的触发条件，比如一次超时就重建、多次超时之后才重建、仅当心跳报文超时才重建，这些就交给读者自己把握了。如果区别不大，笔者倾向于一次超时就重建，逻辑简单清晰。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +323,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -323,7 +405,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -401,7 +483,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -490,7 +572,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -597,7 +679,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -703,7 +785,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -815,7 +897,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -971,7 +1053,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -1065,7 +1147,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
     </span>
 
   
@@ -1106,105 +1188,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/11/15/%E8%AE%B0%E4%B8%80%E6%AC%A1kubernetes%E8%8E%B7%E5%8F%96internal%20Ip%E9%94%99%E8%AF%AF%E6%B5%81%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-internal-ip-error" class="post-title-link post-title-link-external" itemprop="url">记一次kubernetes获取internal Ip错误流程<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2022-11-15 12:00:44" itemprop="dateCreated datePublished" datetime="2022-11-15T12:00:44+08:00">2022-11-15</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>偶尔也回首一下处理的棘手问题吧。问题的现象是，通过kubernetes get node输出的ip不是期望的ip地址。大概如下所示</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ip addr</span><br><span class="line"></span><br><span class="line">eth0 ip1</span><br><span class="line">eth0:xxx ip2</span><br></pre></td></tr></table></figure>
-
-<p>最终输出的不是预期的ip1地址，而是ip2地址。</p>
-<p>按藤摸瓜，<strong>kubernetes</strong>把节点信息保存在<code>/registry/minions/$node-name</code>中的<strong>InternalIp</strong> 字段。</p>
-<p><strong>InternalIp</strong>是如何确定的呢，这段代码位于<code>pkg/kubelet/nodestatus/setters.go</code>中</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 1) Use nodeIP if set (and not &quot;0.0.0.0&quot;/&quot;::&quot;)</span><br><span class="line">// 2) If the user has specified an IP to HostnameOverride, use it</span><br><span class="line">// 3) Lookup the IP from node name by DNS</span><br><span class="line">// 4) Try to get the IP from the network interface used as default gateway</span><br><span class="line">//</span><br><span class="line">// For steps 3 and 4, IPv4 addresses are preferred to IPv6 addresses</span><br><span class="line">// unless nodeIP is &quot;::&quot;, in which case it is reversed.</span><br></pre></td></tr></table></figure>
-
-<p>我们的场景下没有手动设置nodeIp，如需设置通过kubelet命令行即可设置 <strong>–node-ip&#x3D;localhost</strong>，最终通过如下的go函数获取ip地址</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">addrs, _ = net.LookupIP(node.Name)</span><br></pre></td></tr></table></figure>
-
-<p>对这行go函数进行strace追溯，最终调用了c函数，<strong>getaddrinfo</strong>函数。<strong>getaddrinfo</strong>底层是发起了<strong>netlink</strong>请求，开启<strong>netlink</strong>的抓包</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">modprobe nlmon</span><br><span class="line">ip <span class="built_in">link</span> add nlmon0 <span class="built_in">type</span> nlmon</span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> dev nlmon0 up</span><br><span class="line">tcpdump -i nlmon0 -w netlinik.pcap</span><br><span class="line"><span class="comment"># 使用nlmon 驱动模块，这个nlmon 驱动模块会注册一个 netlink tap 口，用户态向内核发送 netlink 消息、内核向用户态发送 netlink 消息，报文都会经过这个 tap 口。</span></span><br></pre></td></tr></table></figure>
-
-<p>通过抓包我看到通过<strong>netlink</strong>报文请求返回的ip地址顺序都是合乎预期的，只能是<strong>getaddrinfo</strong>函数修改了返回的顺序</p>
-<p>Google了一下发现是<strong>getaddrinfo</strong>支持了<strong>rfc3484</strong>导致了ip的重新排序，代码地址<code>glibc/sysdeps/posix/getaddrinfo.c</code></p>
-<p><strong>RFC3484</strong> 总共有十个规则，比较关键的有</p>
-<h3 id="Rule9"><a href="#Rule9" class="headerlink" title="Rule9"></a>Rule9</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Rule 9:  Use longest matching prefix.</span><br><span class="line">When DA and DB belong to the same address family (both are IPv6 or</span><br><span class="line">both are IPv4): If CommonPrefixLen(DA, Source(DA)) &gt;</span><br><span class="line">CommonPrefixLen(DB, Source(DB)), then prefer DA.  Similarly, if</span><br><span class="line">CommonPrefixLen(DA, Source(DA)) &lt; CommonPrefixLen(DB, Source(DB)),</span><br><span class="line">then prefer DB.</span><br></pre></td></tr></table></figure>
-
-<p>举个例子，假如机器的ip地址是 <code>172.18.45.2/24</code>，它会更青睐于<code>172.18.45.6</code>而不是<code>172.31.80.8</code>。这个RFC存在较大的争议，它与dns轮询策略不兼容，如：dns服务器轮询返回多个ip地址，客户端总是选择第一个ip连接。与这个策略存在很大的冲突。并且社区内也有投票试图停止对<strong>RFC3484</strong> rule9的适配, 但是最终被拒绝了。</p>
-<p>根据分析，认为是ip2的地址小于ip1的地址，最终glibc排序的时候把ip2放在了前面。最终我们给kubelet配置了eth0地址的–node-ip，解决了这个问题。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/6/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
