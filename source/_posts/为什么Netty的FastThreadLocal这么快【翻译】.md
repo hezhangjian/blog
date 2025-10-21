@@ -17,7 +17,7 @@ ThreadLocal一般在多线程环境用来保存当前线程的数据。用户可
 测试代码分别用于ThreadLocal和FastThreadLocal。 代码如下:
 
 > ```java
-> package com.github.shoothzj.demo.netty;
+> package com.github.hezhangjian.demo.netty;
 > 
 > import lombok.extern.slf4j.Slf4j;
 > import org.junit.Test;
@@ -61,7 +61,7 @@ ThreadLocal一般在多线程环境用来保存当前线程的数据。用户可
 接下来，测试FastThreadLocal，代码基本上相似:
 
 > ```java
-> package com.github.shoothzj.demo.netty;
+> package com.github.hezhangjian.demo.netty;
 > 
 > import io.netty.util.concurrent.FastThreadLocal;
 > import io.netty.util.concurrent.FastThreadLocalThread;
@@ -108,7 +108,7 @@ ThreadLocal一般在多线程环境用来保存当前线程的数据。用户可
 先看ThreadLocal的:
 
 > ```java
-> package com.github.shoothzj.demo.netty;
+> package com.github.hezhangjian.demo.netty;
 > 
 > import lombok.extern.slf4j.Slf4j;
 > import org.junit.Test;
