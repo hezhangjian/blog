@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Go中的指针翻译自https:&#x2F;&#x2F;go101.org&#x2F;article&#x2F;pointer.html 尽管Go吸收了很多其他语言的特性，但Go总体来说是一个C家族语言。其中一个证据就是Go也支持指针。Go指针和C指针在许多方面非常相似，但其中也有一些不同。本文将会列举Go指针的概念和细节。 Memory Address 内存地址内存地址指的是整个系统管理（通常由操作系统管理）的内存空间中的偏移量（byt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go 指针">
+<meta property="og:url" content="https://hezhangjian.com/2021/07/12/Go%20%E6%8C%87%E9%92%88/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="Go中的指针翻译自https:&#x2F;&#x2F;go101.org&#x2F;article&#x2F;pointer.html 尽管Go吸收了很多其他语言的特性，但Go总体来说是一个C家族语言。其中一个证据就是Go也支持指针。Go指针和C指针在许多方面非常相似，但其中也有一些不同。本文将会列举Go指针的概念和细节。 Memory Address 内存地址内存地址指的是整个系统管理（通常由操作系统管理）的内存空间中的偏移量（byt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-pointer1.png">
+<meta property="article:published_time" content="2021-07-12T03:38:17.000Z">
+<meta property="article:modified_time" content="2025-10-21T11:32:27.127Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/go-pointer1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/07/12/Go%20%E6%8C%87%E9%92%88/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/07/12/Go%20%E6%8C%87%E9%92%88/","path":"2021/07/12/Go 指针/","title":"Go 指针"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Go 指针 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Go%E4%B8%AD%E7%9A%84%E6%8C%87%E9%92%88"><span class="nav-number">1.</span> <span class="nav-text">Go中的指针</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BF%BB%E8%AF%91%E8%87%AA"><span class="nav-number">1.1.</span> <span class="nav-text">翻译自</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Memory-Address-%E5%86%85%E5%AD%98%E5%9C%B0%E5%9D%80"><span class="nav-number">1.2.</span> <span class="nav-text">Memory Address 内存地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Value-Address-%E5%80%BC%E5%9C%B0%E5%9D%80"><span class="nav-number">1.3.</span> <span class="nav-text">Value Address 值地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%8C%87%E9%92%88%EF%BC%9F"><span class="nav-number">1.4.</span> <span class="nav-text">什么是指针？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Go%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%80%BC"><span class="nav-number">1.5.</span> <span class="nav-text">Go指针类型和值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%8E%B7%E5%BE%97%E6%8C%87%E9%92%88%E5%80%BC%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E5%8F%AF%E5%AF%BB%E5%9D%80%E5%80%BC"><span class="nav-number">1.6.</span> <span class="nav-text">如何获得指针值、什么是可寻址值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pointer-Derefernece-%E6%8C%87%E9%92%88%E8%A7%A3%E5%BC%95%E7%94%A8"><span class="nav-number">1.7.</span> <span class="nav-text">Pointer Derefernece 指针解引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E6%8C%87%E9%92%88"><span class="nav-number">1.8.</span> <span class="nav-text">为什么我们需要指针</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%94%E5%9B%9E%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%E6%8C%87%E9%92%88%E5%9C%A8Go%E6%98%AF%E5%AE%89%E5%85%A8%E7%9A%84"><span class="nav-number">1.9.</span> <span class="nav-text">返回局部变量指针在Go是安全的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Go%E6%8C%87%E9%92%88%E7%9A%84%E9%99%90%E5%88%B6"><span class="nav-number">1.10.</span> <span class="nav-text">Go指针的限制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Go%E6%8C%87%E9%92%88%E4%B8%8D%E6%94%AF%E6%8C%81%E7%AE%97%E6%9C%AF%E6%93%8D%E4%BD%9C"><span class="nav-number">1.10.1.</span> <span class="nav-text">Go指针不支持算术操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E5%80%BC%E4%B8%8D%E8%83%BD%E8%BD%AC%E6%8D%A2%E4%B8%BA%E4%BB%BB%E6%84%8F%E7%9A%84%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.10.2.</span> <span class="nav-text">指针值不能转换为任意的指针类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%BB%E6%84%8F%E4%B8%A4%E4%B8%AA%E6%8C%87%E9%92%88%E7%9A%84%E5%80%BC%E4%B8%8D%E8%83%BD%E6%AF%94%E8%BE%83"><span class="nav-number">1.10.3.</span> <span class="nav-text">任意两个指针的值不能比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E5%80%BC%E4%B8%8D%E8%83%BD%E8%B5%8B%E5%80%BC%E7%BB%99%E5%85%B6%E4%BB%96%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.10.4.</span> <span class="nav-text">指针值不能赋值给其他指针类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%89%E6%89%8B%E6%AE%B5%E6%89%93%E7%A0%B4Go%E5%AF%B9%E6%8C%87%E9%92%88%E7%9A%84%E9%99%90%E5%88%B6"><span class="nav-number">1.11.</span> <span class="nav-text">有手段打破Go对指针的限制</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/12/Go%20%E6%8C%87%E9%92%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go 指针 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go 指针
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-12 11:38:17" itemprop="dateCreated datePublished" datetime="2021-07-12T11:38:17+08:00">2021-07-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Go中的指针"><a href="#Go中的指针" class="headerlink" title="Go中的指针"></a>Go中的指针</h1><h2 id="翻译自"><a href="#翻译自" class="headerlink" title="翻译自"></a>翻译自</h2><p><a target="_blank" rel="noopener" href="https://go101.org/article/pointer.html">https://go101.org/article/pointer.html</a></p>
+<p>尽管Go吸收了很多其他语言的特性，但Go总体来说是一个C家族语言。其中一个证据就是Go也支持指针。Go指针和C指针在许多方面非常相似，但其中也有一些不同。本文将会列举Go指针的概念和细节。</p>
+<h2 id="Memory-Address-内存地址"><a href="#Memory-Address-内存地址" class="headerlink" title="Memory Address 内存地址"></a>Memory Address 内存地址</h2><p>内存地址指的是整个系统管理（通常由操作系统管理）的内存空间中的偏移量（byte的个数）。</p>
+<p>通常，内存地址被存储成一个无符号（整型）字。字长在32位机器上是4字节，在64位机器上是8字节。所以理论最大寻址范围，在32位机器上是<br><code>2^32</code>，也就是4GB。在64位机器上是<code>2^64</code>，也就是16EB（1EB&#x3D;1024PB，1PB&#x3D;1024TB，1TB&#x3D;1024GB）。</p>
+<p>内存地址通常用Hex表达模式书写，如<code>0x1234CDEF</code></p>
+<h2 id="Value-Address-值地址"><a href="#Value-Address-值地址" class="headerlink" title="Value Address 值地址"></a>Value Address 值地址</h2><p>值的地址代表这个值在内存段中的起始地址</p>
+<h2 id="什么是指针？"><a href="#什么是指针？" class="headerlink" title="什么是指针？"></a>什么是指针？</h2><p>指针是Go的一种类型。指针用来存储内存地址。跟C语言不同，为了安全的原因，Go指针上有一些限制。</p>
+<h2 id="Go指针类型和值"><a href="#Go指针类型和值" class="headerlink" title="Go指针类型和值"></a>Go指针类型和值</h2><p>在Go中，未定义的指针类型可以被写成<code>*T</code>，<code>T</code>可以是任意类型。<code>T</code>是<code>*T</code>的基础类型。</p>
+<p>我们也可以自定义指针类型，通常由于未定义指针类型拥有更好的可读性，不推荐使用自定义指针类型。</p>
+<p>如果一个定义的指针类型的底层类型（underlying type）是<code>*T</code>，那么该指针的基础类型是<code>T</code>。这个基础类型相同的指针也是同一种类型。样例</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 未定义的指针类型，基础类型是int</span></span><br><span class="line">*<span class="type">int</span></span><br><span class="line"><span class="comment">// 未定义的指针类型，基础类型是*int</span></span><br><span class="line">**<span class="type">int</span> </span><br><span class="line"></span><br><span class="line"><span class="comment">// Ptr是一个定义指针类型，基础类型是int</span></span><br><span class="line"><span class="keyword">type</span> Ptr *<span class="type">int</span> </span><br><span class="line"><span class="comment">// PP是一个定义指针类型，基础类型是Ptr</span></span><br><span class="line"><span class="keyword">type</span> PP *Ptr</span><br></pre></td></tr></table></figure>
+
+<p>指针的零值是<code>nil</code>，不存储任何地址。</p>
+<p>基础类型为<code>T</code>的指针仅能存储<code>T</code>类型值的地址</p>
+<h2 id="如何获得指针值、什么是可寻址值"><a href="#如何获得指针值、什么是可寻址值" class="headerlink" title="如何获得指针值、什么是可寻址值"></a>如何获得指针值、什么是可寻址值</h2><p>有两种方式可用于获取非nil的指针值</p>
+<ul>
+<li>go内置的<code>new</code>函数，可以分配任何类型的内存。<code>new(T)</code>在内存中分配一个<code>T</code>值的空间，然后返回<code>T</code>值的地址。分配的值是<code>T</code><br>类型的零值。返回的地址就是一个<code>T</code>类型的指针</li>
+<li>我们还可以直接获取可寻址值的地址。对于一个可寻址类型<code>T</code>的值<code>t</code>，我们可以使用<code>&amp;t</code>来获取<code>t</code>的地址，&#96;&amp;操作符用来获取值地址。</li>
+</ul>
+<p>通常上来说，可寻址值意味着该值存放在内存中的某处。现在，我们只需要知道任何变量都是可寻址的，同时常数、函数调用和显示转换的结果是不可寻址的。变量声明的时候，Go运行时将会为这个变量分配一片内存，这片内存的开始地址就是这个变量的地址。</p>
+<h2 id="Pointer-Derefernece-指针解引用"><a href="#Pointer-Derefernece-指针解引用" class="headerlink" title="Pointer Derefernece 指针解引用"></a>Pointer Derefernece 指针解引用</h2><p>对于一个基础类型为<code>T</code>的指针类型<code>p</code>，你如何获取指针中存储的值（或者说，被指针指向的值）？只需要使用表达式<code>*p</code>，<code>*</code><br>被称为解引用操作符。指针的解引用是取地址的逆运算。<code>*p</code>的返回值是<code>T</code>类型，也就是<code>p</code>的基础类型。</p>
+<p>对<code>nil</code>指针进行解引用会导致运行时异常。</p>
+<p>这个程序展示了地址获取和解引用的例子:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// p0指向int的零值</span></span><br><span class="line">	p0 := <span class="built_in">new</span>(<span class="type">int</span>)</span><br><span class="line">	<span class="comment">// hex表达的地址</span></span><br><span class="line">	fmt.Println(p0)</span><br><span class="line">	<span class="comment">// 0</span></span><br><span class="line">	fmt.Println(*p0)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// x是p0指向值的拷贝</span></span><br><span class="line">	x := *p0</span><br><span class="line">	<span class="comment">// 都取得x的地址</span></span><br><span class="line">	<span class="comment">// x, *p1, *p2 的值相同</span></span><br><span class="line">	p1, p2 := &amp;x, &amp;x</span><br><span class="line">	<span class="comment">// true</span></span><br><span class="line">	fmt.Println(p1 == p2)</span><br><span class="line">	<span class="comment">// false</span></span><br><span class="line">	fmt.Println(p0 == p1)</span><br><span class="line">	<span class="comment">// p3 和 p0 也存储相同的地址</span></span><br><span class="line">	p3 := &amp;*p0</span><br><span class="line">	fmt.Println(p0 == p3)</span><br><span class="line">	*p0, *p1 = <span class="number">123</span>, <span class="number">789</span></span><br><span class="line">	<span class="comment">// 789 789 123</span></span><br><span class="line">	fmt.Println(*p2, x, *p3)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// int, int</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;%T, %T \n&quot;</span>, *p0, x)</span><br><span class="line">	<span class="comment">// *int, *int</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;%T, %T \n&quot;</span>, p0, p1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下图揭示了上面程序存储的值间关系</p>
+<p><img src="/Images/go-pointer1.png" alt="image-20210712093648121"></p>
+<h2 id="为什么我们需要指针"><a href="#为什么我们需要指针" class="headerlink" title="为什么我们需要指针"></a>为什么我们需要指针</h2><p>让我们先来看一个样例程序</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">double</span><span class="params">(x <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	x += x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> a = <span class="number">3</span></span><br><span class="line">	double(a)</span><br><span class="line">	fmt.Println(a) <span class="comment">// 3</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上例中的<code>double</code>函数预期对输入值进行双倍处理。但是它失败了。为什么？因为所有值的分配，包括函数参数的传递，都是值拷贝。<code>double</code><br>函数操作的<code>x</code>只是<code>a</code>变量的拷贝，而不是<code>a</code>变量。</p>
+<p>修复上例的一种方式是让double函数返回一个新值。但这并不是所有场景都适用。下例展示了另一种使用指针的方案</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">double</span><span class="params">(x *<span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	*x += *x</span><br><span class="line">    <span class="comment">// 这行只为了解释用途</span></span><br><span class="line">	x = <span class="literal">nil</span> </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> a = <span class="number">3</span></span><br><span class="line">	double(&amp;a)</span><br><span class="line">	fmt.Println(a) <span class="comment">// 6</span></span><br><span class="line">	p := &amp;a</span><br><span class="line">	double(p)</span><br><span class="line">	fmt.Println(a, p == <span class="literal">nil</span>) <span class="comment">// 12 false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以发现，通过将参数改为指针类型，传递的指针参数<code>&amp;a</code>和它的拷贝<code>x</code>都指向相同的值，所以在<code>*x</code>上进行的修改，在<code>a</code><br>上也体现了出来。同时，因为参数传递都是值拷贝，上面将<code>x</code>赋值为nil，在p上也不生效。</p>
+<p>简而言之，指针提供了操作值的间接方式。大部分语言没有指针的概念。然而，指针的概念只是隐藏在了语言的其他概念中。</p>
+<h2 id="返回局部变量指针在Go是安全的"><a href="#返回局部变量指针在Go是安全的" class="headerlink" title="返回局部变量指针在Go是安全的"></a>返回局部变量指针在Go是安全的</h2><p>和C语言不通，Go支持垃圾回收，所以返回局部变量的指针在Go中是绝对安全的</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newInt</span><span class="params">()</span></span> *<span class="type">int</span> &#123;</span><br><span class="line">	a := <span class="number">3</span></span><br><span class="line">	<span class="keyword">return</span> &amp;a</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Go指针的限制"><a href="#Go指针的限制" class="headerlink" title="Go指针的限制"></a>Go指针的限制</h2><p>为了安全原因，相比C语言来说，Go在指针上做了一些限制。通过这些限制，Go保持了指针带来的收益，并且避免了危险的指针使用。</p>
+<h3 id="Go指针不支持算术操作"><a href="#Go指针不支持算术操作" class="headerlink" title="Go指针不支持算术操作"></a>Go指针不支持算术操作</h3><p>在Go中，指针不能进行算术运算。对于指针<code>p</code>，<code>p++</code>和<code>p-2</code>都是非法的。</p>
+<p>如果指针p指向一个数值，编译器会将*p++识别为一个合法的语句，并解析为<code>(*p)++</code>。换句话说，<code>*p</code>操作的优先级高于<code>++</code>、<code>--</code>操作符。样例</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a := <span class="type">int64</span>(<span class="number">5</span>)</span><br><span class="line">	p := &amp;a</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 下面的语句无法编译</span></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	p++</span></span><br><span class="line"><span class="comment">	p = (&amp;a) + 8</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line"></span><br><span class="line">	*p++</span><br><span class="line">	fmt.Println(*p, a)   <span class="comment">// 6 6</span></span><br><span class="line">	fmt.Println(p == &amp;a) <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">	*&amp;a++</span><br><span class="line">	*&amp;*&amp;a++</span><br><span class="line">	**&amp;p++</span><br><span class="line">	*&amp;*p++</span><br><span class="line">	fmt.Println(*p, a) <span class="comment">// 10 10</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="指针值不能转换为任意的指针类型"><a href="#指针值不能转换为任意的指针类型" class="headerlink" title="指针值不能转换为任意的指针类型"></a>指针值不能转换为任意的指针类型</h3><p>在Go中，<code>T1</code>的指针值可以被隐式或是显示地转换为<code>T2</code>，需要满足如下两个条件</p>
+<ul>
+<li><code>T1</code>和<code>T2</code>的底层类型相同（忽略结构体Tag）。特别地，如果<code>T1</code>和<code>T2</code>都是未定义类型并且它们的底层类型相同（考虑结构体Tag），可以进行隐式转换。</li>
+<li><code>T1</code>和<code>T2</code>都是未定义指针类型，并且它们的基础类型的底层类型相同（忽略结构体Tag）</li>
+</ul>
+<p>举个例子，有如下类型</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MyInt <span class="type">int64</span></span><br><span class="line"><span class="keyword">type</span> Ta *<span class="type">int64</span></span><br><span class="line"><span class="keyword">type</span> Tb *MyInt</span><br></pre></td></tr></table></figure>
+
+<p>有如下事实</p>
+<ul>
+<li><code>*int64</code>类型的值可以被隐式转换为<code>Ta</code>类型，反过来也是可以的。因为它们的底层类型都是<code>*int64</code></li>
+<li><code>*MyInt</code>类型的值可以被隐式转换为<code>Tb</code>类型，反过来也行。因为它们的底层类型都是<code>*MyInt</code></li>
+<li><code>*MyInt</code>类型的值可以被限制转换为<code>*int64</code>，反之亦然。因为它们的基础类型的底层类型都是<code>int64</code></li>
+<li>即使是显示转换，<code>Ta</code>类型的值也不能直接转换为<code>Tb</code>。因为<code>Ta</code>和底层类型和<code>Tb</code>不同，并且都是定义指针类型。不过可以进行连续几次转换，将<br><code>Ta</code>类型的<code>pa</code>间接转化为<code>Tb</code>类型。 先将<code>pa</code>转化为<code>*int64</code>类型（因为基础类型的底层类型都是<code>int64</code>），再将<code>*int64</code>类型转换为<br><code>*MyInt</code>类型，再将<code>*MyInt</code>类型转化为<code>*Tb</code>类型。<code>Tb((*MyInt)((*int64)(pa)))</code></li>
+</ul>
+<p>上面的值通过任何安全的手段，都不能转化为类型<code>*uint64</code></p>
+<h3 id="任意两个指针的值不能比较"><a href="#任意两个指针的值不能比较" class="headerlink" title="任意两个指针的值不能比较"></a>任意两个指针的值不能比较</h3><p>在Go中，指针可以通过<code>==</code>和<code>!=</code>符号比较。如果满足如下任意一个条件，那么两个Go指针的值可以进行比较</p>
+<ul>
+<li>两个Go指针类型一致</li>
+<li>指针值可以隐式转换为另一类型</li>
+<li>两个指针中的一个且仅一个用无类型 nil 标识符表示。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">type</span> MyInt <span class="type">int64</span></span><br><span class="line">	<span class="keyword">type</span> Ta    *<span class="type">int64</span></span><br><span class="line">	<span class="keyword">type</span> Tb    *MyInt</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 4个不同类型的指针零值</span></span><br><span class="line">	<span class="keyword">var</span> pa0 Ta</span><br><span class="line">	<span class="keyword">var</span> pa1 *<span class="type">int64</span></span><br><span class="line">	<span class="keyword">var</span> pb0 Tb</span><br><span class="line">	<span class="keyword">var</span> pb1 *MyInt</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 下面这6行都可以正常编译</span></span><br><span class="line">	<span class="comment">// 比较结果都为true</span></span><br><span class="line">    <span class="comment">// 指针可以隐式转换</span></span><br><span class="line">	_ = pa0 == pa1</span><br><span class="line">    <span class="comment">// 指针类型一致</span></span><br><span class="line">	_ = pb0 == pb1</span><br><span class="line">	_ = pa0 == <span class="literal">nil</span></span><br><span class="line">	_ = pa1 == <span class="literal">nil</span></span><br><span class="line">	_ = pb0 == <span class="literal">nil</span></span><br><span class="line">	_ = pb1 == <span class="literal">nil</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 这三行都不能正常编译</span></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	_ = pa0 == pb0</span></span><br><span class="line"><span class="comment">	_ = pa1 == pb1</span></span><br><span class="line"><span class="comment">	_ = pa0 == Tb(nil)</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="指针值不能赋值给其他指针类型"><a href="#指针值不能赋值给其他指针类型" class="headerlink" title="指针值不能赋值给其他指针类型"></a>指针值不能赋值给其他指针类型</h3><p>指针值互相赋值的条件和比较的条件一样</p>
+<h2 id="有手段打破Go对指针的限制"><a href="#有手段打破Go对指针的限制" class="headerlink" title="有手段打破Go对指针的限制"></a>有手段打破Go对指针的限制</h2><p>unsafe 标准包提供的机制（特别是 unsafe.Pointer 类型）可以用来打破 Go 中对指针的限制。 unsafe.Pointer 类型类似于 C 中的<br>void*。一般不推荐使用<code>unsafe</code>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/07/09/Go%20Unsafe%E5%8C%85/" rel="prev" title="Go Unsafe包">
+                  <i class="fa fa-angle-left"></i> Go Unsafe包
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/07/12/Go%20%E4%BD%BF%E7%94%A8Delve%E5%AF%B9Go%E7%A8%8B%E5%BA%8FCoreDump%E8%BF%9B%E8%A1%8CDebug/" rel="next" title="Go 使用Delve对Go程序CoreDump进行Debug">
+                  Go 使用Delve对Go程序CoreDump进行Debug <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

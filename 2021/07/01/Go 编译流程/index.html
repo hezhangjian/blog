@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="参考资料 https:&#x2F;&#x2F;github.com&#x2F;golang&#x2F;go&#x2F;blob&#x2F;master&#x2F;src&#x2F;cmd&#x2F;compile&#x2F;README.md https:&#x2F;&#x2F;medium.com&#x2F;a-journey-with-go&#x2F;go-overview-of-the-compiler-4e5a153ca889 基于Golang 1.16版本  阶段Go编译器由四个阶段组成，可以分为两类  frontend前端">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go 编译流程">
+<meta property="og:url" content="https://hezhangjian.com/2021/07/01/Go%20%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="参考资料 https:&#x2F;&#x2F;github.com&#x2F;golang&#x2F;go&#x2F;blob&#x2F;master&#x2F;src&#x2F;cmd&#x2F;compile&#x2F;README.md https:&#x2F;&#x2F;medium.com&#x2F;a-journey-with-go&#x2F;go-overview-of-the-compiler-4e5a153ca889 基于Golang 1.16版本  阶段Go编译器由四个阶段组成，可以分为两类  frontend前端">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-compile-process1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-compile-process2.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-compile-process3.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-compile-process4.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-compile-process5.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-compile-process6.png">
+<meta property="article:published_time" content="2021-07-01T05:19:53.000Z">
+<meta property="article:modified_time" content="2025-10-21T11:32:27.127Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/go-compile-process1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/07/01/Go%20%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/07/01/Go%20%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B/","path":"2021/07/01/Go 编译流程/","title":"Go 编译流程"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Go 编译流程 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5"><span class="nav-number">2.</span> <span class="nav-text">阶段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#P1-%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">P1 解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#P2-%E7%B1%BB%E5%9E%8B%E6%A3%80%E6%9F%A5%E5%92%8CAST%E8%BD%AC%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">P2 类型检查和AST转化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSA-%E7%94%9F%E6%88%90"><span class="nav-number">5.</span> <span class="nav-text">SSA 生成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SSA-%E6%A6%82%E5%BF%B5"><span class="nav-number">5.1.</span> <span class="nav-text">SSA 概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSA%E9%98%B6%E6%AE%B5"><span class="nav-number">5.2.</span> <span class="nav-text">SSA阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSA%E4%BC%98%E5%8C%96%E8%A7%A3%E6%9E%90"><span class="nav-number">5.3.</span> <span class="nav-text">SSA优化解析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">6.</span> <span class="nav-text">机器代码生成</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/01/Go%20%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go 编译流程 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go 编译流程
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-01 13:19:53" itemprop="dateCreated datePublished" datetime="2021-07-01T13:19:53+08:00">2021-07-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/golang/go/blob/master/src/cmd/compile/README.md">https://github.com/golang/go/blob/master/src/cmd/compile/README.md</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/a-journey-with-go/go-overview-of-the-compiler-4e5a153ca889">https://medium.com/a-journey-with-go/go-overview-of-the-compiler-4e5a153ca889</a></li>
+<li>基于Golang 1.16版本</li>
+</ul>
+<h2 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h2><p>Go编译器由四个阶段组成，可以分为两类</p>
+<ul>
+<li>frontend前端：这一阶段对源码进行语法解析，并生成AST</li>
+<li>backend后端：这一阶段将把transform the representation of the source code into machine code, 并进行数项优化</li>
+</ul>
+<p>为了更好地理解每个阶段，让我们使用如下的示例程序</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a := <span class="number">1</span></span><br><span class="line">	b := <span class="number">2</span></span><br><span class="line">	<span class="keyword">if</span> <span class="literal">true</span> &#123;</span><br><span class="line">		add(a, b)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(a, b <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="built_in">println</span>(a + b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="P1-解析"><a href="#P1-解析" class="headerlink" title="P1 解析"></a>P1 解析</h2><ul>
+<li><code>cmd/compile/internal/syntax</code> 词法，解析器，语法树</li>
+</ul>
+<p>第一个阶段非常简单直接：</p>
+<p>第一阶段，源码经过词法分析、语法解析，对每个源码文件，都构造出相应的语法树</p>
+<p>Lexer首先运行，把源代码转化为词法单元。我们可以通过这个程序来自己模拟运行Lexer</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;go/scanner&quot;</span></span><br><span class="line">	<span class="string">&quot;go/token&quot;</span></span><br><span class="line">	<span class="string">&quot;io/ioutil&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// src is the input that we want to tokenize.</span></span><br><span class="line">	src, _ := ioutil.ReadFile(<span class="string">`main.go`</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Initialize the scanner</span></span><br><span class="line">	<span class="keyword">var</span> s scanner.Scanner</span><br><span class="line">	<span class="comment">// positions are relative to fSet</span></span><br><span class="line">	fSet := token.NewFileSet()</span><br><span class="line">	file := fSet.AddFile(<span class="string">&quot;&quot;</span>, fSet.Base(), <span class="built_in">len</span>(src))</span><br><span class="line">	<span class="comment">// nil means no error handler</span></span><br><span class="line">	s.Init(file, src, <span class="literal">nil</span>, scanner.ScanComments)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Repeated calls to Scan yield the token sequence found in the input</span></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		pos, tok, lit := s.Scan()</span><br><span class="line">		<span class="keyword">if</span> tok == token.EOF &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;%s\t%s\t%q\n&quot;</span>, fSet.Position(pos), tok, lit)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>截选输出如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">1:1	package	&quot;package&quot;</span><br><span class="line">1:9	IDENT	&quot;main&quot;</span><br><span class="line">1:13	;	&quot;\n&quot;</span><br><span class="line">3:1	func	&quot;func&quot;</span><br><span class="line">3:6	IDENT	&quot;main&quot;</span><br><span class="line">3:10	(	&quot;&quot;</span><br><span class="line">3:11	)	&quot;&quot;</span><br><span class="line">3:13	&#123;	&quot;&quot;</span><br><span class="line">4:2	IDENT	&quot;a&quot;</span><br><span class="line">4:4	:=	&quot;&quot;</span><br><span class="line">4:7	INT	&quot;1&quot;</span><br><span class="line">4:8	;	&quot;\n&quot;</span><br><span class="line">5:2	IDENT	&quot;b&quot;</span><br><span class="line">5:4	:=	&quot;&quot;</span><br><span class="line">5:7	INT	&quot;2&quot;</span><br><span class="line">5:8	;	&quot;\n&quot;</span><br><span class="line">6:2	if	&quot;if&quot;</span><br><span class="line">6:5	IDENT	&quot;true&quot;</span><br><span class="line">6:10	&#123;	&quot;&quot;</span><br><span class="line">7:3	IDENT	&quot;add&quot;</span><br><span class="line">7:6	(	&quot;&quot;</span><br><span class="line">7:7	IDENT	&quot;a&quot;</span><br></pre></td></tr></table></figure>
+
+<p>一旦经过词法化，源码被解析构造成语法树。</p>
+<p>语法树还包含了代码位置信息，该信息可用于debug或错误报告。</p>
+<h2 id="P2-类型检查和AST转化"><a href="#P2-类型检查和AST转化" class="headerlink" title="P2 类型检查和AST转化"></a>P2 类型检查和AST转化</h2><ul>
+<li><code>cmd/compile/internal/gc</code> 创建编译器AST，类型检查，AST转换</li>
+</ul>
+<p>AST是类型检查的。第一个步骤就是名字解析和类型推断，确定对象和标识符的对应关系，表达式是何种类型。Type-checking这一阶段还引入了额外的确定性步骤，例如，“声明未使用”、函数是否终止等。</p>
+<p>还有一些确定的转换也在AST阶段完成。一些节点会根据类型信息进行细化，比如字符串加法从算术加法节点中分离出来。其他一些示例是不可达代码清除、内联函数调用、逃逸分析。</p>
+<p>转化到AST的步骤可以通过命令<code>go tool compile -w</code>来展示出来，如果加上-l，则可以禁用内联。在我们的样例代码中，如果不禁用内联，add方法会被内联掉。我们可以分别使用<code>go tool compile -w example.o</code>和<code>go tool compile -w -l example.o</code>进行对比</p>
+<p>禁用了内联的命令，会输出这样的AST</p>
+<p><img src="/Images/go-compile-process1.png" alt="image-20210701110847543"></p>
+<p>没禁用内联的命令则不会生成，这里可以看出来，编译器做了内联的优化。</p>
+<h2 id="SSA-生成"><a href="#SSA-生成" class="headerlink" title="SSA 生成"></a>SSA 生成</h2><h3 id="SSA-概念"><a href="#SSA-概念" class="headerlink" title="SSA 概念"></a>SSA 概念</h3><ul>
+<li><code>cmd/compile/internal/gc</code> AST转化到SSA</li>
+<li><code>cmd/compile/internal/ssa</code> SSA阶段和规则</li>
+</ul>
+<p>在这个阶段，AST转化为SSA的格式，这是一种具有特定属性的更底层的IR，可以更轻松地在上面进行优化并最终生成机器码。阶段应用了内联函数。这些是编译器被教导要根据具体情况用高度优化的代码替换的特殊函数。在AST到SSA的转换期间，某些确定的节点也被降低为更简单的组件，使得编译器的其余部分可以使用它们。例如，内置的copy函数被内存移动取代、范围循环被重写为for循环。由于历史原因，其中一些目前在SSA转换之前发生，但长期计划是将它们全部移到这里。</p>
+<p>然后，应用一系列的、机器无关的阶段和规则。这些不涉及任何的计算机架构，因此可以在任何<code>GOARCH</code>变体上运行。</p>
+<p>这些通用的阶段包括：不可达代码清除、删除不需要的nil检查、移除无用的分支。</p>
+<p>通用的重写规则主要涉及表达式，包括表达式替换为常量、优化乘法和浮点运算等。</p>
+<p>SSA code可以用这个命令<code>dump</code>并展示出来</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GOSSAFUNC=main go tool compile main.go &amp;&amp; open ssa.html</span><br></pre></td></tr></table></figure>
+
+<h3 id="SSA阶段"><a href="#SSA阶段" class="headerlink" title="SSA阶段"></a>SSA阶段</h3><p><img src="/Images/go-compile-process2.png" alt="Go编译流程"></p>
+<h3 id="SSA优化解析"><a href="#SSA优化解析" class="headerlink" title="SSA优化解析"></a>SSA优化解析</h3><p>start Tab上生成了最开始的SSA</p>
+<p><img src="/Images/go-compile-process3.png" alt="image-20210701101016958"></p>
+<p>变量 a 和 b 与 if 条件一起在此处突出显示，以便我们稍后查看这些行是如何更改的。 代码还向我们展示了编译器如何管理 <code>println</code><br>函数，它被分解为 4 个步骤：<code>printlock</code>、<code>printint</code>、<code>printnl</code>、<code>printunlock</code>。 编译器会自动为我们加锁，并根据参数的类型调用相关方法正确打印。<br>在我们的示例中，由于 a 和 b 在编译时已知，编译器可以计算最终结果并将变量标记为不再需要。  <code>opt</code>阶段 会优化这部分：</p>
+<p><img src="/Images/go-compile-process4.png" alt="image-20210701101445933"></p>
+<p>这个阶段v7被优化计算成了3。并且接下来，因为v4和v5已经没有人声明使用，在<code>opt deadcode</code>阶段，v4和v5也会被清除掉</p>
+<p><img src="/Images/go-compile-process5.png" alt="image-20210701101729496"></p>
+<p>等待所有阶段完成之后，Go编译器将会生成中间汇编语言</p>
+<p><img src="/Images/go-compile-process6.png" alt="image-20210701102735403"></p>
+<p>下一阶段会将汇编语言转换为二进制文件</p>
+<h2 id="机器代码生成"><a href="#机器代码生成" class="headerlink" title="机器代码生成"></a>机器代码生成</h2><ul>
+<li><code>cmd/compile/internal/ssa</code> SSA “lowering” 和 特定arch的阶段</li>
+<li><code>cmd/internal/obj</code> 机器语言生成</li>
+</ul>
+<p>机器相关的编译阶段从”lowering”阶段开始，它将通用的值替换成机器特定的变体。例如，在 amd64 内存操作数上是可能的，因此可以组合许多加载-存储操作。</p>
+<p>注意这些底层阶段执行了所有机器特定的规则，所以也应用了很多优化。</p>
+<p>一旦SSA被”lowered”到更特定的目标架构，就开始执行最终的代码优化。这包括另一个不可达代码清除阶段、将值更靠近它们的使用者、移除从未使用的本地变量、寄存器分配。</p>
+<p>还有一部分重要工作包括堆栈帧布局，它将堆栈偏移分配给局部变量，以及指针存活分析，它计算每个 GC 安全点上哪些堆栈上指针是活跃的。</p>
+<p>在 SSA 生成阶段结束时，Go 函数已转换为一系列 obj.Prog 指令。 这些被传递给汇编器（cmd&#x2F;internal&#x2F;obj），汇编器将它们转换成机器代码并写出最终的目标文件。<br>目标文件还将包含反射数据、导出数据和调试信息。</p>
+<p>我们可以使用<code>go tool objdump $binary</code>来查看汇编代码。当compile的<code>.o</code>文件生成之后，可以通过<code>go tool link</code>来生成二进制可运行文件。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/06/27/Go%20%E5%B9%B6%E5%8F%91%E8%8C%83%E5%BC%8F%20%E8%B6%85%E6%97%B6/" rel="prev" title="Go并发范式：超时">
+                  <i class="fa fa-angle-left"></i> Go并发范式：超时
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/07/02/Go%20%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" rel="next" title="Go 内存模型">
+                  Go 内存模型 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

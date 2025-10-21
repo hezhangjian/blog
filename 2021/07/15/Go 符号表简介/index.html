@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Go符号表简介参考资料 https:&#x2F;&#x2F;medium.com&#x2F;a-journey-with-go&#x2F;go-how-to-take-advantage-of-the-symbols-table-360dd52269e5 在参考资料的基础上，尝试复写已存在的变量，并更新Go版本到1.16。 符号表由编译器创建维护，用于存储程序相关的信息，比如函数或全局变量。 符号表每个由Go编译的二进制程序默认包含符号">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go 符号表简介">
+<meta property="og:url" content="https://hezhangjian.com/2021/07/15/Go%20%E7%AC%A6%E5%8F%B7%E8%A1%A8%E7%AE%80%E4%BB%8B/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="Go符号表简介参考资料 https:&#x2F;&#x2F;medium.com&#x2F;a-journey-with-go&#x2F;go-how-to-take-advantage-of-the-symbols-table-360dd52269e5 在参考资料的基础上，尝试复写已存在的变量，并更新Go版本到1.16。 符号表由编译器创建维护，用于存储程序相关的信息，比如函数或全局变量。 符号表每个由Go编译的二进制程序默认包含符号">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-symbol-table1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-symbol-table2.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-symbol-table3.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/go-symbol-table4.png">
+<meta property="article:published_time" content="2021-07-15T03:01:00.000Z">
+<meta property="article:modified_time" content="2025-10-21T11:32:27.127Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/go-symbol-table1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/07/15/Go%20%E7%AC%A6%E5%8F%B7%E8%A1%A8%E7%AE%80%E4%BB%8B/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/07/15/Go%20%E7%AC%A6%E5%8F%B7%E8%A1%A8%E7%AE%80%E4%BB%8B/","path":"2021/07/15/Go 符号表简介/","title":"Go 符号表简介"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Go 符号表简介 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Go%E7%AC%A6%E5%8F%B7%E8%A1%A8%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">Go符号表简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%A6%E5%8F%B7%E8%A1%A8"><span class="nav-number">1.1.</span> <span class="nav-text">符号表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%98%E9%87%8F"><span class="nav-number">1.2.</span> <span class="nav-text">自定义变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Debug"><span class="nav-number">1.3.</span> <span class="nav-text">Debug</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E5%A4%A7%E5%B0%8F"><span class="nav-number">1.4.</span> <span class="nav-text">二进制文件大小</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/15/Go%20%E7%AC%A6%E5%8F%B7%E8%A1%A8%E7%AE%80%E4%BB%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go 符号表简介 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go 符号表简介
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-15 11:01:00" itemprop="dateCreated datePublished" datetime="2021-07-15T11:01:00+08:00">2021-07-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Go符号表简介"><a href="#Go符号表简介" class="headerlink" title="Go符号表简介"></a>Go符号表简介</h1><p>参考资料</p>
+<p><a target="_blank" rel="noopener" href="https://medium.com/a-journey-with-go/go-how-to-take-advantage-of-the-symbols-table-360dd52269e5">https://medium.com/a-journey-with-go/go-how-to-take-advantage-of-the-symbols-table-360dd52269e5</a></p>
+<p>在参考资料的基础上，尝试复写已存在的变量，并更新Go版本到1.16。</p>
+<p>符号表由编译器创建维护，用于存储程序相关的信息，比如函数或全局变量。</p>
+<h2 id="符号表"><a href="#符号表" class="headerlink" title="符号表"></a>符号表</h2><p>每个由Go编译的二进制程序默认包含符号表。举个例子</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> AppVersion <span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">`Version: `</span> + AppVersion)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">go build . -o main</span><br><span class="line">nm main</span><br></pre></td></tr></table></figure>
+
+<p>符号表输出非常大，截取其中几行，如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">000000000114b000 s _main..inittask</span><br><span class="line">000000000115fc10 b _main.AppVersion</span><br><span class="line">00000000010a3120 t _main.main</span><br><span class="line">0000000001158d10 d _runtime.buildVersion</span><br></pre></td></tr></table></figure>
+
+<p>符号前面用<code>b</code>标识是未初始化的数据。我们之前的变量<code>AppVersion</code>的确也没有初始化。<code>d</code>代表已初始化的数据。<code>t</code>代表文字符号，由这两者组成函数。</p>
+<p><code>go</code>也包装了<code>nm</code>命令，使用<code>go tool nm</code>可以得到相同的结果。</p>
+<h2 id="自定义变量"><a href="#自定义变量" class="headerlink" title="自定义变量"></a>自定义变量</h2><p>运行命令<code>go build</code>时，将会执行两个阶段：编译和链接。链接阶段从编译阶段的产物中派生出二进制文件。为了实现这一目标，链接器使用符号表将符号重新定位到最终的二进制文件。</p>
+<p>Go允许我们通过-X命令来复写符号表。这是例子</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go build -o ex -ldflags=<span class="string">&quot;-X main.AppVersion=v1.0.0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>重新运行程序，程序打印</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Version: v1.0.0</span><br></pre></td></tr></table></figure>
+
+<p>重新运行<code>nm</code>命令，发现变量已经是初始化状态了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0000000001158c80 d _main.AppVersion</span><br></pre></td></tr></table></figure>
+
+<p>该方式不仅可以复写未初始化的变量，同时也可以复现已初始化的变量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go build -o ex -ldflags=&quot;-X main.AppVersion=v1.0.0,main.AppName=k8s&quot;</span><br></pre></td></tr></table></figure>
+
+<p>感兴趣的朋友可以用这个程序试一下输出是什么</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> AppVersion <span class="type">string</span></span><br><span class="line"><span class="keyword">var</span> AppName = <span class="string">&quot;app&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line">	fmt.Println(<span class="string">`appName: `</span> + AppName)</span><br><span class="line">	fmt.Println(<span class="string">`Version: `</span> + AppVersion)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Debug"><a href="#Debug" class="headerlink" title="Debug"></a>Debug</h2><p>符号表的目的是确保使用的标识符在使用之前已经得到了很好地声明。这意味着一旦程序构建完成，它就不再需要该表了。但是，默认情况下，出于调试目的，符号表嵌入在Go二进制文件中。在了解如何从二进制文件中删除它之前，让我们了解如何利用它。使用<code>go build</code>构建应用程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go build -gcflags <span class="string">&quot;-N -l&quot;</span> -ldflags=<span class="string">&quot;-compressdwarf=false -X main.AppVersion=v1.0.0 -X main.AppName=k8s&quot;</span> main.go</span><br></pre></td></tr></table></figure>
+
+<p>上述参数解释</p>
+<ul>
+<li>Go 1.11 之后，为了压缩二进制文件的大小，debug信息被压缩了，OSX的gdb不能识别压缩的DWARF信息</li>
+<li>-N代表禁止优化，不要在生产环境上开启，此处仅为演示使用</li>
+<li>-l参数代表禁止内联，也建议不要在生产环境上开启，此处仅为演示使用</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb main</span><br></pre></td></tr></table></figure>
+
+<p><img src="/Images/go-symbol-table1.png" alt="image-20210715104937454"></p>
+<p>我们可以通过<code>-s</code>去掉符号表信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go build -gcflags <span class="string">&quot;-N -l&quot;</span> -ldflags=<span class="string">&quot;-s -X main.AppVersion=v1.0.0 -X main.AppName=k8s&quot;</span> main.go</span><br></pre></td></tr></table></figure>
+
+<p>gdb就看不到其他信息了</p>
+<p><img src="/Images/go-symbol-table2.png" alt="image-20210715105230494"></p>
+<h2 id="二进制文件大小"><a href="#二进制文件大小" class="headerlink" title="二进制文件大小"></a>二进制文件大小</h2><p>去掉符号表，会使debug变得更加困难，但可以有效降低文件大小。MAC上两个文件的差异是</p>
+<p><img src="/Images/go-symbol-table3.png" alt="image-20210715105637847"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">go build -gcflags <span class="string">&quot;-N -l&quot;</span> -ldflags=<span class="string">&quot;-compressdwarf=false -X main.AppVersion=v1.0.0 -X main.AppName=k8s&quot;</span> main.go</span><br><span class="line">go build -gcflags <span class="string">&quot;-N -l&quot;</span> -ldflags=<span class="string">&quot;-s -X main.AppVersion=v1.0.0 -X main.AppName=k8s&quot;</span> -o main-s main.go</span><br></pre></td></tr></table></figure>
+
+<p>如果在linux上，可以开启压缩dwarf特性，差距差不多在</p>
+<p><img src="/Images/go-symbol-table4.png" alt="image-20210715110105760"></p>
+<p>百分之20~百分之30之间</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/07/12/%E6%95%B4%E6%95%B0%E7%9A%84Varint%E7%BC%96%E7%A0%81/" rel="prev" title="整数的Varint编码">
+                  <i class="fa fa-angle-left"></i> 整数的Varint编码
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/08/02/Flutter%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%92%8C%E6%8A%80%E5%B7%A7%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/" rel="next" title="Flutter最佳实践和技巧【翻译】">
+                  Flutter最佳实践和技巧【翻译】 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

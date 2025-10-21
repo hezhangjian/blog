@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="前言iptables和ipvs都是常见的转发工具，可以进行报文的转发，比如从 IPa,Port1的消息，经过转发机器发向IPb,Port2,不管是在iptables，抑或是ipvs，进行过一次转发之后，就会留下一条转发记录，iptables是在nf_conntrack，ipvs是在ipvs自己的会话管理里，后面的来自IPa,Port1的消息，就会直接发向IPb,Port2。这个时候，假如强行有一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iptables、ipvs规格冲突现象分析">
+<meta property="og:url" content="https://hezhangjian.com/2021/03/12/iptables%E3%80%81ipvs%E8%A7%84%E6%A0%BC%E5%86%B2%E7%AA%81%E7%8E%B0%E8%B1%A1%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="前言iptables和ipvs都是常见的转发工具，可以进行报文的转发，比如从 IPa,Port1的消息，经过转发机器发向IPb,Port2,不管是在iptables，抑或是ipvs，进行过一次转发之后，就会留下一条转发记录，iptables是在nf_conntrack，ipvs是在ipvs自己的会话管理里，后面的来自IPa,Port1的消息，就会直接发向IPb,Port2。这个时候，假如强行有一个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/iptables-ipvs-conflict1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/iptables-ipvs-conflict2.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/iptables-ipvs-conflict3.png">
+<meta property="article:published_time" content="2021-03-12T09:03:39.000Z">
+<meta property="article:modified_time" content="2025-10-21T11:32:27.313Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/iptables-ipvs-conflict1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/03/12/iptables%E3%80%81ipvs%E8%A7%84%E6%A0%BC%E5%86%B2%E7%AA%81%E7%8E%B0%E8%B1%A1%E5%88%86%E6%9E%90/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/03/12/iptables%E3%80%81ipvs%E8%A7%84%E6%A0%BC%E5%86%B2%E7%AA%81%E7%8E%B0%E8%B1%A1%E5%88%86%E6%9E%90/","path":"2021/03/12/iptables、ipvs规格冲突现象分析/","title":"iptables、ipvs规格冲突现象分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>iptables、ipvs规格冲突现象分析 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BA%E5%9C%BA%E7%BD%91%E5%85%83%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">出场网元介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iptables%E5%92%8CIptables%E5%86%B2%E7%AA%81"><span class="nav-number">3.</span> <span class="nav-text">Iptables和Iptables冲突</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">3.1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">3.2.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Iptables%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="nav-number">3.3.</span> <span class="nav-text">Iptables流程图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iptables%E5%92%8CIpvs%E5%86%B2%E7%AA%81"><span class="nav-number">4.</span> <span class="nav-text">Iptables和Ipvs冲突</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C-1"><span class="nav-number">4.1.</span> <span class="nav-text">准备工作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">实验流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#V%E4%B8%8A%E6%9D%A5%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">5.1.</span> <span class="nav-text">V上来的流程</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/03/12/iptables%E3%80%81ipvs%E8%A7%84%E6%A0%BC%E5%86%B2%E7%AA%81%E7%8E%B0%E8%B1%A1%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="iptables、ipvs规格冲突现象分析 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iptables、ipvs规格冲突现象分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-03-12 17:03:39" itemprop="dateCreated datePublished" datetime="2021-03-12T17:03:39+08:00">2021-03-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>iptables和ipvs都是常见的转发工具，可以进行报文的转发，比如从 <code>IPa,Port1</code>的消息，经过转发机器发向<code>IPb,Port2</code>,不管是在iptables，抑或是ipvs，进行过一次转发之后，就会留下一条转发记录，iptables是在nf_conntrack，ipvs是在ipvs自己的会话管理里，后面的来自<code>IPa,Port1</code>的消息，就会直接发向<code>IPb,Port2</code>。这个时候，假如强行有一个报文，试图把<code>IPc,Port1</code>的消息，转发到<code>IPb,Port2</code>该怎么办？在四元组冲突的情况下，该转发给谁？返程的报文是什么走向。是这篇文章试图分析的问题</p>
+<p>本文基于Linux内核版本<code>5.4.0</code></p>
+<h2 id="出场网元介绍"><a href="#出场网元介绍" class="headerlink" title="出场网元介绍"></a>出场网元介绍</h2><p><img src="/Images/iptables-ipvs-conflict1.png" alt="image-20210311221120239"></p>
+<ul>
+<li><p>S: 缩写服务的意思</p>
+</li>
+<li><p>G: 缩写Gateway的意思</p>
+</li>
+</ul>
+<h2 id="Iptables和Iptables冲突"><a href="#Iptables和Iptables冲突" class="headerlink" title="Iptables和Iptables冲突"></a>Iptables和Iptables冲突</h2><h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>假设S1和S2都需要经过G使用33333端口发送消息到V的33333端口，我们先配置G的iptables规则:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w net.ipv4.ip_forward=1</span><br><span class="line">iptables -t nat -I POSTROUTING -p udp -s <span class="variable">$&#123;S的子网&#125;</span> -o eth0 --sport 33333 -j SNAT  --to-source <span class="variable">$&#123;G的IP&#125;</span>:33333</span><br></pre></td></tr></table></figure>
+
+<p>接下来在两台S上，把发往V的报文的默认路由指向V</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route add <span class="variable">$&#123;V的IP&#125;</span>/32 via <span class="variable">$&#123;G的IP&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>实验前先执行如下命令，收集输出</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">~# conntrack -S</span><br><span class="line">cpu=n found=0 invalid=0 ignore=0 insert=0 insert_failed=0 drop=0 early_drop=0 error=0 search_restart=0</span><br></pre></td></tr></table></figure>
+
+<p>这个命令的输出跟您的cpu相关，有几个cpu就会输出几行。接下来在V上开启抓包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpdump -port 33333 -ann</span><br></pre></td></tr></table></figure>
+
+<p>然后在两台S上执行命令发送报文，这里有个小技巧就是使用不一样长度的内容，这样tcpdump会打印报文的长度，一眼就可以看出来送达的报文是谁的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Hello world&quot;</span>| nc -4u -p 33333 V的IP 33333</span><br></pre></td></tr></table></figure>
+
+<p>你会观察到，只有先发送的报文抵达了V。随后再执行<code>conntrack -S</code>，收集输出的时候，会发现<code>insert_failed</code>和<code>drop</code>都增加了1。</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>iptables和iptables冲突的场景，先发送的先生效，后生效的没有发送（这一点你可以通过在G上抓包证实）。观察点就是命令<code>conntrack -S</code>的输出，<code>insert_failed</code>和<code>drop</code>都有所增加。</p>
+<h3 id="Iptables流程图"><a href="#Iptables流程图" class="headerlink" title="Iptables流程图"></a>Iptables流程图</h3><p>我在做这个实验的时候，顺手打开了iptables的trace功能，记录一下报文的流程</p>
+<p><img src="/Images/iptables-ipvs-conflict2.png" alt="image-20210311222756033"></p>
+<p>发送失败的也会走完这个流程，然后在插入iptables规则的时候失败。</p>
+<h2 id="Iptables和Ipvs冲突"><a href="#Iptables和Ipvs冲突" class="headerlink" title="Iptables和Ipvs冲突"></a>Iptables和Ipvs冲突</h2><h3 id="准备工作-1"><a href="#准备工作-1" class="headerlink" title="准备工作"></a>准备工作</h3><p>因为ipvs不会和ipvs冲突，所以我们尝试构造一下ipvs和iptables冲突的场景，让我们添加上允许V经过G发送报文到S1，让我们在G上配置ipvs所需的转发规则</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ipvsadm -A -u $&#123;G的IP&#125;:33333 -s rr</span><br><span class="line">ipvsadm -a -u $&#123;G的IP&#125;:33333 -r $&#123;S1的IP&#125;:33333 -m</span><br></pre></td></tr></table></figure>
+
+<h2 id="实验流程"><a href="#实验流程" class="headerlink" title="实验流程"></a>实验流程</h2><p>从V发送报文转发到S1,然后S2通过SNAT发送报文到V，观察情况</p>
+<p>实施前的准备观察项</p>
+<ul>
+<li><p>ipvsadm -lnc观察会话</p>
+</li>
+<li><p>ipvsadm -ln –stats 观察报文统计</p>
+</li>
+<li><p>conntrack -L|grep 33333 观察会话</p>
+</li>
+<li><p>当V发送报文到S1后，</p>
+</li>
+</ul>
+<p>Ipvsadm -ln -stats统计值增加了，只有ipvs的会话表里有内容，iptables会话表里没有内容。</p>
+<ul>
+<li>然后S2通过SNAT发送报文到V后，</li>
+</ul>
+<p>ipvsadm -ln -stats统计值没有变化，iptables会话表出现内容。（这里我试过S1先返回报文做几次交互，但是是一样的结果）</p>
+<p>但是在ipvs有效期间，通过S1不断发送报文，还是可以发送到V节点的。这个时候，会出现S1和S2同时都能发送报文到V。</p>
+<ul>
+<li>让我们看看报文返程（即V发送到G的报文）会发送给谁？是S1还是S2。答案是S2。</li>
+</ul>
+<p>返程的报文优先匹配了会话表，发送给了S2。如果conntrack老化，那么才会发送给S1</p>
+<h3 id="V上来的流程"><a href="#V上来的流程" class="headerlink" title="V上来的流程"></a>V上来的流程</h3><p><img src="/Images/iptables-ipvs-conflict3.png" alt="image-20210311224826893"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/03/11/%E4%B9%A6%E5%86%99%E4%B8%80%E4%B8%AALinux%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97/" rel="prev" title="书写一个Linux内核模块">
+                  <i class="fa fa-angle-left"></i> 书写一个Linux内核模块
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/03/12/Rum%E5%AE%9A%E7%90%86%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/" rel="next" title="RUM定理论文笔记">
+                  RUM定理论文笔记 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

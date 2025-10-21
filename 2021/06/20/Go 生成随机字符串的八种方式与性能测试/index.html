@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="前言这是**icza**在StackOverflow上的一篇回答，质量很高，翻译一下，大家一起学习 问题是：在go，有没有什么最快最简单的方法，用来生成只包含英文字母的随机字符串 icza给出了8个方案，最简单的方法并不是最快的方法，它们各有优劣，末尾附上性能测试结果： 1. Runes比较简单的答案，声明一个rune数组，通过随机数选取rune字符，拼接成结果 12345678910111213">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go 生成随机字符串的八种方式与性能测试">
+<meta property="og:url" content="https://hezhangjian.com/2021/06/20/Go%20%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E5%85%AB%E7%A7%8D%E6%96%B9%E5%BC%8F%E4%B8%8E%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="前言这是**icza**在StackOverflow上的一篇回答，质量很高，翻译一下，大家一起学习 问题是：在go，有没有什么最快最简单的方法，用来生成只包含英文字母的随机字符串 icza给出了8个方案，最简单的方法并不是最快的方法，它们各有优劣，末尾附上性能测试结果： 1. Runes比较简单的答案，声明一个rune数组，通过随机数选取rune字符，拼接成结果 12345678910111213">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-20T05:57:42.000Z">
+<meta property="article:modified_time" content="2025-10-21T11:32:27.127Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/06/20/Go%20%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E5%85%AB%E7%A7%8D%E6%96%B9%E5%BC%8F%E4%B8%8E%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/06/20/Go%20%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E5%85%AB%E7%A7%8D%E6%96%B9%E5%BC%8F%E4%B8%8E%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/","path":"2021/06/20/Go 生成随机字符串的八种方式与性能测试/","title":"Go 生成随机字符串的八种方式与性能测试"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Go 生成随机字符串的八种方式与性能测试 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Runes"><span class="nav-number">1.1.</span> <span class="nav-text">1. Runes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Bytes"><span class="nav-number">1.2.</span> <span class="nav-text">2. Bytes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Remainder"><span class="nav-number">1.3.</span> <span class="nav-text">3. Remainder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Masking"><span class="nav-number">1.4.</span> <span class="nav-text">4. Masking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Masking-Improved"><span class="nav-number">1.5.</span> <span class="nav-text">5. Masking Improved</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Source"><span class="nav-number">1.6.</span> <span class="nav-text">6. Source</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E4%BD%BF%E7%94%A8-strings-Builder"><span class="nav-number">1.7.</span> <span class="nav-text">7. 使用 strings.Builder</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/06/20/Go%20%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E5%85%AB%E7%A7%8D%E6%96%B9%E5%BC%8F%E4%B8%8E%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go 生成随机字符串的八种方式与性能测试 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go 生成随机字符串的八种方式与性能测试
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-20 13:57:42" itemprop="dateCreated datePublished" datetime="2021-06-20T13:57:42+08:00">2021-06-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这是**<a target="_blank" rel="noopener" href="https://stackoverflow.com/users/1705598/icza">icza</a>**<br>在StackOverflow上的一篇<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go/22892986#22892986">回答</a><br>，质量很高，翻译一下，大家一起学习</p>
+<p>问题是：在go，有没有什么最快最简单的方法，用来生成只包含英文字母的随机字符串</p>
+<p>icza给出了8个方案，最简单的方法并不是最快的方法，它们各有优劣，末尾附上性能测试结果：</p>
+<h3 id="1-Runes"><a href="#1-Runes" class="headerlink" title="1. Runes"></a>1. Runes</h3><p>比较简单的答案，声明一个rune数组，通过随机数选取rune字符，拼接成结果</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach1</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> letters = []<span class="type">rune</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">rune</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		b[i] = letters[rand.Intn(<span class="built_in">len</span>(letters))]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach1</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach1</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Bytes"><a href="#2-Bytes" class="headerlink" title="2. Bytes"></a>2. Bytes</h3><p>如果随机挑选的字符只包含英文字母，我们可以直接使用bytes，因为在UTF-8编码模式下，英文字符和Bytes是一对一的（Go正是使用UTF-8模式编码）</p>
+<p>所以可以把</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> letters = []<span class="type">rune</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>用这个替代</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> letters = []<span class="type">byte</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>或者更好</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>现在我们有很大的进展了，我们把它变为了一个常数，在go里面，只有string常数，可并没有slice常数。额外的收获，表达式<code>len(letters)</code><br>也变为了一个常数（如果<code>s</code>为常数，那么<code>len(s)</code>也将是常数)</p>
+<p>我们没有付出什么代码，现在<code>letters</code>可以通过下标访问其中的bytes了，这正是我们需要的。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach2</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		b[i] = letters[rand.Intn(<span class="built_in">len</span>(letters))]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach2</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach2</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-Remainder"><a href="#3-Remainder" class="headerlink" title="3. Remainder"></a>3. Remainder</h3><p>上面的解决方法通过<code>rand.Intn()</code>来获得一个随机字母，这个方法底层调用了<code>Rand.Intn()</code>，然后调用了<code>Rand.Int31n()</code></p>
+<p>相比于生成63个随机bits的函数<code>rand.Int63()</code>来说，<code>Rand.Int31n()</code>很慢。</p>
+<p>我们可以简单地调用<code>rand.Int63()</code>然后除以<code>len(letterBytes)</code>，使用它的余数来生成字母</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach3</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		b[i] = letters[rand.Int63() % <span class="type">int64</span>(<span class="built_in">len</span>(letters))]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach3</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach3</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这个算法能正常工作并且非常快，不过它牺牲了部分精确性，字母出现的概率并不是精确一样的（假设<code>rand.Int63()</code><br>生成63比特的数字是等概率的）。由于字母总共才52个，远小于 1&lt;&lt;63 - 1，因此失真非常小，因此实际上这完全没问题。</p>
+<p>解释: 假设你想要0<del>5的随机数，如果使用3位的bit，3位的bit等概率出现0</del>7，所以出现0和1的概率是出现2、3、4概率的两倍。使用5位的<br>bit，0和1出现的概率是<code>6/32</code>，2、3、4出现的概率是<code>5/32</code>。现在接近了一些了，是吧？不断地增加比特位，这个差距就会变得越小，当你有63位地时候，这差别已经可忽略不计。</p>
+<h3 id="4-Masking"><a href="#4-Masking" class="headerlink" title="4. Masking"></a>4. Masking</h3><p>在上一个方案的基础上，我们通过仅使用随机数的最低n位保持均匀分布，n为表示所有字符的数量。比如我们有52个字母，我们需要6位（52 &#x3D;<br>110100b）。所以我们仅仅使用了<code>rand.Int63()</code>的最后6位。并且，为了保持所有字符的均匀分布，我们决定只接受在<br><code>0..len(letterBytes)-1</code>的数字即0~51。（译者注：这里已经没有第三个方案的不准确问题了）</p>
+<p>最低几位大于等于<code>len(letterBytes)</code>的概率一般小于<code>0.5</code><br>（平均值为0.25），这意味着出现这种情况，只要重试就好。重试n次之后，我们仍然需要丢弃这个数字的概率远小于0.5的n次方（这是上界了，实际会低于这个值）。以本文的52个字母为例，最低6位需要丢弃的概率只有<br><code>(64-52)/64=0.19</code>。这意味着，重复10次，仍然没有数字的概率是1*10^-8。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach4</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// 6 bits to represent a letters index</span></span><br><span class="line">	letterIdBits = <span class="number">6</span></span><br><span class="line">	<span class="comment">// All 1-bits as many as letterIdBits</span></span><br><span class="line">	letterIdMask = <span class="number">1</span> &lt;&lt;letterIdBits - <span class="number">1</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		<span class="keyword">if</span> idx := <span class="type">int</span>(rand.Int63() &amp; letterIdMask); idx &lt; <span class="built_in">len</span>(letters) &#123;</span><br><span class="line">			b[i] = letters[idx]</span><br><span class="line">			i++</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach4</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach4</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-Masking-Improved"><a href="#5-Masking-Improved" class="headerlink" title="5. Masking Improved"></a>5. Masking Improved</h3><p>第4节的方案只使用了<code>rand.Int63()</code>方法返回的64个随机字节的后6位。这实在是太浪费了，因为<code>rand.Int63()</code>是我们算法中最耗时的部分了。</p>
+<p>如果我们有52个字母，6位就能生成一个随机字符串。所以63个随机字节，可以利用<code>63/6=10</code>次。</p>
+<p>译者注：使用了缓存，缓存了<code>rand.Int63()</code>方法返回的内容，使用10次，不过已经并不是协程安全的了。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach5</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// 6 bits to represent a letter index</span></span><br><span class="line">	letterIdBits = <span class="number">6</span></span><br><span class="line">	<span class="comment">// All 1-bits as many as letterIdBits</span></span><br><span class="line">	letterIdMask = <span class="number">1</span>&lt;&lt;letterIdBits - <span class="number">1</span></span><br><span class="line">	letterIdMax  = <span class="number">63</span> / letterIdBits</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="comment">// A rand.Int63() generates 63 random bits, enough for letterIdMax letters!</span></span><br><span class="line">	<span class="keyword">for</span> i, cache, remain := n<span class="number">-1</span>, rand.Int63(), letterIdMax; i &gt;= <span class="number">0</span>; &#123;</span><br><span class="line">		<span class="keyword">if</span> remain == <span class="number">0</span> &#123;</span><br><span class="line">			cache, remain = rand.Int63(), letterIdMax</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> idx := <span class="type">int</span>(cache &amp; letterIdMask); idx &lt; <span class="built_in">len</span>(letters) &#123;</span><br><span class="line">			b[i] = letters[idx]</span><br><span class="line">			i--</span><br><span class="line">		&#125;</span><br><span class="line">		cache &gt;&gt;= letterIdBits</span><br><span class="line">		remain--</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach5</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach5</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-Source"><a href="#6-Source" class="headerlink" title="6. Source"></a>6. Source</h3><p>第5个方案非常好，能改进的点并不多。我们可以但不值得搞得很复杂。</p>
+<p>让我们来找可以改进的点：<strong>随机数的生成源</strong></p>
+<p><code>crypto/rand</code>的包提供了<code>Read(b []byte)</code>的函数，可以通过这个函数获得需要的随机比特数，只需要一次调用。不过并不能提升性能，因为<br><code>crypto/rand</code>实现了一个密码学上的安全伪随机数，所以速度比较慢。</p>
+<p>所以让我们坚持使用<code>math/rand</code>包，<code>rand.Rand</code>使用<code>rand.Source</code>作为随机位的来源，<code>rand.Source</code>是一个声明了<code>Int63() int64</code><br>的接口：正是我们在最新解决方案中需要和使用的唯一方法。</p>
+<p>所以我们不是真的需要<code>rand.Rand</code>，<code>rand.Source</code>包对于我们来说已经足够了</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach6</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> src = rand.NewSource(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// 6 bits to represent a letter index</span></span><br><span class="line">	letterIdBits = <span class="number">6</span></span><br><span class="line">	<span class="comment">// All 1-bits as many as letterIdBits</span></span><br><span class="line">	letterIdMask = <span class="number">1</span>&lt;&lt;letterIdBits - <span class="number">1</span></span><br><span class="line">	letterIdMax  = <span class="number">63</span> / letterIdBits</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="comment">// A rand.Int63() generates 63 random bits, enough for letterIdMax letters!</span></span><br><span class="line">	<span class="keyword">for</span> i, cache, remain := n<span class="number">-1</span>, src.Int63(), letterIdMax; i &gt;= <span class="number">0</span>; &#123;</span><br><span class="line">		<span class="keyword">if</span> remain == <span class="number">0</span> &#123;</span><br><span class="line">			cache, remain = src.Int63(), letterIdMax</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> idx := <span class="type">int</span>(cache &amp; letterIdMask); idx &lt; <span class="built_in">len</span>(letters) &#123;</span><br><span class="line">			b[i] = letters[idx]</span><br><span class="line">			i--</span><br><span class="line">		&#125;</span><br><span class="line">		cache &gt;&gt;= letterIdBits</span><br><span class="line">		remain--</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach6</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach6</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意到这里我们没有使用种子初始化rand了，取而代之的是初始化了<code>rand.Source</code></p>
+<p>还有一件需要注意的事，<code>math/rand</code>的文档指出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">默认的Source是协程安全的</span><br></pre></td></tr></table></figure>
+
+<p>所以默认的Source比通过<code>rand.NewSource()</code>创建出来的<code>Source</code>要慢。不用处理协程并发场景，当然慢啦。</p>
+<h3 id="7-使用-strings-Builder"><a href="#7-使用-strings-Builder" class="headerlink" title="7. 使用 strings.Builder"></a>7. 使用 strings.Builder</h3><p>之前的解决方案都返回了通过slice构造的字符串。最后的一次转换进行了一次拷贝，因为字符串是不可变的，如果转换的时候不进行拷贝，就无法保证转换完成之后，byte<br>slice再被修改后，字符串仍能保持不变。</p>
+<p>Go1.10引入了<strong>strings.Builder</strong>，这是一个新的类型，和bytes.Buffer类似，用来构造字符串。底层使用<code>[]byte</code><br>来构造内容，正是我们现在在做的，最后可以通过<code>Builder.String()</code>方法来获得最终的字符串值。但它很酷的地方在于，它无需执行刚才谈到的复制即可完成此操作。它敢这么做是因为它底层构造的<br><code>[]byte</code>从未暴露出来，所以仍然可以保证没有人可以无意地、恶意地来修改已经生成的不可变字符串。</p>
+<p>所以我们的下一个想法不是在slice中构建随机字符串，而是在 strings.Builder 的帮助下，一旦我们完成，我们就可以获取并返回结果，而无需复制。<br>这可能在速度方面有所帮助，并且在内存使用和分配方面肯定会有所帮助（译者注：等会在benchmark中会清晰地看到）。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/06/14/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E%E6%B5%81%E8%BD%AC%E5%88%B0S3%E5%AF%B9%E6%AF%94/" rel="prev" title="物联网平台规则引擎流转到S3对比">
+                  <i class="fa fa-angle-left"></i> 物联网平台规则引擎流转到S3对比
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/06/21/Go%20time.Time%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8%E5%80%BC%E4%BC%A0%E9%80%92%E8%BF%98%E6%98%AF%E6%8C%87%E9%92%88%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/" rel="next" title="Go time.Time 应该使用值传递还是指针引用传递">
+                  Go time.Time 应该使用值传递还是指针引用传递 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

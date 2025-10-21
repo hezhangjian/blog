@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="RUM定理的背景现在的基础设备复杂，多种多样。数据的保存和查询也多种多样，很多时候会为了很小的差异重新设计数据结构。这篇论文主要是指出了无论如何设计数据结构，都不可能在Read（读取）、Update(更新)、Memory(存储)三个方向上都做到最优，也希望指导接下来其他数据结构的设计，更希望能有一种自适应的系统，可以根据数据的查询、数据的写入、配置的硬件、人工的配置在Read、Update、Mem">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RUM定理论文笔记">
+<meta property="og:url" content="https://hezhangjian.com/2021/03/12/Rum%E5%AE%9A%E7%90%86%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="RUM定理的背景现在的基础设备复杂，多种多样。数据的保存和查询也多种多样，很多时候会为了很小的差异重新设计数据结构。这篇论文主要是指出了无论如何设计数据结构，都不可能在Read（读取）、Update(更新)、Memory(存储)三个方向上都做到最优，也希望指导接下来其他数据结构的设计，更希望能有一种自适应的系统，可以根据数据的查询、数据的写入、配置的硬件、人工的配置在Read、Update、Mem">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/rum1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/rum2.png">
+<meta property="article:published_time" content="2021-03-12T10:58:51.000Z">
+<meta property="article:modified_time" content="2025-10-21T11:32:27.313Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/rum1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/03/12/Rum%E5%AE%9A%E7%90%86%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/03/12/Rum%E5%AE%9A%E7%90%86%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/","path":"2021/03/12/Rum定理论文笔记/","title":"RUM定理论文笔记"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>RUM定理论文笔记 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#RUM%E5%AE%9A%E7%90%86%E7%9A%84%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">RUM定理的背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RUM%E5%BC%80%E9%94%80%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">RUM开销介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%BB%E5%BC%80%E9%94%80-RO"><span class="nav-number">2.1.</span> <span class="nav-text">读开销 RO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E5%BC%80%E9%94%80-UO"><span class="nav-number">2.2.</span> <span class="nav-text">更新开销 UO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%BC%80%E9%94%80-MO"><span class="nav-number">2.3.</span> <span class="nav-text">内存开销 MO</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RUM%E4%B8%8D%E5%8F%AF%E8%83%BD%E8%BE%BE%E6%88%90%E4%B8%BE%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">RUM不可能达成举例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E5%8C%96RO"><span class="nav-number">3.1.</span> <span class="nav-text">最小化RO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E5%8C%96UO"><span class="nav-number">3.2.</span> <span class="nav-text">最小化UO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E5%8C%96MO"><span class="nav-number">3.3.</span> <span class="nav-text">最小化MO</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84RUM"><span class="nav-number">4.</span> <span class="nav-text">数据结构的RUM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BA%E6%96%87%E4%BD%9C%E8%80%85%E5%AF%B9%E5%B0%86%E6%9D%A5%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E6%83%B3"><span class="nav-number">5.</span> <span class="nav-text">论文作者对将来系统的设想</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BA%E6%96%87%E4%B8%AD%E5%85%B6%E4%BB%96%E6%9C%89%E6%84%8F%E6%80%9D%E7%9A%84%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">论文中其他有意思的点</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/03/12/Rum%E5%AE%9A%E7%90%86%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="RUM定理论文笔记 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RUM定理论文笔记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-03-12 18:58:51" itemprop="dateCreated datePublished" datetime="2021-03-12T18:58:51+08:00">2021-03-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="RUM定理的背景"><a href="#RUM定理的背景" class="headerlink" title="RUM定理的背景"></a>RUM定理的背景</h2><p>现在的基础设备复杂，多种多样。数据的保存和查询也多种多样，很多时候会为了很小的差异重新设计数据结构。这篇论文主要是指出了无论如何设计数据结构，都不可能在Read（读取）、Update(更新)、Memory(存储)三个方向上都做到最优，也希望指导接下来其他数据结构的设计，更希望能有一种自适应的系统，可以根据数据的查询、数据的写入、配置的硬件、人工的配置在Read、Update、Memory之间权衡。</p>
+<h2 id="RUM开销介绍"><a href="#RUM开销介绍" class="headerlink" title="RUM开销介绍"></a>RUM开销介绍</h2><p>我们将存储在数据中心的数据称作基础数据。那些用来辅助写入，辅助查询的数据成为辅助数据</p>
+<h3 id="读开销-RO"><a href="#读开销-RO" class="headerlink" title="读开销 RO"></a>读开销 RO</h3><p>也称作读放大，通过读取到的辅助数据加上基础数据除以基础数据来计算。举个例子，在mysql中查询数据，中间经过的B树层级就是读放大</p>
+<h3 id="更新开销-UO"><a href="#更新开销-UO" class="headerlink" title="更新开销 UO"></a>更新开销 UO</h3><p>也叫做写放大，实例物理上写入磁盘的大小除以逻辑上需要更新的大小。</p>
+<h3 id="内存开销-MO"><a href="#内存开销-MO" class="headerlink" title="内存开销 MO"></a>内存开销 MO</h3><p>也叫做空间放大，全部的基础数据加上全部的辅助数据除以基础数据。</p>
+<h2 id="RUM不可能达成举例"><a href="#RUM不可能达成举例" class="headerlink" title="RUM不可能达成举例"></a>RUM不可能达成举例</h2><p>我们选择一个有代表性的基础数据：一个整数数组。我们将这个数据集合组织到N个块中的固定大小的元素，每一个持有一个数值。每一个块可以用一个单调递增的ID来指示。工作负载使用数据的方式有 点查询、点更新、插入和删除。</p>
+<h3 id="最小化RO"><a href="#最小化RO" class="headerlink" title="最小化RO"></a>最小化RO</h3><p>那我们就把bk的Id当做我们数据结构数组的下标，举例子，{1, 17}是两个元素的id，我们就开辟大小为17的数组array，然后通过array[i]来得到i的数据。现在已经达成了RO最小，但我们的索引非常稀疏，理论上我们的数组是无限大的。更新需要操作两次，将旧的数组元素置空，然后将新的数据存放在新的block中。</p>
+<p>RO: 1  UO: 2 MO: 无穷大</p>
+<h3 id="最小化UO"><a href="#最小化UO" class="headerlink" title="最小化UO"></a>最小化UO</h3><p>为了最小化UO，我们将每次更新的数据直接插入到日志的最尾端，就算更新完成。查询需要遍历原来的数据和整个log文件。</p>
+<p>UO: 1 RO: 无穷大 MO: 无穷大</p>
+<h3 id="最小化MO"><a href="#最小化MO" class="headerlink" title="最小化MO"></a>最小化MO</h3><p>最小化MO时，不存储辅助数据，而将基础数据密集地存储起来。 读取需要进行全表扫描，如果任意更新，也需要进行全表扫描</p>
+<p>MO: 1 RO: N UO: 1</p>
+<h2 id="数据结构的RUM"><a href="#数据结构的RUM" class="headerlink" title="数据结构的RUM"></a>数据结构的RUM</h2><p><img src="/Images/rum1.png" alt="image-20210314164113082"></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>N</th>
+<th>m</th>
+<th>B</th>
+<th>P</th>
+<th>T</th>
+<th>MEM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>含义</td>
+<td>数据集大小</td>
+<td>查询结果大小</td>
+<td>块大小</td>
+<td>分区大小</td>
+<td>LSM级别比例</td>
+<td>内存</td>
+</tr>
+<tr>
+<td>单位</td>
+<td>元组</td>
+<td>元组</td>
+<td></td>
+<td></td>
+<td></td>
+<td>页</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>批量创建</th>
+<th>索引大小</th>
+<th>点查询</th>
+<th>范围查询(大小m)</th>
+<th>查询&#x2F;更新&#x2F;删除</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读取方式</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>B+树</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>完美哈希索引</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ZoneMaps</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>层级LSM树</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>排序列</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>未排序列</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><img src="/Images/rum2.png" alt="image-20210314164933209"></p>
+<h2 id="论文作者对将来系统的设想"><a href="#论文作者对将来系统的设想" class="headerlink" title="论文作者对将来系统的设想"></a>论文作者对将来系统的设想</h2><p>作者认为，将来的系统应该是RUM可调的，来满足大多数场景的需要。通过一套可以轻松适应不同优化目标的访问方法来展望未来的数据系统。例如：</p>
+<p>• 具有动态调整参数（包括树高，节点大小和拆分条件）的B +树，以便在运行时调整树大小，读取成本和更新成本。</p>
+<p>• Approximate (tree) indexing that supports updates with low read performance overhead, by absorbing them in updatable probabilistic data structures (like quotient filters).</p>
+<p>• Morphingaccessmethods,combiningmultipleshapesatonce. Adding structure to data gradually with incoming queries, and building supporting index structures when further data reorganization becomes infeasible.</p>
+<p>• Update-friendly bitmap indexes, where updates are absorbed using additional, highly compressible, bitvectors which are gradually merged.</p>
+<p>• Accessmethodswithiterativelogsenhancedbyprobabilistic data structures that allows for more efficient reads and up- dates by avoiding accessing unnecessary data at the expense of additional space.</p>
+<h2 id="论文中其他有意思的点"><a href="#论文中其他有意思的点" class="headerlink" title="论文中其他有意思的点"></a>论文中其他有意思的点</h2><ul>
+<li>现代数据系统，通常在压缩的数据上运行，并尽可能晚地解压缩</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/03/12/iptables%E3%80%81ipvs%E8%A7%84%E6%A0%BC%E5%86%B2%E7%AA%81%E7%8E%B0%E8%B1%A1%E5%88%86%E6%9E%90/" rel="prev" title="iptables、ipvs规格冲突现象分析">
+                  <i class="fa fa-angle-left"></i> iptables、ipvs规格冲突现象分析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/03/14/Gorilla%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/" rel="next" title="Gorilla论文笔记">
+                  Gorilla论文笔记 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

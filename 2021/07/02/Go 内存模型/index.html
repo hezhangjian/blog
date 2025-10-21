@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="参考资料https:&#x2F;&#x2F;golang.org&#x2F;ref&#x2F;mem TLDR 协程之间的数据可见性满足HappensBefore法则，并具有传递性 如果包 p 导入包 q，则 q 的 init 函数的完成发生在任何 p 的操作开始之前 main.main 函数的启动发生在所有 init 函数完成之后 go语句启动新的协程发生在新协程启动开始之前 go协程的退出并不保证发生在任何事件之前 channel上">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go 内存模型">
+<meta property="og:url" content="https://hezhangjian.com/2021/07/02/Go%20%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="参考资料https:&#x2F;&#x2F;golang.org&#x2F;ref&#x2F;mem TLDR 协程之间的数据可见性满足HappensBefore法则，并具有传递性 如果包 p 导入包 q，则 q 的 init 函数的完成发生在任何 p 的操作开始之前 main.main 函数的启动发生在所有 init 函数完成之后 go语句启动新的协程发生在新协程启动开始之前 go协程的退出并不保证发生在任何事件之前 channel上">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-07-02T06:28:45.000Z">
+<meta property="article:modified_time" content="2025-10-21T11:32:27.127Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/07/02/Go%20%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/07/02/Go%20%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/","path":"2021/07/02/Go 内存模型/","title":"Go 内存模型"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Go 内存模型 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TLDR"><span class="nav-number">2.</span> <span class="nav-text">TLDR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%BA%E8%AE%AE"><span class="nav-number">4.</span> <span class="nav-text">建议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Happens-Before"><span class="nav-number">5.</span> <span class="nav-text">Happens Before</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5"><span class="nav-number">6.</span> <span class="nav-text">同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">6.1.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Go%E5%8D%8F%E7%A8%8B%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">6.2.</span> <span class="nav-text">Go协程的创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Go%E5%8D%8F%E7%A8%8B%E7%9A%84%E9%94%80%E6%AF%81"><span class="nav-number">6.3.</span> <span class="nav-text">Go协程的销毁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E9%81%93%E9%80%9A%E4%BF%A1"><span class="nav-number">6.4.</span> <span class="nav-text">通道通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%81"><span class="nav-number">6.5.</span> <span class="nav-text">锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Once"><span class="nav-number">6.6.</span> <span class="nav-text">Once</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8D%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%90%8C%E6%AD%A5"><span class="nav-number">7.</span> <span class="nav-text">不正确的同步</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/02/Go%20%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go 内存模型 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go 内存模型
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-02 14:28:45" itemprop="dateCreated datePublished" datetime="2021-07-02T14:28:45+08:00">2021-07-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://golang.org/ref/mem">https://golang.org/ref/mem</a></p>
+<h2 id="TLDR"><a href="#TLDR" class="headerlink" title="TLDR"></a>TLDR</h2><ul>
+<li>协程之间的数据可见性满足HappensBefore法则，并具有传递性</li>
+<li>如果包 p 导入包 q，则 q 的 init 函数的完成发生在任何 p 的操作开始之前</li>
+<li>main.main 函数的启动发生在所有 init 函数完成之后</li>
+<li><code>go</code>语句启动新的协程发生在新协程启动开始之前</li>
+<li><code>go</code>协程的退出并不保证发生在任何事件之前</li>
+<li><code>channel</code>上的发送发生在对应<code>channel</code>接收之前</li>
+<li>无buffer<code>channel</code>的接收发生在发送操作完成之前</li>
+<li>对于容量为C的buffer channel来说，第k次从channel中接收，发生在第<code>k + C</code>次发送完成之前。</li>
+<li>对于任何的<code>sync.Mutex</code>或者<code>sync.RWMutex</code>变量<code>，且有</code>n&lt;m<code>，第</code>n<code>个调用</code>UnLock<code>一定发生在</code>m<code>个</code>Lock&#96;之前。</li>
+<li>从 once.Do(f) 对 f() 的单个调用返回在任何一个 once.Do(f) 返回之前。</li>
+<li>如果两个动作不满足HappensBefore，则顺序无法预测</li>
+</ul>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Go内存模型指定了在何种条件下可以保证在一个 goroutine 中读取变量时观察到不同 goroutine 中写入该变量的值。</p>
+<h2 id="建议"><a href="#建议" class="headerlink" title="建议"></a>建议</h2><p>通过多个协程并发修改数据的程序必须将操作序列化。为了序列化访问，通过channel操作或者其他同步原语（<code>sync</code>、<code>sync/atomic</code>）来保护数据。</p>
+<p>如果你必须要阅读本文的其他部分才能理解你程序的行为，请尽量不要这样…</p>
+<h2 id="Happens-Before"><a href="#Happens-Before" class="headerlink" title="Happens Before"></a>Happens Before</h2><p>在单个 <code>goroutine</code> 中，读取和写入的行为必须像按照程序指定的顺序执行一样。 也就是说，只有当重新排序不会改变语言规范定义的 goroutine 中的行为时，编译器和处理器才可以重新排序在单个 goroutine 中执行的读取和写入。 由于这种重新排序，一个 goroutine 观察到的执行顺序可能与另一个 goroutine 感知的顺序不同。 例如，如果一个 goroutine 执行 a &#x3D; 1; b &#x3D; 2;，另一个可能会在 a 的更新值之前观察到 b 的更新值。</p>
+<p>为了满足读写的需求，我们定义了<code>happens before</code>，Go程序中内存操作的局部顺序。如果事件<code>e1</code>在<code>e2</code>之前发生，我们说<code>e2</code>在<code>e1</code>之后发生。还有，如果<code>e1</code>不在<code>e2</code>之前发生、<code>e2</code>也不在<code>e1</code>之前发生，那么我们说<code>e1</code>和<code>e2</code>并发happen。</p>
+<p>在单个<code>goroutine</code>中，<code>happens-before</code>顺序由程序指定。</p>
+<p>当下面两个条件满足时，变量<code>v</code>的阅读操作<code>r</code>就<strong>可能</strong>观察到写入操作<code>w</code></p>
+<ul>
+<li><code>r</code>不在<code>w</code>之前发生</li>
+<li>没有其他的请求<code>w2</code>发生在<code>w</code>之后，<code>r</code>之前</li>
+</ul>
+<p>为了保证<code>r</code>一定能阅读到<code>v</code>，保证<code>w</code>是<code>r</code>能观测到的唯一的写操作。当下面两个条件满足时，<code>r</code>保证可以读取到<code>w</code></p>
+<ul>
+<li><code>w</code>在<code>r</code>之前发生</li>
+<li>任何其他对共享变量<code>v</code>的操作，要么在<code>w</code>之前发生，要么在<code>r</code>之后发生</li>
+</ul>
+<p>这一对条件比上一对条件更强；这要求无论是<code>w</code>还是<code>r</code>，都没有相应的并发操作。</p>
+<p>在单个<code>goroutine</code>中，没有并发。所以这两个定义等价：读操作<code>r</code>能读到最近一次<code>w</code>写入<code>v</code>的值。但是当多个<code>goroutine</code>访问共享变量时，它们必须使用同步事件来建立<code>happens-before</code>关系。</p>
+<p>使用变量<code>v</code>类型的0值初始化变量<code>v</code>的行为类似于内存模型中的写入。</p>
+<p>对于大于单个机器字长的值的读取和写入表现为未指定顺序的对多个机器字长的操作。</p>
+<h2 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h2><h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>程序初始化在单个 goroutine 中运行，但该 goroutine 可能会创建其他并发运行的 goroutine。</p>
+<p><strong>如果包 p 导入包 q，则 q 的 init 函数的完成发生在任何 p 的操作开始之前。</strong></p>
+<p><strong>main.main 函数的启动发生在所有 init 函数完成之后。</strong></p>
+<h3 id="Go协程的创建"><a href="#Go协程的创建" class="headerlink" title="Go协程的创建"></a>Go协程的创建</h3><p><strong><code>go</code>语句启动新的协程发生在新协程启动开始之前。</strong></p>
+<p>举个例子</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a <span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="built_in">print</span>(a)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">hello</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a = <span class="string">&quot;hello, world&quot;</span></span><br><span class="line">	<span class="keyword">go</span> f()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用<code>hello</code>将会打印<code>hello, world</code>。当然，这个时候<code>hello</code>可能已经返回了。</p>
+<h3 id="Go协程的销毁"><a href="#Go协程的销毁" class="headerlink" title="Go协程的销毁"></a>Go协程的销毁</h3><p><strong><code>go</code>协程的退出并不保证发生在任何事件之前</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a <span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">hello</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; a = <span class="string">&quot;hello&quot;</span> &#125;()</span><br><span class="line">	<span class="built_in">print</span>(a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对 a 的赋值之后没有任何同步事件，因此不能保证任何其他 goroutine 都会观察到它。 事实上，激进的编译器可能会删除整个 go 语句。</p>
+<p>如果一个 goroutine 的效果必须被另一个 goroutine 观察到，请使用同步机制，例如锁或通道通信来建立相对顺序。</p>
+<h3 id="通道通信"><a href="#通道通信" class="headerlink" title="通道通信"></a>通道通信</h3><p>通道通信是在go协程之间传输数据的主要手段。在特定通道上的发送总有一个对应的channel的接收，通常是在另外一个协程。</p>
+<p><strong><code>channel</code>上的发送发生在对应<code>channel</code>接收之前</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> c = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>, <span class="number">10</span>)</span><br><span class="line"><span class="keyword">var</span> a <span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a = <span class="string">&quot;hello, world&quot;</span></span><br><span class="line">	c &lt;- <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> f()</span><br><span class="line">	&lt;-c</span><br><span class="line">	<span class="built_in">print</span>(a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>程序能保证输出<code>hello, world</code>。对a的写入发生在往<code>c</code>发送数据之前，往<code>c</code>发送数据又发生在从<code>c</code>接收数据之前，它又发生在<code>print</code>之前。</p>
+<p><strong><code>channel</code>的关闭发生在从<code>channel</code>中获取到0值之前</strong></p>
+<p>在之前的例子中，将<code>c&lt;-0</code>替换为<code>close(c)</code>，程序还是能保证输出<code>hello, world</code></p>
+<p><strong>无buffer<code>channel</code>的接收发生在发送操作完成之前</strong><br>这个程序，和之前一样，但是调换发送和接收操作，并且使用无buffer的channel</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> c = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>)</span><br><span class="line"><span class="keyword">var</span> a <span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a = <span class="string">&quot;hello, world&quot;</span></span><br><span class="line">	&lt;-c</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> f()</span><br><span class="line">	c &lt;- <span class="number">0</span></span><br><span class="line">	<span class="built_in">print</span>(a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也保证能够输出<code>hello, world</code>。对a的写入发生在c的接收之前，继而发生在c的写入操作完成之前，继而发生在print之前。</p>
+<p>如果该<code>channel</code>是buffer<code>channel</code>（例如：<code>c=make(chan int, 1)</code>），那么程序就不能保证输出<code>hello, world</code>。可能会打印空字符串、崩溃等等。从而，我们得到一个相对通用的推论：</p>
+<p><strong>对于容量为C的buffer channel来说，第k次从channel中接收，发生在第<code>k + C</code>次发送完成之前。</strong></p>
+<p>此规则将先前的规则推广到缓冲通道。 它允许通过buffer channel 来模拟信号量：通道中的条数对应活跃的数量，通道的容量对应于最大并发数。向channel发送数据相当于获取信号量，从channel中接收数据相当于释放信号量。 这是限制并发的常用习惯用法。</p>
+<p>该程序为工作列表中的每个条目启动一个 goroutine，但是 goroutine 使用<code>limit</code>channel进行协调，以确保一次最多三个work函数正在运行。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> limit = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>, <span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> _, w := <span class="keyword">range</span> work &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(w <span class="keyword">func</span>()</span></span>) &#123;</span><br><span class="line">			limit &lt;- <span class="number">1</span></span><br><span class="line">			w()</span><br><span class="line">			&lt;-limit</span><br><span class="line">		&#125;(w)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">select</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h3><p><code>sync</code>包中实现了两种锁类型：<code>sync.Mutex</code>和<code>sync.RWMutex</code></p>
+<p><strong>对于任何的<code>sync.Mutex</code>或者<code>sync.RWMutex</code>变量<code>，且有</code>n&lt;m<code>，第</code>n<code>个调用</code>UnLock<code>一定发生在</code>m<code>个</code>Lock&#96;之前。</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> l sync.Mutex</span><br><span class="line"><span class="keyword">var</span> a <span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a = <span class="string">&quot;hello, world&quot;</span></span><br><span class="line">	l.Unlock()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	l.Lock()</span><br><span class="line">	<span class="keyword">go</span> f()</span><br><span class="line">	l.Lock()</span><br><span class="line">	<span class="built_in">print</span>(a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个程序也保证输出<code>hello,world</code>。第一次调用<code>unLock</code>一定发生在第二次<code>Lock</code>调用之前</p>
+<p><strong>对于任何<code>sync.RWMutex</code>的<code>RLock</code>方法调用，存在变量n，满足<code>RLock</code>方法发生在第<code>n</code>个<code>UnLock</code>调用之后，并且对应的<code>RUnlock</code>发生在第<code>n+1</code>个<code>Lock</code>方法之前。</strong></p>
+<h3 id="Once"><a href="#Once" class="headerlink" title="Once"></a>Once</h3><p>在存在多个 goroutine 时，<code>sync</code>包通过<code>once</code>提供了一种安全的初始化机制。对于特定的<code>f</code>，多个线程可以执行<code>once.Do(f)</code>，但是只有一个会运行<code>f()</code>，另一个调用会阻塞，直到<code>f()</code>返回</p>
+<p><strong>从 once.Do(f) 对 f() 的单个调用返回在任何一个 once.Do(f) 返回之前。</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a <span class="type">string</span></span><br><span class="line"><span class="keyword">var</span> once sync.Once</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">setup</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a = <span class="string">&quot;hello, world&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">doprint</span><span class="params">()</span></span> &#123;</span><br><span class="line">	once.Do(setup)</span><br><span class="line">	<span class="built_in">print</span>(a)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">twoprint</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> doprint()</span><br><span class="line">	<span class="keyword">go</span> doprint()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用 twoprint 将只调用一次 setup。 <code>setup</code>函数将在任一打印调用之前完成。 结果将是<code>hello, world</code>打印两次。</p>
+<h2 id="不正确的同步"><a href="#不正确的同步" class="headerlink" title="不正确的同步"></a>不正确的同步</h2><p>注意，读取<code>r</code>有可能观察到了由写入<code>w</code>并发写入的值。尽管观察到了这个值，也并不意味着<code>r</code>后续的读取可以读取到<code>w</code>之前的写入。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a, b <span class="type">int</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a = <span class="number">1</span></span><br><span class="line">	b = <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">g</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="built_in">print</span>(b)</span><br><span class="line">	<span class="built_in">print</span>(a)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> f()</span><br><span class="line">	g()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有可能<code>g</code>会接连打印2和0两个值。</p>
+<p>双检查锁是为了降低同步造成的开销。举个例子，<code>twoprint</code>方法可能会被误写成</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a <span class="type">string</span></span><br><span class="line"><span class="keyword">var</span> done <span class="type">bool</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">setup</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a = <span class="string">&quot;hello, world&quot;</span></span><br><span class="line">	done = <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">doprint</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> !done &#123;</span><br><span class="line">		once.Do(setup)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">print</span>(a)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">twoprint</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> doprint()</span><br><span class="line">	<span class="keyword">go</span> doprint()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为没有任何机制保证，协程观察到done为true的同时可以观测到a为<code>hello, world</code>,其中有一个<code>doprint</code>可能会输出空字符。</p>
+<p>另外一个例子</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a <span class="type">string</span></span><br><span class="line"><span class="keyword">var</span> done <span class="type">bool</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">setup</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a = <span class="string">&quot;hello, world&quot;</span></span><br><span class="line">	done = <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> setup()</span><br><span class="line">	<span class="keyword">for</span> !done &#123;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">print</span>(a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>和以前一样，不能保证在 main 中，观察对 done 的写入意味着观察对 a 的写入，因此该程序也可以打印一个空字符串。 更糟糕的情况下，由于两个线程之间没有同步事件，因此无法保证 main 会观察到对 done 的写入。 main 中的循环会一直死循环。</p>
+<p>下面是该例子的一个更微妙的变体</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> T <span class="keyword">struct</span> &#123;</span><br><span class="line">	msg <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> g *T</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">setup</span><span class="params">()</span></span> &#123;</span><br><span class="line">	t := <span class="built_in">new</span>(T)</span><br><span class="line">	t.msg = <span class="string">&quot;hello, world&quot;</span></span><br><span class="line">	g = t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> setup()</span><br><span class="line">	<span class="keyword">for</span> g == <span class="literal">nil</span> &#123;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">print</span>(g.msg)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>尽管<code>main</code>观测到g不为nil，但是也没有任何机制保证可以读取到t.msg。</p>
+<p>在上述例子中，解决方案都是相同的：请使用显式的同步机制。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/07/01/Go%20%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B/" rel="prev" title="Go 编译流程">
+                  <i class="fa fa-angle-left"></i> Go 编译流程
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/07/04/%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AAfilebeat%20output%20websocket%E6%8F%92%E4%BB%B6/" rel="next" title="开发一个filebeat output websocket插件">
+                  开发一个filebeat output websocket插件 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

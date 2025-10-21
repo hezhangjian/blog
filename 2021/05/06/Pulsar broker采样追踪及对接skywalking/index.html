@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="为什么要采样追踪对接SkyWalking为了提升Pulsar的可维护性，我们希望能深入pulsar和bookkeeper的底层，做性能剖析，识别中间延时高的环节，然后很方便地进行定位分析。 为什么Pulsar原生的普罗监控无法满足  部门基础设施方面，所有环境都集成了ELK，大部分环境都没有普罗，且部门正在引入SkyWalking。 普罗的监控无法和用户的一条消息对应，较难处理单个客户保障。  幸">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pulsar broker采样追踪及对接skywalking">
+<meta property="og:url" content="https://hezhangjian.com/2021/05/06/Pulsar%20broker%E9%87%87%E6%A0%B7%E8%BF%BD%E8%B8%AA%E5%8F%8A%E5%AF%B9%E6%8E%A5skywalking/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="为什么要采样追踪对接SkyWalking为了提升Pulsar的可维护性，我们希望能深入pulsar和bookkeeper的底层，做性能剖析，识别中间延时高的环节，然后很方便地进行定位分析。 为什么Pulsar原生的普罗监控无法满足  部门基础设施方面，所有环境都集成了ELK，大部分环境都没有普罗，且部门正在引入SkyWalking。 普罗的监控无法和用户的一条消息对应，较难处理单个客户保障。  幸">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/pulsar-skywalking1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/pulsar-skywalking2.jpeg">
+<meta property="og:image" content="https://hezhangjian.com/Images/pulsar-skywalking3.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/pulsar-skywalking4.png">
+<meta property="article:published_time" content="2021-05-06T14:14:31.000Z">
+<meta property="article:modified_time" content="2025-10-21T11:32:27.312Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/pulsar-skywalking1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/05/06/Pulsar%20broker%E9%87%87%E6%A0%B7%E8%BF%BD%E8%B8%AA%E5%8F%8A%E5%AF%B9%E6%8E%A5skywalking/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/05/06/Pulsar%20broker%E9%87%87%E6%A0%B7%E8%BF%BD%E8%B8%AA%E5%8F%8A%E5%AF%B9%E6%8E%A5skywalking/","path":"2021/05/06/Pulsar broker采样追踪及对接skywalking/","title":"Pulsar broker采样追踪及对接skywalking"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Pulsar broker采样追踪及对接skywalking | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E9%87%87%E6%A0%B7%E8%BF%BD%E8%B8%AA%E5%AF%B9%E6%8E%A5SkyWalking"><span class="nav-number">1.</span> <span class="nav-text">为什么要采样追踪对接SkyWalking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sample-Tracing-Basic"><span class="nav-number">2.</span> <span class="nav-text">Sample Tracing Basic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SkyWalking-Architecture"><span class="nav-number">3.</span> <span class="nav-text">SkyWalking Architecture</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Trace-Internal-In-Pulsar"><span class="nav-number">4.</span> <span class="nav-text">Trace Internal In Pulsar</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#message"><span class="nav-number">4.1.</span> <span class="nav-text">message</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#batch-message"><span class="nav-number">4.2.</span> <span class="nav-text">batch message</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Two-ways-output"><span class="nav-number">5.</span> <span class="nav-text">Two ways output</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Logging"><span class="nav-number">5.1.</span> <span class="nav-text">Logging</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SkyWalking"><span class="nav-number">5.2.</span> <span class="nav-text">SkyWalking</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94"><span class="nav-number">5.3.</span> <span class="nav-text">对比</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Beyond-SkyWalking"><span class="nav-number">6.</span> <span class="nav-text">Beyond SkyWalking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Follow-up"><span class="nav-number">7.</span> <span class="nav-text">Follow-up</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/05/06/Pulsar%20broker%E9%87%87%E6%A0%B7%E8%BF%BD%E8%B8%AA%E5%8F%8A%E5%AF%B9%E6%8E%A5skywalking/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Pulsar broker采样追踪及对接skywalking | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Pulsar broker采样追踪及对接skywalking
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-06 22:14:31" itemprop="dateCreated datePublished" datetime="2021-05-06T22:14:31+08:00">2021-05-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="为什么要采样追踪对接SkyWalking"><a href="#为什么要采样追踪对接SkyWalking" class="headerlink" title="为什么要采样追踪对接SkyWalking"></a>为什么要采样追踪对接SkyWalking</h3><p>为了提升Pulsar的可维护性，我们希望能深入<code>pulsar</code>和<code>bookkeeper</code>的底层，做性能剖析，识别中间延时高的环节，然后很方便地进行定位分析。</p>
+<p>为什么Pulsar原生的普罗监控无法满足</p>
+<ul>
+<li>部门基础设施方面，所有环境都集成了ELK，大部分环境都没有普罗，且部门正在引入SkyWalking。</li>
+<li>普罗的监控无法和用户的一条消息对应，较难处理单个客户保障。</li>
+</ul>
+<p>幸运的是，这两个问题都可以通过采样跟踪来解决。并且在合理的采样跟踪配置下，测试环境可以达成百分百采样追踪，对于我们定位测试环境问题非常方便。</p>
+<p>我们就想到了使用经典的采样追踪模式来对数据进行采样，将数据输出到SkyWalking进行下一步的分析、告警。并且在没有对接SkyWalking的环境，通过日志输出来进行下一步的分析、告警</p>
+<h3 id="Sample-Tracing-Basic"><a href="#Sample-Tracing-Basic" class="headerlink" title="Sample Tracing Basic"></a>Sample Tracing Basic</h3><p><img src="/Images/pulsar-skywalking1.png" alt="image-20210424091405442"></p>
+<ul>
+<li>通过<code>traceId</code>和<code>spanId</code>结合，识别一条链路。</li>
+<li>每个<code>spanId</code>中间计算耗时</li>
+<li>为了性能，不会每个<code>spanId</code>和<code>traceId</code>都收集分析，会进行采样（收集部分消息、收集时延较大的消息）</li>
+</ul>
+<p>注：SkyWalking采用STAM来进行拓扑分析，并且引入了Segment等概念来表达进程内、进程外等含义，但大致原理相同。</p>
+<h3 id="SkyWalking-Architecture"><a href="#SkyWalking-Architecture" class="headerlink" title="SkyWalking Architecture"></a>SkyWalking Architecture</h3><p><img src="/Images/pulsar-skywalking2.jpeg" alt="Image"></p>
+<h3 id="Trace-Internal-In-Pulsar"><a href="#Trace-Internal-In-Pulsar" class="headerlink" title="Trace Internal In Pulsar"></a>Trace Internal In Pulsar</h3><p>目前，我们将追踪的头部消息放在<code>BrokerMetadata</code>处，以下为追踪数据流向</p>
+<h4 id="message"><a href="#message" class="headerlink" title="message"></a>message</h4><p><img src="/Images/pulsar-skywalking3.png" alt="image-20210506200048088"></p>
+<h4 id="batch-message"><a href="#batch-message" class="headerlink" title="batch message"></a>batch message</h4><p><img src="/Images/pulsar-skywalking4.png" alt="image-20210506200035405"></p>
+<h3 id="Two-ways-output"><a href="#Two-ways-output" class="headerlink" title="Two ways output"></a>Two ways output</h3><h4 id="Logging"><a href="#Logging" class="headerlink" title="Logging"></a>Logging</h4><p>可在ELK上展示，搜索时延大的消息。（注：如搜索4位数的消息）。</p>
+<h4 id="SkyWalking"><a href="#SkyWalking" class="headerlink" title="SkyWalking"></a>SkyWalking</h4><p>可依赖SkyWalking进行分析，告警。</p>
+<h4 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>Logging</th>
+<th>SkyWalking</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>采样方式</td>
+<td>SkyWalking Way</td>
+<td>SkyWalking Way</td>
+</tr>
+<tr>
+<td>输出格式</td>
+<td>Logging</td>
+<td>SkyWalking protocol through kafka</td>
+</tr>
+<tr>
+<td>追踪数据传播方式</td>
+<td>protobuf、Broker Metadata</td>
+<td>protobuf、Broker Metadata</td>
+</tr>
+</tbody></table>
+<h3 id="Beyond-SkyWalking"><a href="#Beyond-SkyWalking" class="headerlink" title="Beyond SkyWalking"></a>Beyond SkyWalking</h3><p>在SkyWalking的采样算法之上，支持对时延大的消息再进行采样，输出到日志，进行分析、告警。</p>
+<p>采样规则</p>
+<ul>
+<li>全局一秒最多xx条，单topic一秒最多xx条</li>
+<li>采样时延大于xx的消息</li>
+</ul>
+<h3 id="Follow-up"><a href="#Follow-up" class="headerlink" title="Follow-up"></a>Follow-up</h3><ul>
+<li>将Pulsar和Bookkeeper的metric信息上报到SkyWalking，使得在SkyWalking分析、告警更多信息。</li>
+<li>使用agent方式实现，避免和SkyWalking协议过度耦合</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/26/MySQL%E6%98%AF%E5%A6%82%E4%BD%95%E9%9A%90%E8%97%8Fps%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%AD%E7%9A%84%E5%AF%86%E7%A0%81%E7%9A%84/" rel="prev" title="Mysql是如何隐藏ps命令行中的密码的">
+                  <i class="fa fa-angle-left"></i> Mysql是如何隐藏ps命令行中的密码的
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/05/07/Raft%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/" rel="next" title="Raft论文笔记">
+                  Raft论文笔记 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

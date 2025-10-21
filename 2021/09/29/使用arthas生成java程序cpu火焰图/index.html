@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="环境准备需要有一个运行的java程序，如果你已经有了运行中的java程序，请跳过这一节，示例，我启动自制的kafka镜像 1docker run ttbb&#x2F;kafka:mate  找到java程序的pidps -ef或者jps均可，其中jps需要安装jdk  安装arthas123wget https:&#x2F;&#x2F;github.com&#x2F;alibaba&#x2F;arthas&#x2F;releases&#x2F;download&#x2F;ar">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用arthas生成java程序cpu火焰图">
+<meta property="og:url" content="https://hezhangjian.com/2021/09/29/%E4%BD%BF%E7%94%A8arthas%E7%94%9F%E6%88%90java%E7%A8%8B%E5%BA%8Fcpu%E7%81%AB%E7%84%B0%E5%9B%BE/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="环境准备需要有一个运行的java程序，如果你已经有了运行中的java程序，请跳过这一节，示例，我启动自制的kafka镜像 1docker run ttbb&#x2F;kafka:mate  找到java程序的pidps -ef或者jps均可，其中jps需要安装jdk  安装arthas123wget https:&#x2F;&#x2F;github.com&#x2F;alibaba&#x2F;arthas&#x2F;releases&#x2F;download&#x2F;ar">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/arthas-flame-graph1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/arthas-flame-graph2.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/arthas-flame-graph3.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/arthas-flame-graph4.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/arthas-flame-graph5.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/arthas-flame-graph6.png">
+<meta property="article:published_time" content="2021-09-29T07:15:28.000Z">
+<meta property="article:modified_time" content="2025-10-21T11:32:27.314Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/arthas-flame-graph1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2021/09/29/%E4%BD%BF%E7%94%A8arthas%E7%94%9F%E6%88%90java%E7%A8%8B%E5%BA%8Fcpu%E7%81%AB%E7%84%B0%E5%9B%BE/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2021/09/29/%E4%BD%BF%E7%94%A8arthas%E7%94%9F%E6%88%90java%E7%A8%8B%E5%BA%8Fcpu%E7%81%AB%E7%84%B0%E5%9B%BE/","path":"2021/09/29/使用arthas生成java程序cpu火焰图/","title":"使用arthas生成java程序cpu火焰图"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用arthas生成java程序cpu火焰图 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%BE%E5%88%B0java%E7%A8%8B%E5%BA%8F%E7%9A%84pid"><span class="nav-number">2.</span> <span class="nav-text">找到java程序的pid</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85arthas"><span class="nav-number">3.</span> <span class="nav-text">安装arthas</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8arthas%E8%BF%9E%E6%8E%A5%E5%88%B0%E7%9B%AE%E6%A0%87%E7%A8%8B%E5%BA%8F"><span class="nav-number">4.</span> <span class="nav-text">使用arthas连接到目标程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%A7%8Bprofiler"><span class="nav-number">5.</span> <span class="nav-text">开始profiler</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AD%89%E5%BE%85profiler%E4%B8%80%E6%AE%B5%E6%97%B6%E9%97%B4"><span class="nav-number">6.</span> <span class="nav-text">等待profiler一段时间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9D%9Fprofiler"><span class="nav-number">7.</span> <span class="nav-text">结束profiler</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9D%9F"><span class="nav-number">8.</span> <span class="nav-text">结束</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/09/29/%E4%BD%BF%E7%94%A8arthas%E7%94%9F%E6%88%90java%E7%A8%8B%E5%BA%8Fcpu%E7%81%AB%E7%84%B0%E5%9B%BE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用arthas生成java程序cpu火焰图 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用arthas生成java程序cpu火焰图
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-09-29 15:15:28" itemprop="dateCreated datePublished" datetime="2021-09-29T15:15:28+08:00">2021-09-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-21 19:32:27" itemprop="dateModified" datetime="2025-10-21T19:32:27+08:00">2025-10-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>需要有一个运行的java程序，如果你已经有了运行中的java程序，请跳过这一节，示例，我启动自制的kafka镜像</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run ttbb/kafka:mate</span><br></pre></td></tr></table></figure>
+
+<h3 id="找到java程序的pid"><a href="#找到java程序的pid" class="headerlink" title="找到java程序的pid"></a>找到java程序的pid</h3><p><code>ps -ef</code>或者<code>jps</code>均可，其中<code>jps</code>需要安装jdk</p>
+<p><img src="/Images/arthas-flame-graph1.png" alt="image-20210929143232887"></p>
+<h3 id="安装arthas"><a href="#安装arthas" class="headerlink" title="安装arthas"></a>安装arthas</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/alibaba/arthas/releases/download/arthas-all-3.5.4/arthas-bin.zip</span><br><span class="line"><span class="built_in">mkdir</span> -p arthas</span><br><span class="line">unzip arthas-bin.zip -d arthas</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用arthas连接到目标程序"><a href="#使用arthas连接到目标程序" class="headerlink" title="使用arthas连接到目标程序"></a>使用arthas连接到目标程序</h3><p><img src="/Images/arthas-flame-graph2.png" alt="image-20210929143537663"></p>
+<h3 id="开始profiler"><a href="#开始profiler" class="headerlink" title="开始profiler"></a>开始profiler</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">profiler start</span><br></pre></td></tr></table></figure>
+
+<p>如果出现<code>Perf events unavailable. See stderr of the target process.</code>如图所示</p>
+<p><img src="/Images/arthas-flame-graph3.png" alt="image-20210929143621015"></p>
+<p>需要在docker所在虚拟机上执行如下命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 1 &gt; /proc/sys/kernel/perf_event_paranoid</span><br><span class="line"><span class="built_in">echo</span> 0 &gt; /proc/sys/kernel/kptr_restrict</span><br></pre></td></tr></table></figure>
+
+<p>如果是mac用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh</span><br></pre></td></tr></table></figure>
+
+<p>执行上述命令进入docker所在的虚拟机操作即可</p>
+<p>注意，在部分docker版本中，有可能还无法进行profiler采集，您可能需要以特权方式启动容器，不过，为了定位性能问题，这总是值得付出的，不是吗？</p>
+<p><img src="/Images/arthas-flame-graph4.png" alt="image-20210929151106090"></p>
+<h3 id="等待profiler一段时间"><a href="#等待profiler一段时间" class="headerlink" title="等待profiler一段时间"></a>等待profiler一段时间</h3><p>一般等待一分钟即可</p>
+<h3 id="结束profiler"><a href="#结束profiler" class="headerlink" title="结束profiler"></a>结束profiler</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">profiler stop</span><br></pre></td></tr></table></figure>
+
+<p><img src="/Images/arthas-flame-graph5.png" alt="image-20210929151209352"></p>
+<h3 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h3><p>Congratulations，完成了火焰图的输出，现在你可以使用火焰图来分析执行时间较长的方法啦</p>
+<p><img src="/Images/arthas-flame-graph6.png" alt="image-20210929151506122"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/08/28/OpenKruise%E7%94%A8%E5%88%B0%E7%9A%84%E6%8A%80%E6%9C%AF%20%E7%BD%91%E7%BB%9C%E7%9B%91%E5%90%AC%E5%8F%A5%E6%9F%84%E5%8A%A8%E6%80%81%E8%BD%AC%E7%A7%BB%20%E5%88%87%E6%8D%A2%E7%BD%91%E7%BB%9C%E7%9B%91%E5%90%AC/" rel="prev" title="OpenKruise用到的技术 网络监听句柄动态转移 切换网络监听">
+                  <i class="fa fa-angle-left"></i> OpenKruise用到的技术 网络监听句柄动态转移 切换网络监听
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/10/16/MySQL%E7%94%9F%E6%88%90%20core%20dump%E6%96%87%E4%BB%B6/" rel="next" title="MySQL生成 core dump文件">
+                  MySQL生成 core dump文件 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
