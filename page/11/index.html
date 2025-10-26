@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">135</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-count">46</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,199 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/26/MySQL%E6%98%AF%E5%A6%82%E4%BD%95%E9%9A%90%E8%97%8Fps%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%AD%E7%9A%84%E5%AF%86%E7%A0%81%E7%9A%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/mysql-ps-password" class="post-title-link post-title-link-external" itemprop="url">Mysql是如何隐藏ps命令行中的密码的<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-26 19:35:38" itemprop="dateCreated datePublished" datetime="2021-04-26T19:35:38+08:00">2021-04-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://northernmost.org/blog/how-does-mysql-hide-the-command-line-password-in-ps/index.html">http://northernmost.org/blog/how-does-mysql-hide-the-command-line-password-in-ps/index.html</a></li>
+</ul>
+<p>之前就在环境上<code>ps -ef</code>看到过<code>xxxxxx</code>的密码，一直没搞明白怎么回事，今天整理了一下，核心内容均来自于上述连接，作了一些额外的测试和查阅资料。</p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><h3 id="运行Mysql实例"><a href="#运行Mysql实例" class="headerlink" title="运行Mysql实例"></a>运行Mysql实例</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自己做的Mysql8的镜像</span></span><br><span class="line">docker run ttbb/mysql:stand-alone</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用密码连接Mysql服务器"><a href="#使用密码连接Mysql服务器" class="headerlink" title="使用密码连接Mysql服务器"></a>使用密码连接Mysql服务器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u hzj -p Mysql@123 -e <span class="string">&quot;select 1&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="ps-ef查看"><a href="#ps-ef查看" class="headerlink" title="ps -ef查看"></a>ps -ef查看</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@91bcbd15a82e mysql]# ps -ef</span><br><span class="line">UID        PID  PPID  C STIME TTY          TIME CMD</span><br><span class="line">root         1     0  0 07:34 ?        00:00:00 /usr/local/bin/dumb-init bash -vx /opt/sh/mysql/hzj/scripts/start.sh</span><br><span class="line">root         8     1  0 07:34 ?        00:00:00 bash -vx /opt/sh/mysql/hzj/scripts/start.sh</span><br><span class="line">root        17     1  0 07:34 ?        00:00:00 mysqld --daemonize --user=root</span><br><span class="line">root        62     8  0 07:34 ?        00:00:00 tail -f /dev/null</span><br><span class="line">root        63     0  0 07:34 pts/0    00:00:00 bash</span><br><span class="line">root        98    63  0 07:37 pts/0    00:00:00 mysql -h 127.0.0.1 -u hzj -px xxxxxxx</span><br><span class="line">root        99     0  1 07:37 pts/1    00:00:00 bash</span><br><span class="line">root       122    99  0 07:37 pts/1    00:00:00 ps -ef</span><br></pre></td></tr></table></figure>
+
+<h2 id="Mysql隐藏密码原理"><a href="#Mysql隐藏密码原理" class="headerlink" title="Mysql隐藏密码原理"></a>Mysql隐藏密码原理</h2><p>改写了<code>args</code>系统参数，demo如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Created by 张俭 on 2021/4/26.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span> &#123;</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="type">pid_t</span> mypid = getpid();</span><br><span class="line">    <span class="keyword">if</span> (argc == <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;argc = %d and arguments are:\n&quot;</span>, argc);</span><br><span class="line">    <span class="keyword">for</span> (i; i &lt; argc; i++) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d = %s\n&quot;</span>, i, argv[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">    sleep(<span class="number">30</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Replacing first argument with x:es... Now open another terminal and run: ps p %d\n&quot;</span>, (<span class="type">int</span>)mypid);</span><br><span class="line">    <span class="built_in">memset</span>(argv[<span class="number">1</span>], <span class="string">&#x27;x&#x27;</span>, <span class="built_in">strlen</span>(argv[<span class="number">1</span>]));</span><br><span class="line">    getc(<span class="built_in">stdin</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>编译并运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">gcc password_hide.c</span><br><span class="line">[root@c77dc365cd1a sh]# ./a.out abcd</span><br><span class="line">argc = 2 and arguments are:</span><br><span class="line">0 = ./a.out</span><br><span class="line">1 = abcd</span><br><span class="line">Replacing first argument with x:es... Now open another terminal and run: ps p 55</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>观测结果，开始看的确有明文密码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@c77dc365cd1a sh]# ps -ef</span><br><span class="line">UID        PID  PPID  C STIME TTY          TIME CMD</span><br><span class="line">root         1     0  0 07:49 pts/0    00:00:00 bash</span><br><span class="line">root        32     0  0 07:51 pts/1    00:00:00 bash</span><br><span class="line">root        64     1  0 07:56 pts/0    00:00:00 ./a.out abcd</span><br><span class="line">root        66    32  0 07:56 pts/1    00:00:00 ps -ef</span><br></pre></td></tr></table></figure>
+<p>经过30秒后，已经被复写</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@c77dc365cd1a sh]# ps p 55</span><br><span class="line">  PID TTY      STAT   TIME COMMAND</span><br><span class="line">   55 pts/0    S+     0:00 ./a.out xxxx</span><br></pre></td></tr></table></figure>
+<h2 id="Mysql源码地址"><a href="#Mysql源码地址" class="headerlink" title="Mysql源码地址"></a>Mysql源码地址</h2><p>mysql-server&#x2F;client&#x2F;mysql.cc line 2054</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">if (argument) &#123;</span><br><span class="line">  char *start = argument;</span><br><span class="line">  my_free(opt_password);</span><br><span class="line">  opt_password = my_strdup(PSI_NOT_INSTRUMENTED, argument, MYF(MY_FAE));</span><br><span class="line">  while (*argument) *argument++ = &#x27;x&#x27;;  // Destroy argument</span><br><span class="line">  if (*start) start[1] = 0;</span><br><span class="line">  tty_password = false;</span><br><span class="line">&#125; else</span><br><span class="line">  tty_password = true;</span><br></pre></td></tr></table></figure>
+
+<p>PS: 后面，我还在OSX上用go程序尝试修改参数，估摸go程序的args传入是值拷贝，修改完成之后args没有生效，看来这个黑科技只有c程序能使用呀。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/20/%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%98%AF%E5%85%AC%E6%9C%89%E4%BA%91%E7%9A%84%E4%BE%9B%E5%BA%94%E5%95%86%EF%BC%8C%E8%83%BD%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84Pulsar%E6%9C%8D%E5%8A%A1%E4%BD%93%E9%AA%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/pulsar-third-vendor" class="post-title-link post-title-link-external" itemprop="url">如果不是公有云的供应商，能提供什么样的Pulsar服务体验<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-20 20:45:22" itemprop="dateCreated datePublished" datetime="2021-04-20T20:45:22+08:00">2021-04-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="需要了解的概念"><a href="#需要了解的概念" class="headerlink" title="需要了解的概念"></a>需要了解的概念</h1><ul>
+<li>VPC：用户的私有网段</li>
+<li>peering：多个VPC之间打通的方式，可跨用户</li>
+</ul>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今天微信推送Pulsar社区有个Hackathon比赛, 开始想的idea就是，实现<code>pulsar</code>在华为云上提供服务。因为是社区的比赛，是以一个三方系统的方式在华为云上提供服务，而非是以华为云的名义提供服务。分析了下可行性和能达到的效果，对比了<code>StreamNative</code>的官网上提供的<code>pulsar</code>服务在阿里云托管的能力，能提供的能力差不多，最多只不过是实现了在华为云托管的能力，没有从0到1的突破。</p>
+<p>现在，在公有云上买<code>redis</code>和<code>kafka</code>这类组件已经变得非常普遍，由公有云供应商提供的中间件往往能给你带来良好的体验，相比三方厂家在云上进行托管，我个人认为云厂商的优势主要在以下三点</p>
+<h2 id="网络打通容易"><a href="#网络打通容易" class="headerlink" title="网络打通容易"></a>网络打通容易</h2><p>下文说一下不是公有云的供应商能以什么样的方式暴露自己的服务。云厂商可以把中间件的ip地址申请在你的vpc内，对任何应用程序来说，连接都是最方便的。无论是容器化部署、虚拟机部署、和其他vpc peering打通的场景，都可以通信。</p>
+<h2 id="低廉的成本"><a href="#低廉的成本" class="headerlink" title="低廉的成本"></a>低廉的成本</h2><p>不考虑人力成本，云厂商自运营的价格要低于三方厂家。</p>
+<h2 id="监控系统对接"><a href="#监控系统对接" class="headerlink" title="监控系统对接"></a>监控系统对接</h2><p>方便地和云厂商的告警、统计系统对接，接收告警通知和报表等。</p>
+<p>其中<strong>网络打通</strong>和<strong>成本</strong>尤为重要，三方厂家好好做监控统计系统，也能给用户较为良好的体验。</p>
+<h1 id="三方厂家能提供什么样的Pulsar接入"><a href="#三方厂家能提供什么样的Pulsar接入" class="headerlink" title="三方厂家能提供什么样的Pulsar接入"></a>三方厂家能提供什么样的Pulsar接入</h1><h2 id="统一接入"><a href="#统一接入" class="headerlink" title="统一接入"></a>统一接入</h2><p>三方厂家自己作为公有云上一个用户，无论这个Region上有多少个租户，都用这一个用户提供服务，这也就意味着无法与每个用户进行私网通信。如果在华为云，利用华为云推出的<strong>VPCEP</strong>服务（此处应有链接），倒是可以给每个用户提供私网通信，不过这个是做了DNAT地址转换的，跟做了DNAT转换的中间件连接，是非常麻烦的。（懂的自然懂。如果有人想详细了解，可以留言，我可以写一个文章介绍里面的坑）</p>
+<p>如果使用公网，又想避免扩容的时候动态申请EIP，动态申请EIP并不复杂，问题是EIP是有配额限制的，这才是关键。那么就需要一个统一的接入点，就需要部署pulsar proxy。到这一步，是每个用户申请一个EIP的，如果还想继续节省EIP，那么可以统一域名接入，后端通过SNI的方式转发，个别流量大的客户，单独把域名指向单独的集群。</p>
+<p><img src="/Images/pulsar-third-vendor1.png" alt="pulsar-third-vendor1"></p>
+<h2 id="Peering打通"><a href="#Peering打通" class="headerlink" title="Peering打通"></a>Peering打通</h2><p>Peering打通可以给用户不错的私网体验，需要用户预留一个网段，网段不需要太大，能容纳pulsar所在的vm就行。采用peering打通一般绝不会选择容器化部署，想要两个容器化的集群互通，对网设的要求很高，暂且忽略Service的存在，这要求用户的vpc网段和pod网段和三方厂商的vpc网段和pod网段都不重叠！而且peering打通，给用户私有，再搭建一个k8s集群，对成本影响比较大。主要有如下两个问题</p>
+<h3 id="自动化"><a href="#自动化" class="headerlink" title="自动化"></a>自动化</h3><p>和客户peering打通，需要较大的权限，如何自动化，最大程度的减少需要的权限。</p>
+<h3 id="客户网段和其他网段又做了peering"><a href="#客户网段和其他网段又做了peering" class="headerlink" title="客户网段和其他网段又做了peering"></a>客户网段和其他网段又做了peering</h3><p><img src="/Images/pulsar-third-vendor2.png" alt="pulsar-third-vendor2"></p>
+<p>这个问题其实还好，就是路由规则配置麻烦</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Peering打通对用户来说已经比较方便了，相信做到自动化也没有太大的技术难度，只是时间和人力投入的问题。统一接入因为网络打通的原因，不好使用<code>kop</code>、<code>mop</code>这些高级特性，此外还有不小的公网带宽成本，羊毛出在羊身上，比较大量的用户也会倾向于Peering打通的模式吧。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +434,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -405,7 +598,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -513,7 +706,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -614,7 +807,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -741,7 +934,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -835,7 +1028,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -925,7 +1118,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1056,7 +1249,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1080,309 +1273,6 @@
 <h2 id="联系："><a href="#联系：" class="headerlink" title="联系："></a>联系：</h2><ul>
 <li>persistent值大于等于set时，persistent timeout以persistent的设置为准。</li>
 <li>persistent值小于set时，当set超时，但persistent超时后，会将persistent再次设置为60。只到set超时为止。所以这个时候，真实生效的persistent timeout是<code>(s/60)*60 + p%60 + 60</code></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/03/14/Gorilla%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/03/14/Gorilla%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">Gorilla论文笔记</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-03-14 12:47:23" itemprop="dateCreated datePublished" datetime="2021-03-14T12:47:23+08:00">2021-03-14</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>用了几个小时读完了Gorilla这篇经典的 <a target="_blank" rel="noopener" href="http://www.vldb.org/pvldb/vol8/p1816-teller.pdf">时序数据库论文</a><br>，prometheus的时序数据库在很多地方都参考了这篇论文。以此文总结一下读后感，非论文翻译。截图基本都出自于论文。本论文可以解答如下的普罗问题</p>
-<h3 id="为什么普罗不支持字符串类型，只支持double作为监控值"><a href="#为什么普罗不支持字符串类型，只支持double作为监控值" class="headerlink" title="为什么普罗不支持字符串类型，只支持double作为监控值"></a>为什么普罗不支持字符串类型，只支持double作为监控值</h3><p>为了压缩数据，普罗使用了高效的用于double的压缩算法。</p>
-<h3 id="为什么普罗的默认的落盘间隔是2个小时"><a href="#为什么普罗的默认的落盘间隔是2个小时" class="headerlink" title="为什么普罗的默认的落盘间隔是2个小时"></a>为什么普罗的默认的落盘间隔是2个小时</h3><p>根据这篇论文，2个小时或以上的block的压缩比更小</p>
-<h3 id="普罗data盘里的文件都是用来干啥的？"><a href="#普罗data盘里的文件都是用来干啥的？" class="headerlink" title="普罗data盘里的文件都是用来干啥的？"></a>普罗data盘里的文件都是用来干啥的？</h3><p>有索引文件、数据文件、恢复日志等</p>
-<p>顺带一提，Gorilla是大猩猩的意思，也是银魂中近藤勋的绰号。</p>
-<p>Facebook因为从HBase读取时间序列太慢，再加上扩展性已经无法满足需求。Facebook对时延迟要求如此之低，Facebook否决了所有依赖磁盘做数据存储查询的方案，希望数据查询从内存返回。最终从论文看来，查询比HBase快了300多倍。</p>
-<h2 id="数据的编码方式"><a href="#数据的编码方式" class="headerlink" title="数据的编码方式"></a>数据的编码方式</h2><p>Facebook想要把数据都放到内存中，prometheus号称单机可处理数百万序列，如果按照业务代码的模式书写，三百万序列在1个小时内要占用多少内存呢？时间戳long值4byte，字符串名称加维度20byte，值算double类型，8byte，总共是32byte，两个小时，假设1分钟一个点，共有120个点。共1.2G内存。仅仅纯数据就占用了1.2G内存。Facebook基于如下两个监控数据的特点，对数据进行了高效压缩，缩小12倍原数据的大小</p>
-<ul>
-<li>大多数监控数据往往相差固定的时间间隔，而其他监控数据，虽然不是严格固定间隔，也基本接近固定的时间间隔。这个比例在Facebook的监控数据是24：1，即百分之96的数据都是固定间隔上报的</li>
-<li>大多数监控数据监控的值变化缓慢</li>
-</ul>
-<p>基于这两点假设，它们对时间戳和值提出了两种压缩算法</p>
-<h3 id="时间戳"><a href="#时间戳" class="headerlink" title="时间戳"></a>时间戳</h3><p>对时间戳的差值的差值进行存储，压缩空间大小。</p>
-<p><img src="/Images/gorilla1.png" alt="image-20210313174810933"></p>
-<p>先存储这一块的起始时间<code>2015 02:00:00</code>，对于第一个数值<code>2015 02:01:02</code>记录差值62，对下一个值<code>2015 02:02:02</code>，其的差值是60，差值的差值是<br><code>60-62=-2</code>，只存储-2即可，这样子大大节约了存储时间戳的空间</p>
-<h3 id="监控值"><a href="#监控值" class="headerlink" title="监控值"></a>监控值</h3><p>监控值采用异或的手法进行压缩，会得到0很多的二进制串，再通过合理的编码，降低总字节数。根据论文，有超过一半的数据相较上一个值没什么变化，使用一个字节即可存储</p>
-<p><img src="/Images/gorilla2.png" alt="image-20210313175320885"></p>
-<p>那么这样一个<code>block</code>里面应该存储多久的数据呢？这是一个权衡，如果存储很久的数据，则每次查询都需要查询出很large的值，才能获得结果，如果存储数据较短，则难以达到很高的压缩比。最终他们选择了两小时。</p>
-<p><img src="/Images/gorilla3.png" alt="block时长和压缩比的关系"></p>
-<p>对于普罗里的指标名称及维度，在普罗里，一个指标名称加上一组维度称为一个时间序列，Gorilla论文并没有提及维度的概念，仅仅使用名称。这块普罗实际和Gorilla都通过码表的方式，通过将字符串映射为一个longId，来大大降低存储的字节数。</p>
-<p>对于普罗的查询流程，是 指标名称+维度&#x3D;》一组时间序列，然后分别查询其中的值。Gorilla自身没有包装这一个流程，需要客户端组网自己想要查询的时间序列列表。</p>
-<p>基于时序监控系统里的，新数据比旧数据关键，Gorilla也会将旧数据落盘。</p>
-<h2 id="Gorilla的高可用"><a href="#Gorilla的高可用" class="headerlink" title="Gorilla的高可用"></a>Gorilla的高可用</h2><h3 id="单机可靠性"><a href="#单机可靠性" class="headerlink" title="单机可靠性"></a>单机可靠性</h3><p>Facebook调查了自己之前的监控系统，发现百分之85以上请求都只查询了26个小时以内的数据。在Gorilla的第一版中，他们决定只支持26个小时数据的查询，将2小时的数据放在内存中。超过2小时的数据，会存储在高可用磁盘上，如GlusterFs、HDFS等。2小时以内的数据，有一个log用来做重启时恢复数据来保证可靠性。这样就保证了单机重启的可靠性<br>注：这个日志不保证能恢复所有的数据，允许异常场景下有数据丢失</p>
-<h3 id="Region宕机的可靠性"><a href="#Region宕机的可靠性" class="headerlink" title="Region宕机的可靠性"></a>Region宕机的可靠性</h3><p>对于每一个Gorilla，都会主备部署一个对等的位于不同Region的实例，这两个实例都会存储数据，但数据并不完全一致。对于用户来说，他们接入距离他们最近的Gorilla实例。一旦其中一个Gorilla宕机，另一个Gorilla将会接管它的工作。为了保证数据的准确，待其恢复后26小时（拥有了它该拥有的全量数据），才可以接受业务请求。</p>
-<h2 id="Gorilla的扩展"><a href="#Gorilla的扩展" class="headerlink" title="Gorilla的扩展"></a>Gorilla的扩展</h2><p>Gorilla选择了水平扩展的方式，根据指标名做分区，分区到不同的主备<code>Gorilla</code></p>
-<p>论文还提到了一些其他有用的信息</p>
-<h2 id="监控时序数据的特点"><a href="#监控时序数据的特点" class="headerlink" title="监控时序数据的特点"></a>监控时序数据的特点</h2><h3 id="写请求占大多数"><a href="#写请求占大多数" class="headerlink" title="写请求占大多数"></a>写请求占大多数</h3><p>读请求很少，人工读取，或者一些自动化告警系统</p>
-<h3 id="注重状态的变化"><a href="#注重状态的变化" class="headerlink" title="注重状态的变化"></a>注重状态的变化</h3><p>内存突然上升，乃至于一个指标值的导数突然上升等</p>
-<h2 id="监控系统的目标"><a href="#监控系统的目标" class="headerlink" title="监控系统的目标"></a>监控系统的目标</h2><h3 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a>高可用</h3><p>出现问题的时候，监控系统和业务系统同时宕机是什么体验？是一把黑的体验。</p>
-<h3 id="低延迟"><a href="#低延迟" class="headerlink" title="低延迟"></a>低延迟</h3><h3 id="可容错"><a href="#可容错" class="headerlink" title="可容错"></a>可容错</h3><p>容忍单点故障灯</p>
-<h3 id="可扩展"><a href="#可扩展" class="headerlink" title="可扩展"></a>可扩展</h3><p>随着业务系统的扩展，监控系统也需要扩展</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/03/12/Rum%E5%AE%9A%E7%90%86%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/03/12/Rum%E5%AE%9A%E7%90%86%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">RUM定理论文笔记</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-03-12 18:58:51" itemprop="dateCreated datePublished" datetime="2021-03-12T18:58:51+08:00">2021-03-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="RUM定理的背景"><a href="#RUM定理的背景" class="headerlink" title="RUM定理的背景"></a>RUM定理的背景</h2><p>现在的基础设备复杂，多种多样。数据的保存和查询也多种多样，很多时候会为了很小的差异重新设计数据结构。这篇论文主要是指出了无论如何设计数据结构，都不可能在Read（读取）、Update(更新)、Memory(存储)三个方向上都做到最优，也希望指导接下来其他数据结构的设计，更希望能有一种自适应的系统，可以根据数据的查询、数据的写入、配置的硬件、人工的配置在Read、Update、Memory之间权衡。</p>
-<h2 id="RUM开销介绍"><a href="#RUM开销介绍" class="headerlink" title="RUM开销介绍"></a>RUM开销介绍</h2><p>我们将存储在数据中心的数据称作基础数据。那些用来辅助写入，辅助查询的数据成为辅助数据</p>
-<h3 id="读开销-RO"><a href="#读开销-RO" class="headerlink" title="读开销 RO"></a>读开销 RO</h3><p>也称作读放大，通过读取到的辅助数据加上基础数据除以基础数据来计算。举个例子，在mysql中查询数据，中间经过的B树层级就是读放大</p>
-<h3 id="更新开销-UO"><a href="#更新开销-UO" class="headerlink" title="更新开销 UO"></a>更新开销 UO</h3><p>也叫做写放大，实例物理上写入磁盘的大小除以逻辑上需要更新的大小。</p>
-<h3 id="内存开销-MO"><a href="#内存开销-MO" class="headerlink" title="内存开销 MO"></a>内存开销 MO</h3><p>也叫做空间放大，全部的基础数据加上全部的辅助数据除以基础数据。</p>
-<h2 id="RUM不可能达成举例"><a href="#RUM不可能达成举例" class="headerlink" title="RUM不可能达成举例"></a>RUM不可能达成举例</h2><p>我们选择一个有代表性的基础数据：一个整数数组。我们将这个数据集合组织到N个块中的固定大小的元素，每一个持有一个数值。每一个块可以用一个单调递增的ID来指示。工作负载使用数据的方式有 点查询、点更新、插入和删除。</p>
-<h3 id="最小化RO"><a href="#最小化RO" class="headerlink" title="最小化RO"></a>最小化RO</h3><p>那我们就把bk的Id当做我们数据结构数组的下标，举例子，{1, 17}是两个元素的id，我们就开辟大小为17的数组array，然后通过array[i]来得到i的数据。现在已经达成了RO最小，但我们的索引非常稀疏，理论上我们的数组是无限大的。更新需要操作两次，将旧的数组元素置空，然后将新的数据存放在新的block中。</p>
-<p>RO: 1  UO: 2 MO: 无穷大</p>
-<h3 id="最小化UO"><a href="#最小化UO" class="headerlink" title="最小化UO"></a>最小化UO</h3><p>为了最小化UO，我们将每次更新的数据直接插入到日志的最尾端，就算更新完成。查询需要遍历原来的数据和整个log文件。</p>
-<p>UO: 1 RO: 无穷大 MO: 无穷大</p>
-<h3 id="最小化MO"><a href="#最小化MO" class="headerlink" title="最小化MO"></a>最小化MO</h3><p>最小化MO时，不存储辅助数据，而将基础数据密集地存储起来。 读取需要进行全表扫描，如果任意更新，也需要进行全表扫描</p>
-<p>MO: 1 RO: N UO: 1</p>
-<h2 id="数据结构的RUM"><a href="#数据结构的RUM" class="headerlink" title="数据结构的RUM"></a>数据结构的RUM</h2><p><img src="/Images/rum1.png" alt="image-20210314164113082"></p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>N</th>
-<th>m</th>
-<th>B</th>
-<th>P</th>
-<th>T</th>
-<th>MEM</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>含义</td>
-<td>数据集大小</td>
-<td>查询结果大小</td>
-<td>块大小</td>
-<td>分区大小</td>
-<td>LSM级别比例</td>
-<td>内存</td>
-</tr>
-<tr>
-<td>单位</td>
-<td>元组</td>
-<td>元组</td>
-<td></td>
-<td></td>
-<td></td>
-<td>页</td>
-</tr>
-</tbody></table>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>批量创建</th>
-<th>索引大小</th>
-<th>点查询</th>
-<th>范围查询(大小m)</th>
-<th>查询&#x2F;更新&#x2F;删除</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>读取方式</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>B+树</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>完美哈希索引</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>ZoneMaps</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>层级LSM树</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>排序列</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>未排序列</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody></table>
-<p><img src="/Images/rum2.png" alt="image-20210314164933209"></p>
-<h2 id="论文作者对将来系统的设想"><a href="#论文作者对将来系统的设想" class="headerlink" title="论文作者对将来系统的设想"></a>论文作者对将来系统的设想</h2><p>作者认为，将来的系统应该是RUM可调的，来满足大多数场景的需要。通过一套可以轻松适应不同优化目标的访问方法来展望未来的数据系统。例如：</p>
-<p>• 具有动态调整参数（包括树高，节点大小和拆分条件）的B +树，以便在运行时调整树大小，读取成本和更新成本。</p>
-<p>• Approximate (tree) indexing that supports updates with low read performance overhead, by absorbing them in updatable probabilistic data structures (like quotient filters).</p>
-<p>• Morphingaccessmethods,combiningmultipleshapesatonce. Adding structure to data gradually with incoming queries, and building supporting index structures when further data reorganization becomes infeasible.</p>
-<p>• Update-friendly bitmap indexes, where updates are absorbed using additional, highly compressible, bitvectors which are gradually merged.</p>
-<p>• Accessmethodswithiterativelogsenhancedbyprobabilistic data structures that allows for more efficient reads and up- dates by avoiding accessing unnecessary data at the expense of additional space.</p>
-<h2 id="论文中其他有意思的点"><a href="#论文中其他有意思的点" class="headerlink" title="论文中其他有意思的点"></a>论文中其他有意思的点</h2><ul>
-<li>现代数据系统，通常在压缩的数据上运行，并尽可能晚地解压缩</li>
 </ul>
 
       

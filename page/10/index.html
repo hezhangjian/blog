@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">135</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-count">46</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,188 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/06/27/Go%20%E5%B9%B6%E5%8F%91%E8%8C%83%E5%BC%8F%20%E8%B6%85%E6%97%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/06/27/Go%20%E5%B9%B6%E5%8F%91%E8%8C%83%E5%BC%8F%20%E8%B6%85%E6%97%B6/" class="post-title-link" itemprop="url">Go并发范式：超时</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-27 10:40:47" itemprop="dateCreated datePublished" datetime="2021-06-27T10:40:47+08:00">2021-06-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="翻译自"><a href="#翻译自" class="headerlink" title="翻译自"></a>翻译自</h2><p><a target="_blank" rel="noopener" href="https://blog.golang.org/concurrency-timeouts">https://blog.golang.org/concurrency-timeouts</a></p>
+<h2 id="Go并发范式：超时，继续执行"><a href="#Go并发范式：超时，继续执行" class="headerlink" title="Go并发范式：超时，继续执行"></a>Go并发范式：超时，继续执行</h2><p>并发编程有自己的习惯用法。 超时是一个很好的例子。在商用软件开发时，所有操作都需要有超时。</p>
+<p>虽然 Go 的<strong>channel</strong>不直接支持超时，但很容易实现。假设我们想从通道 ch 接收，但希望实现一秒钟超时。 我们可以创建一个信号<strong>channel</strong>并启动一个在通道上发送之前休眠的 goroutine</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">timeout := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">bool</span>, <span class="number">1</span>)</span><br><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">    timeout &lt;- <span class="literal">true</span></span><br><span class="line">&#125;()</span><br></pre></td></tr></table></figure>
+
+<p>我们可以使用<strong>select</strong>语句从<code>ch</code>或者<code>timeout</code>中接收。如果过了1秒还没有数据返回，超时的case会被选中，尝试从<code>ch</code>读取的操作被放弃</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line"><span class="keyword">case</span> &lt;-ch:</span><br><span class="line">    <span class="comment">// a read from ch has occurred</span></span><br><span class="line"><span class="keyword">case</span> &lt;-timeout:</span><br><span class="line">    <span class="comment">// the read from ch has timed out</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>timeout channel有1个buffer，允许超时 goroutine 发送到通道然后退出。 goroutine 不关心这个值是否被接收了。这意味着如果 ch 接收发生在超时之前，goroutine 不会永远挂起。timeout channel 最终会被gc释放。</p>
+<p>（在这个例子中，我们使用 time.Sleep 来演示 goroutines 和通道的机制。在实际程序中，你应该使用 <a target="_blank" rel="noopener" href="https://golang.org/pkg/time/#After">time.After</a>来完成这个延迟发送）</p>
+<p>让我们看看这种模式的另一种变体。在这个例子中，我们有一个程序可以同时从多个数据库的副本中读取数据。程序只需要一个结果，它应该接受最先返回的结果。</p>
+<p>函数 Query 接受多个数据库连接和一个查询字符串。它并行查询每个数据库并返回它收到的第一个响应：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Query</span><span class="params">(conns []Conn, query <span class="type">string</span>)</span></span> Result &#123;</span><br><span class="line">    ch := <span class="built_in">make</span>(<span class="keyword">chan</span> Result)</span><br><span class="line">    <span class="keyword">for</span> _, conn := <span class="keyword">range</span> conns &#123;</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(c Conn)</span></span> &#123;</span><br><span class="line">            <span class="keyword">select</span> &#123;</span><br><span class="line">            <span class="keyword">case</span> ch &lt;- c.DoQuery(query):</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;(conn)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &lt;-ch</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，闭包执行<strong>非阻塞发送</strong>，它通过在把<code>send</code>放在带有<code>default</code>的<code>select</code>中实现。 如果<code>send</code>不能立即完成，则将选择<code>default</code>情况。 <strong>非阻塞发送</strong>保证循环中启动的任何 goroutine 都不会挂起。 </p>
+<p>但是，这个例子中有一个问题，如果结果在主函数执行到11行接收的时候之前到达，发送都会失败，最终函数无法取得结果。</p>
+<p>这个问题是所谓的竞争条件的教科书示例，修复非常简单。 我们只要保证channel有着缓冲通道（通过添加缓冲区长度作为 make 的第二个参数）来保证第一次发送有一个放置值的地方。 这确保发送总是成功，并且无论执行顺序如何，第一个值都会被获取。</p>
+<p>这两个例子展示了 Go 可以简单地表达 goroutines 之间复杂的交互。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/06/21/Go%20time.Time%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8%E5%80%BC%E4%BC%A0%E9%80%92%E8%BF%98%E6%98%AF%E6%8C%87%E9%92%88%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/06/21/Go%20time.Time%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8%E5%80%BC%E4%BC%A0%E9%80%92%E8%BF%98%E6%98%AF%E6%8C%87%E9%92%88%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/" class="post-title-link" itemprop="url">Go time.Time 应该使用值传递还是指针引用传递</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-21 14:48:57" itemprop="dateCreated datePublished" datetime="2021-06-21T14:48:57+08:00">2021-06-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="TLDR"><a href="#TLDR" class="headerlink" title="TLDR"></a>TLDR</h3><p>大部分场景应该使用值传递。</p>
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>Go 的文档指出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Programs using times should typically store and pass them as values, not pointers. That is, time variables and struct fields should be of type time.Time, not *time.Time. A Time value can be used by multiple goroutines simultaneously.</span><br></pre></td></tr></table></figure>
+
+<p>翻译一下就是</p>
+<p>程序使用times典型场景应该把它们当做值传递，而非指针。也就是说time变量及结构体field应该为<code>time.Time</code>，而不是<code>*time.Time</code>。Time值是协程安全的。之所以说<code>typically</code>，是因为有着那么不<code>typically</code>的场景，比如你想在方法内修改原来的<code>time.Time</code>对象这种场景（很少见）。</p>
+<p><code>time.Time</code>是一个较小的对象，把它作为值传递是完全合理的。传递指针而不是值的很重要的一个原因是避免昂贵的拷贝动作。但是传递指针也会给gc带来一些额外的开销，如逃逸分析等。</p>
+<p>值得一提的是，你可以通过<code>go build -gcflags=&quot;-m&quot;</code>来判断变量在堆中还是在栈中。</p>
+<p><img src="/Images/go-time-pass.png" alt="go-time-pass"></p>
+<p><code>time.Time</code>在我的MBP上只有24个字节。附上几个简单类型的字节数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">byte size is  1</span><br><span class="line">int32 size is  4</span><br><span class="line">int size is  8</span><br><span class="line">int64 size is  8</span><br><span class="line">float32 size is  4</span><br><span class="line">float64 size is  8</span><br><span class="line">time size is  24</span><br></pre></td></tr></table></figure>
+
+<p>测试程序</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> demo_base</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">	<span class="string">&quot;unsafe&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestSize</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">byte</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;byte size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">int32</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;int32 size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">int</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;int size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">int64</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;int64 size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">float32</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;float32 size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">float64</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;float64 size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		t := time.Now()</span><br><span class="line">		fmt.Println(<span class="string">&quot;time size is &quot;</span>, unsafe.Sizeof(t))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +422,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -366,7 +548,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -483,7 +665,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -679,7 +861,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -788,7 +970,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -943,7 +1125,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1044,7 +1226,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1302,7 +1484,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1370,199 +1552,6 @@
 <li>将Pulsar和Bookkeeper的metric信息上报到SkyWalking，使得在SkyWalking分析、告警更多信息。</li>
 <li>使用agent方式实现，避免和SkyWalking协议过度耦合</li>
 </ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/26/MySQL%E6%98%AF%E5%A6%82%E4%BD%95%E9%9A%90%E8%97%8Fps%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%AD%E7%9A%84%E5%AF%86%E7%A0%81%E7%9A%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/mysql-ps-password" class="post-title-link post-title-link-external" itemprop="url">Mysql是如何隐藏ps命令行中的密码的<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-26 19:35:38" itemprop="dateCreated datePublished" datetime="2021-04-26T19:35:38+08:00">2021-04-26</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li><a target="_blank" rel="noopener" href="http://northernmost.org/blog/how-does-mysql-hide-the-command-line-password-in-ps/index.html">http://northernmost.org/blog/how-does-mysql-hide-the-command-line-password-in-ps/index.html</a></li>
-</ul>
-<p>之前就在环境上<code>ps -ef</code>看到过<code>xxxxxx</code>的密码，一直没搞明白怎么回事，今天整理了一下，核心内容均来自于上述连接，作了一些额外的测试和查阅资料。</p>
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><h3 id="运行Mysql实例"><a href="#运行Mysql实例" class="headerlink" title="运行Mysql实例"></a>运行Mysql实例</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自己做的Mysql8的镜像</span></span><br><span class="line">docker run ttbb/mysql:stand-alone</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用密码连接Mysql服务器"><a href="#使用密码连接Mysql服务器" class="headerlink" title="使用密码连接Mysql服务器"></a>使用密码连接Mysql服务器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u hzj -p Mysql@123 -e <span class="string">&quot;select 1&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="ps-ef查看"><a href="#ps-ef查看" class="headerlink" title="ps -ef查看"></a>ps -ef查看</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@91bcbd15a82e mysql]# ps -ef</span><br><span class="line">UID        PID  PPID  C STIME TTY          TIME CMD</span><br><span class="line">root         1     0  0 07:34 ?        00:00:00 /usr/local/bin/dumb-init bash -vx /opt/sh/mysql/hzj/scripts/start.sh</span><br><span class="line">root         8     1  0 07:34 ?        00:00:00 bash -vx /opt/sh/mysql/hzj/scripts/start.sh</span><br><span class="line">root        17     1  0 07:34 ?        00:00:00 mysqld --daemonize --user=root</span><br><span class="line">root        62     8  0 07:34 ?        00:00:00 tail -f /dev/null</span><br><span class="line">root        63     0  0 07:34 pts/0    00:00:00 bash</span><br><span class="line">root        98    63  0 07:37 pts/0    00:00:00 mysql -h 127.0.0.1 -u hzj -px xxxxxxx</span><br><span class="line">root        99     0  1 07:37 pts/1    00:00:00 bash</span><br><span class="line">root       122    99  0 07:37 pts/1    00:00:00 ps -ef</span><br></pre></td></tr></table></figure>
-
-<h2 id="Mysql隐藏密码原理"><a href="#Mysql隐藏密码原理" class="headerlink" title="Mysql隐藏密码原理"></a>Mysql隐藏密码原理</h2><p>改写了<code>args</code>系统参数，demo如下</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Created by 张俭 on 2021/4/26.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span> &#123;</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="type">pid_t</span> mypid = getpid();</span><br><span class="line">    <span class="keyword">if</span> (argc == <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;argc = %d and arguments are:\n&quot;</span>, argc);</span><br><span class="line">    <span class="keyword">for</span> (i; i &lt; argc; i++) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d = %s\n&quot;</span>, i, argv[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">    sleep(<span class="number">30</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Replacing first argument with x:es... Now open another terminal and run: ps p %d\n&quot;</span>, (<span class="type">int</span>)mypid);</span><br><span class="line">    <span class="built_in">memset</span>(argv[<span class="number">1</span>], <span class="string">&#x27;x&#x27;</span>, <span class="built_in">strlen</span>(argv[<span class="number">1</span>]));</span><br><span class="line">    getc(<span class="built_in">stdin</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>编译并运行</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">gcc password_hide.c</span><br><span class="line">[root@c77dc365cd1a sh]# ./a.out abcd</span><br><span class="line">argc = 2 and arguments are:</span><br><span class="line">0 = ./a.out</span><br><span class="line">1 = abcd</span><br><span class="line">Replacing first argument with x:es... Now open another terminal and run: ps p 55</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>观测结果，开始看的确有明文密码</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@c77dc365cd1a sh]# ps -ef</span><br><span class="line">UID        PID  PPID  C STIME TTY          TIME CMD</span><br><span class="line">root         1     0  0 07:49 pts/0    00:00:00 bash</span><br><span class="line">root        32     0  0 07:51 pts/1    00:00:00 bash</span><br><span class="line">root        64     1  0 07:56 pts/0    00:00:00 ./a.out abcd</span><br><span class="line">root        66    32  0 07:56 pts/1    00:00:00 ps -ef</span><br></pre></td></tr></table></figure>
-<p>经过30秒后，已经被复写</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@c77dc365cd1a sh]# ps p 55</span><br><span class="line">  PID TTY      STAT   TIME COMMAND</span><br><span class="line">   55 pts/0    S+     0:00 ./a.out xxxx</span><br></pre></td></tr></table></figure>
-<h2 id="Mysql源码地址"><a href="#Mysql源码地址" class="headerlink" title="Mysql源码地址"></a>Mysql源码地址</h2><p>mysql-server&#x2F;client&#x2F;mysql.cc line 2054</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">if (argument) &#123;</span><br><span class="line">  char *start = argument;</span><br><span class="line">  my_free(opt_password);</span><br><span class="line">  opt_password = my_strdup(PSI_NOT_INSTRUMENTED, argument, MYF(MY_FAE));</span><br><span class="line">  while (*argument) *argument++ = &#x27;x&#x27;;  // Destroy argument</span><br><span class="line">  if (*start) start[1] = 0;</span><br><span class="line">  tty_password = false;</span><br><span class="line">&#125; else</span><br><span class="line">  tty_password = true;</span><br></pre></td></tr></table></figure>
-
-<p>PS: 后面，我还在OSX上用go程序尝试修改参数，估摸go程序的args传入是值拷贝，修改完成之后args没有生效，看来这个黑科技只有c程序能使用呀。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/20/%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%98%AF%E5%85%AC%E6%9C%89%E4%BA%91%E7%9A%84%E4%BE%9B%E5%BA%94%E5%95%86%EF%BC%8C%E8%83%BD%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84Pulsar%E6%9C%8D%E5%8A%A1%E4%BD%93%E9%AA%8C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/pulsar-third-vendor" class="post-title-link post-title-link-external" itemprop="url">如果不是公有云的供应商，能提供什么样的Pulsar服务体验<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-20 20:45:22" itemprop="dateCreated datePublished" datetime="2021-04-20T20:45:22+08:00">2021-04-20</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="需要了解的概念"><a href="#需要了解的概念" class="headerlink" title="需要了解的概念"></a>需要了解的概念</h1><ul>
-<li>VPC：用户的私有网段</li>
-<li>peering：多个VPC之间打通的方式，可跨用户</li>
-</ul>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今天微信推送Pulsar社区有个Hackathon比赛, 开始想的idea就是，实现<code>pulsar</code>在华为云上提供服务。因为是社区的比赛，是以一个三方系统的方式在华为云上提供服务，而非是以华为云的名义提供服务。分析了下可行性和能达到的效果，对比了<code>StreamNative</code>的官网上提供的<code>pulsar</code>服务在阿里云托管的能力，能提供的能力差不多，最多只不过是实现了在华为云托管的能力，没有从0到1的突破。</p>
-<p>现在，在公有云上买<code>redis</code>和<code>kafka</code>这类组件已经变得非常普遍，由公有云供应商提供的中间件往往能给你带来良好的体验，相比三方厂家在云上进行托管，我个人认为云厂商的优势主要在以下三点</p>
-<h2 id="网络打通容易"><a href="#网络打通容易" class="headerlink" title="网络打通容易"></a>网络打通容易</h2><p>下文说一下不是公有云的供应商能以什么样的方式暴露自己的服务。云厂商可以把中间件的ip地址申请在你的vpc内，对任何应用程序来说，连接都是最方便的。无论是容器化部署、虚拟机部署、和其他vpc peering打通的场景，都可以通信。</p>
-<h2 id="低廉的成本"><a href="#低廉的成本" class="headerlink" title="低廉的成本"></a>低廉的成本</h2><p>不考虑人力成本，云厂商自运营的价格要低于三方厂家。</p>
-<h2 id="监控系统对接"><a href="#监控系统对接" class="headerlink" title="监控系统对接"></a>监控系统对接</h2><p>方便地和云厂商的告警、统计系统对接，接收告警通知和报表等。</p>
-<p>其中<strong>网络打通</strong>和<strong>成本</strong>尤为重要，三方厂家好好做监控统计系统，也能给用户较为良好的体验。</p>
-<h1 id="三方厂家能提供什么样的Pulsar接入"><a href="#三方厂家能提供什么样的Pulsar接入" class="headerlink" title="三方厂家能提供什么样的Pulsar接入"></a>三方厂家能提供什么样的Pulsar接入</h1><h2 id="统一接入"><a href="#统一接入" class="headerlink" title="统一接入"></a>统一接入</h2><p>三方厂家自己作为公有云上一个用户，无论这个Region上有多少个租户，都用这一个用户提供服务，这也就意味着无法与每个用户进行私网通信。如果在华为云，利用华为云推出的<strong>VPCEP</strong>服务（此处应有链接），倒是可以给每个用户提供私网通信，不过这个是做了DNAT地址转换的，跟做了DNAT转换的中间件连接，是非常麻烦的。（懂的自然懂。如果有人想详细了解，可以留言，我可以写一个文章介绍里面的坑）</p>
-<p>如果使用公网，又想避免扩容的时候动态申请EIP，动态申请EIP并不复杂，问题是EIP是有配额限制的，这才是关键。那么就需要一个统一的接入点，就需要部署pulsar proxy。到这一步，是每个用户申请一个EIP的，如果还想继续节省EIP，那么可以统一域名接入，后端通过SNI的方式转发，个别流量大的客户，单独把域名指向单独的集群。</p>
-<p><img src="/Images/pulsar-third-vendor1.png" alt="pulsar-third-vendor1"></p>
-<h2 id="Peering打通"><a href="#Peering打通" class="headerlink" title="Peering打通"></a>Peering打通</h2><p>Peering打通可以给用户不错的私网体验，需要用户预留一个网段，网段不需要太大，能容纳pulsar所在的vm就行。采用peering打通一般绝不会选择容器化部署，想要两个容器化的集群互通，对网设的要求很高，暂且忽略Service的存在，这要求用户的vpc网段和pod网段和三方厂商的vpc网段和pod网段都不重叠！而且peering打通，给用户私有，再搭建一个k8s集群，对成本影响比较大。主要有如下两个问题</p>
-<h3 id="自动化"><a href="#自动化" class="headerlink" title="自动化"></a>自动化</h3><p>和客户peering打通，需要较大的权限，如何自动化，最大程度的减少需要的权限。</p>
-<h3 id="客户网段和其他网段又做了peering"><a href="#客户网段和其他网段又做了peering" class="headerlink" title="客户网段和其他网段又做了peering"></a>客户网段和其他网段又做了peering</h3><p><img src="/Images/pulsar-third-vendor2.png" alt="pulsar-third-vendor2"></p>
-<p>这个问题其实还好，就是路由规则配置麻烦</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Peering打通对用户来说已经比较方便了，相信做到自动化也没有太大的技术难度，只是时间和人力投入的问题。统一接入因为网络打通的原因，不好使用<code>kop</code>、<code>mop</code>这些高级特性，此外还有不小的公网带宽成本，羊毛出在羊身上，比较大量的用户也会倾向于Peering打通的模式吧。</p>
 
       
     </div>

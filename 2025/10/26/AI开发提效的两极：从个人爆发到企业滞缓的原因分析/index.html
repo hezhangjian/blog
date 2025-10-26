@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一方面，是Vibe效率的飞升：三天完成一个Demo，一下午Vibe一个Poc项目。另一方面，是企业效率没有想象中的提升，似乎，没有AI辅助流程，对企业没有任何影响。 为什么？ 首先，这是极具代表性的两个开发场景：其一，单人开发，担任产品经理、开发、测试、运维角色，一人承担所有的责任。（即使GPT写错了付款接口你也只能责怪自己）。其二，多人协作开发，分工明确，各自承担不同的角色与责任。 基于此，针对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI开发提效的两极：从个人爆发到企业滞缓的原因分析">
+<meta property="og:url" content="https://hezhangjian.com/2025/10/26/AI%E5%BC%80%E5%8F%91%E6%8F%90%E6%95%88%E7%9A%84%E4%B8%A4%E6%9E%81%EF%BC%9A%E4%BB%8E%E4%B8%AA%E4%BA%BA%E7%88%86%E5%8F%91%E5%88%B0%E4%BC%81%E4%B8%9A%E6%BB%9E%E7%BC%93%E7%9A%84%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="一方面，是Vibe效率的飞升：三天完成一个Demo，一下午Vibe一个Poc项目。另一方面，是企业效率没有想象中的提升，似乎，没有AI辅助流程，对企业没有任何影响。 为什么？ 首先，这是极具代表性的两个开发场景：其一，单人开发，担任产品经理、开发、测试、运维角色，一人承担所有的责任。（即使GPT写错了付款接口你也只能责怪自己）。其二，多人协作开发，分工明确，各自承担不同的角色与责任。 基于此，针对">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/%E4%BA%BA%E4%B8%8E%E4%BA%BA%E3%80%81AI%E7%9A%84%E4%BA%A4%E4%BA%92.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/%E5%BC%80%E5%8F%91%E6%B5%8B%E8%AF%95%E5%8D%8F%E4%BD%9C%E6%B5%81%E7%A8%8B1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/%E5%BC%80%E5%8F%91%E6%B5%8B%E8%AF%95%E5%8D%8F%E4%BD%9C%E6%B5%81%E7%A8%8B2.png">
+<meta property="article:published_time" content="2025-10-26T02:24:51.000Z">
+<meta property="article:modified_time" content="2025-10-26T23:45:10.321Z">
+<meta property="article:author" content="Zhangjian He">
+<meta property="article:tag" content="软件工程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/%E4%BA%BA%E4%B8%8E%E4%BA%BA%E3%80%81AI%E7%9A%84%E4%BA%A4%E4%BA%92.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2025/10/26/AI%E5%BC%80%E5%8F%91%E6%8F%90%E6%95%88%E7%9A%84%E4%B8%A4%E6%9E%81%EF%BC%9A%E4%BB%8E%E4%B8%AA%E4%BA%BA%E7%88%86%E5%8F%91%E5%88%B0%E4%BC%81%E4%B8%9A%E6%BB%9E%E7%BC%93%E7%9A%84%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2025/10/26/AI%E5%BC%80%E5%8F%91%E6%8F%90%E6%95%88%E7%9A%84%E4%B8%A4%E6%9E%81%EF%BC%9A%E4%BB%8E%E4%B8%AA%E4%BA%BA%E7%88%86%E5%8F%91%E5%88%B0%E4%BC%81%E4%B8%9A%E6%BB%9E%E7%BC%93%E7%9A%84%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90/","path":"2025/10/26/AI开发提效的两极：从个人爆发到企业滞缓的原因分析/","title":"AI开发提效的两极：从个人爆发到企业滞缓的原因分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>AI开发提效的两极：从个人爆发到企业滞缓的原因分析 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A8%A1%E5%9E%8B%E3%80%81%E7%AE%97%E5%8A%9B"><span class="nav-number">1.</span> <span class="nav-text">一、模型、算力</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BF%A1%E6%81%AF%E7%B3%BB%E7%BB%9F%E5%AD%A4%E5%B2%9B"><span class="nav-number">2.</span> <span class="nav-text">二、信息系统孤岛</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">三、工作流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">137</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2025/10/26/AI%E5%BC%80%E5%8F%91%E6%8F%90%E6%95%88%E7%9A%84%E4%B8%A4%E6%9E%81%EF%BC%9A%E4%BB%8E%E4%B8%AA%E4%BA%BA%E7%88%86%E5%8F%91%E5%88%B0%E4%BC%81%E4%B8%9A%E6%BB%9E%E7%BC%93%E7%9A%84%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="AI开发提效的两极：从个人爆发到企业滞缓的原因分析 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AI开发提效的两极：从个人爆发到企业滞缓的原因分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-10-26 10:24:51" itemprop="dateCreated datePublished" datetime="2025-10-26T10:24:51+08:00">2025-10-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>一方面，是Vibe效率的飞升：三天完成一个Demo，一下午Vibe一个Poc项目。<br>另一方面，是企业效率没有想象中的提升，似乎，没有AI辅助流程，对企业没有任何影响。</p>
+<p>为什么？</p>
+<p>首先，这是极具代表性的两个开发场景：<br>其一，单人开发，担任产品经理、开发、测试、运维角色，一人承担所有的责任。（即使GPT写错了付款接口你也只能责怪自己）。<br>其二，多人协作开发，分工明确，各自承担不同的角色与责任。</p>
+<p>基于此，针对AI辅助开发，笔者分析整理了三个原因，这三个问题层层叠加，从模型能力到系统隔离，再到协作方式，构成了企业级 AI 提效的现实瓶颈。</p>
+<h1 id="一、模型、算力"><a href="#一、模型、算力" class="headerlink" title="一、模型、算力"></a>一、模型、算力</h1><p>模型的推理能力、支持上下文的长度，对工具的效果影响是天差地别的。企业出于对资产安全的考虑，往往会选择私有化搭建模型，这可能会导致如下两个问题：</p>
+<ul>
+<li><strong>内部模型参数量较小</strong>：推理能力明显低于公有云大模型，尤其在多语言代码生成和复杂语义补全上差距明显。</li>
+<li><strong>上下文长度受限</strong>： 受限于上下文窗口，AI 工具只能看到当前编辑文件或部分上下文，导致生成结果割裂。<blockquote>
+<p>先进的理论、经验都是基于AK 47的，确定一定要基于AK 36继续优化么？</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="二、信息系统孤岛"><a href="#二、信息系统孤岛" class="headerlink" title="二、信息系统孤岛"></a>二、信息系统孤岛</h1><p>在传统的逻辑下，将信息分隔到多个系统，进行精细化管理，通过人来串起整个流程，这无疑是非常优秀的做法。笔者也曾经将团队中的所有数据库相关实体定义集中到一个代码库管理。</p>
+<p>而AI辅助开发工具通常运行在代码仓，单人开发模式下，我可以把设计文档提交到代码仓，典型测试集都提交到代码仓，编写代码需要的Everything，只要适合转换为文本模式的，我都可以提交到代码仓。</p>
+<p>在AI辅助开发工具没有集成对应信息系统的情况下，需要开发人员手动提炼复制上下文到AI辅助开发工具，这和我再提炼提炼，以Chat的方式对话，有什么区别？</p>
+<blockquote>
+<p>其实这一点在代码仓管理上也存在，Repo的分隔也存在这个问题，前端、多个语言的客户端、API的Yaml文件，进行精细化的管理。但CC、Cursor这样的工具无法看到全貌。</p>
+<p>下一个我做的项目，我倾向于使用Mono Repo，充分利用AI工具提交，并且如果是AI相关项目的话，我倾向于使用Python语言。</p>
+</blockquote>
+<p>但是我相信，如果多个系统都能与AI工具对接打通，给AI提供了更加结构化、质量更高的数据，理论上上限要高于所有东西以markdown格式放在代码仓库不同文件夹的做法。</p>
+<h1 id="三、工作流程"><a href="#三、工作流程" class="headerlink" title="三、工作流程"></a>三、工作流程</h1><p><strong>AI没有改变软件工程，只是把其中的很多工作加速到不可思议的地步。</strong></p>
+<p><strong>AI只能加速单人闭环的工作，对人和人的交互没有帮助。</strong></p>
+<p>AI 当前的强项，是提升“单人闭环任务”的速度。但当任务涉及<strong>跨角色交互</strong>时（如开发与测试、测试与运维、产品与开发），AI 的作用显著减弱。<br><img src="/Images/%E4%BA%BA%E4%B8%8E%E4%BA%BA%E3%80%81AI%E7%9A%84%E4%BA%A4%E4%BA%92.png"><br>左图是人与人的交互，严丝合缝。如右边两张图所示，AI交付件还不能做到严丝合缝地对接，为了能顺利走完流程，蓝色、橙色，必须得有一方做出额外的工作才行。（当然，为了避免同事说你不靠谱，我还是推荐蓝色方做出额外工作。）</p>
+<p>AI时代，应该尽量把一个工作的各个方面交给一个人，这样来减少人与人的交互，充分提高效率。</p>
+<blockquote>
+<p>这和交给Agent足够的上下文的道理是相通的。</p>
+</blockquote>
+<p>来看一个典型案例：微服务开发与测试的协同。一个典型微服务的开发、测试、发布上线流程如下：</p>
+<blockquote>
+<p>产品与开发、开发和运维，这样的问题也存在，以编码举例子，主要是因为时间相对长，矛盾更加明显。</p>
+</blockquote>
+<p><img src="/Images/%E5%BC%80%E5%8F%91%E6%B5%8B%E8%AF%95%E5%8D%8F%E4%BD%9C%E6%B5%81%E7%A8%8B1.png"><br>测试负责产品质量的出口，测试在自己的领域范围内，通过自己的理解，对整体的测试进行分层落地（基本接口测试与集成测试环节）。</p>
+<p>图中共有四项活动：代码、单元测试、基本接口测试、集成测试。这个模式下，单元测试与基本接口测试存在能力上的重叠。对流程进行了如下优化（测试将测试设计左移，基本接口测试放在开发阶段，弱化单元测试。<br><img src="/Images/%E5%BC%80%E5%8F%91%E6%B5%8B%E8%AF%95%E5%8D%8F%E4%BD%9C%E6%B5%81%E7%A8%8B2.png"><br>但是现在，下面这种方式和上面这种方式，谁用AI辅助的效率更高？</p>
+<p>从传统领域的角度来看，下面的方式，测试更早介入，且减少了重复工作。但是从AI辅助的角度来看，那个效率更高？</p>
+<p>从AI辅助的角度，橙色的环节充斥着大量的交互，诸如代码中书写的测试要匹配测试的设计（通过方法名与用例Id匹配），开发要确认测试设计表达的含义等。当团队想要使用AI提效时，这个矛盾就被放大。尤其是当 <strong>模型能力不足</strong> 与 <strong>信息孤岛</strong> 并存时，协作复杂度被进一步放大。</p>
+<p>当下，在笔者所在的团队，上下两种流程都存在。上下两种方式那种更好？笔者下意识地觉得当未来AI的生产力突飞猛进的时候，上面的方式会更好（这一判断源于相信人和AI协作的效率会远远大于人和人协作的效率），但是在当下，笔者想不清楚，也给不出答案。当前笔者针对上下两种场景，寻找集成了对应信息源、最合适的工具进行提效。</p>
+<p>总得来说，企业要避免陷入 <strong>“工具因为流程导致效果不及预期”、”流程不会为没有效果的工具变更，让步”、”开发人员对工具没有信心”</strong> 的恶性循环。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>AI 在个人层面的高效令人振奋，但企业的整体效率并未出现预期的跃升。问题主要集中在模型能力、信息孤岛与工作流程三方面。前两者可以通过技术投入与资源建设逐步改善，而工作流程的变革则需要企业在思维模式与协作方式上完成真正的转变。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" rel="tag"># 软件工程</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/10/10/Palantir%20Foundry%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B%EF%BC%9A%E4%BB%8E%E5%AE%9A%E5%88%B6%E4%BB%A3%E7%A0%81%E5%88%B0AIP%E6%99%BA%E8%83%BD%E5%86%B3%E7%AD%96/" rel="prev" title="Palantir Foundry技术演进：从定制代码到AIP智能决策">
+                  <i class="fa fa-angle-left"></i> Palantir Foundry技术演进：从定制代码到AIP智能决策
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

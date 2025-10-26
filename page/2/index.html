@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">135</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-count">46</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,124 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/05/08/%E8%AE%B0%E4%B8%80%E6%AC%A1%E8%AF%A1%E5%BC%82%E7%9A%84Java%E6%97%B6%E9%97%B4%E6%88%B3%E5%8F%98%E5%8C%96%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/java-weird-timestamp-change" class="post-title-link post-title-link-external" itemprop="url">记一次诡异的Java时间戳变化问题<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-05-08 08:11:47" itemprop="dateCreated datePublished" datetime="2024-05-08T08:11:47+08:00">2024-05-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h1><p>在一个使用Spring R2dbc与Mysql8.x的项目中，当创建 一个REST资源，进行创建，返回的毫秒精度时间戳，和下一瞬间查询的时间戳不一致。sql及代码大概如下</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> person (</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    name <span class="type">VARCHAR</span>(<span class="number">255</span>),</span><br><span class="line">    created_time DATETIME(<span class="number">3</span>),</span><br><span class="line">    updated_time DATETIME(<span class="number">3</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>实体类定义</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PersonEntity</span> &#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="meta">@CreatedDate</span></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime createdTime;</span><br><span class="line">    <span class="meta">@LastModifiedDate</span></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime updatedTime;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用了<code>@CreatedDate</code>、<code>@LastModifiedDate</code>注解，并在Application类上配置了<code>@EnableR2dbcAuditing</code>注解用于在Repo操作实体的时候，自动更新时间戳。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">PersonRepo</span> <span class="keyword">extends</span> <span class="title class_">ReactiveCrudRepository</span>&lt;PersonEntity, Long&gt; &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建代码类比如下，大概就是使用r2dbc操作数据，并将r2dbc返回的实体用于转换毫秒时间戳</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">return createPersonReq</span><br><span class="line">               .flatMap(req -&gt; &#123;</span><br><span class="line">                   PersonPo personPo = new PersonPo();</span><br><span class="line">                   personPo.setAge(18);</span><br><span class="line">                   personPo.setName(req.getName());</span><br><span class="line">                   return personRepo.save(personPo);</span><br><span class="line">               &#125;)</span><br><span class="line">               .map(person -&gt; &#123;</span><br><span class="line">                   PersonResp personResp = new PersonResp();</span><br><span class="line">                   personResp.setName(person.getName());</span><br><span class="line">                   personResp.setCreatedTime(TimeUtil.format(person.getCreatedTime()));</span><br><span class="line">                   return new ResponseEntity&lt;&gt;(personResp, null, HttpStatus.CREATED);</span><br><span class="line">               &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>然而创建的时候返回的时间戳和查询的时间戳不一致，现象举例：<br>创建的时候返回：<code>2024-05-08T08:11:47.333Z</code>，<br>查询的时候却返回：<code>2024-05-08T08:11:47.334Z</code>，</p>
+<p>走读代码，发现代码基本上万无一失，那么问题出在哪里呢？</p>
+<p>通过仔细观察时间戳的区别，发现时间戳的变化都在最后一位，且相差为一，醒悟到这估计是由于内存中纳秒时间戳精度在转化为数据库毫秒时间戳的时候，部分库的行为是截断，部分库的行为是四舍五入，导致了这个问题。</p>
+<p>最终通过写demo，docker抓包复现了这个问题，如下图所示，mysql server会将接收的时间戳进行四舍五入，而java常见的format工具类都是截断，导致了这一不一致。同时，这也体现了，r2dbc返回的entity可能并不是实际存入数据的内容，而是”原始”的entity。</p>
+<p><img src="/Images/r2dbc-weird-timestamp-change.jpeg" alt="r2dbc-weird-timestamp-change.jpeg"></p>
+<h1 id="r2dbc与mysql的时间精度失调问题"><a href="#r2dbc与mysql的时间精度失调问题" class="headerlink" title="r2dbc与mysql的时间精度失调问题"></a>r2dbc与mysql的时间精度失调问题</h1><p>在这个问题里面，存在三个时间精度：</p>
+<ul>
+<li>内存中的时间精度</li>
+<li>r2dbc发给mysql的时间精度，有趣的是，r2dbc发给mysql的时间精度，并不是sql中列定义的精度，而是mysql server所能支持的最高精度即微秒精度。</li>
+<li>mysql实际存储的时间精度</li>
+</ul>
+<p>r2dbc返回的entity可能并不是实际存入数据的内容，而是经过r2dbc处理之后，发送到数据库之前的entity。问题的关键就在r2dbc并不根据列定义的精度处理数据，而是根据mysql server支持的最高精度处理数据。</p>
+<p>解决问题的方式有几种：</p>
+<ul>
+<li>将mysql列定义到微秒级别精度，优选方案</li>
+<li>在进入r2dbc之前，将时间戳截断到mysql列定义的精度</li>
+<li>在r2dbc返回的entity中，将时间戳截断到mysql支持的精度。这其实对开发者的心智负担较重，返回的entity并不是实际存储的，使用前要做进位，限制也比较大。</li>
+</ul>
+<p>在进入r2dbc之前，将时间戳截断到数据库表定义的精度，也有两种方式</p>
+<ul>
+<li>不使用<code>@CreatedDate</code>、<code>@LastModifiedDate</code>注解，而是在应用程序中手动设置时间戳</li>
+<li>继续使用<code>@CreatedDate</code>、<code>@LastModifiedDate</code>注解，通过拦截器统一进位</li>
+</ul>
+<p>通过拦截器的代码如下，定义基类，不然每个实体类都要书写拦截器。一般来说，一个项目里，时间戳的精度都应该统一，所以可以定义一个统一的拦截器。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.ToString;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.annotation.CreatedDate;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.annotation.LastModifiedDate;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.time.LocalDateTime;</span><br><span class="line"></span><br><span class="line"><span class="meta">@ToString</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AuditableEntity</span> &#123;</span><br><span class="line">    <span class="meta">@CreatedDate</span></span><br><span class="line">    <span class="keyword">protected</span> LocalDateTime createdTime;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@LastModifiedDate</span></span><br><span class="line">    <span class="keyword">protected</span> LocalDateTime updatedTime;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> LocalDateTime <span class="title function_">getCreatedTime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> createdTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setCreatedTime</span><span class="params">(LocalDateTime createdTime)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.createdTime = createdTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> LocalDateTime <span class="title function_">getUpdatedTime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> updatedTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setUpdatedTime</span><span class="params">(LocalDateTime updatedTime)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.updatedTime = updatedTime;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.reactivestreams.Publisher;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.r2dbc.mapping.OutboundRow;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.r2dbc.mapping.event.BeforeSaveCallback;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.relational.core.mapping.event.BeforeConvertCallback;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.relational.core.sql.SqlIdentifier;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> reactor.core.publisher.Mono;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.time.LocalDateTime;</span><br><span class="line"><span class="keyword">import</span> java.time.temporal.ChronoUnit;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AuditableEntityCallback</span> <span class="keyword">implements</span> <span class="title class_">BeforeSaveCallback</span>&lt;AuditableEntity&gt;, BeforeConvertCallback&lt;AuditableEntity&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Publisher&lt;AuditableEntity&gt; <span class="title function_">onBeforeSave</span><span class="params">(AuditableEntity entity, OutboundRow row, SqlIdentifier table)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;before save &quot;</span> + entity.getCreatedTime());</span><br><span class="line">        entity.setCreatedTime(roundToMilliseconds(entity.getCreatedTime()));</span><br><span class="line">        entity.setUpdatedTime(roundToMilliseconds(entity.getUpdatedTime()));</span><br><span class="line">        System.out.println(<span class="string">&quot;before save &quot;</span> + entity.getCreatedTime());</span><br><span class="line">        <span class="keyword">return</span> Mono.just(entity);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> AuditableEntity <span class="title function_">onBeforeConvert</span><span class="params">(AuditableEntity entity)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;before convert &quot;</span> + entity.getCreatedTime());</span><br><span class="line">        entity.setCreatedTime(roundToMilliseconds(entity.getCreatedTime()));</span><br><span class="line">        entity.setUpdatedTime(roundToMilliseconds(entity.getUpdatedTime()));</span><br><span class="line">        System.out.println(<span class="string">&quot;before convert &quot;</span> + entity.getCreatedTime());</span><br><span class="line">        <span class="keyword">return</span> entity;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> LocalDateTime <span class="title function_">roundToMilliseconds</span><span class="params">(LocalDateTime dateTime)</span> &#123;</span><br><span class="line">        <span class="type">LocalDateTime</span> <span class="variable">localDateTime</span> <span class="operator">=</span> dateTime.truncatedTo(ChronoUnit.MILLIS);</span><br><span class="line">        <span class="type">int</span> <span class="variable">dateTimeNano</span> <span class="operator">=</span> dateTime.getNano() % <span class="number">1000_000</span>;</span><br><span class="line">        <span class="keyword">if</span> (dateTimeNano &gt;= <span class="number">500_000</span>) &#123;</span><br><span class="line">            localDateTime = localDateTime.plusNanos(<span class="number">1_000_000</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> localDateTime;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="jpa有没有问题呢？"><a href="#jpa有没有问题呢？" class="headerlink" title="jpa有没有问题呢？"></a>jpa有没有问题呢？</h1><p>出于好奇，我也做了jpa的尝试，jpa也是一样的行为</p>
+<p><img src="/Images/jpa-weird-timestamp-change.png" alt="jpa-weird-timestamp-change.jpeg"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +359,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -332,7 +450,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -409,7 +527,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -496,7 +614,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -582,7 +700,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -618,7 +736,7 @@
 <h3 id="合理选择依赖的scope"><a href="#合理选择依赖的scope" class="headerlink" title="合理选择依赖的scope"></a>合理选择依赖的scope</h3><p>举个例子：</p>
 <p>对于library依赖，不应该把log4j2作为自己的compile级别依赖，只能作为runtime和test级别的依赖。</p>
 <h3 id="避免使用大量的exclude、指定版本号"><a href="#避免使用大量的exclude、指定版本号" class="headerlink" title="避免使用大量的exclude、指定版本号"></a>避免使用大量的exclude、指定版本号</h3><p>大部分情况下，无需进行exclue、特殊指定某个组件的版本号，仅当版本冲突，或紧急漏洞修复。每一个exclude、指定版本号都应该有合理的原因。尽量不在某一个子模块里单独exclude、指定版本号。合理的exclude如</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- use log4j2 instead of logback --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-logging<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><!-- use log4j2 instead of logback --></span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-logging<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="pom文件书写核心注意点"><a href="#pom文件书写核心注意点" class="headerlink" title="pom文件书写核心注意点"></a>pom文件书写核心注意点</h2><p>pom文件就和代码一样，优美的pom应该整洁、避免重复、在项目中拥有统一的风格。</p>
 <h3 id="有序地组织pom文件"><a href="#有序地组织pom文件" class="headerlink" title="有序地组织pom文件"></a>有序地组织pom文件</h3><p>某个节点下有大量的元素时，优先按照含义区分先后顺序，比如compile依赖在先，test依赖在后；比如按依赖顺序pulsar-api在先，pulsar-client在后，其次可以按照字母顺序排列。会大大提升整个pom文件的可读性。</p>
@@ -626,7 +744,7 @@
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.opengemini<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>opengemini-client-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;project.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.projectreactor.netty<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>reactor-netty-http<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;reactor-netty.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <p>properties里面，可以按全局、依赖、插件分别归类，并在小类中按字母名称排序。示例如下:</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">src.dir</span>&gt;</span>src/main/java<span class="tag">&lt;/<span class="name">src.dir</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- dependency --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">async-http-client.version</span>&gt;</span>3.0.0.Beta3<span class="tag">&lt;/<span class="name">async-http-client.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">junit.version</span>&gt;</span>5.10.0<span class="tag">&lt;/<span class="name">junit.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">lombok.version</span>&gt;</span>1.18.30<span class="tag">&lt;/<span class="name">lombok.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">log4j.version</span>&gt;</span>2.20.0<span class="tag">&lt;/<span class="name">log4j.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">okhttp.version</span>&gt;</span>4.12.0<span class="tag">&lt;/<span class="name">okhttp.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">jackson.version</span>&gt;</span>2.13.4.1<span class="tag">&lt;/<span class="name">jackson.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">puppycrawl.version</span>&gt;</span>10.12.3<span class="tag">&lt;/<span class="name">puppycrawl.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">reactor-netty.version</span>&gt;</span>1.1.10<span class="tag">&lt;/<span class="name">reactor-netty.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">slf4j.version</span>&gt;</span>2.0.7<span class="tag">&lt;/<span class="name">slf4j.version</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- plugin --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">lombok-maven-plugin.version</span>&gt;</span>1.18.20.0<span class="tag">&lt;/<span class="name">lombok-maven-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-compiler-plugin.version</span>&gt;</span>3.11.0<span class="tag">&lt;/<span class="name">maven-compiler-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-checkstyle-plugin.version</span>&gt;</span>3.3.1<span class="tag">&lt;/<span class="name">maven-checkstyle-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-enforcer-plugin.version</span>&gt;</span>3.4.1<span class="tag">&lt;/<span class="name">maven-enforcer-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-enforce-plugin-maven.version</span>&gt;</span>3.8.0<span class="tag">&lt;/<span class="name">maven-enforce-plugin-maven.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-gpg-plugin.version</span>&gt;</span>3.1.0<span class="tag">&lt;/<span class="name">maven-gpg-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-javadoc-plugin.version</span>&gt;</span>3.6.0<span class="tag">&lt;/<span class="name">maven-javadoc-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-release-plugin.version</span>&gt;</span>3.0.1<span class="tag">&lt;/<span class="name">maven-release-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-release-plugin-scm-provider-gitexe.version</span>&gt;</span>2.0.1<span class="tag">&lt;/<span class="name">maven-release-plugin-scm-provider-gitexe.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-source-plugin.version</span>&gt;</span>3.3.0<span class="tag">&lt;/<span class="name">maven-source-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-surefire-plugin.version</span>&gt;</span>3.2.1<span class="tag">&lt;/<span class="name">maven-surefire-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">nexus-staging-plugin.version</span>&gt;</span>1.6.13<span class="tag">&lt;/<span class="name">nexus-staging-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">spotbugs-maven-plugin.version</span>&gt;</span>4.7.3.6<span class="tag">&lt;/<span class="name">spotbugs-maven-plugin.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">src.dir</span>&gt;</span>src/main/java<span class="tag">&lt;/<span class="name">src.dir</span>&gt;</span></span><br><span class="line">    <span class="comment"><!-- dependency --></span></span><br><span class="line">    <span class="tag">&lt;<span class="name">async-http-client.version</span>&gt;</span>3.0.0.Beta3<span class="tag">&lt;/<span class="name">async-http-client.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">junit.version</span>&gt;</span>5.10.0<span class="tag">&lt;/<span class="name">junit.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">lombok.version</span>&gt;</span>1.18.30<span class="tag">&lt;/<span class="name">lombok.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">log4j.version</span>&gt;</span>2.20.0<span class="tag">&lt;/<span class="name">log4j.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">okhttp.version</span>&gt;</span>4.12.0<span class="tag">&lt;/<span class="name">okhttp.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">jackson.version</span>&gt;</span>2.13.4.1<span class="tag">&lt;/<span class="name">jackson.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">puppycrawl.version</span>&gt;</span>10.12.3<span class="tag">&lt;/<span class="name">puppycrawl.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">reactor-netty.version</span>&gt;</span>1.1.10<span class="tag">&lt;/<span class="name">reactor-netty.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">slf4j.version</span>&gt;</span>2.0.7<span class="tag">&lt;/<span class="name">slf4j.version</span>&gt;</span></span><br><span class="line">    <span class="comment"><!-- plugin --></span></span><br><span class="line">    <span class="tag">&lt;<span class="name">lombok-maven-plugin.version</span>&gt;</span>1.18.20.0<span class="tag">&lt;/<span class="name">lombok-maven-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-compiler-plugin.version</span>&gt;</span>3.11.0<span class="tag">&lt;/<span class="name">maven-compiler-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-checkstyle-plugin.version</span>&gt;</span>3.3.1<span class="tag">&lt;/<span class="name">maven-checkstyle-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-enforcer-plugin.version</span>&gt;</span>3.4.1<span class="tag">&lt;/<span class="name">maven-enforcer-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-enforce-plugin-maven.version</span>&gt;</span>3.8.0<span class="tag">&lt;/<span class="name">maven-enforce-plugin-maven.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-gpg-plugin.version</span>&gt;</span>3.1.0<span class="tag">&lt;/<span class="name">maven-gpg-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-javadoc-plugin.version</span>&gt;</span>3.6.0<span class="tag">&lt;/<span class="name">maven-javadoc-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-release-plugin.version</span>&gt;</span>3.0.1<span class="tag">&lt;/<span class="name">maven-release-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-release-plugin-scm-provider-gitexe.version</span>&gt;</span>2.0.1<span class="tag">&lt;/<span class="name">maven-release-plugin-scm-provider-gitexe.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-source-plugin.version</span>&gt;</span>3.3.0<span class="tag">&lt;/<span class="name">maven-source-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven-surefire-plugin.version</span>&gt;</span>3.2.1<span class="tag">&lt;/<span class="name">maven-surefire-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">nexus-staging-plugin.version</span>&gt;</span>1.6.13<span class="tag">&lt;/<span class="name">nexus-staging-plugin.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">spotbugs-maven-plugin.version</span>&gt;</span>4.7.3.6<span class="tag">&lt;/<span class="name">spotbugs-maven-plugin.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="对maven-revision的看法"><a href="#对maven-revision的看法" class="headerlink" title="对maven revision的看法"></a>对maven revision的看法</h3><p>maven从3.5.0版本开始，支持revision。允许其他模块引用父pom里面的版本号。IDEA对这个特性的支持还不是特别好，比如父pom里面定义</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.shoothzj<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;revision&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">revision</span>&gt;</span>6.0.0<span class="tag">&lt;/<span class="name">revision</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br></pre></td></tr></table></figure>
@@ -700,7 +818,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -843,7 +961,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -943,7 +1061,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1139,7 +1257,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1163,103 +1281,6 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">PersonPo</span> <span class="variable">personPo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PersonPo</span>();</span><br><span class="line">personPo.setCreateTime(LocalDateTime.now());</span><br><span class="line">personPo.setUpdateTime(LocalDateTime.now());</span><br></pre></td></tr></table></figure>
 
 <h1 id="Mysql场景下利用TIMESTAMP能力"><a href="#Mysql场景下利用TIMESTAMP能力" class="headerlink" title="Mysql场景下利用TIMESTAMP能力"></a>Mysql场景下利用TIMESTAMP能力</h1><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> person (</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    <span class="operator">/</span><span class="operator">/</span> ... 其他字段 ...</span><br><span class="line">    create_time <span class="type">TIMESTAMP</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">    update_time <span class="type">TIMESTAMP</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/12/10/%E5%BC%82%E6%AD%A5%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E7%BC%96%E7%A0%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/async-network-code" class="post-title-link post-title-link-external" itemprop="url">异步网络请求编码<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-12-10 08:32:54" itemprop="dateCreated datePublished" datetime="2023-12-10T08:32:54+08:00">2023-12-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>本文介绍常见的异步网络请求编码手法。尽管像golang这些的语言，支持协程，可以使得Programmer以同步的方式编写代码，大大降低编码者的心智负担。但网络编程中，批量又非常常见，这就导致即使在Golang中，也不得不进行协程的切换来满足批量的诉求，在Golang中往往对外以callback的方式暴露接口。</p>
-<p>无论是callback、还是返回future、还是返回Mono&#x2F;Flux，亦或是从channel中读取，这是不同的异步编程范式，编码的时候，可以从项目整体、团队编码风格、个人喜好来依次考虑。本文将以callback为主，但移植到其他异步编码范式，并不困难。</p>
-<p>使用callback模式后，对外的方法签名类似:</p>
-<p>go</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Client)</span></span> Get(ctx context.Context, req *Request, callback <span class="function"><span class="keyword">func</span><span class="params">(resp *Response, err <span class="type">error</span>)</span></span>) <span class="type">error</span></span><br></pre></td></tr></table></figure>
-
-<p>java</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">get</span><span class="params">(Request req, Callback callback)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="网络编程中的批量"><a href="#网络编程中的批量" class="headerlink" title="网络编程中的批量"></a>网络编程中的批量</h2><p>对于网络请求来说，批量可以提高性能。 批量处理是指将多个请求或任务组合在一起，作为单一的工作单元进行处理。批量尽量对用户透明，用户只需要简单地对批量进行配置，而不需要关心批量的实现细节。</p>
-<p>常见的批量相关配置</p>
-<ul>
-<li>batch interval: 批量的时间间隔，比如每隔1s，批量一次</li>
-<li>batch size: 批量的最大大小，比如每次最多批量100个请求</li>
-</ul>
-<p>批量可以通过定时任务实现，也可以做一些优化，比如队列中无请求时，暂停定时任务，有请求时，启动定时任务。</p>
-<h2 id="编码细节"><a href="#编码细节" class="headerlink" title="编码细节"></a>编码细节</h2><p>整体流程大概如下图所示：</p>
-<p><img src="/Images/async-network-code.png" alt="async-network-code"></p>
-<h3 id="一定要先把请求放到队列-map中"><a href="#一定要先把请求放到队列-map中" class="headerlink" title="一定要先把请求放到队列&#x2F;map中"></a>一定要先把请求放到队列&#x2F;map中</h3><p>避免网络请求响应过快，导致callback还没注册上，就已经收到响应了。</p>
-<h3 id="队列中的消息一定要有超时机制"><a href="#队列中的消息一定要有超时机制" class="headerlink" title="队列中的消息一定要有超时机制"></a>队列中的消息一定要有超时机制</h3><p>避免由于丢包等原因，导致请求一直没有响应，而导致队列中的请求越来越多，最终内存溢出。</p>
-<h3 id="wait队列生命周期与底层网络client生命周期一致"><a href="#wait队列生命周期与底层网络client生命周期一致" class="headerlink" title="wait队列生命周期与底层网络client生命周期一致"></a>wait队列生命周期与底层网络client生命周期一致</h3><p>wait队列中请求一定是依附于client的，一旦client重建，队列也需要重建，并触发callback、future的失败回调。</p>
 
       
     </div>

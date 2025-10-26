@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">135</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-count">46</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,103 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/12/10/%E5%BC%82%E6%AD%A5%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E7%BC%96%E7%A0%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/async-network-code" class="post-title-link post-title-link-external" itemprop="url">异步网络请求编码<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-12-10 08:32:54" itemprop="dateCreated datePublished" datetime="2023-12-10T08:32:54+08:00">2023-12-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>本文介绍常见的异步网络请求编码手法。尽管像golang这些的语言，支持协程，可以使得Programmer以同步的方式编写代码，大大降低编码者的心智负担。但网络编程中，批量又非常常见，这就导致即使在Golang中，也不得不进行协程的切换来满足批量的诉求，在Golang中往往对外以callback的方式暴露接口。</p>
+<p>无论是callback、还是返回future、还是返回Mono&#x2F;Flux，亦或是从channel中读取，这是不同的异步编程范式，编码的时候，可以从项目整体、团队编码风格、个人喜好来依次考虑。本文将以callback为主，但移植到其他异步编码范式，并不困难。</p>
+<p>使用callback模式后，对外的方法签名类似:</p>
+<p>go</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Client)</span></span> Get(ctx context.Context, req *Request, callback <span class="function"><span class="keyword">func</span><span class="params">(resp *Response, err <span class="type">error</span>)</span></span>) <span class="type">error</span></span><br></pre></td></tr></table></figure>
+
+<p>java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">get</span><span class="params">(Request req, Callback callback)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="网络编程中的批量"><a href="#网络编程中的批量" class="headerlink" title="网络编程中的批量"></a>网络编程中的批量</h2><p>对于网络请求来说，批量可以提高性能。 批量处理是指将多个请求或任务组合在一起，作为单一的工作单元进行处理。批量尽量对用户透明，用户只需要简单地对批量进行配置，而不需要关心批量的实现细节。</p>
+<p>常见的批量相关配置</p>
+<ul>
+<li>batch interval: 批量的时间间隔，比如每隔1s，批量一次</li>
+<li>batch size: 批量的最大大小，比如每次最多批量100个请求</li>
+</ul>
+<p>批量可以通过定时任务实现，也可以做一些优化，比如队列中无请求时，暂停定时任务，有请求时，启动定时任务。</p>
+<h2 id="编码细节"><a href="#编码细节" class="headerlink" title="编码细节"></a>编码细节</h2><p>整体流程大概如下图所示：</p>
+<p><img src="/Images/async-network-code.png" alt="async-network-code"></p>
+<h3 id="一定要先把请求放到队列-map中"><a href="#一定要先把请求放到队列-map中" class="headerlink" title="一定要先把请求放到队列&#x2F;map中"></a>一定要先把请求放到队列&#x2F;map中</h3><p>避免网络请求响应过快，导致callback还没注册上，就已经收到响应了。</p>
+<h3 id="队列中的消息一定要有超时机制"><a href="#队列中的消息一定要有超时机制" class="headerlink" title="队列中的消息一定要有超时机制"></a>队列中的消息一定要有超时机制</h3><p>避免由于丢包等原因，导致请求一直没有响应，而导致队列中的请求越来越多，最终内存溢出。</p>
+<h3 id="wait队列生命周期与底层网络client生命周期一致"><a href="#wait队列生命周期与底层网络client生命周期一致" class="headerlink" title="wait队列生命周期与底层网络client生命周期一致"></a>wait队列生命周期与底层网络client生命周期一致</h3><p>wait队列中请求一定是依附于client的，一旦client重建，队列也需要重建，并触发callback、future的失败回调。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +338,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -333,7 +430,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -428,7 +525,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -547,7 +644,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -634,7 +731,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -713,7 +810,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -855,7 +952,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -938,7 +1035,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1023,7 +1120,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1047,107 +1144,6 @@
 <p>目录布局可以是这样子的：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">xxx-client-go/</span><br><span class="line">|-- xxx/</span><br><span class="line">|   |-- client.go</span><br></pre></td></tr></table></figure>
 
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/10/27/Java%20Http%20SDK%E8%AE%BE%E8%AE%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/java-http-sdk-design" class="post-title-link post-title-link-external" itemprop="url">Java Http SDK设计<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-10-27 20:37:49" itemprop="dateCreated datePublished" datetime="2023-10-27T20:37:49+08:00">2023-10-27</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Java-Http-SDK设计"><a href="#Java-Http-SDK设计" class="headerlink" title="Java Http SDK设计"></a>Java Http SDK设计</h1><p>根据Java项目的需求和特性，可以为Java的Http SDK项目选择以下命名方式：</p>
-<ul>
-<li><code>xxx-client-java</code>：如果这个项目只有Http SDK，没有其他协议的SDK，推荐使用这个命名方式。</li>
-<li><code>xxx-http-client-java</code>：当存在其他协议的SDK时，可以使用这个命名方式，以区分不同协议的SDK。</li>
-<li><code>xxx-admin-java</code>：当项目使用其他协议作为数据通道，使用HTTP协议作为管理通道时，可以使用这个命名方式。</li>
-</ul>
-<h2 id="maven模块设计"><a href="#maven模块设计" class="headerlink" title="maven模块设计"></a>maven模块设计</h2><p>maven module命名可以叫xxx-client或者xxx-http-client，这通常取决于你的项目是否有其他协议的client，如果没有，那么推荐直接使用xxx-client。</p>
-<p>假设包名前缀为com.xxx，module视图如下:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">xxx-client-java(maven artifactId: xxx-client-parent)/</span><br><span class="line">|-- xxx-client-api(接口定义，包名com.xxx.client.api，jdk8+)</span><br><span class="line">|-- xxx-client-common/core(核心实现，包名com.xxx.client.common，jdk8+)</span><br><span class="line">|-- xxx-client-jdk(基于jdk http client的实现，包名com.xxx.client.jdk，jdk17+)</span><br><span class="line">|-- xxx-client-okhttp(基于okhttp的实现，包名com.xxx.client.okhttp，jdk8+)</span><br><span class="line">|-- xxx-client-reactor(基于reactor-netty的实现，包名com.xxx.client.reactor，jdk8+)</span><br></pre></td></tr></table></figure>
-
-<p>依赖关系图:</p>
-<pre class="mermaid">graph TD
-api[xxx-client-api]
-common[xxx-client-common]
-jdk[xxx-client-jdk]
-okhttp[xxx-client-okhttp]
-reactor[xxx-client-reactor]
-
-common --> api
-
-jdk --> common
-okhttp --> common
-reactor --> common</pre>
-
-
-<script type="module"> import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';	mermaid.initialize({startOnLoad: true, flowchart: {curve: 'linear'}}); </script>
       
     </div>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">135</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-count">46</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,192 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2020/12/31/Java%20Agent%2001%20%E6%90%AD%E5%BB%BAagent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2020/12/31/Java%20Agent%2001%20%E6%90%AD%E5%BB%BAagent/" class="post-title-link" itemprop="url">Java Agent 01 搭建agent</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-31 15:31:37" itemprop="dateCreated datePublished" datetime="2020-12-31T15:31:37+08:00">2020-12-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="创建一个java-maven工程"><a href="#创建一个java-maven工程" class="headerlink" title="创建一个java maven工程"></a>创建一个java maven工程</h2><h3 id="Step1-添加bytebuddy及日志依赖"><a href="#Step1-添加bytebuddy及日志依赖" class="headerlink" title="Step1 添加bytebuddy及日志依赖"></a>Step1 添加bytebuddy及日志依赖</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.9.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!-- 字节码 注入 --></span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>net.bytebuddy<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>byte-buddy<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.10.19<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.30<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="Step2-书写Agent的入口处"><a href="#Step2-书写Agent的入口处" class="headerlink" title="Step2 书写Agent的入口处"></a>Step2 书写Agent的入口处</h3><p>agent有两个入口函数，分别是premain和agentmain，用于两种启动场景-javaagent启动场景和attach启动场景,我们这里先书写-javaagent启动场景</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.hezhangjian.demo.agent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> net.bytebuddy.ByteBuddy;</span><br><span class="line"><span class="keyword">import</span> net.bytebuddy.agent.builder.AgentBuilder;</span><br><span class="line"><span class="keyword">import</span> net.bytebuddy.matcher.ElementMatchers;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.instrument.Instrumentation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> net.bytebuddy.matcher.ElementMatchers.nameStartsWith;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hezhangjian</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentMain</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">log</span> <span class="operator">=</span> LoggerFactory.getLogger(AgentMain.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * call on -javaagnet</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> agentArgs</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> inst</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">premain</span><span class="params">(String agentArgs, Instrumentation inst)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;start agent premain&quot;</span>);</span><br><span class="line">        <span class="keyword">final</span> <span class="type">ByteBuddy</span> <span class="variable">byteBuddy</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteBuddy</span>();</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">AgentBuilder</span>.Default(byteBuddy)</span><br><span class="line">                <span class="comment">//这些类都是常见的无需切面注入的类,忽略掉可以提升agent加载速度</span></span><br><span class="line">                .ignore(nameStartsWith(<span class="string">&quot;net.bytebuddy.&quot;</span>)</span><br><span class="line">                        .or(nameStartsWith(<span class="string">&quot;org.slf4j.&quot;</span>)</span><br><span class="line">                        .or(nameStartsWith(<span class="string">&quot;org.apache.logging.&quot;</span>)</span><br><span class="line">                        .or(nameStartsWith(<span class="string">&quot;org.groovy.&quot;</span>))</span><br><span class="line">                        .or(nameStartsWith(<span class="string">&quot;javassist&quot;</span>))</span><br><span class="line">                        .or(nameStartsWith(<span class="string">&quot;.asm.&quot;</span>))</span><br><span class="line">                        .or(nameStartsWith(<span class="string">&quot;sun.reflect&quot;</span>))</span><br><span class="line">                        .or(ElementMatchers.isSynthetic()))))</span><br><span class="line">                <span class="comment">//你想切面的包名</span></span><br><span class="line">                .type(ElementMatchers.nameStartsWith(<span class="string">&quot;com.github.hezhangjian.agent.test&quot;</span>))</span><br><span class="line">                .transform(<span class="keyword">new</span> <span class="title class_">AgentTransformer</span>())</span><br><span class="line">                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)</span><br><span class="line">                .installOn(inst);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">agentmain</span><span class="params">(String agentArgs, Instrumentation inst)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;start agent main&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个时候Transform先书写一个空实现</p>
+<blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.hezhangjian.demo.agent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> net.bytebuddy.agent.builder.AgentBuilder;</span><br><span class="line"><span class="keyword">import</span> net.bytebuddy.description.type.TypeDescription;</span><br><span class="line"><span class="keyword">import</span> net.bytebuddy.dynamic.DynamicType;</span><br><span class="line"><span class="keyword">import</span> net.bytebuddy.utility.JavaModule;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hezhangjian</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentTransformer</span> <span class="keyword">implements</span> <span class="title class_">AgentBuilder</span>.Transformer&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> DynamicType.Builder&lt;?&gt; transform(DynamicType.Builder&lt;?&gt; builder, TypeDescription typeDescription, ClassLoader classLoader, JavaModule javaModule) &#123;</span><br><span class="line">        <span class="keyword">return</span> builder;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+</blockquote>
+<h3 id="Step3-maven-pom文件配置打包"><a href="#Step3-maven-pom文件配置打包" class="headerlink" title="Step3 maven pom文件配置打包"></a>Step3 maven pom文件配置打包</h3><blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-shade-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.2.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">phase</span>&gt;</span>package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">goal</span>&gt;</span>shade<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">transformers</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;<span class="name">transformer</span> <span class="attr">implementation</span>=<span class="string">&quot;org.apache.maven.plugins.shade.resource.ManifestResourceTransformer&quot;</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">manifestEntries</span>&gt;</span></span><br><span class="line">                                        <span class="tag">&lt;<span class="name">Premain-Class</span>&gt;</span>com.github.hezhangjian.demo.agent.AgentMain<span class="tag">&lt;/<span class="name">Premain-Class</span>&gt;</span></span><br><span class="line">                                        <span class="tag">&lt;<span class="name">Can-Redefine-Classes</span>&gt;</span>true<span class="tag">&lt;/<span class="name">Can-Redefine-Classes</span>&gt;</span></span><br><span class="line">                                        <span class="tag">&lt;<span class="name">Can-Retransform-Classes</span>&gt;</span>true<span class="tag">&lt;/<span class="name">Can-Retransform-Classes</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;/<span class="name">manifestEntries</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;/<span class="name">transformer</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;/<span class="name">transformers</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">artifactSet</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;<span class="name">includes</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>org.slf4j:slf4j-api<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>org.apache.logging.log4j:log4j-api<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>org.apache.logging.log4j:log4j-core<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>org.apache.logging.log4j:log4j-slf4j-impl<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>org.apache.logging.log4j:log4j-jcl<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;/<span class="name">includes</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;/<span class="name">artifactSet</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">filters</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;<span class="name">filter</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">artifact</span>&gt;</span>*:*<span class="tag">&lt;/<span class="name">artifact</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">excludes</span>&gt;</span></span><br><span class="line">                                        <span class="tag">&lt;<span class="name">exclude</span>&gt;</span>META-INF/*.SF<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span></span><br><span class="line">                                        <span class="tag">&lt;<span class="name">exclude</span>&gt;</span>META-INF/*.DSA<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span></span><br><span class="line">                                        <span class="tag">&lt;<span class="name">exclude</span>&gt;</span>META-INF/*.RSA<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;/<span class="name">excludes</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;/<span class="name">filters</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">relocations</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;<span class="name">relocation</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">shadedPattern</span>&gt;</span>com.github.hezhangjian.org.slf4j<span class="tag">&lt;/<span class="name">shadedPattern</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;/<span class="name">relocation</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;<span class="name">relocation</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>org.apache.logging<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">shadedPattern</span>&gt;</span>com.github.hezhangjian.org.apache.logging<span class="tag">&lt;/<span class="name">shadedPattern</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;/<span class="name">relocation</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;/<span class="name">relocations</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里配置了打java agent的包，和打shade包规避类冲突的问题，关于打shade包，可以参考<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8171607ce03f">https://www.jianshu.com/p/8171607ce03f</a></p>
+</blockquote>
+<h2 id="创建一个测试SpringBoot工程"><a href="#创建一个测试SpringBoot工程" class="headerlink" title="创建一个测试SpringBoot工程"></a>创建一个测试SpringBoot工程</h2><h3 id="Step1-书写主函数"><a href="#Step1-书写主函数" class="headerlink" title="Step1 书写主函数"></a>Step1 书写主函数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.hezhangjian.demo.agent.test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hezhangjian</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentTestMain</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(AgentTestMain.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="Step2-修改运行参数，加载java-agent"><a href="#Step2-修改运行参数，加载java-agent" class="headerlink" title="Step2 修改运行参数，加载java agent"></a>Step2 修改运行参数，加载java agent</h3><p>这里我的agent，maven package后的路径在 <strong>&#x2F;Users&#x2F;akka&#x2F;master&#x2F;maven-demo&#x2F;demo-agent&#x2F;target&#x2F;demo-agent-0.0.1.SNAPSHOT.jar</strong></p>
+<p>-javaagent:&#x2F;Users&#x2F;akka&#x2F;master&#x2F;maven-demo&#x2F;demo-agent&#x2F;target&#x2F;demo-agent-0.0.1.SNAPSHOT.jar</p>
+<p><img src="/Images/java-agent-01-1.png" alt="image-20201230215511785"> </p>
+<h3 id="Step3-运行结果"><a href="#Step3-运行结果" class="headerlink" title="Step3 运行结果"></a>Step3 运行结果</h3><p><img src="/Images/java-agent-01-2.png" alt="image-20201231082704607"></p>
+<p>可以看到agent已经正常启动</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2020/12/30/Java%E4%BE%9D%E8%B5%96%E4%B8%8D%E5%90%8C%E7%89%88%E6%9C%AC%E5%86%B2%E7%AA%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%B9%8Bshade%E5%8C%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/java-shade-package" class="post-title-link post-title-link-external" itemprop="url">Java依赖不同版本冲突解决方案之shade包<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-30 14:56:13" itemprop="dateCreated datePublished" datetime="2020-12-30T14:56:13+08:00">2020-12-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>我们在很多场景下会碰到java包冲突的问题：</p>
+<ul>
+<li>代码由第三方开发，无法对包名或依赖做管控</li>
+<li>跑在同一个进程里的代码，更新步调不一致。比如底层sdk，jvm agent。这些组件更新频率较低</li>
+</ul>
+<p>最出名的解决路数还是类加载机制，诸如flink，osgi都给我们提供了很多方案，这些方案都非常重型。在代码可信任的情况下，其中有一个很轻量级的解决方案就是maven-shade包。</p>
+<p>举个例子，比方说我想在java agent中打印日志，但是又不希望和业务代码中的log4j等冲突，agent里依赖的pom文件是这样子的:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.30<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.13.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.13.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-slf4j-impl<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.13.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-jcl<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.13.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里我们log4j,slf4j可能用的版本太高或者太低，我们就可以通过打shade包的方式修改log4j和slf4j的包名,避免和业务冲突</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-shade-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.2.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">phase</span>&gt;</span>package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">goal</span>&gt;</span>shade<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">artifactSet</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;<span class="name">includes</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>org.slf4j:slf4j-api<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>org.apache.logging.log4j:log4j-api<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>org.apache.logging.log4j:log4j-core<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>org.apache.logging.log4j:log4j-slf4j-impl<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">include</span>&gt;</span>org.apache.logging.log4j:log4j-jcl<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;/<span class="name">includes</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;/<span class="name">artifactSet</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">filters</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;<span class="name">filter</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">artifact</span>&gt;</span>*:*<span class="tag">&lt;/<span class="name">artifact</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">excludes</span>&gt;</span></span><br><span class="line">                                        <span class="tag">&lt;<span class="name">exclude</span>&gt;</span>META-INF/*.SF<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span></span><br><span class="line">                                        <span class="tag">&lt;<span class="name">exclude</span>&gt;</span>META-INF/*.DSA<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span></span><br><span class="line">                                        <span class="tag">&lt;<span class="name">exclude</span>&gt;</span>META-INF/*.RSA<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;/<span class="name">excludes</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;/<span class="name">filters</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">relocations</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;<span class="name">relocation</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">shadedPattern</span>&gt;</span>com.github.hezhangjian.org.slf4j<span class="tag">&lt;/<span class="name">shadedPattern</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;/<span class="name">relocation</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;<span class="name">relocation</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>org.apache.logging<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">shadedPattern</span>&gt;</span>com.github.hezhangjian.org.apache.logging<span class="tag">&lt;/<span class="name">shadedPattern</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;/<span class="name">relocation</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;/<span class="name">relocations</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>通过上面的配置，artifactSet选择要修改的pom依赖，通过relocation修改包名，达到不冲突的效果。<strong>mvn clean package</strong> 后查看效果</p>
+<p><img src="/Images/java-shade-package-result.png" alt="java-shade-package-result"></p>
+<p>可以发现，包名已经被修改完成,达到了避免冲突的目的。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +426,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -376,7 +562,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -470,7 +656,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -566,7 +752,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -656,7 +842,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -734,7 +920,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -857,7 +1043,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -972,7 +1158,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1003,220 +1189,6 @@
 <p>随后抓包,发现还是发送了ping命令,达到了我们预期的效果</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文通过一系列测试得出结论，root用户权限下的Java程序会使用ping命令进行探测。若普通用户不具备相应权限，则会尝试探测TCP端口7，但在安全组未开启该端口的情况下会导致预期结果不一致。推荐赋予java程序特权,使得InetAddress类能够使用ping命令进行探测</p>
 
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2018/09/09/WireShark%20%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/wireshark-display-filter" class="post-title-link post-title-link-external" itemprop="url">Wireshark 显示过滤器<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2018-09-09 09:55:09" itemprop="dateCreated datePublished" datetime="2018-09-09T09:55:09+08:00">2018-09-09</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="如何使用显示过滤器"><a href="#如何使用显示过滤器" class="headerlink" title="如何使用显示过滤器"></a>如何使用显示过滤器</h1><p><img src="/Images/wireshark-display-filter1.png" alt="wireshark-display-filter1"><br>或者按住 CTRL + F，输入显示过滤器<br><img src="/Images/wireshark-display-filter2.png" alt="wireshark-display-filter2"></p>
-<h2 id="二层显示过滤器举例"><a href="#二层显示过滤器举例" class="headerlink" title="二层显示过滤器举例"></a>二层显示过滤器举例</h2><h3 id="长度小于128字节的数据包"><a href="#长度小于128字节的数据包" class="headerlink" title="长度小于128字节的数据包"></a>长度小于128字节的数据包</h3><p>frame.len&lt;&#x3D;128</p>
-<h3 id="排除ARP流量"><a href="#排除ARP流量" class="headerlink" title="排除ARP流量"></a>排除ARP流量</h3><p>!arp</p>
-<h2 id="三层显示过滤器举例"><a href="#三层显示过滤器举例" class="headerlink" title="三层显示过滤器举例"></a>三层显示过滤器举例</h2><h3 id="只显示192-168-0-1-IP相关数据包"><a href="#只显示192-168-0-1-IP相关数据包" class="headerlink" title="只显示192.168.0.1 IP相关数据包"></a>只显示192.168.0.1 IP相关数据包</h3><p>ip.addr&#x3D;&#x3D;192.168.0.1</p>
-<h2 id="四层显示过滤器举例"><a href="#四层显示过滤器举例" class="headerlink" title="四层显示过滤器举例"></a>四层显示过滤器举例</h2><h3 id="排除RDP流量"><a href="#排除RDP流量" class="headerlink" title="排除RDP流量"></a>排除RDP流量</h3><p>!tcp.port&#x3D;&#x3D;3389</p>
-<h3 id="具有SYN标志的TCP数据包"><a href="#具有SYN标志的TCP数据包" class="headerlink" title="具有SYN标志的TCP数据包"></a>具有SYN标志的TCP数据包</h3><p>tcp.flags.syn&#x3D;&#x3D;1</p>
-<h3 id="具有RST标志的TCP数据包"><a href="#具有RST标志的TCP数据包" class="headerlink" title="具有RST标志的TCP数据包"></a>具有RST标志的TCP数据包</h3><p>tcp.flags.rst&#x3D;&#x3D;1</p>
-<h3 id="TCP确认时间较久"><a href="#TCP确认时间较久" class="headerlink" title="TCP确认时间较久"></a>TCP确认时间较久</h3><p>tcp.analysis.ack_rtt &gt; 0.2 and tcp.len &#x3D;&#x3D; 0<br>###启用TCP Relative Sequence Number的情况<br>如何启用?<br>Edit -&gt; Preferences -&gt; Protocols -&gt; TCP Relative Sequence Numbers</p>
-<h3 id="握手被对方拒绝的包"><a href="#握手被对方拒绝的包" class="headerlink" title="握手被对方拒绝的包"></a>握手被对方拒绝的包</h3><p>tcp.flags.reset &#x3D;&#x3D; 1 &amp;&amp; tcp.seq &#x3D;&#x3D; 1</p>
-<h3 id="客户端重传"><a href="#客户端重传" class="headerlink" title="客户端重传"></a>客户端重传</h3><p>tcp.flags.syn &#x3D;&#x3D; 1 &amp;&amp; tcp.analysis.retransmission</p>
-<h3 id="Tcp包含"><a href="#Tcp包含" class="headerlink" title="Tcp包含"></a>Tcp包含</h3><p>tcp contains {str}</p>
-<h2 id="应用层显示过滤器举例"><a href="#应用层显示过滤器举例" class="headerlink" title="应用层显示过滤器举例"></a>应用层显示过滤器举例</h2><h3 id="所有http流量"><a href="#所有http流量" class="headerlink" title="所有http流量"></a>所有http流量</h3><p>http</p>
-<h3 id="文本管理流量"><a href="#文本管理流量" class="headerlink" title="文本管理流量"></a>文本管理流量</h3><p>tcp.port &#x3D;&#x3D; 23 || tcp.port &#x3D;&#x3D; 21</p>
-<h3 id="文本email流量"><a href="#文本email流量" class="headerlink" title="文本email流量"></a>文本email流量</h3><p>email || pop || imap</p>
-<h3 id="只显示访问某指定主机名的HTTP协议数据包"><a href="#只显示访问某指定主机名的HTTP协议数据包" class="headerlink" title="只显示访问某指定主机名的HTTP协议数据包"></a>只显示访问某指定主机名的HTTP协议数据包</h3><p>http.host &#x3D;&#x3D; &lt;”hostname”&gt;</p>
-<h3 id="只显示包含HTTP-GET方法的HTTP协议数据包"><a href="#只显示包含HTTP-GET方法的HTTP协议数据包" class="headerlink" title="只显示包含HTTP GET方法的HTTP协议数据包"></a>只显示包含HTTP GET方法的HTTP协议数据包</h3><p>http.request.method &#x3D;&#x3D; ‘GET’</p>
-<h3 id="只显示HTTP-客户端发起的包含指定URI请求的HTTP协议数据包"><a href="#只显示HTTP-客户端发起的包含指定URI请求的HTTP协议数据包" class="headerlink" title="只显示HTTP 客户端发起的包含指定URI请求的HTTP协议数据包"></a>只显示HTTP 客户端发起的包含指定URI请求的HTTP协议数据包</h3><p>http.request.uri &#x3D;&#x3D; &lt;”Full request URI”&gt;</p>
-<h3 id="只显示包含ZIP文件的数据包"><a href="#只显示包含ZIP文件的数据包" class="headerlink" title="只显示包含ZIP文件的数据包"></a>只显示包含ZIP文件的数据包</h3><p>http matches “.zip” &amp;&amp; http.request.method &#x3D;&#x3D; ‘GET’</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2018/09/09/WireShark%20%E6%8D%95%E8%8E%B7%E8%BF%87%E6%BB%A4%E5%99%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/wireshark-capture-filter" class="post-title-link post-title-link-external" itemprop="url">Wireshark 捕获过滤器<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2018-09-09 09:47:02" itemprop="dateCreated datePublished" datetime="2018-09-09T09:47:02+08:00">2018-09-09</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="如何使用捕获过滤器"><a href="#如何使用捕获过滤器" class="headerlink" title="如何使用捕获过滤器"></a>如何使用捕获过滤器</h1><p>点击捕获，选项，然后在所选择的捕获过滤器上输入对应的捕获表达式</p>
-<p><img src="/Images/wireshark-capture-filter1.png" alt="wireshark-capture-filter1"></p>
-<p><img src="/Images/wireshark-capture-filter2.png" alt="wireshark-capture-filter2"></p>
-<h1 id="抓包过滤器"><a href="#抓包过滤器" class="headerlink" title="抓包过滤器"></a>抓包过滤器</h1><ul>
-<li>type(类型) 限定符: 比如host，net，port限定符等</li>
-<li>dir(方向) 限定符: src dst</li>
-<li>Proto(协议类型)限定符: ether ip arp</li>
-</ul>
-<h2 id="二层过滤器举例"><a href="#二层过滤器举例" class="headerlink" title="二层过滤器举例"></a>二层过滤器举例</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tcp dst port 135 //tcp协议，目标端口为135的数据包</span><br><span class="line">ether host &lt;Ethernet host&gt; //让wireshark只抓取这个地址相关的以太网帧</span><br><span class="line">ether dst &lt;Ethernet host&gt;</span><br><span class="line">ether src &lt;Ethernet src&gt;</span><br><span class="line">ether broadcast //Wireshark只抓取所有以太网广播流量</span><br><span class="line">ether multicast //只抓取多播流量</span><br><span class="line">ether proto &lt;protocol&gt;</span><br><span class="line">vlan &lt;vlan_id&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="三层过滤器举例"><a href="#三层过滤器举例" class="headerlink" title="三层过滤器举例"></a>三层过滤器举例</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ip #只抓取ipv4流量</span><br><span class="line">ipv6</span><br><span class="line">host 10.0.0.2</span><br><span class="line">dest host &lt;host&gt;</span><br><span class="line">src host &lt;host&gt;</span><br><span class="line">broadcast #ip广播包</span><br><span class="line">multicast #ip多播包</span><br><span class="line">ip proto &lt;protocol code&gt; #ip数据包有多种类型，比如TCP(6), UDP(17) ICMP(1)</span><br></pre></td></tr></table></figure>
-
-<h3 id="只抓取源于或者发往IPv6-2001-16的数据包"><a href="#只抓取源于或者发往IPv6-2001-16的数据包" class="headerlink" title="只抓取源于或者发往IPv6 2001::&#x2F;16的数据包"></a>只抓取源于或者发往IPv6 2001::&#x2F;16的数据包</h3><p>net 2001::&#x2F;16</p>
-<h3 id="只抓取ICMP流量"><a href="#只抓取ICMP流量" class="headerlink" title="只抓取ICMP流量"></a>只抓取ICMP流量</h3><p>ip proto 1</p>
-<h3 id="只抓取ICMP-echo-request流量"><a href="#只抓取ICMP-echo-request流量" class="headerlink" title="只抓取ICMP echo request流量"></a>只抓取ICMP echo request流量</h3><p>icmp[icmptype]&#x3D;&#x3D;icmp-echo<br>icmp[icmptype]&#x3D;&#x3D;8</p>
-<h3 id="只抓取特定长度的IP数据包"><a href="#只抓取特定长度的IP数据包" class="headerlink" title="只抓取特定长度的IP数据包"></a>只抓取特定长度的IP数据包</h3><p>ip[2:2] &#x3D;&#x3D; <number></p>
-<h3 id="只抓取具有特定TTL的IP数据包"><a href="#只抓取具有特定TTL的IP数据包" class="headerlink" title="只抓取具有特定TTL的IP数据包"></a>只抓取具有特定TTL的IP数据包</h3><p>ip[8] &#x3D;&#x3D; <number></p>
-<h3 id="抓取数据包的源和目的IP地址相同"><a href="#抓取数据包的源和目的IP地址相同" class="headerlink" title="抓取数据包的源和目的IP地址相同"></a>抓取数据包的源和目的IP地址相同</h3><p>ip[12:4] &#x3D;&#x3D;1 ip[16:4]</p>
-<h2 id="四层抓包过滤器举例"><a href="#四层抓包过滤器举例" class="headerlink" title="四层抓包过滤器举例"></a>四层抓包过滤器举例</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">port &lt;port&gt;</span><br><span class="line">dst port &lt;port&gt;</span><br><span class="line">src port &lt;port&gt;</span><br><span class="line">tcp portrange &lt;p1&gt;-&lt;p2&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="只抓取TCP中SYN或者FIN的数据包"><a href="#只抓取TCP中SYN或者FIN的数据包" class="headerlink" title="只抓取TCP中SYN或者FIN的数据包"></a>只抓取TCP中SYN或者FIN的数据包</h3><p>tcp [tcpflags] &amp; (tcp-syn | tcp-fin) !&#x3D; 0</p>
-<h3 id="只抓所有RST标记位置为1的TCP数据包"><a href="#只抓所有RST标记位置为1的TCP数据包" class="headerlink" title="只抓所有RST标记位置为1的TCP数据包"></a>只抓所有RST标记位置为1的TCP数据包</h3><p>tcp[tcpflags] &amp; (tcp-rst) !&#x3D; 0</p>
-<h3 id="tcp头部的常用标记位"><a href="#tcp头部的常用标记位" class="headerlink" title="tcp头部的常用标记位"></a>tcp头部的常用标记位</h3><ul>
-<li>SYN: 用来表示打开连接</li>
-<li>FIN: 用来表示拆除连接</li>
-<li>ACK: 用来确认收到的数据</li>
-<li>RST: 用来表示立刻拆除连接</li>
-<li>PSH: 用来表示应将数据提交给末端应用程序处理</li>
-</ul>
-<h3 id="抓取所有标记位都未置1的TCP流量"><a href="#抓取所有标记位都未置1的TCP流量" class="headerlink" title="抓取所有标记位都未置1的TCP流量"></a>抓取所有标记位都未置1的TCP流量</h3><p>该报文可能用于端口探测,即如果<br>tcp[13] &amp; 0x00 &#x3D; 0</p>
-<h3 id="设置了URG位的TCP数据包"><a href="#设置了URG位的TCP数据包" class="headerlink" title="设置了URG位的TCP数据包"></a>设置了URG位的TCP数据包</h3><p>URG位,表示该数据包十分紧急,不进入缓冲区,直接送给进程<br>tcp[13] &amp; 32 &#x3D;&#x3D; 32</p>
-<h3 id="设置了ACK位的TCP数据包"><a href="#设置了ACK位的TCP数据包" class="headerlink" title="设置了ACK位的TCP数据包"></a>设置了ACK位的TCP数据包</h3><p>tcp[13] &amp; 16 &#x3D;&#x3D; 16</p>
-<h3 id="设置了PSH位的TCP数据包"><a href="#设置了PSH位的TCP数据包" class="headerlink" title="设置了PSH位的TCP数据包"></a>设置了PSH位的TCP数据包</h3><p>PSH代表这个消息要从缓冲区立刻发送给应用程序<br>tcp[13] &amp; 8 &#x3D;&#x3D; 8</p>
-<h3 id="设置了RST位的TCP数据包"><a href="#设置了RST位的TCP数据包" class="headerlink" title="设置了RST位的TCP数据包"></a>设置了RST位的TCP数据包</h3><p>tcp[13] &amp; 4 &#x3D;&#x3D; 4</p>
-<h3 id="设置了SYN位的TCP数据包"><a href="#设置了SYN位的TCP数据包" class="headerlink" title="设置了SYN位的TCP数据包"></a>设置了SYN位的TCP数据包</h3><p>tcp[13] &amp; 2 &#x3D;&#x3D; 2</p>
-<h3 id="设置了FIN位的TCP数据包"><a href="#设置了FIN位的TCP数据包" class="headerlink" title="设置了FIN位的TCP数据包"></a>设置了FIN位的TCP数据包</h3><p>tcp[13] &amp; 1 &#x3D;&#x3D; 1</p>
-<h3 id="TCP-SYN-ACK数据包"><a href="#TCP-SYN-ACK数据包" class="headerlink" title="TCP SYN-ACK数据包"></a>TCP SYN-ACK数据包</h3><p>tcp[13] &#x3D;&#x3D; 18</p>
-<h3 id="抓取目的端口范围的数据包"><a href="#抓取目的端口范围的数据包" class="headerlink" title="抓取目的端口范围的数据包"></a>抓取目的端口范围的数据包</h3><p>tcp portrange 2000-2500</p>
-<p>###tcpdump捕获过滤器</p>
-<p>常见命令介绍</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpdump -w hzj.pcap -s0 -iany port 1028</span><br></pre></td></tr></table></figure>
-
-<p>上面的命令代表<br>-w hzj.pcap 存储在hzj.pcap这个文件中<br>-s 0 代表抓取字节数不限制,在大多数linux系统下,默认捕获每个帧的前96个字节</p>
-<h3 id="tcpdump捕获一定范围的端口-9200-9400"><a href="#tcpdump捕获一定范围的端口-9200-9400" class="headerlink" title="tcpdump捕获一定范围的端口(9200-9400)"></a>tcpdump捕获一定范围的端口(9200-9400)</h3><p>tcpdump portrange 9200-9400</p>
-<h3 id="tcpdump-r-可以阅读捕获的文件-建议拷贝到wireshark中分析"><a href="#tcpdump-r-可以阅读捕获的文件-建议拷贝到wireshark中分析" class="headerlink" title="tcpdump -r 可以阅读捕获的文件(建议拷贝到wireshark中分析)"></a>tcpdump -r 可以阅读捕获的文件(建议拷贝到wireshark中分析)</h3>
       
     </div>
 

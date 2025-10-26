@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">135</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-count">46</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,107 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/10/27/Java%20Http%20SDK%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/java-http-sdk-design" class="post-title-link post-title-link-external" itemprop="url">Java Http SDK设计<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-10-27 20:37:49" itemprop="dateCreated datePublished" datetime="2023-10-27T20:37:49+08:00">2023-10-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Java-Http-SDK设计"><a href="#Java-Http-SDK设计" class="headerlink" title="Java Http SDK设计"></a>Java Http SDK设计</h1><p>根据Java项目的需求和特性，可以为Java的Http SDK项目选择以下命名方式：</p>
+<ul>
+<li><code>xxx-client-java</code>：如果这个项目只有Http SDK，没有其他协议的SDK，推荐使用这个命名方式。</li>
+<li><code>xxx-http-client-java</code>：当存在其他协议的SDK时，可以使用这个命名方式，以区分不同协议的SDK。</li>
+<li><code>xxx-admin-java</code>：当项目使用其他协议作为数据通道，使用HTTP协议作为管理通道时，可以使用这个命名方式。</li>
+</ul>
+<h2 id="maven模块设计"><a href="#maven模块设计" class="headerlink" title="maven模块设计"></a>maven模块设计</h2><p>maven module命名可以叫xxx-client或者xxx-http-client，这通常取决于你的项目是否有其他协议的client，如果没有，那么推荐直接使用xxx-client。</p>
+<p>假设包名前缀为com.xxx，module视图如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">xxx-client-java(maven artifactId: xxx-client-parent)/</span><br><span class="line">|-- xxx-client-api(接口定义，包名com.xxx.client.api，jdk8+)</span><br><span class="line">|-- xxx-client-common/core(核心实现，包名com.xxx.client.common，jdk8+)</span><br><span class="line">|-- xxx-client-jdk(基于jdk http client的实现，包名com.xxx.client.jdk，jdk17+)</span><br><span class="line">|-- xxx-client-okhttp(基于okhttp的实现，包名com.xxx.client.okhttp，jdk8+)</span><br><span class="line">|-- xxx-client-reactor(基于reactor-netty的实现，包名com.xxx.client.reactor，jdk8+)</span><br></pre></td></tr></table></figure>
+
+<p>依赖关系图:</p>
+<pre class="mermaid">graph TD
+api[xxx-client-api]
+common[xxx-client-common]
+jdk[xxx-client-jdk]
+okhttp[xxx-client-okhttp]
+reactor[xxx-client-reactor]
+
+common --> api
+
+jdk --> common
+okhttp --> common
+reactor --> common</pre>
+
+
+<script type="module"> import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';	mermaid.initialize({startOnLoad: true, flowchart: {curve: 'linear'}}); </script>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +342,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -363,7 +464,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -459,7 +560,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -549,7 +650,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -645,7 +746,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -765,6 +866,91 @@ springIgnite --> util</pre>
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/09/19/macOS%E4%B8%8Azip%E6%96%87%E4%BB%B6%E9%87%8C%E9%9D%A2%E7%9A%84__MACOS%E6%96%87%E4%BB%B6%E5%A4%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/09/19/macOS%E4%B8%8Azip%E6%96%87%E4%BB%B6%E9%87%8C%E9%9D%A2%E7%9A%84__MACOS%E6%96%87%E4%BB%B6%E5%A4%B9/" class="post-title-link" itemprop="url">macOS上zip文件里面的__MACOS文件夹</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-09-19 12:38:33" itemprop="dateCreated datePublished" datetime="2023-09-19T12:38:33+08:00">2023-09-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="MACOS文件夹介绍"><a href="#MACOS文件夹介绍" class="headerlink" title="__MACOS文件夹介绍"></a>__MACOS文件夹介绍</h2><p>在 macOS 系统上创建 ZIP 文件时，系统会自动添加一些额外的信息，这些信息被储存在一个隐藏的文件夹中，名为 <strong><code>__MACOSX</code></strong>。这个文件夹中包含的数据用来存储文件的一系列属性和资源叉信息。</p>
+<ul>
+<li><strong>元数据</strong>: 元数据是描述其他数据的数据。在 macOS 中，文件元数据可以包括文件的创建和修改时间，文件的权限，标签和更多。</li>
+<li><strong>资源叉 (Resource Forks)</strong>: 资源叉是 Apple 文件系统中一个特殊的结构，它可以存储文件的图标，预览图片和其他与文件相关的属性。资源叉信息使文件能够保持其特有的视觉和功能属性，即使它们被移动到新的位置或被编辑。</li>
+</ul>
+<p>macOS 创建 <strong><code>__MACOSX</code></strong> 文件夹的原因是为了保留文件的原始属性和资源叉信息。当您在另一台运行 macOS 的计算机上解压这个 ZIP 文件时，所有的文件都会保持其原始的属性和设置，提供一个无缝的用户体验。</p>
+<p>然而，这种机制有一个缺点: 当 ZIP 文件被解压到非 macOS 系统（例如 Windows 或 Linux）上时，<strong><code>__MACOSX</code></strong> 文件夹会显得多余，因为这些系统不使用 macOS 的文件元数据和资源叉信息。</p>
+<h2 id="避免创建不包含-MACOSX文件夹的zip文件"><a href="#避免创建不包含-MACOSX文件夹的zip文件" class="headerlink" title="避免创建不包含__MACOSX文件夹的zip文件"></a>避免创建不包含__MACOSX文件夹的zip文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zip -r -X archive.zip FolderName/</span><br></pre></td></tr></table></figure>
+
+<p>这个zip文件，不会包含 <strong><code>__MACOSX</code></strong> 文件夹。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/09/18/%E5%A4%9A%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B%20%E8%BF%94%E5%9B%9E%E5%A4%9A%E4%B8%AA%E4%B8%8D%E5%90%8C%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%96%B9%E6%B3%95%E6%A0%B7%E4%BE%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -802,7 +988,7 @@ springIgnite --> util</pre>
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -913,7 +1099,7 @@ springIgnite --> util</pre>
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1020,7 +1206,7 @@ springIgnite --> util</pre>
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -1038,264 +1224,6 @@ springIgnite --> util</pre>
 <p>注：Apache http client默认通过apache common logging来打印日志，可以通过配置</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jcl-over-slf4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.32<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>来使用slf4j来打印日志。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/07/10/%E5%AE%B9%E5%99%A8%E5%86%85%E6%8C%87%E5%AE%9A%E7%89%B9%E5%AE%9A%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E7%BB%93%E6%9E%9C%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-domain-specify-result" class="post-title-link post-title-link-external" itemprop="url">容器内指定特定域名解析结果的几种方式<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-07-10 16:37:33" itemprop="dateCreated datePublished" datetime="2023-07-10T16:37:33+08:00">2023-07-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在本篇文章中，我们将探讨如何在容器内指定特定域名解析结果的几种方式。为了方便演示，首先我们创建一个演示用的Deployment配置文件。</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">busybox-deployment</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">busybox</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">        <span class="attr">args:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">/bin/sh</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">-c</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;while true; do echo Hello, Kubernetes!; sleep 10;done&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>这个deployment会创建1个busybox的pod，容器每隔10s会打印“Hello, Kubernetes!”到控制台</p>
-<h2 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h2><table>
-<thead>
-<tr>
-<th>方案</th>
-<th>修改级别</th>
-<th>是否推荐</th>
-<th>备注</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>修改&#x2F;etc&#x2F;hosts</td>
-<td>pod</td>
-<td>否</td>
-<td></td>
-</tr>
-<tr>
-<td>添加HostAliases记录</td>
-<td>pod&#x2F;deploy&#x2F;statefulset</td>
-<td>是</td>
-<td></td>
-</tr>
-<tr>
-<td>修改Coredns配置</td>
-<td>整个kubernetes集群</td>
-<td>是</td>
-<td></td>
-</tr>
-<tr>
-<td>自定义DNS策略</td>
-<td>pod&#x2F;deploy&#x2F;statefulset</td>
-<td>视情况而定</td>
-<td>如需对接三方的DNS服务器，推荐采用</td>
-</tr>
-<tr>
-<td>使用三方DNS插件</td>
-<td>整个kubernetes集群</td>
-<td>否</td>
-<td>不推荐，Coredns为业内主流</td>
-</tr>
-</tbody></table>
-<h2 id="修改-etc-hosts"><a href="#修改-etc-hosts" class="headerlink" title="修改&#x2F;etc&#x2F;hosts"></a>修改&#x2F;etc&#x2F;hosts</h2><p>修改&#x2F;etc&#x2F;hosts是最传统的方式，直接在容器内修改相应的文件来实现域名解析，在Pod级别生效。由于其可维护性较差（每次pod发生重启都需要手动修改），不推荐在生产环境使用。</p>
-<p>例如，我们可以在&#x2F;etc&#x2F;hosts里面添加这样一条记录</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">250.250.250.250 four-250</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/ # ping four-250</span><br><span class="line">PING four-250 (250.250.250.250): 56 data bytes</span><br></pre></td></tr></table></figure>
-
-<h2 id="添加HostAliases记录"><a href="#添加HostAliases记录" class="headerlink" title="添加HostAliases记录"></a>添加HostAliases记录</h2><p>HostAliases是kubernetes中Pod配置的一个字段，它提供了Pod内容器的<code>/etc/hosts</code>文件的附加记录。这在某些情况下非常有用，特别是当你想要覆盖某个主机名的解析结果，或者提供网络中没有的主机名解析时。</p>
-<p>这个可以在Pod、Replica、Deployment、StatefulSet的级别修改，维护性稍强。举个🌰，我们将上面的yaml修改为</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">busybox-deployment</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">busybox</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">hostAliases:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">ip:</span> <span class="string">&quot;250.250.250.250&quot;</span></span><br><span class="line">        <span class="attr">hostnames:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;four-250&quot;</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">busybox</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">        <span class="attr">args:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">/bin/sh</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">-c</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;while true; do echo Hello, Kubernetes!; sleep 10;done&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>这个时候我们查看容器的&#x2F;etc&#x2F;hosts，发现它被kubernetes自动插入了一条记录**Entries add by HostAliases。**这就是hostAliases的实现原理</p>
-<p>在<strong>kubelet_pods</strong>代码中进行了这样的写入动作</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">hostsEntriesFromHostAliases</span><span class="params">(hostAliases []v1.HostAlias)</span></span> []<span class="type">byte</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(hostAliases) == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> []<span class="type">byte</span>&#123;&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> buffer bytes.Buffer</span><br><span class="line">	buffer.WriteString(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">	buffer.WriteString(<span class="string">&quot;# Entries added by HostAliases.\n&quot;</span>)</span><br><span class="line">	<span class="comment">// for each IP, write all aliases onto single line in hosts file</span></span><br><span class="line">	<span class="keyword">for</span> _, hostAlias := <span class="keyword">range</span> hostAliases &#123;</span><br><span class="line">		buffer.WriteString(fmt.Sprintf(<span class="string">&quot;%s\t%s\n&quot;</span>, hostAlias.IP, strings.Join(hostAlias.Hostnames, <span class="string">&quot;\t&quot;</span>)))</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> buffer.Bytes()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Coredns配置"><a href="#Coredns配置" class="headerlink" title="Coredns配置"></a>Coredns配置</h2><p>我们可以通过修改ConfigMap来实现让容器解析特定域名的目的。</p>
-<h3 id="更改Coredns配置"><a href="#更改Coredns配置" class="headerlink" title="更改Coredns配置"></a>更改Coredns配置</h3><p>我们可以通过以下命令修改Coredns的配置：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl edit cm coredns -n kube-system</span><br></pre></td></tr></table></figure>
-
-<h3 id="原有的configmap"><a href="#原有的configmap" class="headerlink" title="原有的configmap"></a>原有的configmap</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Corefile:</span> <span class="string">|</span></span><br><span class="line"><span class="string">    .:53 &#123;</span></span><br><span class="line"><span class="string">        log</span></span><br><span class="line"><span class="string">        errors</span></span><br><span class="line"><span class="string">        health &#123;</span></span><br><span class="line"><span class="string">           lameduck 5s</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">        ready</span></span><br><span class="line"><span class="string">        kubernetes cluster.local in-addr.arpa ip6.arpa &#123;</span></span><br><span class="line"><span class="string">           pods insecure</span></span><br><span class="line"><span class="string">           fallthrough in-addr.arpa ip6.arpa</span></span><br><span class="line"><span class="string">           ttl 30</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">        prometheus :9153</span></span><br><span class="line"><span class="string">        hosts &#123;</span></span><br><span class="line"><span class="string">           192.168.65.2 host.minikube.internal</span></span><br><span class="line"><span class="string">           fallthrough</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">        forward . /etc/resolv.conf &#123;</span></span><br><span class="line"><span class="string">           max_concurrent 1000</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">        cache 30</span></span><br><span class="line"><span class="string">        loop</span></span><br><span class="line"><span class="string">        reload</span></span><br><span class="line"><span class="string">        loadbalance</span></span><br><span class="line"><span class="string">    &#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>在hosts里面加上特定的记录</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">250.250.250.250 four-250</span><br></pre></td></tr></table></figure>
-
-<p>如果您没有配置reload插件，则需要重启Coredns才能生效，默认的reload时间是30s，在plugin&#x2F;reload&#x2F;setup.go的defaultInterval中定义</p>
-<h2 id="自定义DNS策略"><a href="#自定义DNS策略" class="headerlink" title="自定义DNS策略"></a>自定义DNS策略</h2><p>通过修改DNS策略。使得对于单个Pod&#x2F;Deploy&#x2F;StatefulSet将特定的域名解析发给特定的服务器来达到效果，如下，可以对pod添加dns的服务器以及search域</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spec:</span></span><br><span class="line">   <span class="attr">dnsConfig:</span></span><br><span class="line">     <span class="attr">nameservers:</span></span><br><span class="line">       <span class="bullet">-</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span></span><br><span class="line">     <span class="attr">searches:</span></span><br><span class="line">       <span class="bullet">-</span> <span class="string">search.prefix</span></span><br><span class="line">   <span class="attr">containers:</span></span><br><span class="line">   <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">busybox</span></span><br><span class="line">     <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">     <span class="attr">args:</span></span><br><span class="line">     <span class="bullet">-</span> <span class="string">/bin/sh</span></span><br><span class="line">     <span class="bullet">-</span> <span class="string">-c</span></span><br><span class="line">     <span class="bullet">-</span> <span class="string">&quot;while true; do echo Hello, Kubernetes!; sleep 10;done&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="使用第三方DNS插件"><a href="#使用第三方DNS插件" class="headerlink" title="使用第三方DNS插件"></a>使用第三方DNS插件</h2><p>不推荐，使用其他的DNS插件，来做一些炫酷的自定义操作。而且目前Coredns也是业内的主流，没有很好的替代</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/07/08/%E7%BA%BF%E7%A8%8B%E9%94%81%E5%AF%BC%E8%87%B4%E7%9A%84kafka%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/07/08/%E7%BA%BF%E7%A8%8B%E9%94%81%E5%AF%BC%E8%87%B4%E7%9A%84kafka%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">线程锁导致的kafka客户端超时问题</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-07-08 14:58:52" itemprop="dateCreated datePublished" datetime="2023-07-08T14:58:52+08:00">2023-07-08</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>有一个环境的kafka client发送数据有部分超时，拓扑图也非常简单</p>
-<p><img src="/Images/20230708p1.png" alt="Untitled"></p>
-<h2 id="定位历程"><a href="#定位历程" class="headerlink" title="定位历程"></a>定位历程</h2><p>我们先对客户端的环境及JVM情况进行了排查，从JVM所在的虚拟机到kafka server的网络正常，垃圾回收（GC）时间也在预期范围内，没有出现异常。</p>
-<p>紧接着，我们把目光转向了kafka 服务器，进行了一些基础的检查，同时也查看了kafka处理请求的超时日志，其中我们关心的metadata和produce请求都没有超时。</p>
-<p>问题就此陷入了僵局，虽然也搜到了一些kafka server会对连上来的client反解导致超时的问题（ <a target="_blank" rel="noopener" href="https://github.com/apache/kafka/pull/10059">https://github.com/apache/kafka/pull/10059</a>），但通过一些简单的分析，我们确定这并非是问题所在。</p>
-<p>同时，我们在环境上也发现一些异常情况，当时觉得不是核心问题&#x2F;解释不通，没有深入去看</p>
-<ul>
-<li>问题JVM线程数较高，已经超过10000，这个线程数量虽然确实较高，但并不会对1个4U的容器产生什么实质性的影响。</li>
-<li>负责指标上报的线程CPU较高，大约占用了1&#x2F;4 ~ 1&#x2F;2 的CPU核，这个对于4U的容器来看问题也不大</li>
-</ul>
-<p>当排查陷入僵局，我们开始考虑其他可能的调查手段。我们尝试抓包来找线索，这里的抓包是SASL鉴权+SSL加密的，非常难读，只能靠长度和响应时间勉强来推断报文的内容。</p>
-<p>在这个过程中，我们发现了一个非常重要的线索，客户端竟然发起了超时断链，并且超时的那条消息，实际服务端是有响应回复的。</p>
-<p>随后我们将kafka client的trace级别日志打开，这里不禁感叹kafka client日志打的相对较少，发现的确有<strong>log.debug(“Disconnecting from node {} due to request timeout.”, nodeId)</strong>;的日志打印。</p>
-<p>与网络相关的流程：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 这里发出了请求</span></span><br><span class="line">    client.send(request, time.milliseconds());</span><br><span class="line">    <span class="keyword">while</span> (client.active()) &#123;</span><br><span class="line">        List&lt;ClientResponse&gt; responses = client.poll(Long.MAX_VALUE, time.milliseconds());</span><br><span class="line">        <span class="keyword">for</span> (ClientResponse response : responses) &#123;</span><br><span class="line">            <span class="keyword">if</span> (response.requestHeader().correlationId() == request.correlationId()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (response.wasDisconnected()) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Connection to &quot;</span> + response.destination() + <span class="string">&quot; was disconnected before the response was read&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (response.versionMismatch() != <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> response.versionMismatch();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> response;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Client was shutdown before response was read&quot;</span>);</span><br><span class="line">&#125; <span class="keyword">catch</span> (DisconnectException e) &#123;</span><br><span class="line">    <span class="keyword">if</span> (client.active())</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Client was shutdown before response was read&quot;</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个poll方法，不是简单的poll方法，而在poll方法中会进行超时判断，查看poll方法中调用的handleTimedOutRequests方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> List&lt;ClientResponse&gt; <span class="title function_">poll</span><span class="params">(<span class="type">long</span> timeout, <span class="type">long</span> now)</span> &#123;</span><br><span class="line">    ensureActive();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!abortedSends.isEmpty()) &#123;</span><br><span class="line">        <span class="comment">// If there are aborted sends because of unsupported version exceptions or disconnects,</span></span><br><span class="line">        <span class="comment">// handle them immediately without waiting for Selector#poll.</span></span><br><span class="line">        List&lt;ClientResponse&gt; responses = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        handleAbortedSends(responses);</span><br><span class="line">        completeResponses(responses);</span><br><span class="line">        <span class="keyword">return</span> responses;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">long</span> <span class="variable">metadataTimeout</span> <span class="operator">=</span> metadataUpdater.maybeUpdate(now);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.selector.poll(Utils.min(timeout, metadataTimeout, defaultRequestTimeoutMs));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;Unexpected error during I/O&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// process completed actions</span></span><br><span class="line">    <span class="type">long</span> <span class="variable">updatedNow</span> <span class="operator">=</span> <span class="built_in">this</span>.time.milliseconds();</span><br><span class="line">    List&lt;ClientResponse&gt; responses = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    handleCompletedSends(responses, updatedNow);</span><br><span class="line">    handleCompletedReceives(responses, updatedNow);</span><br><span class="line">    handleDisconnections(responses, updatedNow);</span><br><span class="line">    handleConnections();</span><br><span class="line">    handleInitiateApiVersionRequests(updatedNow);</span><br><span class="line">    <span class="comment">// 关键的超时判断</span></span><br><span class="line">    handleTimedOutRequests(responses, updatedNow);</span><br><span class="line">    completeResponses(responses);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> responses;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>由此我们推断，问题可能在于客户端hang住了一段时间，从而导致超时断链。我们通过工具Arthas深入跟踪了Kafka的相关代码，甚至发现一些简单的操作（如A.field）也需要数秒的时间。这进一步确认了我们的猜想：问题可能出在JVM。JVM可能在某个时刻出现问题，导致系统hang住，但这并非由GC引起。</p>
-<p><img src="/Images/20230708p2.png" alt="Untitled"></p>
-<p>为了解决这个问题，我们又检查了监控线程CPU较高的问题。我们发现线程的执行热点是从”sun.management.ThreadImpl”中的”getThreadInfo”方法。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&quot;metrics-1@746&quot; prio=5 tid=0xf nid=NA runnable</span><br><span class="line">  java.lang.Thread.State: RUNNABLE</span><br><span class="line">    at sun.management.ThreadImpl.getThreadInfo(Native Method)</span><br><span class="line">	  at sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:185)</span><br><span class="line">	  at sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:149)</span><br></pre></td></tr></table></figure>
-
-<p>进一步发现，在某些版本的JDK8中，读取线程信息是需要加锁的。</p>
-<p>至此，问题的根源已经清晰明了：过高的线程数以及线程监控时JVM全局锁的存在导致了这个问题。您可以使用如下的demo来复现这个问题</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.management.ManagementFactory;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ThreadInfo;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ThreadMXBean;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ScheduledExecutorService;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadLockSimple</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">15_000</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">200_000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">ScheduledExecutorService</span> <span class="variable">executorService</span> <span class="operator">=</span> Executors.newSingleThreadScheduledExecutor();</span><br><span class="line">        executorService.scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;take &quot;</span> + <span class="string">&quot; &quot;</span> + System.currentTimeMillis());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="number">1</span>, <span class="number">1</span>, TimeUnit.SECONDS);</span><br><span class="line">        <span class="type">ThreadMXBean</span> <span class="variable">threadMXBean</span> <span class="operator">=</span> ManagementFactory.getThreadMXBean();</span><br><span class="line">        <span class="type">ScheduledExecutorService</span> <span class="variable">metricsService</span> <span class="operator">=</span> Executors.newSingleThreadScheduledExecutor();</span><br><span class="line">        metricsService.scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">                ThreadInfo[] threadInfoList = threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds());</span><br><span class="line">                System.out.println(<span class="string">&quot;threads count &quot;</span> + threadInfoList.length + <span class="string">&quot; cost :&quot;</span> + (System.currentTimeMillis() - start));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="number">1</span>, <span class="number">1</span>, TimeUnit.SECONDS);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>为了解决这个问题，我们有以下几个可能的方案：</p>
-<ul>
-<li>将不合理的线程数往下降，可能存在线程泄露的场景</li>
-<li>升级jdk到jdk11或者jdk17（推荐）</li>
-<li>将Thread相关的监控临时关闭</li>
-</ul>
-<p>这个问题的解决方案应根据实际情况进行选择，希望对你有所帮助。</p>
 
       
     </div>

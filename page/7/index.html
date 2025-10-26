@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.0.0">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">135</span>
+          <span class="site-state-item-count">137</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-count">46</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,279 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/02/24/Wireshark%20%E4%B9%A6%E5%86%99Lua%E6%8F%92%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/wireshark-lua-plugin" class="post-title-link post-title-link-external" itemprop="url">Wireshark 书写Lua插件<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-02-24 18:01:40" itemprop="dateCreated datePublished" datetime="2022-02-24T18:01:40+08:00">2022-02-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="未书写插件前"><a href="#未书写插件前" class="headerlink" title="未书写插件前"></a>未书写插件前</h3><p>wireshark的协议不支持之前，报文几乎难以分析，举例如下</p>
+<p><img src="/Images/wireshark-lua-plugin1.png" alt="image-20210908144418891"></p>
+<h3 id="Wireshark插件路径"><a href="#Wireshark插件路径" class="headerlink" title="Wireshark插件路径"></a>Wireshark插件路径</h3><h4 id="MAC"><a href="#MAC" class="headerlink" title="MAC"></a>MAC</h4><p><img src="/Images/wireshark-lua-plugin2.png" alt="image-20210908142121894"></p>
+<h3 id="重新加载Wireshark中的lua插件"><a href="#重新加载Wireshark中的lua插件" class="headerlink" title="重新加载Wireshark中的lua插件"></a>重新加载Wireshark中的lua插件</h3><h4 id="MAC-1"><a href="#MAC-1" class="headerlink" title="MAC"></a>MAC</h4><p><img src="/Images/wireshark-lua-plugin3.png" alt="image-20210908141433962"></p>
+<h3 id="从一个新协议的样板开始"><a href="#从一个新协议的样板开始" class="headerlink" title="从一个新协议的样板开始"></a>从一个新协议的样板开始</h3><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">pulsar_protocol = Proto(<span class="string">&quot;Pulsar&quot;</span>, <span class="string">&quot;Pulsar Protocol&quot;</span>)</span><br><span class="line"></span><br><span class="line">pulsar_protocol.fields = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">pulsar_protocol.dissector</span><span class="params">(buffer, pinfo, tree)</span></span></span><br><span class="line">    length = buffer:<span class="built_in">len</span>()</span><br><span class="line">    <span class="keyword">if</span> length == <span class="number">0</span> <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    pinfo.cols.protocol = pulsar_protocol.name</span><br><span class="line">    <span class="keyword">local</span> subtree = tree:add(pulsar_protocol, buffer(), <span class="string">&quot;Pulsar Protocol Data&quot;</span>)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">local</span> tcp_port = DissectorTable.get(<span class="string">&quot;tcp.port&quot;</span>)</span><br><span class="line">tcp_port:add(<span class="number">6650</span>, pulsar_protocol)</span><br></pre></td></tr></table></figure>
+
+<p>我们从协议对象开始，命名为<code>pulsar_protocol</code>。构造函数两个参数分别为名称和描述。协议需要一个<code>fields</code>表和<code>dissecotr</code>函数。我们现在还没有任何<code>field</code>，所以<code>fields</code>表为空。对于每一个报文，<code>dissctor</code>函数都会被调用一次。</p>
+<p><code>dissector</code>函数有三个入参，<code>buffer</code>，<code>pinfo</code>，和<code>tree</code>。<code>buffer</code>包含了网络包的内容，是一个<code>Tvb</code>对象。<code>pinfo</code>包含了wireshark中展示packet的列信息，是一个<code>Pinfo</code>对象。<code>tree</code>是wireshark报文详情显示的内容，是<code>TreeItem</code>对象。</p>
+<p>在<code>dissector</code>函数中，我们检查buffer的长度，如果长度为0，则立即返回</p>
+<p><code>pinfo</code>对象包含着列信息，我们可以将<code>pinfo</code>的protocol设置为pulsar，显示在wireshark的界面中。接下来在packet的结构中创建一个子树，最后，我们把协议绑定到6650端口上。让我们加载这个<code>lua</code>插件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/.local/lib/wireshark/plugins</span><br><span class="line"><span class="built_in">cp</span> <span class="variable">$DIR</span>/../../pulsar_dissector.lua ~/.local/lib/wireshark/plugins/pulsar_dissector.lua</span><br></pre></td></tr></table></figure>
+
+<p>结果符合预期</p>
+<p><img src="/Images/wireshark-lua-plugin4.png" alt="image-20210908145821228"></p>
+<h3 id="添加长度字段"><a href="#添加长度字段" class="headerlink" title="添加长度字段"></a>添加长度字段</h3><p>让我们添加一个长度字段，pulsar协议中,长度字段即就是前4个字节，定义字段</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">message_length = ProtoField.int32(<span class="string">&quot;pulsar.message_length&quot;</span>, <span class="string">&quot;messageLength&quot;</span>, base.DEC)</span><br><span class="line"></span><br><span class="line">pulsar_protocol.fields = &#123; message_length &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>pulsar.message_length</code>可以用在过滤器字段中。<code>messageLength</code>是子树中的<code>label</code>。第三个字段决定了这个值会被如何展示</p>
+<p>最后，我们把长度值加入到Wireshark的tree中</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">subtree:add(message_length, buffer(<span class="number">0</span>,<span class="number">4</span>))</span><br></pre></td></tr></table></figure>
+
+<p>pulsar的协议是大端序，我们使用<code>add</code>函数。如果协议是小端序，我们就可以使用<code>addle</code>函数。</p>
+<p><img src="/Images/wireshark-lua-plugin5.png" alt="image-20210908153825471"></p>
+<p>我们添加的<code>message_length</code>字段已经可以显示在Wireshark中了</p>
+<h3 id="添加额外信息"><a href="#添加额外信息" class="headerlink" title="添加额外信息"></a>添加额外信息</h3><h2 id="protoc加入到wireshark"><a href="#protoc加入到wireshark" class="headerlink" title="protoc加入到wireshark"></a>protoc加入到wireshark</h2><h2 id="参考及附录"><a href="#参考及附录" class="headerlink" title="参考及附录"></a>参考及附录</h2><h3 id="proto-field函数列表"><a href="#proto-field函数列表" class="headerlink" title="proto field函数列表"></a>proto field函数列表</h3><p><a target="_blank" rel="noopener" href="https://www.wireshark.org/docs/wsdg_html_chunked/lua_module_Proto.html#lua_fn_ProtoField_char_abbr___name____base____valuestring____mask____desc">https://www.wireshark.org/docs/wsdg_html_chunked/lua_module_Proto.html#lua_fn_ProtoField_char_abbr___name____base____valuestring____mask____desc</a>__</p>
+<h3 id="wireshark解析protobuf"><a href="#wireshark解析protobuf" class="headerlink" title="wireshark解析protobuf"></a>wireshark解析protobuf</h3><p><a target="_blank" rel="noopener" href="https://ask.wireshark.org/question/15787/how-to-decode-protobuf-by-wireshark/">https://ask.wireshark.org/question/15787/how-to-decode-protobuf-by-wireshark/</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/12/16/Java%20maven%20lint%E6%8E%A8%E8%8D%90%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/java-maven-lint" class="post-title-link post-title-link-external" itemprop="url">Java Maven lint推荐配置<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-12-16 08:55:28" itemprop="dateCreated datePublished" datetime="2021-12-16T08:55:28+08:00">2021-12-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="maven-checkstyle"><a href="#maven-checkstyle" class="headerlink" title="maven checkstyle"></a>maven checkstyle</h1><h2 id="添加maven-plugin依赖"><a href="#添加maven-plugin依赖" class="headerlink" title="添加maven plugin依赖"></a>添加maven plugin依赖</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-checkstyle-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">configLocation</span>&gt;</span>config/checkstyle.xml<span class="tag">&lt;/<span class="name">configLocation</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">suppressionsLocation</span>&gt;</span>config/suppressions.xml<span class="tag">&lt;/<span class="name">suppressionsLocation</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">includeTestSourceDirectory</span>&gt;</span>true<span class="tag">&lt;/<span class="name">includeTestSourceDirectory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">encoding</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">excludes</span>&gt;</span>**/proto/*<span class="tag">&lt;/<span class="name">excludes</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>configLocation 存放checkstyle的规则配置文件，附录有样例内容</li>
+<li>SuppressionsLocation 存放屏蔽规则配置文件，附录有样例内容</li>
+<li>includeTestSourceDirectory 是否检测测试文件夹，建议配置为true</li>
+</ul>
+<p><img src="/Images/maven-lint-checkstyle-config.png" alt="maven-lint-checkstyle-config"></p>
+<h2 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h2><p>最后就可以通过<code>mvn checkstyle:check</code>来检查您的工程啦。如果有违反了checkstyle的地方，命令行会提示出错的地方和违反的规则，如下图所示</p>
+<p><img src="/Images/maven-lint-checkstyle-fail1.png" alt="maven-lint-checkstyle-fail1"></p>
+<p><img src="/Images/maven-lint-checkstyle-fail2.png" alt="maven-lint-checkstyle-fail2"></p>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><h3 id="规则配置文件举例"><a href="#规则配置文件举例" class="headerlink" title="规则配置文件举例"></a>规则配置文件举例</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">module</span> <span class="keyword">PUBLIC</span></span></span><br><span class="line"><span class="meta">        <span class="string">&quot;-//Puppy Crawl//DTD Check Configuration 1.3//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="string">&quot;https://checkstyle.org/dtds/configuration_1_3.dtd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"><!-- This is a checkstyle configuration file. For descriptions of
+what the following rules do, please see the checkstyle configuration
+page at http://checkstyle.sourceforge.net/config.html --></span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;Checker&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;FileTabCharacter&quot;</span>&gt;</span></span><br><span class="line">        <span class="comment"><!-- Checks that there are no tab characters in the file. --></span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"><!-- All Java AST specific tests live under TreeWalker module. --></span></span><br><span class="line">    <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;TreeWalker&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;SuppressionCommentFilter&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;offCommentFormat&quot;</span> <span class="attr">value</span>=<span class="string">&quot;CHECKSTYLE.OFF\: ([\w\|]+)&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;onCommentFormat&quot;</span> <span class="attr">value</span>=<span class="string">&quot;CHECKSTYLE.ON\: ([\w\|]+)&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;checkFormat&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$1&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;SuppressWarningsHolder&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!--
+
+        IMPORT CHECKS
+
+        --></span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;RedundantImport&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks for redundant import statements. --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">message</span> <span class="attr">key</span>=<span class="string">&quot;import.redundancy&quot;</span></span></span><br><span class="line"><span class="tag">                     <span class="attr">value</span>=<span class="string">&quot;Redundant import &#123;0&#125;.&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;AvoidStarImport&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;RedundantModifier&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks for redundant modifiers on various symbol definitions.
+              See: http://checkstyle.sourceforge.net/config_modifier.html#RedundantModifier
+            --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;tokens&quot;</span> <span class="attr">value</span>=<span class="string">&quot;METHOD_DEF, VARIABLE_DEF, ANNOTATION_FIELD_DEF, INTERFACE_DEF, CLASS_DEF, ENUM_DEF&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!--
+            IllegalImport cannot blacklist classes, and c.g.api.client.util is used for some shaded
+            code and some useful code. So we need to fall back to Regexp.
+        --></span></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;RegexpSinglelineJava&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;format&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com\.google\.api\.client\.util\.(ByteStreams|Charsets|Collections2|Joiner|Lists|Maps|Objects|Preconditions|Sets|Strings|Throwables)&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!--
+             Require static importing from Preconditions.
+        --></span></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;RegexpSinglelineJava&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;format&quot;</span> <span class="attr">value</span>=<span class="string">&quot;^import com.google.common.base.Preconditions;$&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;message&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Static import functions from Guava Preconditions&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;UnusedImports&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;processJavadoc&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">message</span> <span class="attr">key</span>=<span class="string">&quot;import.unused&quot;</span></span></span><br><span class="line"><span class="tag">                     <span class="attr">value</span>=<span class="string">&quot;Unused import: &#123;0&#125;.&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!--
+
+        JAVADOC CHECKS
+
+        --></span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!-- Checks for Javadoc comments.                     --></span></span><br><span class="line">        <span class="comment"><!-- See http://checkstyle.sf.net/config_javadoc.html --></span></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;JavadocMethod&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;scope&quot;</span> <span class="attr">value</span>=<span class="string">&quot;protected&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;allowMissingParamTags&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;allowMissingReturnTag&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!-- Check that paragraph tags are used correctly in Javadoc. --></span></span><br><span class="line">        <span class="comment"><!--        <module name="JavadocParagraph"/>--></span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;JavadocType&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;scope&quot;</span> <span class="attr">value</span>=<span class="string">&quot;protected&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;allowMissingParamTags&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;JavadocStyle&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;checkHtml&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!--
+
+        NAMING CHECKS
+
+        --></span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!-- Item 38 - Adhere to generally accepted naming conventions --></span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;PackageName&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Validates identifiers for package names against the
+              supplied expression. --></span></span><br><span class="line">            <span class="comment"><!-- Here the default checkstyle rule restricts package name parts to
+              seven characters, this is not in line with common practice at Google.
+            --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;format&quot;</span> <span class="attr">value</span>=<span class="string">&quot;^[a-z]+(\.[a-z][a-z0-9]&#123;1,&#125;)*$&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;TypeNameCheck&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Validates static, final fields against the
+            expression "^[A-Z][a-zA-Z0-9]*$". --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">metadata</span> <span class="attr">name</span>=<span class="string">&quot;altname&quot;</span> <span class="attr">value</span>=<span class="string">&quot;TypeName&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;ConstantNameCheck&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Validates non-private, static, final fields against the supplied
+            public/package final fields "^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$". --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">metadata</span> <span class="attr">name</span>=<span class="string">&quot;altname&quot;</span> <span class="attr">value</span>=<span class="string">&quot;ConstantName&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToPublic&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToProtected&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToPackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToPrivate&quot;</span> <span class="attr">value</span>=<span class="string">&quot;false&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;format&quot;</span> <span class="attr">value</span>=<span class="string">&quot;^([A-Z][A-Za-z0-9_]*|FLAG_.*)$&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">message</span> <span class="attr">key</span>=<span class="string">&quot;name.invalidPattern&quot;</span></span></span><br><span class="line"><span class="tag">                     <span class="attr">value</span>=<span class="string">&quot;Variable &#x27;&#x27;&#123;0&#125;&#x27;&#x27; should be in ALL_CAPS (if it is a constant) or be private (otherwise).&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;StaticVariableNameCheck&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Validates static, non-final fields against the supplied
+            expression "^[a-z][a-zA-Z0-9]*_?$". --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">metadata</span> <span class="attr">name</span>=<span class="string">&quot;altname&quot;</span> <span class="attr">value</span>=<span class="string">&quot;StaticVariableName&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToPublic&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToProtected&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToPackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToPrivate&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;format&quot;</span> <span class="attr">value</span>=<span class="string">&quot;^[a-z][a-zA-Z0-9]*_?$&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;MemberNameCheck&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Validates non-static members against the supplied expression. --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">metadata</span> <span class="attr">name</span>=<span class="string">&quot;altname&quot;</span> <span class="attr">value</span>=<span class="string">&quot;MemberName&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToPublic&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToProtected&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToPackage&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;applyToPrivate&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;format&quot;</span> <span class="attr">value</span>=<span class="string">&quot;^[a-z][a-zA-Z0-9]*$&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;MethodNameCheck&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Validates identifiers for method names. --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">metadata</span> <span class="attr">name</span>=<span class="string">&quot;altname&quot;</span> <span class="attr">value</span>=<span class="string">&quot;MethodName&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;format&quot;</span> <span class="attr">value</span>=<span class="string">&quot;(^[a-z][a-zA-Z0-9]*(_[a-zA-Z0-9]+)*$|Void)&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;ParameterName&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Validates identifiers for method parameters against the
+              expression "^[a-z][a-zA-Z0-9]*$". --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;LocalFinalVariableName&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Validates identifiers for local final variables against the
+              expression "^[a-z][a-zA-Z0-9]*$". --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;LocalVariableName&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Validates identifiers for local variables against the
+              expression "^[a-z][a-zA-Z0-9]*$". --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!-- Type parameters must be either one of the four blessed letters
+        T, K, V, W, X or else be capital-case terminated with a T,
+        such as MyGenericParameterT --></span></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;ClassTypeParameterName&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;format&quot;</span> <span class="attr">value</span>=<span class="string">&quot;^(((T|K|V|W|X|R)[0-9]*)|([A-Z][a-z][a-zA-Z]*))$&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;MethodTypeParameterName&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;format&quot;</span> <span class="attr">value</span>=<span class="string">&quot;^(((T|K|V|W|X|R)[0-9]*)|([A-Z][a-z][a-zA-Z]*T))$&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;InterfaceTypeParameterName&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;format&quot;</span> <span class="attr">value</span>=<span class="string">&quot;^(((T|K|V|W|X|R)[0-9]*)|([A-Z][a-z][a-zA-Z]*T))$&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;LeftCurly&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks for placement of the left curly brace ('{'). --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;RightCurly&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks right curlies on CATCH, ELSE, and TRY blocks are on
+            the same line. e.g., the following example is fine:
+            <pre>
+              if {
+                ...
+              } else
+            </pre>
+            --></span></span><br><span class="line">            <span class="comment"><!-- This next example is not fine:
+            <pre>
+              if {
+                ...
+              }
+              else
+            </pre>
+            --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;option&quot;</span> <span class="attr">value</span>=<span class="string">&quot;same&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!-- Checks for braces around if and else blocks --></span></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;NeedBraces&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;tokens&quot;</span> <span class="attr">value</span>=<span class="string">&quot;LITERAL_IF, LITERAL_ELSE, LITERAL_FOR, LITERAL_WHILE, LITERAL_DO&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;UpperEll&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks that long constants are defined with an upper ell.--></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;FallThrough&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Warn about falling through to the next case statement.  Similar to
+            javac -Xlint:fallthrough, but the check is suppressed if a single-line comment
+            on the last non-blank line preceding the fallen-into case contains 'fall through' (or
+            some other variants that we don't publicized to promote consistency).
+            --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;reliefPattern&quot;</span></span></span><br><span class="line"><span class="tag">                      <span class="attr">value</span>=<span class="string">&quot;fall through|Fall through|fallthru|Fallthru|falls through|Falls through|fallthrough|Fallthrough|No break|NO break|no break|continue on&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!-- Checks for over-complicated boolean expressions. --></span></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;SimplifyBooleanExpression&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!-- Detects empty statements (standalone ";" semicolon). --></span></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;EmptyStatement&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"><!--
+
+        WHITESPACE CHECKS
+
+        --></span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;WhitespaceAround&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks that various tokens are surrounded by whitespace.
+                 This includes most binary operators and keywords followed
+                 by regular or curly braces.
+            --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;tokens&quot;</span> <span class="attr">value</span>=<span class="string">&quot;ASSIGN, BAND, BAND_ASSIGN, BOR,</span></span></span><br><span class="line"><span class="string"><span class="tag">        BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN,</span></span></span><br><span class="line"><span class="string"><span class="tag">        EQUAL, GE, GT, LAND, LE, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE,</span></span></span><br><span class="line"><span class="string"><span class="tag">        LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF, LITERAL_RETURN,</span></span></span><br><span class="line"><span class="string"><span class="tag">        LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS,</span></span></span><br><span class="line"><span class="string"><span class="tag">        MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, QUESTION,</span></span></span><br><span class="line"><span class="string"><span class="tag">        SL, SL_ASSIGN, SR_ASSIGN, STAR, STAR_ASSIGN&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;WhitespaceAfter&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks that commas, semicolons and typecasts are followed by
+                 whitespace.
+            --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;tokens&quot;</span> <span class="attr">value</span>=<span class="string">&quot;COMMA, SEMI, TYPECAST&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;NoWhitespaceAfter&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks that there is no whitespace after various unary operators.
+                 Linebreaks are allowed.
+            --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;tokens&quot;</span> <span class="attr">value</span>=<span class="string">&quot;BNOT, DEC, DOT, INC, LNOT, UNARY_MINUS,</span></span></span><br><span class="line"><span class="string"><span class="tag">        UNARY_PLUS&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;allowLineBreaks&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;NoWhitespaceBefore&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks that there is no whitespace before various unary operators.
+                 Linebreaks are allowed.
+            --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;tokens&quot;</span> <span class="attr">value</span>=<span class="string">&quot;SEMI, DOT, POST_DEC, POST_INC&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;allowLineBreaks&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;OperatorWrap&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks that operators like + and ? appear at newlines rather than
+                 at the end of the previous line.
+            --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;option&quot;</span> <span class="attr">value</span>=<span class="string">&quot;NL&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;tokens&quot;</span> <span class="attr">value</span>=<span class="string">&quot;BAND, BOR, BSR, BXOR, DIV, EQUAL,</span></span></span><br><span class="line"><span class="string"><span class="tag">        GE, GT, LAND, LE, LITERAL_INSTANCEOF, LOR, LT, MINUS, MOD,</span></span></span><br><span class="line"><span class="string"><span class="tag">        NOT_EQUAL, PLUS, QUESTION, SL, SR, STAR &quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;OperatorWrap&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks that assignment operators are at the end of the line. --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;option&quot;</span> <span class="attr">value</span>=<span class="string">&quot;eol&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;tokens&quot;</span> <span class="attr">value</span>=<span class="string">&quot;ASSIGN&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;ParenPad&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment"><!-- Checks that there is no whitespace before close parens or after
+                 open parens.
+            --></span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;severity&quot;</span> <span class="attr">value</span>=<span class="string">&quot;error&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span> <span class="attr">name</span>=<span class="string">&quot;ModifierOrder&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="屏蔽规则配置文件举例"><a href="#屏蔽规则配置文件举例" class="headerlink" title="屏蔽规则配置文件举例"></a>屏蔽规则配置文件举例</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">suppressions</span> <span class="keyword">PUBLIC</span></span></span><br><span class="line"><span class="meta">        <span class="string">&quot;-//Puppy Crawl//DTD Suppressions 1.1//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="string">&quot;https://checkstyle.org/dtds/configuration_1_3.dtd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">suppressions</span>&gt;</span></span><br><span class="line">    <span class="comment"><!-- suppress all checks in the generated directories --></span></span><br><span class="line">    <span class="tag">&lt;<span class="name">suppress</span> <span class="attr">checks</span>=<span class="string">&quot;.*&quot;</span> <span class="attr">files</span>=<span class="string">&quot;.+[\\/]generated[\\/].+\.java&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">suppress</span> <span class="attr">checks</span>=<span class="string">&quot;.*&quot;</span> <span class="attr">files</span>=<span class="string">&quot;.+[\\/]generated-sources[\\/].+\.java&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">suppress</span> <span class="attr">checks</span>=<span class="string">&quot;.*&quot;</span> <span class="attr">files</span>=<span class="string">&quot;.+[\\/]generated-test-sources[\\/].+\.java&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">suppressions</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="maven-dependency-check"><a href="#maven-dependency-check" class="headerlink" title="maven dependency-check"></a>maven dependency-check</h1><h2 id="引入dependnecy-check插件"><a href="#引入dependnecy-check插件" class="headerlink" title="引入dependnecy-check插件"></a>引入dependnecy-check插件</h2><p>项目中原有的依赖是这样的</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.netty<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>netty-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.1.41.Final<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.owasp<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dependency-check-maven<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;dependency-check-maven.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">suppressionFiles</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">suppressionFile</span>&gt;</span>src/owasp-dependency-check-suppressions.xml<span class="tag">&lt;/<span class="name">suppressionFile</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">suppressionFiles</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">failBuildOnCVSS</span>&gt;</span>7<span class="tag">&lt;/<span class="name">failBuildOnCVSS</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">msbuildAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">msbuildAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">nodeAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">nodeAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">yarnAuditAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">yarnAuditAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">pyDistributionAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">pyDistributionAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">pyPackageAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">pyPackageAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">pipAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">pipAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">pipfileAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">pipfileAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">retireJsAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">retireJsAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">msbuildAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">msbuildAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mixAuditAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">mixAuditAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">nugetconfAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">nugetconfAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">assemblyAnalyzerEnabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">assemblyAnalyzerEnabled</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">skipSystemScope</span>&gt;</span>true<span class="tag">&lt;/<span class="name">skipSystemScope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>aggregate<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后可以通过<code>mvn clean install verify -DskipTests</code>来检测。这个demo下，会输出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[ERROR] One or more dependencies were identified with vulnerabilities that have a CVSS score greater than or equal to &#x27;7.0&#x27;: </span><br><span class="line">[ERROR] </span><br><span class="line">[ERROR] netty-all-4.1.41.Final.jar: CVE-2019-16869(7.5), CVE-2021-37136(7.5), CVE-2020-11612(7.5), CVE-2021-37137(7.5), CVE-2019-20445(9.1), CVE-2019-20444(9.1), CVE-2020-7238(7.5)</span><br><span class="line">[ERROR] </span><br><span class="line">[ERROR] See the dependency-check report for more details.</span><br></pre></td></tr></table></figure>
+
+<p>实际使用时，由于dependency-check检查相对耗时，一般通过单独的profile来控制开关</p>
+<h2 id="屏蔽CVE漏洞"><a href="#屏蔽CVE漏洞" class="headerlink" title="屏蔽CVE漏洞"></a>屏蔽CVE漏洞</h2><p>如果出现<code>dependency-check</code>误报或者是评估该漏洞不涉及，可以通过<code>supression file</code>来屏蔽</p>
+<h3 id="屏蔽单一CVE漏洞"><a href="#屏蔽单一CVE漏洞" class="headerlink" title="屏蔽单一CVE漏洞"></a>屏蔽单一CVE漏洞</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;suppress&gt;</span><br><span class="line">  &lt;notes&gt;&lt;![CDATA[</span><br><span class="line"> file name: zookeeper-prometheus-metrics-3.8.0.jar</span><br><span class="line"> ]]&gt;&lt;/notes&gt;</span><br><span class="line">  &lt;sha1&gt;849e8ece2845cb0185d721233906d487a7f1e4cf&lt;/sha1&gt;</span><br><span class="line">  &lt;cve&gt;CVE-2021-29425&lt;/cve&gt;</span><br><span class="line">&lt;/suppress&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="通过文件正则来屏蔽CVE漏洞"><a href="#通过文件正则来屏蔽CVE漏洞" class="headerlink" title="通过文件正则来屏蔽CVE漏洞"></a>通过文件正则来屏蔽CVE漏洞</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;suppress&gt;</span><br><span class="line">    &lt;notes&gt;CVE-2011-1797 FP, see https://github.com/jeremylong/DependencyCheck/issues/4154&lt;/notes&gt;</span><br><span class="line">    &lt;filePath regex=&quot;true&quot;&gt;.*netty-tcnative-boringssl-static.*\.jar&lt;/filePath&gt;</span><br><span class="line">    &lt;cve&gt;CVE-2011-1797g&lt;/cve&gt;</span><br><span class="line">&lt;/suppress&gt;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +513,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -325,7 +598,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -420,7 +693,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -501,7 +774,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -605,7 +878,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -710,7 +983,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -820,7 +1093,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -905,7 +1178,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
+      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
     </span>
 
   
@@ -944,194 +1217,6 @@
 <h2 id="通过Systemctl启动"><a href="#通过Systemctl启动" class="headerlink" title="通过Systemctl启动"></a>通过<code>Systemctl</code>启动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> vm-proxy.service</span><br><span class="line"><span class="built_in">sudo</span> systemctl start vm-proxy.service</span><br></pre></td></tr></table></figure>
 
 <h2 id="验证启动完成"><a href="#验证启动完成" class="headerlink" title="验证启动完成"></a>验证启动完成</h2><p><img src="/Images/rust-systemd1.png" alt="image-20211012165631993"></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/09/29/%E4%BD%BF%E7%94%A8arthas%E7%94%9F%E6%88%90java%E7%A8%8B%E5%BA%8Fcpu%E7%81%AB%E7%84%B0%E5%9B%BE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/09/29/%E4%BD%BF%E7%94%A8arthas%E7%94%9F%E6%88%90java%E7%A8%8B%E5%BA%8Fcpu%E7%81%AB%E7%84%B0%E5%9B%BE/" class="post-title-link" itemprop="url">使用arthas生成java程序cpu火焰图</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-09-29 15:15:28" itemprop="dateCreated datePublished" datetime="2021-09-29T15:15:28+08:00">2021-09-29</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>需要有一个运行的java程序，如果你已经有了运行中的java程序，请跳过这一节，示例，我启动自制的kafka镜像</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run ttbb/kafka:mate</span><br></pre></td></tr></table></figure>
-
-<h3 id="找到java程序的pid"><a href="#找到java程序的pid" class="headerlink" title="找到java程序的pid"></a>找到java程序的pid</h3><p><code>ps -ef</code>或者<code>jps</code>均可，其中<code>jps</code>需要安装jdk</p>
-<p><img src="/Images/arthas-flame-graph1.png" alt="image-20210929143232887"></p>
-<h3 id="安装arthas"><a href="#安装arthas" class="headerlink" title="安装arthas"></a>安装arthas</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/alibaba/arthas/releases/download/arthas-all-3.5.4/arthas-bin.zip</span><br><span class="line"><span class="built_in">mkdir</span> -p arthas</span><br><span class="line">unzip arthas-bin.zip -d arthas</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用arthas连接到目标程序"><a href="#使用arthas连接到目标程序" class="headerlink" title="使用arthas连接到目标程序"></a>使用arthas连接到目标程序</h3><p><img src="/Images/arthas-flame-graph2.png" alt="image-20210929143537663"></p>
-<h3 id="开始profiler"><a href="#开始profiler" class="headerlink" title="开始profiler"></a>开始profiler</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">profiler start</span><br></pre></td></tr></table></figure>
-
-<p>如果出现<code>Perf events unavailable. See stderr of the target process.</code>如图所示</p>
-<p><img src="/Images/arthas-flame-graph3.png" alt="image-20210929143621015"></p>
-<p>需要在docker所在虚拟机上执行如下命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 1 &gt; /proc/sys/kernel/perf_event_paranoid</span><br><span class="line"><span class="built_in">echo</span> 0 &gt; /proc/sys/kernel/kptr_restrict</span><br></pre></td></tr></table></figure>
-
-<p>如果是mac用户</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh</span><br></pre></td></tr></table></figure>
-
-<p>执行上述命令进入docker所在的虚拟机操作即可</p>
-<p>注意，在部分docker版本中，有可能还无法进行profiler采集，您可能需要以特权方式启动容器，不过，为了定位性能问题，这总是值得付出的，不是吗？</p>
-<p><img src="/Images/arthas-flame-graph4.png" alt="image-20210929151106090"></p>
-<h3 id="等待profiler一段时间"><a href="#等待profiler一段时间" class="headerlink" title="等待profiler一段时间"></a>等待profiler一段时间</h3><p>一般等待一分钟即可</p>
-<h3 id="结束profiler"><a href="#结束profiler" class="headerlink" title="结束profiler"></a>结束profiler</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">profiler stop</span><br></pre></td></tr></table></figure>
-
-<p><img src="/Images/arthas-flame-graph5.png" alt="image-20210929151209352"></p>
-<h3 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h3><p>Congratulations，完成了火焰图的输出，现在你可以使用火焰图来分析执行时间较长的方法啦</p>
-<p><img src="/Images/arthas-flame-graph6.png" alt="image-20210929151506122"></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/28/OpenKruise%E7%94%A8%E5%88%B0%E7%9A%84%E6%8A%80%E6%9C%AF%20%E7%BD%91%E7%BB%9C%E7%9B%91%E5%90%AC%E5%8F%A5%E6%9F%84%E5%8A%A8%E6%80%81%E8%BD%AC%E7%A7%BB%20%E5%88%87%E6%8D%A2%E7%BD%91%E7%BB%9C%E7%9B%91%E5%90%AC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/08/28/OpenKruise%E7%94%A8%E5%88%B0%E7%9A%84%E6%8A%80%E6%9C%AF%20%E7%BD%91%E7%BB%9C%E7%9B%91%E5%90%AC%E5%8F%A5%E6%9F%84%E5%8A%A8%E6%80%81%E8%BD%AC%E7%A7%BB%20%E5%88%87%E6%8D%A2%E7%BD%91%E7%BB%9C%E7%9B%91%E5%90%AC/" class="post-title-link" itemprop="url">OpenKruise用到的技术 网络监听句柄动态转移 切换网络监听</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-28 20:04:58" itemprop="dateCreated datePublished" datetime="2021-08-28T20:04:58+08:00">2021-08-28</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-21 20:55:02" itemprop="dateModified" datetime="2025-10-21T20:55:02+08:00">2025-10-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>今天看到了<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/tTipcU8MKxTpFurWNEUIww">https://mp.weixin.qq.com/s/tTipcU8MKxTpFurWNEUIww</a> 中热迁移网络句柄的功能，忍不住自己在机器上实验了一下，确实可以实现网络句柄的迁移。实验代码如下</p>
-<h2 id="old-server"><a href="#old-server" class="headerlink" title="old_server"></a>old_server</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">	<span class="string">&quot;syscall&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	tcpAddr := net.TCPAddr&#123;Port: <span class="number">8001</span>&#125;</span><br><span class="line">	tcpLn, err := net.ListenTCP(<span class="string">&quot;tcp4&quot;</span>, &amp;tcpAddr)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	f, _ := tcpLn.File()</span><br><span class="line">	fdNum := f.Fd()</span><br><span class="line">	data := syscall.UnixRights(<span class="type">int</span>(fdNum))</span><br><span class="line">	<span class="comment">// 与新版本sidecar通过Unix Domain Socket建立链接</span></span><br><span class="line">	raddr, _ := net.ResolveUnixAddr(<span class="string">&quot;unix&quot;</span>, <span class="string">&quot;/dev/shm/migrate.sock&quot;</span>)</span><br><span class="line">	uds, _ := net.DialUnix(<span class="string">&quot;unix&quot;</span>, <span class="literal">nil</span>, raddr)</span><br><span class="line">	<span class="comment">// 通过UDS，发送ListenFD到新版本sidecar容器</span></span><br><span class="line">	_, _, _ = uds.WriteMsgUnix(<span class="literal">nil</span>, data, <span class="literal">nil</span>)</span><br><span class="line">	<span class="comment">// 停止接收新的request，并且开始排水阶段</span></span><br><span class="line">	tcpLn.Close()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="new-server"><a href="#new-server" class="headerlink" title="new_server"></a>new_server</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;os&quot;</span></span><br><span class="line">	<span class="string">&quot;syscall&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 新版本sidecar 接收ListenFD，并且开始对外服务</span></span><br><span class="line">	<span class="comment">// 监听UDS</span></span><br><span class="line">	addr, _ := net.ResolveUnixAddr(<span class="string">&quot;unix&quot;</span>, <span class="string">&quot;/dev/shm/migrate.sock&quot;</span>)</span><br><span class="line">	unixLn, _ := net.ListenUnix(<span class="string">&quot;unix&quot;</span>, addr)</span><br><span class="line">	conn, _ := unixLn.AcceptUnix()</span><br><span class="line">	buf := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">32</span>)</span><br><span class="line">	oob := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">32</span>)</span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second)</span><br><span class="line">	<span class="comment">// 接收 ListenFD</span></span><br><span class="line">	_, oobn, _, _, _ := conn.ReadMsgUnix(buf, oob)</span><br><span class="line">	scms, _ := syscall.ParseSocketControlMessage(oob[:oobn])</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(scms) &gt; <span class="number">0</span> &#123;</span><br><span class="line">		<span class="comment">// 解析FD，并转化为 *net.TCPListener</span></span><br><span class="line">		fds, _ := syscall.ParseUnixRights(&amp;scms[<span class="number">0</span>])</span><br><span class="line">		f := os.NewFile(<span class="type">uintptr</span>(fds[<span class="number">0</span>]), <span class="string">&quot;&quot;</span>)</span><br><span class="line">		ln, _ := net.FileListener(f)</span><br><span class="line">		tcpLn, _ := ln.(*net.TCPListener)</span><br><span class="line">		http.Serve(tcpLn, &amp;MyHttp&#123;&#125;)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> MyHttp <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(*MyHttp)</span></span> ServeHTTP(w http.ResponseWriter, req *http.Request) &#123;</span><br><span class="line">	fmt.Fprintf(w, <span class="string">&quot;hello world&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h2><ul>
-<li>先启动new_server</li>
-<li>再启动old_server</li>
-<li>然后访问<code>localhost:8001</code>，返回<code>hello world</code>，这是<code>new_server</code>返回的结果</li>
-</ul>
-<h2 id="代码地址"><a href="#代码地址" class="headerlink" title="代码地址"></a>代码地址</h2><p><a target="_blank" rel="noopener" href="https://github.com/hezhangjian/go_demo/tree/main/demo_base/fd_migrate">https://github.com/hezhangjian/go_demo/tree/main/demo_base/fd_migrate</a></p>
 
       
     </div>
