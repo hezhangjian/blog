@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="AI已经极大程度地更改、影响了这个世界的走向，我们可以看到一些趋势，比如 画师、网文写手、真人短剧逐渐地被替代，程序员的替代还没有那么快。 大家有没有想过这个原因呢？我认为核心就在于：AI生成的产物，是否是最终的交付件。 这和Leader分配任务给下属一样，如果下属的交付件可以直接用，那Leader可能就说，你这个代码日志一定要符合规范、你这个材料字号要调大一些；反之，可能Leader就用下属的没">
+<meta property="og:type" content="article">
+<meta property="og:title" content="张俭的博客">
+<meta property="og:url" content="https://hezhangjian.com/2026/04/15/%E5%A6%82%E4%BD%95%E8%AE%A9AI%E7%9C%9F%E6%AD%A3%E6%9B%BF%E4%BD%A0%E5%B9%B2%E6%B4%BB%EF%BC%9AAgent%20+%20PARA%20%E7%9A%84%E4%B8%80%E5%A5%97%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="AI已经极大程度地更改、影响了这个世界的走向，我们可以看到一些趋势，比如 画师、网文写手、真人短剧逐渐地被替代，程序员的替代还没有那么快。 大家有没有想过这个原因呢？我认为核心就在于：AI生成的产物，是否是最终的交付件。 这和Leader分配任务给下属一样，如果下属的交付件可以直接用，那Leader可能就说，你这个代码日志一定要符合规范、你这个材料字号要调大一些；反之，可能Leader就用下属的没">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/%E4%BD%BF%E7%94%A8Agent+PARA%E6%8F%90%E5%8D%87%E4%B8%AA%E4%BA%BA%E5%B7%A5%E4%BD%9C%E6%95%88%E7%8E%87-1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/%E4%BD%BF%E7%94%A8Agent+PARA%E6%8F%90%E5%8D%87%E4%B8%AA%E4%BA%BA%E5%B7%A5%E4%BD%9C%E6%95%88%E7%8E%87-2.png">
+<meta property="article:published_time" content="2026-04-15T12:35:09.000Z">
+<meta property="article:modified_time" content="2026-04-23T05:14:53.842Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/%E4%BD%BF%E7%94%A8Agent+PARA%E6%8F%90%E5%8D%87%E4%B8%AA%E4%BA%BA%E5%B7%A5%E4%BD%9C%E6%95%88%E7%8E%87-1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2026/04/15/%E5%A6%82%E4%BD%95%E8%AE%A9AI%E7%9C%9F%E6%AD%A3%E6%9B%BF%E4%BD%A0%E5%B9%B2%E6%B4%BB%EF%BC%9AAgent%20+%20PARA%20%E7%9A%84%E4%B8%80%E5%A5%97%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%AE%9E%E8%B7%B5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2026/04/15/%E5%A6%82%E4%BD%95%E8%AE%A9AI%E7%9C%9F%E6%AD%A3%E6%9B%BF%E4%BD%A0%E5%B9%B2%E6%B4%BB%EF%BC%9AAgent%20+%20PARA%20%E7%9A%84%E4%B8%80%E5%A5%97%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%AE%9E%E8%B7%B5/","path":"2026/04/15/如何让AI真正替你干活：Agent + PARA 的一套工程化实践/","title":""}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title> | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Agent-MCP"><span class="nav-number">1.</span> <span class="nav-text">Agent+MCP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SKILLS"><span class="nav-number">2.</span> <span class="nav-text">SKILLS</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PARA"><span class="nav-number">3.</span> <span class="nav-text">PARA</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%AA%E4%BA%BA%E5%AE%9E%E8%B7%B5%E6%A1%88%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">个人实践案例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%91%E7%9A%84PARA%E7%9B%AE%E5%BD%95"><span class="nav-number">4.1.</span> <span class="nav-text">我的PARA目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B51%EF%BC%9A%E7%AD%9B%E9%80%89%E4%B8%AA%E4%BA%BA%E6%88%90%E6%9E%9C%E7%94%A8%E4%BA%8E%E4%BC%9A%E8%AE%AE%E5%88%86%E4%BA%AB"><span class="nav-number">4.2.</span> <span class="nav-text">实践1：筛选个人成果用于会议分享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B52%EF%BC%9A%E6%95%B4%E7%90%86-Inbox%EF%BC%8C%E8%BF%81%E7%A7%BB%E5%88%B0%E5%90%88%E9%80%82%E7%9A%84-PARA-%E7%9B%AE%E5%BD%95"><span class="nav-number">4.3.</span> <span class="nav-text">实践2：整理 Inbox，迁移到合适的 PARA 目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B53%EF%BC%9A%E8%AE%A9-Agent-%E6%80%BB%E7%BB%93%E4%B8%80%E4%B8%AA-Area-%E5%BD%93%E5%89%8D%E9%83%BD%E7%A7%AF%E7%B4%AF%E4%BA%86%E4%BB%80%E4%B9%88"><span class="nav-number">4.4.</span> <span class="nav-text">实践3：让 Agent 总结一个 Area 当前都积累了什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B54%EF%BC%9A%E4%BB%8E%E4%B8%80%E4%B8%AA%E7%9B%AE%E5%BD%95%E9%87%8C%E6%8F%90%E7%82%BC%E5%91%A8%E6%8A%A5-%E6%9C%88%E6%8A%A5%E7%B4%A0%E6%9D%90"><span class="nav-number">4.5.</span> <span class="nav-text">实践4：从一个目录里提炼周报 &#x2F; 月报素材</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">140</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2026/04/15/%E5%A6%82%E4%BD%95%E8%AE%A9AI%E7%9C%9F%E6%AD%A3%E6%9B%BF%E4%BD%A0%E5%B9%B2%E6%B4%BB%EF%BC%9AAgent%20+%20PARA%20%E7%9A%84%E4%B8%80%E5%A5%97%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-04-15 20:35:09" itemprop="dateCreated datePublished" datetime="2026-04-15T20:35:09+08:00">2026-04-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>AI已经极大程度地更改、影响了这个世界的走向，我们可以看到一些趋势，比如 画师、网文写手、真人短剧逐渐地被替代，程序员的替代还没有那么快。</p>
+<p>大家有没有想过这个原因呢？我认为核心就在于：<strong>AI生成的产物，是否是最终的交付件。</strong></p>
+<p>这和Leader分配任务给下属一样，如果下属的交付件可以直接用，那Leader可能就说，你这个代码日志一定要符合规范、你这个材料字号要调大一些；反之，可能Leader就用下属的没那么完美的交付件，自己再整理成最终的交付件。</p>
+<p>而程序员的情况不同：<strong>代码不是最终交付件，系统才是。</strong></p>
+<p>代码只是中间产物，它需要：运行、集成、部署、监控、演进。这一整条链路还没有完全“标准化交付”，所以替代速度较慢。</p>
+<p>那么结论其实很自然，个人提效的关键就在：让AI Agent直接生成交付件，这个交付件一定要是可通过迭代提示词、上下文不断优化的，最好这个产物是可编辑的（Markdown、Excel、Html），最后一公里的时候人可以做一定的修改。我在2月27日的朋友圈里也表达了类似的观点。</p>
+<p><img src="/Images/%E4%BD%BF%E7%94%A8Agent+PARA%E6%8F%90%E5%8D%87%E4%B8%AA%E4%BA%BA%E5%B7%A5%E4%BD%9C%E6%95%88%E7%8E%87-1.png"></p>
+<p>那么怎么更好地让AI Agent生成工作中用的交付件呢，我目前的实践是 <strong>Agent+MCP+SKILLS+PARA</strong>。Agent 负责执行，MCP 连接外部世界，SKILLS 提供可复用能力，PARA 提供稳定上下文，我们一个一个解释。</p>
+<h1 id="Agent-MCP"><a href="#Agent-MCP" class="headerlink" title="Agent+MCP"></a>Agent+MCP</h1><p>Agent毋庸多说，相比于只能对话的LLM，是一个围绕目标，能够多步执行、调用工具并持续迭代的执行单元。Ask模式（只跟AI对话）是没法更进一步地提效的。</p>
+<h1 id="SKILLS"><a href="#SKILLS" class="headerlink" title="SKILLS"></a>SKILLS</h1><p>SKILLS可以理解为一组可复用的能力模板（Prompt + Tool + Workflow 的组合）。例如</p>
+<ul>
+<li>整理Inbox文件</li>
+<li>生成周报</li>
+<li>分析某个Area的内容</li>
+<li>输出某种固定格式的文档<br>如果没有SKILLS，每一次都在“重新提示AI”，有了SKILLS，相当于把最佳实践固化下来，交给Agent反复使用。</li>
+</ul>
+<h1 id="PARA"><a href="#PARA" class="headerlink" title="PARA"></a>PARA</h1><p>对于Agent来说，与其给 AI 造新工具，不如给它一个它已经「会用」的旧接口。在于 LLM 的训练数据。LLM在训练阶段已经看过了很多文件系统的操作，grep、ls、find等等。LLM会非常善于在文件系统里探索他想用的内容，而不是拼凑一个高度定义的DSL。</p>
+<p>PARA呢，和文件系统强强联合，给Agent提供了一个稳定、可理解的上下文环境。</p>
+<p><img src="/Images/%E4%BD%BF%E7%94%A8Agent+PARA%E6%8F%90%E5%8D%87%E4%B8%AA%E4%BA%BA%E5%B7%A5%E4%BD%9C%E6%95%88%E7%8E%87-2.png"></p>
+<h1 id="个人实践案例"><a href="#个人实践案例" class="headerlink" title="个人实践案例"></a>个人实践案例</h1><h2 id="我的PARA目录"><a href="#我的PARA目录" class="headerlink" title="我的PARA目录"></a>我的PARA目录</h2><p>PARA是一个指导原则，每个人的PARA都可以有一些定义，比如我的PARA目录是这样子的，适配了我平时使用的OneDrive(它会强制有一些顶层文件夹，我自认为巧妙地利用起来了)，同时我还有把一些作为Blogs发布的诉求。同时也放了一些<code>README.md</code>、<code>About.md</code> 方便Agent读取。</p>
+<p>如果大家感兴趣的话，我可以单独写一个文章介绍一下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">生活/</span><br><span class="line">Archive/</span><br><span class="line">Areas/</span><br><span class="line">Attachments/</span><br><span class="line">Blog/</span><br><span class="line">Documents/</span><br><span class="line">Projects/</span><br><span class="line">Resources/</span><br><span class="line">Software/</span><br><span class="line">About.md</span><br><span class="line">README.md</span><br></pre></td></tr></table></figure>
+
+<p>下面的实践过程，本质上不是一次性的。</p>
+<p>如果你每隔一段时间都需要做类似的事情，比如：</p>
+<ul>
+<li>盘点近期工作成果</li>
+<li>挑选可以对外分享的主题</li>
+<li>判断哪些材料已经足够支撑一次输出</li>
+</ul>
+<p>那么这个流程其实是高度稳定的：</p>
+<ol>
+<li>扫描目录</li>
+<li>识别活跃内容</li>
+<li>提取关键材料</li>
+<li>组织成候选结果</li>
+</ol>
+<p>这类流程，就可以被固化为一个 SKILL，例如</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Skill: summarize-workspace-for-sharing</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">- 一个工作目录路径</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">- 可用于分享的主题列表</span><br><span class="line">- 每个主题对应的支撑材料</span><br><span class="line">- 是否已经具备“可交付”的判断</span><br><span class="line"></span><br><span class="line">内部流程：</span><br><span class="line">- 扫描最近活跃文件</span><br><span class="line">- 聚类主题</span><br><span class="line">- 评估材料完整度</span><br></pre></td></tr></table></figure>
+
+<p>这样一来，下次再做同样的事情，就不需要重新写 Prompt，而是直接调用这个 Skill。</p>
+<h2 id="实践1：筛选个人成果用于会议分享"><a href="#实践1：筛选个人成果用于会议分享" class="headerlink" title="实践1：筛选个人成果用于会议分享"></a>实践1：筛选个人成果用于会议分享</h2><p><strong>向 Agent 提问</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这是我的个人工作文件夹，你可以看看我最近几个月的工作成果，看看有没有什么东西可以拿去&quot;先进软件技术联席会议&quot;分享的？</span><br></pre></td></tr></table></figure>
+
+<p><strong>Agent 回复</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">我会先快速梳理这个工作区最近几个月的文件分布和活跃项目，找出适合做 ApacheCon 分享的候选主题，再回头看哪些材料已经足够支撑成一场 talk。</span><br><span class="line"></span><br><span class="line">已探索 3 个列表，ran 1 command</span><br><span class="line"></span><br><span class="line">我已经看到这个目录更像一个长期知识库，不只是单一项目，所以接下来我会缩小范围：重点看近 6 个月新增或活跃的 Apache / 开源 / AI研发 相关材料。</span><br></pre></td></tr></table></figure>
+<h2 id="实践2：整理-Inbox，迁移到合适的-PARA-目录"><a href="#实践2：整理-Inbox，迁移到合适的-PARA-目录" class="headerlink" title="实践2：整理 Inbox，迁移到合适的 PARA 目录"></a>实践2：整理 Inbox，迁移到合适的 PARA 目录</h2><p>个人文件夹里最容易失控的地方，通常不是 Projects，也不是 Resources，而是各种临时下载、微信传文件、会议附件、截图和草稿。它们会先堆在一个“待处理区域”里，时间久了以后，人自己都不太愿意翻。</p>
+<p>这种场景其实很适合交给 Agent。因为它不需要一开始就“理解整个世界”，只需要先做一件很具体的事情：<strong>识别这些文件分别属于什么类型，应该进入哪个目录。</strong></p>
+<p><strong>向 Agent 提问</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这是我的 Inbox 目录，里面有很多最近积累的文件。你可以帮我分析一下这些文件分别属于 Projects、Areas、Resources 还是 Archive 吗？先不要直接移动，先给我一个整理建议和理由。</span><br></pre></td></tr></table></figure>
+
+<p><strong>Agent 回复</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">我会先扫描 Inbox 里的文件名、扩展名、最近修改时间，以及部分文档内容，判断这些文件更像是项目资料、长期领域资料、通用参考资料，还是已经可以归档的历史内容。  </span><br><span class="line">  </span><br><span class="line">已探索 4 个目录，ran 2 commands  </span><br><span class="line">  </span><br><span class="line">初步看下来，这里面混合了会议纪要、下载的安装包、临时截图、正在推进项目的材料和几份标准文档。我接下来会先按“是否仍在活跃使用”进行第一轮分类，再给出建议路径和批量整理方案。</span><br></pre></td></tr></table></figure>
+<h2 id="实践3：让-Agent-总结一个-Area-当前都积累了什么"><a href="#实践3：让-Agent-总结一个-Area-当前都积累了什么" class="headerlink" title="实践3：让 Agent 总结一个 Area 当前都积累了什么"></a>实践3：让 Agent 总结一个 Area 当前都积累了什么</h2><p>有些 Area 是长期负责的，比如英语、软件工程、孩子教育、投资理财。这类目录的问题不在于“没有内容”，而在于<strong>内容太多了，久而久之自己都不知道里面已经沉淀了什么。</strong></p>
+<p>Agent 很适合做这种“盘点当前资产”的工作。它不一定直接帮你产出最终文档，但可以先把目录里的内容做一轮结构化总结，帮你建立重新利用这些内容的入口。</p>
+<p><strong>向 Agent 提问</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这是我 Areas/软件设计 目录。你可以帮我看看这里现在主要沉淀了哪些内容？按主题帮我归一下类，再告诉我哪些内容已经比较完整，哪些内容还只是零散积累。</span><br></pre></td></tr></table></figure>
+
+<p><strong>Agent 回复</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">我会先浏览这个目录下的子目录和关键文档，判断当前沉淀更偏向方法论、实践记录、工具使用，还是项目复盘，并整理出一个主题结构。  </span><br><span class="line">  </span><br><span class="line">已探索 5 个目录，ran 3 commands  </span><br><span class="line">  </span><br><span class="line">从目前看到的内容来看，这个 Area 里既有一些长期积累的方法论笔记，也有若干和具体项目相关但仍有复用价值的实践文档。我接下来会把它们拆成几个主题，并标出哪些已经可以整理成对外输出的文章或分享材料。</span><br></pre></td></tr></table></figure>
+
+<h2 id="实践4：从一个目录里提炼周报-月报素材"><a href="#实践4：从一个目录里提炼周报-月报素材" class="headerlink" title="实践4：从一个目录里提炼周报 &#x2F; 月报素材"></a>实践4：从一个目录里提炼周报 &#x2F; 月报素材</h2><p>很多人写周报、月报最痛苦的地方，不是“不会写”，而是<strong>回头找素材太费劲</strong>。尤其是当你的工作记录分散在会议纪要、草稿、截图、PRD、临时文档、代码仓库说明里时，人会本能地拖延这件事。</p>
+<p>如果文件组织本身还算规整，Agent 就可以直接从目录里提炼候选素材，最后输出一个可编辑的 Markdown 初稿。</p>
+<p><strong>向 Agent 提问</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这是我最近两周的工作目录。你可以帮我整理一版周报素材吗？先按“已完成事项、推进中的事项、问题和风险、下周计划”四个部分来归纳，尽量基于已有文件内容，不要凭空发挥。</span><br></pre></td></tr></table></figure>
+
+<p><strong>Agent 回复</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">我会先查看最近两周活跃修改的文档和项目目录，提取其中能够反映工作进展的内容，再按周报结构组织成一版可编辑草稿。  </span><br><span class="line">  </span><br><span class="line">已探索 6 个目录，ran 3 commands  </span><br><span class="line">  </span><br><span class="line">目前已经看到几个高频修改的项目目录，以及两份会议纪要和一批方案文档。我接下来会优先提取能够代表实际推进结果的内容，避免把讨论中的想法误写成已完成事项。</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ol>
+<li>Agent：一切皆文件：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/ulmVG3_yrfy-7EofRgnyGw">https://mp.weixin.qq.com/s/ulmVG3_yrfy-7EofRgnyGw</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/10/28/%E7%AE%80%E8%B0%88%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/" rel="prev" title="">
+                  <i class="fa fa-angle-left"></i> 
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

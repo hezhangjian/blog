@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.0">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
 
     <meta property="og:type" content="website">
 <meta property="og:title" content="张俭的博客">
@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">137</span>
+          <span class="site-state-item-count">140</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,302 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/10/17/valgrind%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%A3%80%E6%B5%8B%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/10/17/valgrind%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%A3%80%E6%B5%8B%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/" class="post-title-link" itemprop="url">Valgrind内存泄漏检测快速上手</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-17 16:13:57" itemprop="dateCreated datePublished" datetime="2021-10-17T16:13:57+08:00">2021-10-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="准备被测程序"><a href="#准备被测程序" class="headerlink" title="准备被测程序"></a>准备被测程序</h2><p>通过<code>-g</code>编译程序来携带debug信息，这样子输出的错误信息就可以包含精确的行号。如果你可以承受程序运行缓慢，那么我们可以使用<code>-O0</code>来编译程序。如果使用<code>-O1</code>，那么输出的行号可能会不准确。不推荐使用<code>-O2</code>及以上，因为 <code>valgrind memcheck</code> 偶尔会报告不存在的未初始化值错误。</p>
+<h2 id="运行程序"><a href="#运行程序" class="headerlink" title="运行程序"></a>运行程序</h2><p>如果平时这么运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">myprog arg1 arg2</span><br></pre></td></tr></table></figure>
+
+<p>就使用这个命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">valgrind --leak-check=<span class="built_in">yes</span> myprog arg1 arg2</span><br></pre></td></tr></table></figure>
+
+<p><code>Memcheck</code>是默认的<code>valgrind</code>工具，<code>--leak-check</code>打开了内存泄漏检测开关。</p>
+<p>通过这个命令运行，大约会比平时运行慢20到30倍，并且使用更大的内存。Memcheck 将发出它检测到的内存错误和泄漏的信息。</p>
+<h2 id="解释memcheck的输出"><a href="#解释memcheck的输出" class="headerlink" title="解释memcheck的输出"></a>解释<code>memcheck</code>的输出</h2><p>使用样例的C程序，包含一个内存分配错误和内存溢出</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">f</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="type">int</span>* x = <span class="built_in">malloc</span>(<span class="number">10</span> * <span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">   x[<span class="number">10</span>] = <span class="number">0</span>;        <span class="comment">// problem 1: heap block overrun</span></span><br><span class="line">&#125;                    <span class="comment">// problem 2: memory leak -- x not freed</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">   f();</span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行内存检测</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -g demo.c</span><br><span class="line">valgrind ./a.out</span><br></pre></td></tr></table></figure>
+
+<p>输出信息如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">==145== Memcheck, a memory error detector</span><br><span class="line">==145== Copyright (C) 2002-2017, and GNU GPL&#x27;d, by Julian Seward et al.</span><br><span class="line">==145== Using Valgrind-3.17.0 and LibVEX; rerun with -h for copyright info</span><br><span class="line">==145== Command: ./a.out</span><br><span class="line">==145==</span><br><span class="line">==145== Invalid write of size 4</span><br><span class="line">==145==    at 0x401144: f (demo.c:6)</span><br><span class="line">==145==    by 0x401155: main (demo.c:11)</span><br><span class="line">==145==  Address 0x4a27068 is 0 bytes after a block of size 40 alloc&#x27;d</span><br><span class="line">==145==    at 0x484086F: malloc (vg_replace_malloc.c:380)</span><br><span class="line">==145==    by 0x401137: f (demo.c:5)</span><br><span class="line">==145==    by 0x401155: main (demo.c:11)</span><br><span class="line">==145==</span><br><span class="line">==145==</span><br><span class="line">==145== HEAP SUMMARY:</span><br><span class="line">==145==     in use at exit: 40 bytes in 1 blocks</span><br><span class="line">==145==   total heap usage: 1 allocs, 0 frees, 40 bytes allocated</span><br><span class="line">==145==</span><br><span class="line">==145== 40 bytes in 1 blocks are definitely lost in loss record 1 of 1</span><br><span class="line">==145==    at 0x484086F: malloc (vg_replace_malloc.c:380)</span><br><span class="line">==145==    by 0x401137: f (demo.c:5)</span><br><span class="line">==145==    by 0x401155: main (demo.c:11)</span><br><span class="line">==145==</span><br><span class="line">==145== LEAK SUMMARY:</span><br><span class="line">==145==    definitely lost: 40 bytes in 1 blocks</span><br><span class="line">==145==    indirectly lost: 0 bytes in 0 blocks</span><br><span class="line">==145==      possibly lost: 0 bytes in 0 blocks</span><br><span class="line">==145==    still reachable: 0 bytes in 0 blocks</span><br><span class="line">==145==         suppressed: 0 bytes in 0 blocks</span><br><span class="line">==145==</span><br><span class="line">==145== For lists of detected and suppressed errors, rerun with: -s</span><br><span class="line">==145== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>145 是进程号</li>
+<li>输出的第一行，即上方的第六行(<code>Invalid write</code>)表明了错误的类型。这里程序往不归它拥有的内存中写入了信息</li>
+<li>下方是错误的堆栈信息</li>
+<li>代码地址如<code>0x401155</code>通常并不重要，但有时候定位奇怪的问题可能会很关键</li>
+<li>一些错误信息会有第二段，用来描述所涉及的内存地址。上例指出写入的内存刚好超过 example.c 的第 5 行使用 malloc() 分配的块的末尾。</li>
+</ul>
+<h3 id="内存泄漏信息"><a href="#内存泄漏信息" class="headerlink" title="内存泄漏信息"></a>内存泄漏信息</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">==145== 40 bytes in 1 blocks are definitely lost in loss record 1 of 1</span><br><span class="line">==145==    at 0x484086F: malloc (vg_replace_malloc.c:380)</span><br><span class="line">==145==    by 0x401137: f (demo.c:5)</span><br><span class="line">==145==    by 0x401155: main (demo.c:11)</span><br></pre></td></tr></table></figure>
+
+<p>堆栈可以表明什么内存泄露了，但<code>memcheck</code>并不能告诉你内存泄漏的原因</p>
+<p>valgrind会提示两种内存泄漏</p>
+<ul>
+<li>“definitely lost”: 绝对泄漏了内存，必须修复</li>
+<li>“probably lost”:  程序可能泄漏了内存，也有可能是一些特定的指针操作（如：指针放到了堆中）</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://www.valgrind.org/docs/manual/quick-start.html#quick-start.intro">https://www.valgrind.org/docs/manual/quick-start.html#quick-start.intro</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.valgrind.org/docs/manual/mc-manual.html#mc-manual.errormsgs">https://www.valgrind.org/docs/manual/mc-manual.html#mc-manual.errormsgs</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/10/16/MySQL%E7%94%9F%E6%88%90%20core%20dump%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/10/16/MySQL%E7%94%9F%E6%88%90%20core%20dump%E6%96%87%E4%BB%B6/" class="post-title-link" itemprop="url">MySQL生成 core dump文件</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-16 23:32:43" itemprop="dateCreated datePublished" datetime="2021-10-16T23:32:43+08:00">2021-10-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前提条件"><a href="#前提条件" class="headerlink" title="前提条件"></a>前提条件</h2><h2 id="添加配置"><a href="#添加配置" class="headerlink" title="添加配置"></a>添加配置</h2><h3 id="mysqld-下面添加core-file"><a href="#mysqld-下面添加core-file" class="headerlink" title="[mysqld]下面添加core-file"></a>[mysqld]下面添加<code>core-file</code></h3><p><img src="/Images/mysql-core-dump1.png" alt="image-20211016232603862"></p>
+<h3 id="ulimit打开core-file限制"><a href="#ulimit打开core-file限制" class="headerlink" title="ulimit打开core file限制"></a>ulimit打开core file限制</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ulimit</span> -c unlimited</span><br></pre></td></tr></table></figure>
+
+<h3 id="如需要，修改core-file路径（如在容器内，需要特权容器权限）"><a href="#如需要，修改core-file路径（如在容器内，需要特权容器权限）" class="headerlink" title="如需要，修改core file路径（如在容器内，需要特权容器权限）"></a>如需要，修改core file路径（如在容器内，需要特权容器权限）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;/opt/sh/mysql/core/core&quot;</span> &gt; /proc/sys/kernel/core_pattern</span><br></pre></td></tr></table></figure>
+
+<h3 id="使得core-file携带pid信息"><a href="#使得core-file携带pid信息" class="headerlink" title="使得core file携带pid信息"></a>使得core file携带pid信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 1 &gt;/proc/sys/kernel/core_uses_pid</span><br></pre></td></tr></table></figure>
+
+<h2 id="通过kill命令获取core-file"><a href="#通过kill命令获取core-file" class="headerlink" title="通过kill命令获取core file"></a>通过kill命令获取core file</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">kill</span> -11 <span class="variable">$pid</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/Images/mysql-core-dump2.png" alt="image-20211016233105059"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/10/12/%E5%B0%86Rust%E7%A8%8B%E5%BA%8F%E6%89%98%E7%AE%A1%E7%BB%99Systemd%E8%BF%90%E8%A1%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/10/12/%E5%B0%86Rust%E7%A8%8B%E5%BA%8F%E6%89%98%E7%AE%A1%E7%BB%99Systemd%E8%BF%90%E8%A1%8C/" class="post-title-link" itemprop="url">将Rust程序托管给Systemd运行</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-12 18:25:48" itemprop="dateCreated datePublished" datetime="2021-10-12T18:25:48+08:00">2021-10-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>将程序(以rust程序为例)托管为<code>Systemd</code>运行比较容易，步骤分为以下几步</p>
+<ul>
+<li>生成rust二进制文件</li>
+<li>创建专用用户和用户组（可省略）</li>
+<li>书写<code>.service</code>文件</li>
+<li>通过<code>systemctl</code>启动</li>
+</ul>
+<p>接下来我们以ubuntu、简单的rust web程序为例，演示一个简单的<code>rust</code>程序如何托管给<code>Systemd</code>运行</p>
+<h2 id="生成rust二进制文件"><a href="#生成rust二进制文件" class="headerlink" title="生成rust二进制文件"></a>生成rust二进制文件</h2><h3 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tokio = &#123; version = &quot;1&quot;, features = [&quot;full&quot;] &#125;</span><br><span class="line">warp = &quot;0.3&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="书写简单代码"><a href="#书写简单代码" class="headerlink" title="书写简单代码"></a>书写简单代码</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> warp::Filter;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// GET /hello/warp =&gt; 200 OK with body &quot;Hello, warp!&quot;</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">hello</span> = warp::path!(<span class="string">&quot;hello&quot;</span> / <span class="type">String</span>)</span><br><span class="line">        .<span class="title function_ invoke__">map</span>(|name| <span class="built_in">format!</span>(<span class="string">&quot;Hello, &#123;&#125;!&quot;</span>, name));</span><br><span class="line"></span><br><span class="line">    warp::<span class="title function_ invoke__">serve</span>(hello)</span><br><span class="line">        .<span class="title function_ invoke__">run</span>(([<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>], <span class="number">3030</span>))</span><br><span class="line">        .<span class="keyword">await</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="编译生成二进制"><a href="#编译生成二进制" class="headerlink" title="编译生成二进制"></a>编译生成二进制</h3><p><code>cargo build --release</code></p>
+<p>二进制就在<code>target/release</code>中</p>
+<h2 id="创建专用用户和用户组"><a href="#创建专用用户和用户组" class="headerlink" title="创建专用用户和用户组"></a>创建专用用户和用户组</h2><p>为了更细粒度地授权和文件权限控制，我们可以给守护程序创建专用的用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> useradd vmproxy -s /sbin/nologin -M</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="书写-service文件"><a href="#书写-service文件" class="headerlink" title="书写.service文件"></a>书写<code>.service</code>文件</h2><p><code>.service</code>文件在<code>ubuntu</code>应该放到<code>/lib/systemd/system/</code>路径下。样例如下<code>vm-proxy.service</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Vm Proxy</span><br><span class="line">ConditionPathExists=/home/ubuntu/rust/vm-proxy/target/release/vm-proxy-rust</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">User=vmproxy</span><br><span class="line">Group=vmproxy</span><br><span class="line">LimitNOFILE=1024</span><br><span class="line"></span><br><span class="line">Restart=on-failure</span><br><span class="line">RestartSec=10</span><br><span class="line"></span><br><span class="line">WorkingDirectory=/home/ubuntu/rust/vm-proxy/target/release</span><br><span class="line">ExecStart=/home/ubuntu/rust/vm-proxy/target/release/vm-proxy-rust</span><br><span class="line"></span><br><span class="line"># make sure log directory exists and owned by syslog</span><br><span class="line">PermissionsStartOnly=true</span><br><span class="line">ExecStartPre=/bin/mkdir -p /var/log/vm-proxy</span><br><span class="line">ExecStartPre=/bin/chown syslog:adm /var/log/vm-proxy</span><br><span class="line">ExecStartPre=/bin/chmod 755 /var/log/vm-proxy</span><br><span class="line">StandardOutput=syslog</span><br><span class="line">StandardError=syslog</span><br><span class="line">SyslogIdentifier=vm-proxy</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p><code>ConditionPathExists</code>、<code>WorkingDirectory</code>、 <code>ExecStart</code> 这三个参数需要根据自己的路径修改</p>
+<h2 id="通过Systemctl启动"><a href="#通过Systemctl启动" class="headerlink" title="通过Systemctl启动"></a>通过<code>Systemctl</code>启动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> vm-proxy.service</span><br><span class="line"><span class="built_in">sudo</span> systemctl start vm-proxy.service</span><br></pre></td></tr></table></figure>
+
+<h2 id="验证启动完成"><a href="#验证启动完成" class="headerlink" title="验证启动完成"></a>验证启动完成</h2><p><img src="/Images/rust-systemd1.png" alt="image-20211012165631993"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +536,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
     </span>
 
   
@@ -342,7 +638,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
     </span>
 
   
@@ -429,7 +725,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
     </span>
 
   
@@ -527,7 +823,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
     </span>
 
   
@@ -615,7 +911,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
     </span>
 
   
@@ -724,7 +1020,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
     </span>
 
   
@@ -808,7 +1104,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
+      <time title="修改时间：2026-04-23 13:14:53" itemprop="dateModified" datetime="2026-04-23T13:14:53+08:00">2026-04-23</time>
     </span>
 
   
@@ -847,347 +1143,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/10/Java%E6%8C%87%E6%A0%87%E7%BB%9F%E8%AE%A1%E6%96%B9%E6%A1%88%E5%8F%8A%E4%BB%A3%E7%A0%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/java-metrics-statistic" class="post-title-link post-title-link-external" itemprop="url">Java指标统计方案及代码<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-10 21:30:18" itemprop="dateCreated datePublished" datetime="2021-08-10T21:30:18+08:00">2021-08-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="java-根据线程统计CPU"><a href="#java-根据线程统计CPU" class="headerlink" title="java 根据线程统计CPU"></a>java 根据线程统计CPU</h1><h2 id="设计思路"><a href="#设计思路" class="headerlink" title="设计思路"></a>设计思路</h2><p>java的ThreadMXBean可以获取每个线程CPU执行的nanoTime，那么可以以这个为基础，除以中间系统经过的纳秒数，就获得了该线程的<code>CPU</code>占比</p>
-<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>首先，我们定义一个结构体，用来存放一个线程上次统计时的纳秒数和当时的系统纳秒数</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadMetricsAux</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> usedNanoTime;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> lastNanoTime;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ThreadMetricsAux</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ThreadMetricsAux</span><span class="params">(<span class="type">long</span> usedNanoTime, <span class="type">long</span> lastNanoTime)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.usedNanoTime = usedNanoTime;</span><br><span class="line">        <span class="built_in">this</span>.lastNanoTime = lastNanoTime;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后我们在SpringBoot中定义一个定时任务，它将定时地统计计算每个线程的CPU信息，并输出到<code>MeterRegistry</code>，当你调用<code>SpringActuator</code>的接口时，你将能获取到这个指标。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.google.common.util.concurrent.AtomicDouble;</span><br><span class="line"><span class="keyword">import</span> io.micrometer.core.instrument.Meter;</span><br><span class="line"><span class="keyword">import</span> io.micrometer.core.instrument.MeterRegistry;</span><br><span class="line"><span class="keyword">import</span> io.micrometer.core.instrument.Tags;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Scheduled;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.management.ManagementFactory;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ThreadInfo;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ThreadMXBean;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadMetricService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> MeterRegistry meterRegistry;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ThreadMXBean</span> <span class="variable">threadBean</span> <span class="operator">=</span> ManagementFactory.getThreadMXBean();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;Long, ThreadMetricsAux&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;Meter.Id, AtomicDouble&gt; dynamicGauges = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * one minutes</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Scheduled(cron = &quot;0 * * * * ?&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">schedule</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">long</span>[] allThreadIds = threadBean.getAllThreadIds();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">long</span> threadId : allThreadIds) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">ThreadInfo</span> <span class="variable">threadInfo</span> <span class="operator">=</span> threadBean.getThreadInfo(threadId);</span><br><span class="line">            <span class="keyword">if</span> (threadInfo == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">long</span> <span class="variable">threadNanoTime</span> <span class="operator">=</span> getThreadCPUTime(threadId);</span><br><span class="line">            <span class="keyword">if</span> (threadNanoTime == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">// 如果threadNanoTime为0，则识别为异常数据，不处理，并清理历史数据</span></span><br><span class="line">                map.remove(threadId);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">long</span> <span class="variable">nanoTime</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">            <span class="type">ThreadMetricsAux</span> <span class="variable">oldMetrics</span> <span class="operator">=</span> map.get(threadId);</span><br><span class="line">            <span class="comment">// 判断是否有历史的metrics信息</span></span><br><span class="line">            <span class="keyword">if</span> (oldMetrics != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 如果有，则计算CPU信息并上报</span></span><br><span class="line">                <span class="type">double</span> <span class="variable">percent</span> <span class="operator">=</span> (<span class="type">double</span>) (threadNanoTime - oldMetrics.getUsedNanoTime()) / (<span class="type">double</span>) (nanoTime - oldMetrics.getLastNanoTime());</span><br><span class="line">                handleDynamicGauge(<span class="string">&quot;jvm.threads.cpu&quot;</span>, <span class="string">&quot;threadName&quot;</span>, threadInfo.getThreadName(), percent);</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(threadId, <span class="keyword">new</span> <span class="title class_">ThreadMetricsAux</span>(threadNanoTime, nanoTime));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// meter Gauge相关代码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">handleDynamicGauge</span><span class="params">(String meterName, String labelKey, String labelValue, <span class="type">double</span> snapshot)</span> &#123;</span><br><span class="line">        Meter.<span class="type">Id</span> <span class="variable">id</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Meter</span>.Id(meterName, Tags.of(labelKey, labelValue), <span class="literal">null</span>, <span class="literal">null</span>, Meter.Type.GAUGE);</span><br><span class="line"></span><br><span class="line">        dynamicGauges.compute(id, (key, current) -&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (current == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">AtomicDouble</span> <span class="variable">initialValue</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicDouble</span>(snapshot);</span><br><span class="line">                meterRegistry.gauge(key.getName(), key.getTags(), initialValue);</span><br><span class="line">                <span class="keyword">return</span> initialValue;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                current.set(snapshot);</span><br><span class="line">                <span class="keyword">return</span> current;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">long</span> <span class="title function_">getThreadCPUTime</span><span class="params">(<span class="type">long</span> threadId)</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">time</span> <span class="operator">=</span> threadBean.getThreadCpuTime(threadId);</span><br><span class="line">        <span class="comment">/* thread of the specified ID is not alive or does not exist */</span></span><br><span class="line">        <span class="keyword">return</span> time == -<span class="number">1</span> ? <span class="number">0</span> : time;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="其他配置"><a href="#其他配置" class="headerlink" title="其他配置"></a>其他配置</h2><h3 id="依赖配置"><a href="#依赖配置" class="headerlink" title="依赖配置"></a>依赖配置</h3><p><code>pom</code>文件中</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.micrometer<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>micrometer-registry-prometheus<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Prometheus接口配置"><a href="#Prometheus接口配置" class="headerlink" title="Prometheus接口配置"></a>Prometheus接口配置</h3><p><code>application.yaml</code>中</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">management:</span></span><br><span class="line">  <span class="attr">endpoints:</span></span><br><span class="line">    <span class="attr">web:</span></span><br><span class="line">      <span class="attr">exposure:</span></span><br><span class="line">        <span class="attr">include:</span> <span class="string">health,info,prometheus</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>通过<code>curl</code>命令调用<code>curl localhost:20001/actuator/prometheus|grep cpu</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">jvm_threads_cpu&#123;threadName=&quot;RMI Scheduler(0)&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-10&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Signal Dispatcher&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Common-Cleaner&quot;,&#125; 3.1664628758074733E-7</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-Poller&quot;,&#125; 7.772143763853949E-5</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-Acceptor&quot;,&#125; 8.586978352515361E-5</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;DestroyJavaVM&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Monitor Ctrl-Break&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;AsyncHttpClient-timer-8-1&quot;,&#125; 2.524386571545477E-4</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Attach Listener&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;scheduling-1&quot;,&#125; 1.2269694160981585E-4</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;container-0&quot;,&#125; 1.999795692406262E-6</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-9&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-7&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-8&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-5&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Notification Thread&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-6&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-3&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-4&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Reference Handler&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-1&quot;,&#125; 0.0012674719289349648</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;http-nio-20001-exec-2&quot;,&#125; 6.542541277148053E-5</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;RMI TCP Connection(idle)&quot;,&#125; 1.3998786340454562E-6</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Finalizer&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Catalina-utility-2&quot;,&#125; 7.920883054498174E-5</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;RMI TCP Accept-0&quot;,&#125; 0.0</span><br><span class="line">jvm_threads_cpu&#123;threadName=&quot;Catalina-utility-1&quot;,&#125; 6.80101662787773E-5</span><br></pre></td></tr></table></figure>
-
-<h1 id="Java计算磁盘使用率"><a href="#Java计算磁盘使用率" class="headerlink" title="Java计算磁盘使用率"></a>Java计算磁盘使用率</h1><p><a target="_blank" rel="noopener" href="https://support.huaweicloud.com/bestpractice-bms/bms_bp_2009.html">https://support.huaweicloud.com/bestpractice-bms/bms_bp_2009.html</a></p>
-<p>华为云文档上的材料值得学习。</p>
-<p>翻阅资料</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://www.kernel.org/doc/Documentation/ABI/testing/procfs-diskstats</span><br><span class="line"></span><br><span class="line">13 - time spent doing I/Os (ms)</span><br></pre></td></tr></table></figure>
-
-<p>这就意味着如果我想统计一个磁盘在一定周期内的利用率，只需要对这两个数字做差，除以统计的间隔，即就是这段时间内磁盘的利用率</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/diskstats</span><br><span class="line"> 253       0 vda 24046 771 2042174 180187 20689748 21411881 527517532 18028256 0 14610513 18201352</span><br><span class="line"> 253       1 vda1 23959 771 2038022 180153 20683957 21411881 527517532 18028066 0 14610312 18201129</span><br></pre></td></tr></table></figure>
-
-<p>样例代码</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">package com.github.hezhangjian.demo.metrics;</span><br><span class="line"></span><br><span class="line">import com.github.hezhangjian.demo.base.module.ShellResult;</span><br><span class="line">import com.github.hezhangjian.demo.base.util.LogUtil;</span><br><span class="line">import com.github.hezhangjian.demo.base.util.ShellUtil;</span><br><span class="line">import com.github.hezhangjian.demo.base.util.StringUtil;</span><br><span class="line">import lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line">import java.util.concurrent.Executors;</span><br><span class="line">import java.util.concurrent.ScheduledExecutorService;</span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author hezhangjian</span><br><span class="line"> */</span><br><span class="line">@Slf4j</span><br><span class="line">public class DiskUtilizationMetrics &#123;</span><br><span class="line"></span><br><span class="line">    private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();</span><br><span class="line"></span><br><span class="line">    private static long lastTime = -1;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        LogUtil.configureLog();</span><br><span class="line">        String diskName = &quot;vda1&quot;;</span><br><span class="line">        scheduledExecutor.scheduleAtFixedRate(() -&gt; metrics(diskName), 0, 10, TimeUnit.SECONDS);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static void metrics(String diskName) &#123;</span><br><span class="line">        //假设统计vda磁盘</span><br><span class="line">        String[] cmd = &#123;</span><br><span class="line">                &quot;/bin/bash&quot;,</span><br><span class="line">                &quot;-c&quot;,</span><br><span class="line">                &quot;cat /proc/diskstats |grep &quot; + diskName + &quot;|awk &#x27;&#123;print $13&#125;&#x27;&quot;</span><br><span class="line">        &#125;;</span><br><span class="line">        ShellResult shellResult = ShellUtil.executeCmd(cmd);</span><br><span class="line">        String timeStr = shellResult.getInputContent().substring(0, shellResult.getInputContent().length() - 1);</span><br><span class="line">        long time = Long.parseLong(timeStr);</span><br><span class="line">        if (lastTime == -1) &#123;</span><br><span class="line">            log.info(&quot;first time cal, usage time is [&#123;&#125;]&quot;, time);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            double usage = (time - lastTime) / (double) 10_000;</span><br><span class="line">            log.info(&quot;usage time is [&#123;&#125;]&quot;, usage);</span><br><span class="line">        &#125;</span><br><span class="line">        lastTime = time;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h1 id="打印CPU使用"><a href="#打印CPU使用" class="headerlink" title="打印CPU使用"></a>打印CPU使用</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">printCpuUsage</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> com.sun.management.<span class="type">OperatingSystemMXBean</span> <span class="variable">platformMXBean</span> <span class="operator">=</span> ManagementFactory.getPlatformMXBean(com.sun.management.OperatingSystemMXBean.class);</span><br><span class="line">        <span class="type">double</span> <span class="variable">cpuLoad</span> <span class="operator">=</span> platformMXBean.getProcessCpuLoad();</span><br><span class="line">        System.out.println(cpuLoad);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="打印线程堆栈"><a href="#打印线程堆栈" class="headerlink" title="打印线程堆栈"></a>打印线程堆栈</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">printThreadDump</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">StringBuilder</span> <span class="variable">dump</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">ThreadMXBean</span> <span class="variable">threadMXBean</span> <span class="operator">=</span> ManagementFactory.getThreadMXBean();</span><br><span class="line">        <span class="comment">// 100代表线程堆栈的层级</span></span><br><span class="line">        <span class="keyword">final</span> ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), <span class="number">100</span>);</span><br><span class="line">        <span class="keyword">for</span> (ThreadInfo threadInfo : threadInfos) &#123;</span><br><span class="line">            dump.append(<span class="string">&#x27;&quot;&#x27;</span>);</span><br><span class="line">            dump.append(threadInfo.getThreadName());</span><br><span class="line">            dump.append(<span class="string">&quot;\&quot; &quot;</span>);</span><br><span class="line">            <span class="keyword">final</span> Thread.<span class="type">State</span> <span class="variable">state</span> <span class="operator">=</span> threadInfo.getThreadState();</span><br><span class="line">            dump.append(<span class="string">&quot;\n   java.lang.Thread.State: &quot;</span>);</span><br><span class="line">            dump.append(state);</span><br><span class="line">            <span class="keyword">final</span> StackTraceElement[] stackTraceElements = threadInfo.getStackTrace();</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">final</span> StackTraceElement stackTraceElement : stackTraceElements) &#123;</span><br><span class="line">                dump.append(<span class="string">&quot;\n        at &quot;</span>);</span><br><span class="line">                dump.append(stackTraceElement);</span><br><span class="line">            &#125;</span><br><span class="line">            dump.append(<span class="string">&quot;\n\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(dump);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="打印内存统计信息"><a href="#打印内存统计信息" class="headerlink" title="打印内存统计信息"></a>打印内存统计信息</h1><p>引入依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.jerolba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jmnemohistosyne<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.2.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">printClassHisto</span><span class="params">()</span> &#123;</span><br><span class="line">       <span class="type">Histogramer</span> <span class="variable">histogramer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Histogramer</span>();</span><br><span class="line">       <span class="type">MemoryHistogram</span> <span class="variable">histogram</span> <span class="operator">=</span> histogramer.createHistogram();</span><br><span class="line"></span><br><span class="line">       <span class="type">HistogramEntry</span> <span class="variable">arrayList</span> <span class="operator">=</span> histogram.get(<span class="string">&quot;java.util.ArrayList&quot;</span>);</span><br><span class="line">       System.out.println(arrayList.getInstances());</span><br><span class="line">       System.out.println(arrayList.getSize());</span><br><span class="line"></span><br><span class="line">       <span class="keyword">for</span> (HistogramEntry entry : histogram) &#123;</span><br><span class="line">           System.out.println(entry);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="打印死锁"><a href="#打印死锁" class="headerlink" title="打印死锁"></a>打印死锁</h1><p>javadoc中指出，这是一个开销较大的操作</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">printDeadLock</span><span class="params">()</span> &#123;</span><br><span class="line">       <span class="keyword">final</span> <span class="type">ThreadMXBean</span> <span class="variable">threadMXBean</span> <span class="operator">=</span> ManagementFactory.getThreadMXBean();</span><br><span class="line">       <span class="keyword">final</span> <span class="type">long</span>[] deadlockedThreads = threadMXBean.findDeadlockedThreads();</span><br><span class="line">       <span class="keyword">for</span> (<span class="type">long</span> deadlockedThread : deadlockedThreads) &#123;</span><br><span class="line">           <span class="keyword">final</span> <span class="type">ThreadInfo</span> <span class="variable">threadInfo</span> <span class="operator">=</span> threadMXBean.getThreadInfo(deadlockedThread);</span><br><span class="line">           System.out.println(threadInfo + <span class="string">&quot;deadLocked&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/09/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%98%AF%E5%BC%80%E7%AE%B1%E5%8D%B3%E7%94%A8%E7%9A%84%E5%90%97%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%BC%80%E5%8F%91%E4%B8%AD%E9%97%B4%E4%BB%B6adapter%EF%BC%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/middleware-adapter-paradigm" class="post-title-link post-title-link-external" itemprop="url">中间件是开箱即用的吗？为什么要开发中间件adapter？<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-09 17:37:59" itemprop="dateCreated datePublished" datetime="2021-08-09T17:37:59+08:00">2021-08-09</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="中间件在很多系统中都存在"><a href="#中间件在很多系统中都存在" class="headerlink" title="中间件在很多系统中都存在"></a>中间件在很多系统中都存在</h2><p>在一个系统里面，或多或少地都会有中间件的存在，总会有数据库吧，其他的如消息队列，缓存，大数据组件。即使是基于公有云构筑的系统，公有云厂商只提供广泛使用的中间件，假如你的系统里面有很多组件没那么泛用，那么就只能自己维护，如<code>ZooKeeper</code>、<code>Etcd</code>、<code>Pulsar</code>、<code>Prometheus</code>、<code>Lvs</code>等</p>
-<h2 id="什么是中间件adapter"><a href="#什么是中间件adapter" class="headerlink" title="什么是中间件adapter"></a>什么是中间件adapter</h2><p>中间件<code>adapter</code>指的是和中间件运行在一起（同一个物理机或同一个容器），使得中间件和商用系统中已有的组件进行对接，最终使得该中间件达到在该系统商用的标准。像Prometheus的众多<code>exporter</code>，就是将中间件和已有的监控系统（Prometheus）进行对接的<code>adpater</code>。</p>
-<h2 id="为什么不修改中间件源码直接集成"><a href="#为什么不修改中间件源码直接集成" class="headerlink" title="为什么不修改中间件源码直接集成"></a>为什么不修改中间件源码直接集成</h2><p>原因可以有很多，这里我列出几点</p>
-<h3 id="源码修改容易，维护困难"><a href="#源码修改容易，维护困难" class="headerlink" title="源码修改容易，维护困难"></a>源码修改容易，维护困难</h3><p>很多时候不是社区通用需求，无法合并到社区主干。后续每次中间件版本升级，源码的修改就要重新进行一次。社区大版本代码重构，有的甚至不知道如何修改下去。并且对研发人员的技能要求高。</p>
-<h3 id="源码与团队技术栈不同，修改困难"><a href="#源码与团队技术栈不同，修改困难" class="headerlink" title="源码与团队技术栈不同，修改困难"></a>源码与团队技术栈不同，修改困难</h3><p>这是最常见的，像<code>java</code>团队维护<code>erlang</code>写的<code>rabbitmq</code></p>
-<h3 id="和其他系统对接，有语言要求"><a href="#和其他系统对接，有语言要求" class="headerlink" title="和其他系统对接，有语言要求"></a>和其他系统对接，有语言要求</h3><p>XX监控系统，只能使用X语言接入，但中间件使用Y语言写的，怎么办？adapter的能力就体现出来了。</p>
-<h2 id="为什么在商用系统中中间件做不到开箱即用"><a href="#为什么在商用系统中中间件做不到开箱即用" class="headerlink" title="为什么在商用系统中中间件做不到开箱即用"></a>为什么在商用系统中中间件做不到开箱即用</h2><p>在商用系统中，对一个新引入的中间件，往往有如下能力上的诉求，原生的中间件很难满足</p>
-<ul>
-<li>适配原有的监控系统</li>
-<li>适配原有的告警系统</li>
-<li>适配原有的证书系统</li>
-<li>适配原有的备份系统（如果该中间件有状态）</li>
-<li>适配原有的容灾系统（如果该中间件有状态）</li>
-<li>自动化能力（适配部署、账号创建、权限策略创建）</li>
-<li>对外暴露时封装一层接口</li>
-<li>应用程序和中间件的服务发现</li>
-</ul>
-<p>有时候，业务也会根据业务的需求对中间件做一些能力增强，这部分需求比较定制，这里无法展开讨论了。</p>
-<p>我们来逐一讨论上面列出的能力诉求，凡是<code>adapter</code>能实现的功能，对中间件做修改也能实现，只不过因为上一节列出的原因，选择不在中间件处侵入式修改。</p>
-<h2 id="适配原有的监控系统"><a href="#适配原有的监控系统" class="headerlink" title="适配原有的监控系统"></a>适配原有的监控系统</h2><p>监控系统获取数据，往往是推拉两种模式，如果该中间件原生不支持和该监控系统对接。我们就可以让<code>adapter</code>先从中间件处取得监控数据，再和监控系统对接</p>
-<h2 id="适配原有的告警系统"><a href="#适配原有的告警系统" class="headerlink" title="适配原有的告警系统"></a>适配原有的告警系统</h2><p>如果中间件发生了不可恢复的错误，如写事务文件失败，操作ZooKeeper元数据失败，可以通过<code>adapter</code>来识别中间件是否发生了上述不可恢复的错误，并和告警系统对接，发出告警。</p>
-<h2 id="适配原有的证书系统"><a href="#适配原有的证书系统" class="headerlink" title="适配原有的证书系统"></a>适配原有的证书系统</h2><p>这一点也很关键，开源的中间件，根据我的了解，几乎没有项目做了动态证书轮换的方案，证书基本都不支持变更。而出色的商用系统是一定要支持证书轮换的。不过很遗憾的是，这些涉及到TLS握手的关键流程，<code>adapter</code>无法干涉这个流程，只能对中间件进行侵入式修改。</p>
-<h2 id="适配原有的备份系统"><a href="#适配原有的备份系统" class="headerlink" title="适配原有的备份系统"></a>适配原有的备份系统</h2><p>通过<code>adapter</code>对中间件进行定期备份、按照配置中心的策略备份、备份文件自动上传到文件服务器等。</p>
-<h2 id="适配原有的容灾系统"><a href="#适配原有的容灾系统" class="headerlink" title="适配原有的容灾系统"></a>适配原有的容灾系统</h2><p>这个视中间件而定，有些中间件如<code>Pulsar</code>原生支持跨地域容灾的话，我们可能做一做配置就好了。另外一些，像<code>mysql</code>和<code>mongo</code>这种，可能我们还需要通过<code>adapter</code>来进行数据同步。不过这个时候<code>adapter</code>负责的职责就大了，还包括了容灾能力。</p>
-<h2 id="自动化能力"><a href="#自动化能力" class="headerlink" title="自动化能力"></a>自动化能力</h2><h3 id="自动化部署"><a href="#自动化部署" class="headerlink" title="自动化部署"></a>自动化部署</h3><p>比如<code>ZooKeeper</code>、<code>Kafka</code>、<code>filebeat</code>在安装的时候，要求填写配置文件，我们就可以让<code>adapter</code>来自动化生成配置或更新配置</p>
-<h3 id="账号和策略的创建更新"><a href="#账号和策略的创建更新" class="headerlink" title="账号和策略的创建更新"></a>账号和策略的创建更新</h3><p>像<code>kubernetes</code>、<code>mysql</code>、<code>mongo</code>，我们可以在安装的时候通过<code>adapter</code>来自动化创建或更新</p>
-<h2 id="对外暴露时封装一层接口"><a href="#对外暴露时封装一层接口" class="headerlink" title="对外暴露时封装一层接口"></a>对外暴露时封装一层接口</h2><p>封装接口常用于中间件的提供者，出于种种原因，如中间件原本接口能力太大、中间件原本接口未做权限控制、中间件原本接口未适配期望的权限框架等。我们可以用<code>adapter</code>封装实现一层新的接口对外暴露。</p>
-<h2 id="应用程序和中间件的服务发现"><a href="#应用程序和中间件的服务发现" class="headerlink" title="应用程序和中间件的服务发现"></a>应用程序和中间件的服务发现</h2><h3 id="应用程序发现中间件"><a href="#应用程序发现中间件" class="headerlink" title="应用程序发现中间件"></a>应用程序发现中间件</h3><p>应用程序与中间件的连接，说的简单一点就是如何获取<code>Ip</code>，如果是基于kubernetes的部署，那么不推荐配置<code>Ip</code>，最好是配置域名，因为<code>Ip</code>会跟着容器的生命周期变化。首先，你的应用程序并不会因为中间件的一个容器重启了来重建客户端，往往是通过一个简单重连的方式连接到新的中间件容器继续工作。其次，我们的运维人员也不会每时每刻盯着容器Ip是否变化来进行配置吧。以下图为例，域名的配置要优于Ip的配置。</p>
-<p><img src="/Images/application-discover-middleware.png" alt="application-discover-middleware"></p>
-<p>截止到目前，我们只需要一个静态配置，使得应用程序可以连接到中间件。最好这个配置是可以修改的，这样我们还可以继承蓝绿、灰度发布的能力。</p>
-<h3 id="中间件到业务程序的发现"><a href="#中间件到业务程序的发现" class="headerlink" title="中间件到业务程序的发现"></a>中间件到业务程序的发现</h3><p>这个模式常用于负载均衡中间件如<code>Lvs</code>、<code>Nginx</code>自动维护后端列表，我们可以通过<code>adapter</code>来从注册中心获取后端服务的实例信息，并实时更新。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在商用系统中，中间件并没有想象中的那么开箱即用，本文讲述了一些中间件集成到商用系统中需要具备的能力。在对中间件侵入式修改没有技术能力或不想对中间件进行侵入式修改的场景。选用团队常用的、占用资源少的语言来开发中间件<code>adapter</code>应该是更好的选择。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/02/Flutter%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%92%8C%E6%8A%80%E5%B7%A7%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/08/02/Flutter%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%92%8C%E6%8A%80%E5%B7%A7%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/" class="post-title-link" itemprop="url">Flutter最佳实践和技巧【翻译】</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-02 19:11:21" itemprop="dateCreated datePublished" datetime="2021-08-02T19:11:21+08:00">2021-08-02</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-10-27 07:45:10" itemprop="dateModified" datetime="2025-10-27T07:45:10+08:00">2025-10-27</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>翻译自 <a target="_blank" rel="noopener" href="https://medium.com/flutter-community/flutter-best-practices-and-tips-7c2782c9ebb5">https://medium.com/flutter-community/flutter-best-practices-and-tips-7c2782c9ebb5</a></p>
-<p>最佳实践是一个领域内可接受的专业标准，对于任何编程语言来说，提高代码质量、可读性、可维护性和健壮性都非常重要。<br>这是一些设计和开发 Flutter 应用程序的最佳实践。</p>
-<h2 id="命名规范"><a href="#命名规范" class="headerlink" title="命名规范"></a>命名规范</h2><p>类名、枚举、<code>typedef</code>、扩展名应该使用大驼峰命名方式</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MainScreen</span> </span>&#123; ... &#125;</span><br><span class="line"><span class="keyword">enum</span> MainItem &#123; .. &#125;</span><br><span class="line"><span class="keyword">typedef</span> Predicate&lt;T&gt; = <span class="built_in">bool</span> <span class="built_in">Function</span>(T value);</span><br><span class="line"><span class="keyword">extension</span> MyList&lt;T&gt; <span class="keyword">on</span> <span class="built_in">List</span>&lt;T&gt; &#123; ... &#125;</span><br></pre></td></tr></table></figure>
-
-<p>libraries、包、目录、源文件名采用蛇形命名。</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span> firebase_dynamic_links;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;socket/socket_manager.dart&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<p>变量、参数等使用蛇形命名</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> item;</span><br><span class="line"><span class="keyword">const</span> bookPrice = <span class="number">3.14</span>;</span><br><span class="line"><span class="keyword">final</span> urlScheme = <span class="built_in">RegExp</span>(<span class="string">&#x27;^([a-z]+):&#x27;</span>);</span><br><span class="line"><span class="keyword">void</span> sum(<span class="built_in">int</span> bookPrice) &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="总是指定变量类型"><a href="#总是指定变量类型" class="headerlink" title="总是指定变量类型"></a>总是指定变量类型</h2><p>如果已经知道变量值的类型，那么应该指定变量的类型，尽量避免使用<code>var</code></p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> item = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">final</span> car = Car();</span><br><span class="line"><span class="keyword">const</span> timeOut = <span class="number">2000</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="built_in">int</span> item = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">final</span> Car bar = Car();</span><br><span class="line"><span class="built_in">String</span> name = <span class="string">&#x27;john&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="built_in">int</span> timeOut = <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="尽量用is替代as"><a href="#尽量用is替代as" class="headerlink" title="尽量用is替代as"></a>尽量用<code>is</code>替代<code>as</code></h2><p><code>as</code>运算符会在无法进行类型转换的时候抛出异常，为了避免抛出异常，使用<code>is</code>操作符</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line">(item <span class="keyword">as</span> Animal).name = <span class="string">&#x27;Lion&#x27;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">if</span> (item <span class="keyword">is</span> Animal)</span><br><span class="line">  item.name = <span class="string">&#x27;Lion&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用-和-操作符"><a href="#使用-和-操作符" class="headerlink" title="使用??和?.操作符"></a>使用<code>??</code>和<code>?.</code>操作符</h2><p>尽量使用<code>??</code>和<code>?.</code>操作符替代<code>if-null</code>检测</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line">v = a == <span class="keyword">null</span> ? b : a;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line">v = a ?? b;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line">v = a == <span class="keyword">null</span> ? <span class="keyword">null</span> : a.b;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line">v = a?.b;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用扩散集合（Spread-Collections）"><a href="#使用扩散集合（Spread-Collections）" class="headerlink" title="使用扩散集合（Spread Collections）"></a>使用扩散集合（Spread Collections）</h2><p>当items已经存在另外的集合中时，扩展集合语法可以简化代码</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> y = [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>];</span><br><span class="line"><span class="keyword">var</span> x = [<span class="number">1</span>,<span class="number">2</span>];</span><br><span class="line">x.addAll(y);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">var</span> y = [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>];</span><br><span class="line"><span class="keyword">var</span> x = [<span class="number">1</span>,<span class="number">2</span>,...y];</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用级联操作符"><a href="#使用级联操作符" class="headerlink" title="使用级联操作符"></a>使用级联操作符</h2><p>在同一Object上的连续操作可以使用级联操作符<code>..</code></p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> path = Path();</span><br><span class="line">path.lineTo(<span class="number">0</span>, size.height);</span><br><span class="line">path.lineTo(size.width, size.height);</span><br><span class="line">path.lineTo(size.width, <span class="number">0</span>);</span><br><span class="line">path.close();  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Do</span></span><br><span class="line"><span class="keyword">var</span> path = Path()</span><br><span class="line">..lineTo(<span class="number">0</span>, size.height)</span><br><span class="line">..lineTo(size.width, size.height)</span><br><span class="line">..lineTo(size.width, <span class="number">0</span>)</span><br><span class="line">..close(); </span><br></pre></td></tr></table></figure>
-
-<h2 id="使用原生字符串（Raw-Strings）"><a href="#使用原生字符串（Raw-Strings）" class="headerlink" title="使用原生字符串（Raw Strings）"></a>使用原生字符串（Raw Strings）</h2><p>原生字符串可以不对<code>$</code>和<code>\</code>进行转义</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> s = <span class="string">&#x27;This is demo string \\ and \$&#x27;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">var</span> s = <span class="string">r&#x27;This is demo string \ and $&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="不要使用null显示初始化变量"><a href="#不要使用null显示初始化变量" class="headerlink" title="不要使用null显示初始化变量"></a>不要使用<code>null</code>显示初始化变量</h2><p>dart中的变量默认会被初始化为<code>null</code>，设置初始值为<code>null</code>是多余且不必要的。</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="built_in">int</span> _item = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="built_in">int</span> _item;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用表达式函数体"><a href="#使用表达式函数体" class="headerlink" title="使用表达式函数体"></a>使用表达式函数体</h2><p>对于只有一个表达式的函数，你可以使用表达式函数。<code>=&gt;</code>标记着表达式函数。</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">get</span> width &#123;</span><br><span class="line">  <span class="keyword">return</span> right - left;</span><br><span class="line">&#125;</span><br><span class="line">Widget getProgressBar() &#123;</span><br><span class="line">  <span class="keyword">return</span> CircularProgressIndicator(</span><br><span class="line">    valueColor: AlwaysStoppedAnimation&lt;Color&gt;(Colors.blue),</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">get</span> width =&gt; right - left;</span><br><span class="line">Widget getProgressBar() =&gt; CircularProgressIndicator(</span><br><span class="line">      valueColor: AlwaysStoppedAnimation&lt;Color&gt;(Colors.blue),</span><br><span class="line">    );</span><br></pre></td></tr></table></figure>
-
-<h2 id="避免调用print-函数"><a href="#避免调用print-函数" class="headerlink" title="避免调用print()函数"></a>避免调用<code>print()</code>函数</h2><p><code>print()</code>和<code>debugPrint()</code>都用来向控制台打印消息。在<code>print()</code>函数中，如果输出过大，那么<code>Android</code>系统可能会丢弃一些日志。这种情况下，你可以使用<code>debugPrint</code>。</p>
-<h2 id="使用插值法来组织字符串"><a href="#使用插值法来组织字符串" class="headerlink" title="使用插值法来组织字符串"></a>使用插值法来组织字符串</h2><p>使用插值法组织字符串相对于用<code>+</code>拼接会让字符串更整洁、更短。</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don’t</span></span><br><span class="line"><span class="keyword">var</span> description = <span class="string">&#x27;Hello, &#x27;</span> + name + <span class="string">&#x27;! You are &#x27;</span> + (year - birth).toString() + <span class="string">&#x27; years old.&#x27;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Do</span></span><br><span class="line"><span class="keyword">var</span> description = <span class="string">&#x27;Hello, <span class="subst">$name</span>! You are <span class="subst">$&#123;year - birth&#125;</span> years old.&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用async-await而不是滥用future-callback"><a href="#使用async-await而不是滥用future-callback" class="headerlink" title="使用async&#x2F;await而不是滥用future callback"></a>使用async&#x2F;await而不是滥用future callback</h2><p>异步代码难以阅读和调试，<code>async</code>和<code>await</code>语法增强了可读性</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Don’t</span></span><br><span class="line">Future&lt;<span class="built_in">int</span>&gt; countActiveUser() &#123;</span><br><span class="line">  <span class="keyword">return</span> getActiveUser().then((users) &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> users?.length ?? <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  &#125;).catchError((e) &#123;</span><br><span class="line">    log.error(e);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Do</span></span><br><span class="line">Future&lt;<span class="built_in">int</span>&gt; countActiveUser() <span class="keyword">async</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> users = <span class="keyword">await</span> getActiveUser();</span><br><span class="line">     </span><br><span class="line">    <span class="keyword">return</span> users?.length ?? <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    log.error(e);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="在widget中使用const"><a href="#在widget中使用const" class="headerlink" title="在widget中使用const"></a>在<code>widget</code>中使用<code>const</code></h2><p>如果我们把<code>widget</code>定义为<code>const</code>，那么该<code>widget</code>在<code>setState</code>的时候不会重建。通过避免重建来提升性能</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Container(</span><br><span class="line">      padding: <span class="keyword">const</span> EdgeInsets.only(top: <span class="number">10</span>),</span><br><span class="line">      color: Colors.black,</span><br><span class="line">      child: <span class="keyword">const</span> Center(</span><br><span class="line">        child: <span class="keyword">const</span> Text(</span><br><span class="line">          <span class="string">&quot;No Data found&quot;</span>,</span><br><span class="line">          style: <span class="keyword">const</span> TextStyle(fontSize: <span class="number">30</span>, fontWeight: FontWeight.w800),</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/9/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -1200,7 +1155,7 @@
 
   <div class="copyright">
     &copy; 
-    <span itemprop="copyrightYear">2025</span>
+    <span itemprop="copyrightYear">2026</span>
     <span class="with-love">
       <i class="fa fa-heart"></i>
     </span>
