@@ -222,7 +222,8 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/04/15/%E5%A6%82%E4%BD%95%E8%AE%A9AI%E7%9C%9F%E6%AD%A3%E6%9B%BF%E4%BD%A0%E5%B9%B2%E6%B4%BB%EF%BC%9AAgent%20+%20PARA%20%E7%9A%84%E4%B8%80%E5%A5%97%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">未命名</a>
+          <a href="/agent-para" class="post-title-link post-title-link-external" itemprop="url">如何让AI真正替你干活：Agent + PARA 的一套工程化实践<i class="fa fa-external-link-alt"></i></a>
+          
         </h2>
 
         <div class="post-meta-container">
@@ -240,7 +241,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:21:19" itemprop="dateModified" datetime="2026-04-23T13:21:19+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
     </span>
 
   
@@ -259,7 +260,7 @@
 <p>而程序员的情况不同：<strong>代码不是最终交付件，系统才是。</strong></p>
 <p>代码只是中间产物，它需要：运行、集成、部署、监控、演进。这一整条链路还没有完全“标准化交付”，所以替代速度较慢。</p>
 <p>那么结论其实很自然，个人提效的关键就在：让AI Agent直接生成交付件，这个交付件一定要是可通过迭代提示词、上下文不断优化的，最好这个产物是可编辑的（Markdown、Excel、Html），最后一公里的时候人可以做一定的修改。我在2月27日的朋友圈里也表达了类似的观点。</p>
-<p><img src="/Images/%E4%BD%BF%E7%94%A8Agent+PARA%E6%8F%90%E5%8D%87%E4%B8%AA%E4%BA%BA%E5%B7%A5%E4%BD%9C%E6%95%88%E7%8E%87-1.png"></p>
+<p><img src="/Images/agent-para1.png"></p>
 <p>那么怎么更好地让AI Agent生成工作中用的交付件呢，我目前的实践是 <strong>Agent+MCP+SKILLS+PARA</strong>。Agent 负责执行，MCP 连接外部世界，SKILLS 提供可复用能力，PARA 提供稳定上下文，我们一个一个解释。</p>
 <h1 id="Agent-MCP"><a href="#Agent-MCP" class="headerlink" title="Agent+MCP"></a>Agent+MCP</h1><p>Agent毋庸多说，相比于只能对话的LLM，是一个围绕目标，能够多步执行、调用工具并持续迭代的执行单元。Ask模式（只跟AI对话）是没法更进一步地提效的。</p>
 <h1 id="SKILLS"><a href="#SKILLS" class="headerlink" title="SKILLS"></a>SKILLS</h1><p>SKILLS可以理解为一组可复用的能力模板（Prompt + Tool + Workflow 的组合）。例如</p>
@@ -271,7 +272,7 @@
 </ul>
 <h1 id="PARA"><a href="#PARA" class="headerlink" title="PARA"></a>PARA</h1><p>对于Agent来说，与其给 AI 造新工具，不如给它一个它已经「会用」的旧接口。在于 LLM 的训练数据。LLM在训练阶段已经看过了很多文件系统的操作，grep、ls、find等等。LLM会非常善于在文件系统里探索他想用的内容，而不是拼凑一个高度定义的DSL。</p>
 <p>PARA呢，和文件系统强强联合，给Agent提供了一个稳定、可理解的上下文环境。</p>
-<p><img src="/Images/%E4%BD%BF%E7%94%A8Agent+PARA%E6%8F%90%E5%8D%87%E4%B8%AA%E4%BA%BA%E5%B7%A5%E4%BD%9C%E6%95%88%E7%8E%87-2.png"></p>
+<p><img src="/Images/agent-para2.png"></p>
 <h1 id="个人实践案例"><a href="#个人实践案例" class="headerlink" title="个人实践案例"></a>个人实践案例</h1><h2 id="我的PARA目录"><a href="#我的PARA目录" class="headerlink" title="我的PARA目录"></a>我的PARA目录</h2><p>PARA是一个指导原则，每个人的PARA都可以有一些定义，比如我的PARA目录是这样子的，适配了我平时使用的OneDrive(它会强制有一些顶层文件夹，我自认为巧妙地利用起来了)，同时我还有把一些作为Blogs发布的诉求。同时也放了一些<code>README.md</code>、<code>About.md</code> 方便Agent读取。</p>
 <p>如果大家感兴趣的话，我可以单独写一个文章介绍一下。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">生活/</span><br><span class="line">Archive/</span><br><span class="line">Areas/</span><br><span class="line">Attachments/</span><br><span class="line">Blog/</span><br><span class="line">Documents/</span><br><span class="line">Projects/</span><br><span class="line">Resources/</span><br><span class="line">Software/</span><br><span class="line">About.md</span><br><span class="line">README.md</span><br></pre></td></tr></table></figure>
@@ -387,7 +388,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:21:19" itemprop="dateModified" datetime="2026-04-23T13:21:19+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
     </span>
 
   
@@ -476,7 +477,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:21:19" itemprop="dateModified" datetime="2026-04-23T13:21:19+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
     </span>
 
   
@@ -588,7 +589,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:21:19" itemprop="dateModified" datetime="2026-04-23T13:21:19+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
     </span>
 
   
@@ -682,7 +683,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:21:19" itemprop="dateModified" datetime="2026-04-23T13:21:19+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
     </span>
 
   
@@ -785,7 +786,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:21:19" itemprop="dateModified" datetime="2026-04-23T13:21:19+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
     </span>
 
   
@@ -901,7 +902,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:21:19" itemprop="dateModified" datetime="2026-04-23T13:21:19+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
     </span>
 
   
@@ -1020,7 +1021,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:21:19" itemprop="dateModified" datetime="2026-04-23T13:21:19+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
     </span>
 
   
@@ -1111,7 +1112,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:21:19" itemprop="dateModified" datetime="2026-04-23T13:21:19+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
     </span>
 
   
@@ -1295,7 +1296,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:21:19" itemprop="dateModified" datetime="2026-04-23T13:21:19+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
     </span>
 
   
