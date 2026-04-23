@@ -1,4 +1,6 @@
 ---
+title: 如何让AI真正替你干活：Agent + PARA 的一套工程化实践
+link: agent-para
 date: 2026-04-15 20:35:09
 tags:
 ---
@@ -14,7 +16,7 @@ AI已经极大程度地更改、影响了这个世界的走向，我们可以看
 
 那么结论其实很自然，个人提效的关键就在：让AI Agent直接生成交付件，这个交付件一定要是可通过迭代提示词、上下文不断优化的，最好这个产物是可编辑的（Markdown、Excel、Html），最后一公里的时候人可以做一定的修改。我在2月27日的朋友圈里也表达了类似的观点。
 
-![](Images/使用Agent+PARA提升个人工作效率-1.png)
+![](Images/agent-para1.png)
 
 那么怎么更好地让AI Agent生成工作中用的交付件呢，我目前的实践是 **Agent+MCP+SKILLS+PARA**。Agent 负责执行，MCP 连接外部世界，SKILLS 提供可复用能力，PARA 提供稳定上下文，我们一个一个解释。
 # Agent+MCP
@@ -36,7 +38,7 @@ SKILLS可以理解为一组可复用的能力模板（Prompt + Tool + Workflow �
 
 PARA呢，和文件系统强强联合，给Agent提供了一个稳定、可理解的上下文环境。
 
-![](Images/使用Agent+PARA提升个人工作效率-2.png)
+![](Images/agent-para2.png)
 
 # 个人实践案例
 
