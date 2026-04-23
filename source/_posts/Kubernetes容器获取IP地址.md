@@ -53,7 +53,7 @@ ifconfig eth0 | grep 'inet\b' | awk '{print $2}' | cut -d/ -f1
 
 同样需要使用**inet\b**，不要使用**inet**
 
-## TLDR
+## TL;DR
 
 优先配置如下yaml进行环境变量注入，其次使用**ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1**命令获取
 

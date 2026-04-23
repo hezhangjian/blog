@@ -9,7 +9,7 @@ tags:
 
 https://golang.org/ref/mem
 
-## TLDR
+## TL;DR
 
 - 协程之间的数据可见性满足HappensBefore法则，并具有传递性
 - 如果包 p 导入包 q，则 q 的 init 函数的完成发生在任何 p 的操作开始之前

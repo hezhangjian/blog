@@ -9,7 +9,7 @@ tags:
 
 记一次中文指标乱码问题，问题也很简单，如下图所示：
 
-![Untitled](Images/20230603p1.png)
+![metrics beat collect http server metrics](Images/20230603p1.png)
 
 从metricbeat开始找原因，发现其实只要是UTF-8的编码格式就都可以解析，最终发现是webServer返回的数据非UTF-8格式，修改方案也很简单。将servlet中的content-type里面的**text/plain**修改成**text/plain; charset=utf-8**就可以了，如下面代码所示:
 
