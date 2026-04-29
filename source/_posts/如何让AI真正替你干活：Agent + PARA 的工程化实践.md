@@ -1,5 +1,5 @@
 ---
-title: 如何让AI真正替你干活：Agent + PARA 的一套工程化实践
+title: 如何让AI真正替你干活：Agent + PARA 的工程化实践
 link: agent-para
 date: 2026-04-15 20:35:09
 tags:
