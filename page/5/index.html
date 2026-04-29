@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">140</span>
+          <span class="site-state-item-count">141</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,91 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/09/19/macOS%E4%B8%8Azip%E6%96%87%E4%BB%B6%E9%87%8C%E9%9D%A2%E7%9A%84__MACOS%E6%96%87%E4%BB%B6%E5%A4%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/09/19/macOS%E4%B8%8Azip%E6%96%87%E4%BB%B6%E9%87%8C%E9%9D%A2%E7%9A%84__MACOS%E6%96%87%E4%BB%B6%E5%A4%B9/" class="post-title-link" itemprop="url">macOS上zip文件里面的__MACOS文件夹</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-09-19 12:38:33" itemprop="dateCreated datePublished" datetime="2023-09-19T12:38:33+08:00">2023-09-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="MACOS文件夹介绍"><a href="#MACOS文件夹介绍" class="headerlink" title="__MACOS文件夹介绍"></a>__MACOS文件夹介绍</h2><p>在 macOS 系统上创建 ZIP 文件时，系统会自动添加一些额外的信息，这些信息被储存在一个隐藏的文件夹中，名为 <strong><code>__MACOSX</code></strong>。这个文件夹中包含的数据用来存储文件的一系列属性和资源叉信息。</p>
+<ul>
+<li><strong>元数据</strong>: 元数据是描述其他数据的数据。在 macOS 中，文件元数据可以包括文件的创建和修改时间，文件的权限，标签和更多。</li>
+<li><strong>资源叉 (Resource Forks)</strong>: 资源叉是 Apple 文件系统中一个特殊的结构，它可以存储文件的图标，预览图片和其他与文件相关的属性。资源叉信息使文件能够保持其特有的视觉和功能属性，即使它们被移动到新的位置或被编辑。</li>
+</ul>
+<p>macOS 创建 <strong><code>__MACOSX</code></strong> 文件夹的原因是为了保留文件的原始属性和资源叉信息。当您在另一台运行 macOS 的计算机上解压这个 ZIP 文件时，所有的文件都会保持其原始的属性和设置，提供一个无缝的用户体验。</p>
+<p>然而，这种机制有一个缺点: 当 ZIP 文件被解压到非 macOS 系统（例如 Windows 或 Linux）上时，<strong><code>__MACOSX</code></strong> 文件夹会显得多余，因为这些系统不使用 macOS 的文件元数据和资源叉信息。</p>
+<h2 id="避免创建不包含-MACOSX文件夹的zip文件"><a href="#避免创建不包含-MACOSX文件夹的zip文件" class="headerlink" title="避免创建不包含__MACOSX文件夹的zip文件"></a>避免创建不包含__MACOSX文件夹的zip文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zip -r -X archive.zip FolderName/</span><br></pre></td></tr></table></figure>
+
+<p>这个zip文件，不会包含 <strong><code>__MACOSX</code></strong> 文件夹。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +326,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -352,7 +437,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -459,7 +544,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -540,7 +625,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -687,7 +772,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -797,7 +882,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -880,7 +965,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -962,7 +1047,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1040,7 +1125,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1085,115 +1170,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/06/01/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%BC%8F%E5%AE%9E%E8%B7%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/06/01/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%BC%8F%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">微服务广播模式实践</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-06-01 23:19:45" itemprop="dateCreated datePublished" datetime="2023-06-01T23:19:45+08:00">2023-06-01</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>微服务广播模式，指的是在微服务多实例部署的场景下，将消息广播到多个微服务实例的一种模式。</p>
-<p><img src="/Images/20230601p1.png" alt="Untitled"></p>
-<p>广播模式，一般用来维护微服务的内存数据，根据数据类型的不同，有助于解决两类问题。通常广播模式会使用支持发布订阅的消息中间件实现（如Redis、Kafka、Pulsar等），本文也基于消息中间件进行讨论。</p>
-<h2 id="利用广播模式维护一致的缓存"><a href="#利用广播模式维护一致的缓存" class="headerlink" title="利用广播模式维护一致的缓存"></a>利用广播模式维护一致的缓存</h2><p>这应该是广播模式利用最多的一种场景，假想一个拥有海量用户的电商网站、或是一个亿级设备连接的IoT平台。势必会存在一些缓存数据，像是用户的购物车信息，或是设备的密钥缓存。如果没有广播模式，可能会存在这样的问题</p>
-<p><img src="/Images/20230601p2.png" alt="Untitled"></p>
-<p>当用户更新了它的购物车之后，微服务实例1的数据发生了更新，数据库的数据也成功更新。但是微服务实例2中的缓存数据未能更新，那么如果用户的请求均衡到了实例2，就会发生意想不到的后果。</p>
-<p>这种情况下我们可以让微服务1在广播通道中发送一个缓存的invalidate消息，将微服务实例2中该用户的缓存清零，使得微服务实例2在下一次处理该用户的请求时，从数据库中读取最新的消息。</p>
-<p>使用该模式需要注意的点：</p>
-<ul>
-<li>每个微服务实例应该使用不同的消费组，可以通过微服务的IP、主机名、UUID等拼装成订阅组名称，这才称得上广播之名</li>
-<li>微服务消费消息的时候，应从Latest开始消费，避免从Earliest开始消费无用的缓存清理消息</li>
-<li>由于每一次微服务重启都会产生一个新的消费组，需要注意消费组的老化，可以通过消息中间件自带的不活跃消费组老化能力兜底，建议通过gracefulExit、监听kill信号等机制来主动删除消费组信息</li>
-</ul>
-<p>为什么说消费组老化比较重要呢，因为很多监控系统都会根据消费组的积压来做告警，很容易产生误告警。</p>
-<h2 id="利用广播模式维护内存中的数据"><a href="#利用广播模式维护内存中的数据" class="headerlink" title="利用广播模式维护内存中的数据"></a>利用广播模式维护内存中的数据</h2><p>这种模式相对比较少见，常见于key的基数不是很大，能够将数据完整地存储在内存中，比如电商平台的企业卖家个数、物联网平台的用户个数等，并且对数据的一致性要求不是很高（因为广播模式情况下，对于两个微服务实例来说没有一致性保障）。像Apache Pulsar设计的TableView，在我看来，就是做这个事的一个最佳实践。Pulsar内部大量使用了topic存储数据，就是采用这个方式。</p>
-<p>使用该模式需要注意的点：</p>
-<ul>
-<li>同上，需要使用不同的消费组名称</li>
-<li>微服务消费消息的时候，应该从Earliest开始消费，保证所有微服务内存中的消息视图一致</li>
-<li>同上，需要注意消费组的老化</li>
-</ul>
-<h2 id="为什么需要消费组老化作为保底手段"><a href="#为什么需要消费组老化作为保底手段" class="headerlink" title="为什么需要消费组老化作为保底手段"></a>为什么需要消费组老化作为保底手段</h2><p>因为在极端场景下，无论是graceful的代码，还是监听kill信号的代码，都不能保证代码百分百地被执行。需要兜底。</p>
-<h2 id="Kafka消费组老化"><a href="#Kafka消费组老化" class="headerlink" title="Kafka消费组老化"></a>Kafka消费组老化</h2><p>Kafka通过<strong>offsets.retention.minutes</strong>参数控制消费组中offsets保留时间，在此时间内如果没有提交offset，offsets将会被删除。Kafka判定消息组中没有在线的消费者（如empty状态），且没有offsets时，将会删除此消费组。</p>
-<h2 id="Pulsar消费组老化"><a href="#Pulsar消费组老化" class="headerlink" title="Pulsar消费组老化"></a>Pulsar消费组老化</h2><p>pulsar的消费组老化策略更加灵活，可以配置到namespace级别。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">bin/pulsar-admin namespaces | grep expiration</span><br><span class="line">    get-subscription-expiration-time      Get subscription expiration time for </span><br><span class="line">      Usage: get-subscription-expiration-time [options] tenant/namespace</span><br><span class="line">    set-subscription-expiration-time      Set subscription expiration time for </span><br><span class="line">      Usage: set-subscription-expiration-time [options] tenant/namespace</span><br><span class="line">            Subscription expiration time in minutes</span><br><span class="line">    remove-subscription-expiration-time      Remove subscription expiration </span><br><span class="line">      Usage: remove-subscription-expiration-time [options] tenant/namespace</span><br></pre></td></tr></table></figure>
-
-<p>这里注意要合理地配置消费组的老化时间，在pulsar的当前版本（2.11版本）下，catch up读，也就是说消费组平时积压量不大。如果将消费组的老化时间配置大于等于消息的老化时间，会出现消费组老化不了的现象。</p>
-<p>当然，由于消费组和消息老化都是定时任务，预估时间时，要考虑一定的buffer。</p>
-<p>这里让我们稍稍dive一下原理，消费组的老化是通过判断Cursor游标的LastActive time来判断能否老化的。如果该消费组的游标位置到达了消息老化区域，被老化掉了，消费组的游标位置就会强制更新到一个可用的位置，这个时候会更新游标的LastActive time到当前时间，周而复始，导致消费组无法老化。举个🌰</p>
-<p>假设消费组的老化时间为4h，消息的老化时间为3h，就可能会发生这样的事情</p>
-<p><img src="/Images/20230601p3.png" alt="Untitled"></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>广播模式在微服务架构中起到了重要的角色，尤其是在需要在微服务实例之间同步数据的场景中，它具有显著的优势。它能够帮助维护内存数据的缓存一致性。希望本篇文章能提供您全面的广播模式的知识。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/6/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

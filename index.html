@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">140</span>
+          <span class="site-state-item-count">141</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -204,7 +204,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2026/04/15/%E5%A6%82%E4%BD%95%E8%AE%A9AI%E7%9C%9F%E6%AD%A3%E6%9B%BF%E4%BD%A0%E5%B9%B2%E6%B4%BB%EF%BC%9AAgent%20+%20PARA%20%E7%9A%84%E4%B8%80%E5%A5%97%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%AE%9E%E8%B7%B5/">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2026/04/28/SKILL%E6%AD%A3%E5%B0%86%E4%B8%AA%E4%BA%BA%E7%9A%84%E6%95%88%E7%8E%87%E6%83%8A%E4%BA%BA%E5%9C%B0%E6%94%BE%E5%A4%A7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -222,7 +222,92 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/agent-para" class="post-title-link post-title-link-external" itemprop="url">如何让AI真正替你干活：Agent + PARA 的一套工程化实践<i class="fa fa-external-link-alt"></i></a>
+          <a href="/skill-personal" class="post-title-link post-title-link-external" itemprop="url">SKILL正将个人的效率惊人地放大<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-04-29 07:33:54 / 修改时间：08:53:41" itemprop="dateCreated datePublished" datetime="2026-04-29T07:33:54+08:00">2026-04-29</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>我写这篇文章来抒发一些想法，另一方面是作为我之前一篇文章的后续。此刻，我又想起来聂帅给我讲过的”人的思维是螺旋上升的”。</p>
+<p>我们还是以开发者测试举例，因为之前提了很多想法，虽然我的角色有些变化，大家还是在找我讨论，谢谢大家看得起我（笑）。</p>
+<p>为了满足读者的背景，我来给大家快速补齐一下角色和平台：</p>
+<ul>
+<li>测试：把握整体，确保测试的分层，避免大量都是耗时的集成测试用例，结合我们的资源、我们的开发测试比例，将部分确定性，执行相对更简单的测试放到开发者侧。</li>
+<li>开发：按照测试的总体设计书写用例，这有很多种方式，比如就写在代码的test里、用低码平台书写，但核心你一定要和测试平台关联，这个关联有很多方式，低码平台那自然是天生关联的，写在本地代码里的话呢？有很多方式，我最推荐的是用测试平台的id（这可能有意义，也可能无意义），Anyway，再把测试平台的描述（这很让人难看懂）放到测试方法的注释里。这样我们测试就只有一个Truth，就是测试平台，从工程上会更好。当前为了炫技，我还考虑过用Powershell解析Java语法生成，还买了一本Powershell的书（笑），需要投入太大，后来就没搞了。<br><img src="/Images/powershell-friend-comment.jpeg"></li>
+<li>某低码平台：没什么的好说的</li>
+<li>Test平台：基本上上面都讲了</li>
+</ul>
+<p>2024年，我倾向于在代码仓书写测试用例的方式来完成API Test的工作，它实际会更快一点。<br>2025年到不久之前，我在想低码化是不是更好，代码将来是burden，是负担。人来仅维护描述，测试用例的书写相对很模块化。</p>
+<p>但是，最近我们将 <strong>测试平台的id（这可能有意义，也可能无意义），Anyway，再把测试平台的描述（这很让人难看懂）放到测试方法的注释里</strong> 这一部分SKILL化了，这是很大的提升，过去，我们对着测试平台一个一个复制方法名称，再把描述拷贝到注释里，这样的工作不复存在了。SKILL起码把这一细分流程的效率提升了10倍以上。可以预想，开发者不会再抗拒这个工作，为什么要拒绝有丰富经验的测试帮你设计好的用例呢，同时还生成了方法名、注释来引导Agent更好地生成代码。</p>
+<blockquote>
+<p>这某种程度上也是贯彻SDD的理念，将流程串起来了。</p>
+</blockquote>
+<p>最后是我想抒发的感受，过去，我们开发一个这样的工具，可能需要一周以上的时间不止，现在我们用SKILL，优秀的工程师们，一天乃至半天的时间就可以完成。尝试让AI Agent直接生成交付件，把重复的工作SKILL化。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2026/04/15/%E5%A6%82%E4%BD%95%E8%AE%A9AI%E7%9C%9F%E6%AD%A3%E6%9B%BF%E4%BD%A0%E5%B9%B2%E6%B4%BB%EF%BC%9AAgent%20+%20PARA%20%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/agent-para" class="post-title-link post-title-link-external" itemprop="url">如何让AI真正替你干活：Agent + PARA 的工程化实践<i class="fa fa-external-link-alt"></i></a>
           
         </h2>
 
@@ -241,7 +326,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -370,7 +455,8 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/10/28/%E7%AE%80%E8%B0%88%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/" class="post-title-link" itemprop="url">未命名</a>
+          <a href="/dependency-inject" class="post-title-link post-title-link-external" itemprop="url">简谈依赖注入<i class="fa fa-external-link-alt"></i></a>
+          
         </h2>
 
         <div class="post-meta-container">
@@ -388,7 +474,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -477,7 +563,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -589,7 +675,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -683,7 +769,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -786,7 +872,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -902,7 +988,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1021,7 +1107,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1112,7 +1198,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1251,93 +1337,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/10/29/Gin%20Web%E9%A1%B9%E7%9B%AE%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/gin-project-best-practice" class="post-title-link post-title-link-external" itemprop="url">Gin Web项目最佳实践<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2024-10-30 05:58:14" itemprop="dateCreated datePublished" datetime="2024-10-30T05:58:14+08:00">2024-10-30</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>本文包含，Gin项目推荐布局，一些最佳实践等等。</p>
-<h2 id="Gin项目推荐布局"><a href="#Gin项目推荐布局" class="headerlink" title="Gin项目推荐布局"></a>Gin项目推荐布局</h2><p>假设项目名称叫Hearth</p>
-<ul>
-<li>xxx、yyy代表大块的业务区分：如用户、订单、支付</li>
-<li>aaa、bbb代表小块的业务区分：如(用户的)登录、注册、查询</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">example/</span><br><span class="line">|-- cmd/</span><br><span class="line">|   |-- production/</span><br><span class="line">|       |-- hearth.go</span><br><span class="line">|   |-- local/</span><br><span class="line">|       |-- hearth_local.go</span><br><span class="line">|-- pkg/</span><br><span class="line">|   |-- apimodel/ 存放所有的ApiModel，用oapi-codegen解析uadp yaml来生成</span><br><span class="line">|   |-- boot/</span><br><span class="line">|       |-- boot.go //装备Struct，用于Lauch整个项目</span><br><span class="line">|   |-- handler/</span><br><span class="line">|       |-- xxx/</span><br><span class="line">|           |-- xxx_aaa_handler.go</span><br><span class="line">|           |-- xxx_bbb_handler.go</span><br><span class="line">|       |-- yyy/</span><br><span class="line">|           |-- yyy_model.go</span><br><span class="line">|           |-- yyy_aaa_handler.go</span><br><span class="line">|           |-- yyy_bbb_handler.go</span><br><span class="line">|   |-- xxx/</span><br><span class="line">|       |-- xxx_aaa_model.go // 存放持久化model，如数据库表，消息中间件结构，redis结构等</span><br><span class="line">|       |-- xxx_aaa_service.go</span><br><span class="line">|   |-- yyy/</span><br><span class="line">|       |-- yyy_bbb_model.go</span><br><span class="line">|       |-- yyy_bbb_service.go</span><br><span class="line">|   |-- ignite/</span><br><span class="line">|       |-- ignite.go</span><br><span class="line">|       |-- ignite_test.go</span><br><span class="line">|   |-- influx/</span><br><span class="line">|       |-- influx.go</span><br><span class="line">|       |-- influx_test.go</span><br><span class="line">|-- docker-build/</span><br><span class="line">|   |-- scripts/</span><br><span class="line">|       |-- start.sh</span><br><span class="line">|-- Dockerfile</span><br></pre></td></tr></table></figure>
-
-<h2 id="放弃的布局方式"><a href="#放弃的布局方式" class="headerlink" title="放弃的布局方式"></a>放弃的布局方式</h2><h3 id="此种布局比较适合独立的包，对api结构体的操作复用较差"><a href="#此种布局比较适合独立的包，对api结构体的操作复用较差" class="headerlink" title="此种布局比较适合独立的包，对api结构体的操作复用较差"></a>此种布局比较适合独立的包，对api结构体的操作复用较差</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">example/</span><br><span class="line">|-- cmd/</span><br><span class="line">|   |-- production/</span><br><span class="line">|       |-- hearth.go</span><br><span class="line">|   |-- local/</span><br><span class="line">|       |-- hearth_local.go</span><br><span class="line">|-- pkg/</span><br><span class="line">|   |-- boot/</span><br><span class="line">|       |-- boot.go //装备Struct，用于Lauch整个项目</span><br><span class="line">|   |-- handler/</span><br><span class="line">|       |-- xxx/</span><br><span class="line">|           |-- xxx_model.go // 将大块业务的model也放在这里，可以使用oapi-codegen来生成结构体</span><br><span class="line">|           |-- xxx_aaa_handler.go</span><br><span class="line">|           |-- xxx_bbb_handler.go</span><br><span class="line">|       |-- yyy/</span><br><span class="line">|           |-- yyy_model.go</span><br><span class="line">|           |-- yyy_aaa_handler.go</span><br><span class="line">|           |-- yyy_bbb_handler.go</span><br><span class="line">|   |-- xxx/</span><br><span class="line">|       |-- xxx_aaa_model.go // 存放持久化model，如数据库表，消息中间件结构，redis结构等</span><br><span class="line">|       |-- xxx_aaa_service.go</span><br><span class="line">|   |-- yyy/</span><br><span class="line">|       |-- yyy_bbb_model.go</span><br><span class="line">|       |-- yyy_bbb_service.go</span><br><span class="line">|   |-- ignite/</span><br><span class="line">|       |-- ignite.go</span><br><span class="line">|       |-- ignite_test.go</span><br><span class="line">|   |-- influx/</span><br><span class="line">|       |-- influx.go</span><br><span class="line">|       |-- influx_test.go</span><br><span class="line">|-- docker-build/</span><br><span class="line">|   |-- scripts/</span><br><span class="line">|       |-- start.sh</span><br><span class="line">|-- Dockerfile</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

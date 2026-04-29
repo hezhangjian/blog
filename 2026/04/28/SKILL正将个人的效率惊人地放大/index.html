@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="我写这篇文章来抒发一些想法，另一方面是作为我之前一篇文章的后续。此刻，我又想起来聂帅给我讲过的”人的思维是螺旋上升的”。 我们还是以开发者测试举例，因为之前提了很多想法，虽然我的角色有些变化，大家还是在找我讨论，谢谢大家看得起我（笑）。 为了满足读者的背景，我来给大家快速补齐一下角色和平台：  测试：把握整体，确保测试的分层，避免大量都是耗时的集成测试用例，结合我们的资源、我们的开发测试比例，将部">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SKILL正将个人的效率惊人地放大">
+<meta property="og:url" content="https://hezhangjian.com/2026/04/28/SKILL%E6%AD%A3%E5%B0%86%E4%B8%AA%E4%BA%BA%E7%9A%84%E6%95%88%E7%8E%87%E6%83%8A%E4%BA%BA%E5%9C%B0%E6%94%BE%E5%A4%A7/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="我写这篇文章来抒发一些想法，另一方面是作为我之前一篇文章的后续。此刻，我又想起来聂帅给我讲过的”人的思维是螺旋上升的”。 我们还是以开发者测试举例，因为之前提了很多想法，虽然我的角色有些变化，大家还是在找我讨论，谢谢大家看得起我（笑）。 为了满足读者的背景，我来给大家快速补齐一下角色和平台：  测试：把握整体，确保测试的分层，避免大量都是耗时的集成测试用例，结合我们的资源、我们的开发测试比例，将部">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/powershell-friend-comment.jpeg">
+<meta property="article:published_time" content="2026-04-28T23:33:54.000Z">
+<meta property="article:modified_time" content="2026-04-29T00:53:41.513Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/powershell-friend-comment.jpeg">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2026/04/28/SKILL%E6%AD%A3%E5%B0%86%E4%B8%AA%E4%BA%BA%E7%9A%84%E6%95%88%E7%8E%87%E6%83%8A%E4%BA%BA%E5%9C%B0%E6%94%BE%E5%A4%A7/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2026/04/28/SKILL%E6%AD%A3%E5%B0%86%E4%B8%AA%E4%BA%BA%E7%9A%84%E6%95%88%E7%8E%87%E6%83%8A%E4%BA%BA%E5%9C%B0%E6%94%BE%E5%A4%A7/","path":"2026/04/28/SKILL正将个人的效率惊人地放大/","title":"SKILL正将个人的效率惊人地放大"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SKILL正将个人的效率惊人地放大 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2026/04/28/SKILL%E6%AD%A3%E5%B0%86%E4%B8%AA%E4%BA%BA%E7%9A%84%E6%95%88%E7%8E%87%E6%83%8A%E4%BA%BA%E5%9C%B0%E6%94%BE%E5%A4%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SKILL正将个人的效率惊人地放大 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/skill-personal" class="post-title-link post-title-link-external" itemprop="url">SKILL正将个人的效率惊人地放大<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-04-29 07:33:54 / 修改时间：08:53:41" itemprop="dateCreated datePublished" datetime="2026-04-29T07:33:54+08:00">2026-04-29</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>我写这篇文章来抒发一些想法，另一方面是作为我之前一篇文章的后续。此刻，我又想起来聂帅给我讲过的”人的思维是螺旋上升的”。</p>
+<p>我们还是以开发者测试举例，因为之前提了很多想法，虽然我的角色有些变化，大家还是在找我讨论，谢谢大家看得起我（笑）。</p>
+<p>为了满足读者的背景，我来给大家快速补齐一下角色和平台：</p>
+<ul>
+<li>测试：把握整体，确保测试的分层，避免大量都是耗时的集成测试用例，结合我们的资源、我们的开发测试比例，将部分确定性，执行相对更简单的测试放到开发者侧。</li>
+<li>开发：按照测试的总体设计书写用例，这有很多种方式，比如就写在代码的test里、用低码平台书写，但核心你一定要和测试平台关联，这个关联有很多方式，低码平台那自然是天生关联的，写在本地代码里的话呢？有很多方式，我最推荐的是用测试平台的id（这可能有意义，也可能无意义），Anyway，再把测试平台的描述（这很让人难看懂）放到测试方法的注释里。这样我们测试就只有一个Truth，就是测试平台，从工程上会更好。当前为了炫技，我还考虑过用Powershell解析Java语法生成，还买了一本Powershell的书（笑），需要投入太大，后来就没搞了。<br><img src="/Images/powershell-friend-comment.jpeg"></li>
+<li>某低码平台：没什么的好说的</li>
+<li>Test平台：基本上上面都讲了</li>
+</ul>
+<p>2024年，我倾向于在代码仓书写测试用例的方式来完成API Test的工作，它实际会更快一点。<br>2025年到不久之前，我在想低码化是不是更好，代码将来是burden，是负担。人来仅维护描述，测试用例的书写相对很模块化。</p>
+<p>但是，最近我们将 <strong>测试平台的id（这可能有意义，也可能无意义），Anyway，再把测试平台的描述（这很让人难看懂）放到测试方法的注释里</strong> 这一部分SKILL化了，这是很大的提升，过去，我们对着测试平台一个一个复制方法名称，再把描述拷贝到注释里，这样的工作不复存在了。SKILL起码把这一细分流程的效率提升了10倍以上。可以预想，开发者不会再抗拒这个工作，为什么要拒绝有丰富经验的测试帮你设计好的用例呢，同时还生成了方法名、注释来引导Agent更好地生成代码。</p>
+<blockquote>
+<p>这某种程度上也是贯彻SDD的理念，将流程串起来了。</p>
+</blockquote>
+<p>最后是我想抒发的感受，过去，我们开发一个这样的工具，可能需要一周以上的时间不止，现在我们用SKILL，优秀的工程师们，一天乃至半天的时间就可以完成。尝试让AI Agent直接生成交付件，把重复的工作SKILL化。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/15/%E5%A6%82%E4%BD%95%E8%AE%A9AI%E7%9C%9F%E6%AD%A3%E6%9B%BF%E4%BD%A0%E5%B9%B2%E6%B4%BB%EF%BC%9AAgent%20+%20PARA%20%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%AE%9E%E8%B7%B5/" rel="prev" title="如何让AI真正替你干活：Agent + PARA 的工程化实践">
+                  <i class="fa fa-angle-left"></i> 如何让AI真正替你干活：Agent + PARA 的工程化实践
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

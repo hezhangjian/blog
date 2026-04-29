@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">140</span>
+          <span class="site-state-item-count">141</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,142 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/04/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93%20TCP%E6%8B%86%E5%8C%85%E7%B2%98%E5%8C%85%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/07/04/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93%20TCP%E6%8B%86%E5%8C%85%E7%B2%98%E5%8C%85%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" class="post-title-link" itemprop="url">网络编程经验总结 TCP拆包粘包常见解决方案</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-04 13:23:05" itemprop="dateCreated datePublished" datetime="2021-07-04T13:23:05+08:00">2021-07-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="从简单通信协议开始"><a href="#从简单通信协议开始" class="headerlink" title="从简单通信协议开始"></a>从简单通信协议开始</h2><p>最近工作中又需要处理协议解析，我对协议解析和网络抓包其实还是小有研究，17年刚毕业的时候，就用Netty手写过SMPP协议的对接。（其实做协议解析是一个很枯燥的工作，如果协议解析可以像antlr那样子写grammar自动解析应该会很酷？）本文总结一下协议在tcp下编码拆包粘包的三种解决方案。</p>
+<p>网上有一些人对拆包粘包的说法不是很认可，但是我觉得这个术语还是挺形象的。</p>
+<p>首先，让我们来设计一个简单地通信协议，<strong>Sorry</strong>，客户端一直对服务器发送<code>I am Sorry</code>，服务端回复<code>That&#39;s ok</code>。如下图所示</p>
+<p><img src="/Images/network-tcp-codec1.png" alt="image-20210704104926698"></p>
+<p>让我们来写个demo程序实现这个协议</p>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	listen, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, <span class="string">&quot;localhost:1997&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> listen.Close()</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		conn, err := listen.Accept()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="built_in">panic</span>(err)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">go</span> handleRequest(conn)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// handle incoming requests</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handleRequest</span><span class="params">(conn net.Conn)</span></span> &#123;</span><br><span class="line">	<span class="comment">// make a buffer to hold incoming data</span></span><br><span class="line">	buf := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">1024</span>)</span><br><span class="line">	<span class="comment">// Read the incoming connection into the buffer</span></span><br><span class="line">	reqLen, err := conn.Read(buf)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;error reading: &quot;</span>, err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> reqLen != <span class="number">10</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;invalid request size &quot;</span>, reqLen)</span><br><span class="line">	&#125;</span><br><span class="line">	_, err = conn.Write([]<span class="type">byte</span>(<span class="string">&quot;That&#x27;s ok&quot;</span>))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;error sending: &quot;</span>, err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::io::&#123;Read, Write&#125;;</span><br><span class="line"><span class="keyword">use</span> std::net::TcpStream;</span><br><span class="line"><span class="keyword">use</span> std::<span class="type">str</span>::from_utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">match</span> TcpStream::<span class="title function_ invoke__">connect</span>(<span class="string">&quot;localhost:1997&quot;</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(<span class="keyword">mut</span> stream) =&gt; &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;success connect to 1997&quot;</span>);</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">msg</span> = <span class="string">b&quot;I am Sorry&quot;</span>;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">expect_resp</span> = <span class="string">b&quot;That&#x27;s ok&quot;</span>;</span><br><span class="line">            stream.<span class="title function_ invoke__">write</span>(msg);</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;Send hello, awaiting reply&quot;</span>);</span><br><span class="line">            <span class="comment">// use 9 byte buffer</span></span><br><span class="line">            <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">data</span> = [<span class="number">0</span> <span class="keyword">as</span> <span class="type">u8</span>; <span class="number">9</span>];</span><br><span class="line">            <span class="keyword">match</span> stream.<span class="title function_ invoke__">read_exact</span>(&amp;<span class="keyword">mut</span> data) &#123;</span><br><span class="line">                <span class="title function_ invoke__">Ok</span>(_) =&gt; &#123;</span><br><span class="line">                    <span class="keyword">if</span> &amp;data == expect_resp &#123;</span><br><span class="line">                        <span class="built_in">println!</span>(<span class="string">&quot;Reply is ok&quot;</span>)</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="keyword">let</span> <span class="variable">text</span> = <span class="title function_ invoke__">from_utf8</span>(&amp;data).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">                        <span class="built_in">println!</span>(<span class="string">&quot;Unexpected reply: &#123;&#125;&quot;</span>, text);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="title function_ invoke__">Err</span>(e) =&gt; &#123;</span><br><span class="line">                    <span class="built_in">println!</span>(<span class="string">&quot;Failed to receive data: &#123;&#125;&quot;</span>, e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(e) =&gt; &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;Failed to connect: &#123;&#125;&quot;</span>, e)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意上面在服务端的实现中，我们校验了请求体的大小。</p>
+<p>运行成功，我们在<code>Wireshark</code>上可以看到</p>
+<p><img src="/Images/network-tcp-codec2.png" alt="image-20210704115955993"></p>
+<p>目标端口为1997，这是客户端发出的报文。当然也能看到响应的报文</p>
+<p><img src="/Images/network-tcp-codec3.png" alt="image-20210704120027704"></p>
+<p>那么，如果客户端是个十分礼貌的人，他如果连续发送10个<code>I am Sorry</code>呢？我们将代码修改为</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> <span class="variable">_</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">10</span> &#123;</span><br><span class="line">    stream.<span class="title function_ invoke__">write</span>(msg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>服务端报错了，服务端收到了一个请求，大小为100。并不是新手预期的10个大小为10的消息，</p>
+<p><img src="/Images/network-tcp-codec4.png" alt="image-20210704120639637"></p>
+<p>那么实际在网络中是如何传输的呢？一定是1个大小为100的消息吗？答案是否定的。在我的这次测试中，在<code>TCP</code>层，分成了两组消息，第一个大小为10，包含一个<code>I am Sorry</code></p>
+<p><img src="/Images/network-tcp-codec5.png" alt="image-20210704120759769"></p>
+<p>另一个大小为90，包含9个</p>
+<p><img src="/Images/network-tcp-codec6.png" alt="image-20210704120818834"></p>
+<h2 id="揭秘时刻"><a href="#揭秘时刻" class="headerlink" title="揭秘时刻"></a>揭秘时刻</h2><h3 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h3><p><strong>TCP</strong>和<strong>UDP</strong>不同，它是一个基于流的协议，<strong>TCP</strong>并不识别你定义的协议规则，只负责将这些报文打包发送，它可以基于<code>TCP_NODELAY</code>、<code>Nagle</code>算法等，任意的对你的报文进行切分发送。有两个典型的场景：第一个像上文中的例子，两个及以上的包在一个TCP数据包发送了，有个很形象的名字叫<code>粘包</code>。还有一个，因为报文过大，拆分成两个<code>TCP</code>报文发送，这叫拆包。</p>
+<h3 id="应用层读取"><a href="#应用层读取" class="headerlink" title="应用层读取"></a>应用层读取</h3><p>常见API，应用层读取也不保证单次操作一定仅仅读取一个<code>tcp</code>数据包，会根据你提供的buffer大小，尽量提供数据。你读取到的可能是上一个<code>TCP</code>包的末尾和下一个<code>TCP</code>包的开头部分。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>TCP</strong>是基于流的协议，并非基于报文。<strong>TCP</strong>提供了保序的语义保证，这要求应用程序，尤其是接收者，需要能够从报文流中提取出协议信息，<strong>TCP</strong>决不保证读取到的报文恰好是发送者一次<code>write</code>写入的报文，即使能在测试环境通过<code>case</code>，那也只不过是你运气好而已。</p>
+<p>像我们上面，读取到100大小的消息。根据协议大小请求固定为10，我们就可以将100消息分割为10条协议报文。如果读取到的大小为96，那就先处理前90个字节，剩下6个字节，待后面4个字节到达之后再合并处理。下一节我们详细介绍一下几种常见方式。</p>
+<h2 id="常见TCP协议定义方式"><a href="#常见TCP协议定义方式" class="headerlink" title="常见TCP协议定义方式"></a>常见TCP协议定义方式</h2><h3 id="定长编码"><a href="#定长编码" class="headerlink" title="定长编码"></a>定长编码</h3><p>就像我们例子中的那样一样，定义一个定长宽度，然后切分</p>
+<p>使用Go的gnet库的<code>Server</code>例子</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	codec := gnet.NewFixedLengthFrameCodec(<span class="number">10</span>)</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(codec))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于分隔符"><a href="#基于分隔符" class="headerlink" title="基于分隔符"></a>基于分隔符</h3><p>基于分隔符的编码也十分容易理解，双方约定好一个字符，并在正常报文中不出现这个字符（出现则需要转义），比较类似的是以太网的<code>7d7d</code>?这个计算机网络链路层相关的知乎，学太久了，忘记了。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	codec := gnet.NewDelimiterBasedFrameCodec(<span class="number">0x11</span>)</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(codec))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于固定行数的编码"><a href="#基于固定行数的编码" class="headerlink" title="基于固定行数的编码"></a>基于固定行数的编码</h3><p>这个也很简单，协议内容不换行，发送完再发送一个换行符，比较类似的有HTTP的<code>\r\n</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(&amp;gnet.LineBasedFrameCodec&#123;&#125;))</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="长度编码"><a href="#长度编码" class="headerlink" title="长度编码"></a>长度编码</h3><p>长度编码是使用最多的，最流行的一种编码方式。最简单的一种工作方式是，在报文的最开始数个字节（常见为4个字节，足以编码4个G长度，相比之下两个字节仅能存放64K消息），声明报文剩余内容的长度。以<code>Kafka</code>协议举例</p>
+<p><img src="/Images/network-tcp-codec7.png" alt="image-20210704125652379"></p>
+<p>Kafka这条消息，在<strong>TCP</strong>层占据的总长度为87字节，其中前4个字节<code>00 00 00 53</code>声明为83长度，为其余报文的长度。</p>
+<p>这一模式还有很多变体，如</p>
+<ul>
+<li>声明的长度包括其长度字段本身的长度</li>
+<li>长度字段并不是打头的字段</li>
+<li>长度字段的长度</li>
+</ul>
+<p>等等。这也就是下面解码器，拥有的参数非常多的原因，都是为了适配这些变体</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;encoding/binary&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/panjf2000/gnet&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ExampleServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	*gnet.EventServer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	encoderConfig := gnet.EncoderConfig&#123;</span><br><span class="line">		ByteOrder:                       binary.BigEndian,</span><br><span class="line">		LengthFieldLength:               <span class="number">4</span>,</span><br><span class="line">		LengthAdjustment:                <span class="number">0</span>,</span><br><span class="line">		LengthIncludesLengthFieldLength: <span class="literal">true</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	decoderConfig := gnet.DecoderConfig&#123;</span><br><span class="line">		ByteOrder:           binary.BigEndian,</span><br><span class="line">		LengthFieldOffset:   <span class="number">0</span>,</span><br><span class="line">		LengthFieldLength:   <span class="number">4</span>,</span><br><span class="line">		LengthAdjustment:    <span class="number">-4</span>,</span><br><span class="line">		InitialBytesToStrip: <span class="number">4</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	codec := gnet.NewLengthFieldBasedFrameCodec(encoderConfig, decoderConfig)</span><br><span class="line">	gnet.Serve(&amp;ExampleServer&#123;&#125;, <span class="string">&quot;tcp://localhost:1998&quot;</span>, gnet.WithCodec(codec))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>事实上，长度字段编码格式是我见过开源代码使用最多的格式，像MQTT、KAFKA、SMPP等都使用这种格式。其中原因，个人觉得在于声明长度之后，buffer申请及释放，可以简化很多，性能最好。</p>
+<h2 id="其他网络协议使用的编码方式"><a href="#其他网络协议使用的编码方式" class="headerlink" title="其他网络协议使用的编码方式"></a>其他网络协议使用的编码方式</h2><h3 id="MQTT"><a href="#MQTT" class="headerlink" title="MQTT"></a>MQTT</h3><p>使用长度字段编码格式</p>
+<p><img src="/Images/network-tcp-codec8.png" alt="image-20210704131034560"></p>
+<h3 id="AMQP"><a href="#AMQP" class="headerlink" title="AMQP"></a>AMQP</h3><p>AMQP的解析较为麻烦，它根据协议目前的状态，同时使用定长编码和长度字段两种编码方式。这就要求解码器不仅仅要处理报文，还要处理当前协议交互到那个状态了。</p>
+<h4 id="定长场景"><a href="#定长场景" class="headerlink" title="定长场景"></a>定长场景</h4><p><img src="/Images/network-tcp-codec9.png" alt="image-20210704131231757"></p>
+<h4 id="长度字段模式"><a href="#长度字段模式" class="headerlink" title="长度字段模式"></a>长度字段模式</h4><p><img src="/Images/network-tcp-codec10.png" alt="image-20210704131317098"></p>
+<h2 id="代码地址"><a href="#代码地址" class="headerlink" title="代码地址"></a>代码地址</h2><ul>
+<li>Go代码: <a target="_blank" rel="noopener" href="https://github.com/hezhangjian/go_demo/tree/main/demo_gnet/codec">https://github.com/hezhangjian/go_demo/tree/main/demo_gnet/codec</a></li>
+<li>Rust代码:<a target="_blank" rel="noopener" href="https://github.com/hezhangjian/rust-demo/blob/main/demo-tcp-client/src/main.rs">https://github.com/hezhangjian/rust-demo/blob/main/demo-tcp-client/src/main.rs</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +377,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -357,7 +493,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -524,7 +660,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -665,7 +801,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -758,7 +894,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -847,7 +983,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -973,7 +1109,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1090,7 +1226,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1286,7 +1422,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1350,164 +1486,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/05/13/%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E5%AE%9E%E7%8E%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/business-config-center-impl" class="post-title-link post-title-link-external" itemprop="url">业务配置中心的实现<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-05-13 15:44:23" itemprop="dateCreated datePublished" datetime="2021-05-13T15:44:23+08:00">2021-05-13</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前在InfoQ的《华为云物联网四年配置中心实践》文章中分享了业务配置中心。</p>
-<p>本文讲述业务配置中心（下文简述为配置中心）的关键技术和实现方式。华为云物联网平台按照本文的实现方式实现了一个业务配置中心，该配置中心2020年1月上线，平稳运行至今。</p>
-<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><h2 id="运维配置"><a href="#运维配置" class="headerlink" title="运维配置"></a>运维配置</h2><p>和用户无关，通常为集群界级别的配置，程序只会进行读取，如数据库配置、邮箱服务器配置、网卡配置、子网地址配置等。</p>
-<h2 id="业务配置"><a href="#业务配置" class="headerlink" title="业务配置"></a>业务配置</h2><p>作为SaaS 服务，每个用户在上面都有一些业务配置。如用户的证书配置、用户服务器的流控配置等，这些业务配置相对<strong>运维配置</strong>来说更加复杂，且可能会有唯一性限制，如按用户 id 唯一。这部分配置数据一般由用户操作触发，代码动态写入，并且通知到各个微服务实例。通常，我们希望这些配置能在界面展示，且支持人为修改。上述逻辑如果由各微服务自己实现，会存在大量重复代码，并且质量无法保证。我们希望由一个公共组件来统一实现这个能力。开源或体量较小的项目就不会选择依赖一个配置中心，而是直接通过连接数据库或etcd来解决问题</p>
-<h2 id="env"><a href="#env" class="headerlink" title="env"></a>env</h2><p>代表一个部署环境。</p>
-<h2 id="cluster"><a href="#cluster" class="headerlink" title="cluster"></a>cluster</h2><p>代表环境下的集群。常见于单环境下蓝绿发布，蓝集群、绿集群、金丝雀集群等。</p>
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>配置名称，如用户证书配置、用户流控配置等。</p>
-<h2 id="Key"><a href="#Key" class="headerlink" title="Key"></a>Key</h2><p>配置的唯一键，如用户id。</p>
-<h2 id="Value"><a href="#Value" class="headerlink" title="Value"></a>Value</h2><p>配置唯一键对应的值。</p>
-<h1 id="配置中心设计梗概"><a href="#配置中心设计梗概" class="headerlink" title="配置中心设计梗概"></a>配置中心设计梗概</h1><h2 id="业务配置特点"><a href="#业务配置特点" class="headerlink" title="业务配置特点"></a>业务配置特点</h2><ul>
-<li>虽然业务配置写入可能存在并发，但并发量不大，频率较低。</li>
-<li>业务配置常常以用户为id，单集群用户量有限，一般不超过5万。</li>
-</ul>
-<h2 id="配置中心要解决的问题"><a href="#配置中心要解决的问题" class="headerlink" title="配置中心要解决的问题"></a>配置中心要解决的问题</h2><p><img src="/Images/business-config-center-impl1.png" alt="business-config-center-impl1"></p>
-<h2 id="设计要点"><a href="#设计要点" class="headerlink" title="设计要点"></a>设计要点</h2><ul>
-<li>单配置要求有配置id，每个id上通过version的乐观并发控制来解决多版本冲突问题</li>
-<li>通知不追求可靠，应用程序和配置中心断链无法接收通知的场景下，通过定期同步数据来保证数据的可靠</li>
-<li>支持Schema的变更，因Schema变更不频繁，也采用version的乐观并发控制来解决多版本冲突问题</li>
-</ul>
-<h2 id="通知是否包含消息内容"><a href="#通知是否包含消息内容" class="headerlink" title="通知是否包含消息内容"></a>通知是否包含消息内容</h2><p>我认为应该只通知Key，具体的数值让应用程序再去配置中心查询。仅通知Key实现简洁易懂。同时通知Key&amp;Value需要多考虑定期同步和通知两条通道并发，可能引起的竞态冲突。</p>
-<h1 id="配置中心业务流程"><a href="#配置中心业务流程" class="headerlink" title="配置中心业务流程"></a>配置中心业务流程</h1><p>本小节描述业务配置中心的所有业务流程，并试图从交互中抽象出与具体实现无关的接口</p>
-<h2 id="配置的增删改查"><a href="#配置的增删改查" class="headerlink" title="配置的增删改查"></a>配置的增删改查</h2><p><img src="/Images/business-config-center-impl2.png" alt="business-config-center-impl2"></p>
-<h2 id="配置值的增删改查"><a href="#配置值的增删改查" class="headerlink" title="配置值的增删改查"></a>配置值的增删改查</h2><p><img src="/Images/business-config-center-impl3.png" alt="business-config-center-impl3"></p>
-<h2 id="定期同步"><a href="#定期同步" class="headerlink" title="定期同步"></a>定期同步</h2><p>分布式场景下，通知有可能无法送达，如程序陷入网络中断（或长gc），通知消息送达超时，待程序恢复后，数据不再准确。因此需要对数据做定期同步，提高可靠性。</p>
-<p><img src="/Images/business-config-center-impl4.png" alt="business-config-center-impl4"></p>
-<p>同步过程中，仅仅请求交互id和version，避免传输大量数据。应用程序接收到需要同步的数据后：</p>
-<ul>
-<li>删除操作，触发删除通知，从本地缓存中移除数据。</li>
-<li>添加、修改操作，向配置中心查询最新数据，触发通知并写入本地缓存。</li>
-</ul>
-<h2 id="服务启动"><a href="#服务启动" class="headerlink" title="服务启动"></a>服务启动</h2><p>服务启动也可看做是一个同步的流程，只是需要同步大量的数据添加。为了避免向配置中心频繁大量的请求，引入批量操作来减轻压力</p>
-<p><img src="/Images/business-config-center-impl5.png" alt="business-config-center-impl5"></p>
-<h2 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h2><p>该配置中心设计思路依赖客户端可把数据全量放入到内存中，如用户量太大，则不适合采用这种模式。</p>
-<p>注：一个节省内存的思路是，内存中只放置全量的id和version，数据只有当用到的时候再去查询。这个思路要求配置中心持久化一些老旧数据以供以下场景的查询使用</p>
-<ul>
-<li><p>业务流程中，需要使用该配置值的。</p>
-</li>
-<li><p>回调业务程序修改的时候，需要提供旧值的。</p>
-</li>
-</ul>
-<p>除此之外没有任何区别。</p>
-<h1 id="业务配置抽象实现"><a href="#业务配置抽象实现" class="headerlink" title="业务配置抽象实现"></a>业务配置抽象实现</h1><p>从上述描述的业务场景，我们抽象出业务配置中心的交互接口和抽象实现。接口的Swagger Yaml已上传到Github：<a target="_blank" rel="noopener" href="https://gist.github.com/hezhangjian/68c9c2ecae72cc2a125184e95b0a741e">https://gist.github.com/hezhangjian/68c9c2ecae72cc2a125184e95b0a741e</a></p>
-<h2 id="配置相关接口"><a href="#配置相关接口" class="headerlink" title="配置相关接口"></a>配置相关接口</h2><ul>
-<li>提供env、cluster、配置名称、配置Schema、配置版本号添加配置</li>
-<li>提供env、cluster、配置名称删除配置</li>
-<li>提供env、cluster、配置名称、新Schema、新Version来修改配置</li>
-<li>提供env、cluster、配置名称来查询配置</li>
-</ul>
-<h2 id="配置值相关接口"><a href="#配置值相关接口" class="headerlink" title="配置值相关接口"></a>配置值相关接口</h2><ul>
-<li>提供env、cluster、配置名称、Key、Value来添加配置值</li>
-<li>提供env、cluster、Key、ValueVersion（可选）来删除配置值</li>
-<li>提供env、cluster、Key、Value、ValueVersion（可选）修改配置值</li>
-<li>提供env、cluster、Key查询配置值</li>
-<li>根据env、cluster、应用程序当前的配置数据来做定期同步</li>
-<li>根据Key列表批量查询配置值</li>
-</ul>
-<h2 id="通知相关接口"><a href="#通知相关接口" class="headerlink" title="通知相关接口"></a>通知相关接口</h2><ul>
-<li>通知某env某cluster下，配置项中的一个Key发生变化，新增、修改或是删除。可选方式有HTTP长链接（Inspired by Apollo）、Mqtt、WebSocket等。</li>
-</ul>
-<h2 id="配置中心存储层抽象实现"><a href="#配置中心存储层抽象实现" class="headerlink" title="配置中心存储层抽象实现"></a>配置中心存储层抽象实现</h2><p>配置中心存储层需要存储<strong>配置</strong>和<strong>配置值</strong>数据，支持UpdateByVersion，且需要捕捉数据的变化，用来通知到应用程序</p>
-<h2 id="服务发现抽象实现"><a href="#服务发现抽象实现" class="headerlink" title="服务发现抽象实现"></a>服务发现抽象实现</h2><p>为了使应用程序连接到配置中心，需要一个发现机制可以让应用程序感知到配置中心的地址。高可用的方式很多，如K8s发现、ZooKeeper、Etcd、ServiceComb、业务环境变量注入ELB地址（ELB后端挂载配置中心的地址）等。</p>
-<h2 id="抽象总结"><a href="#抽象总结" class="headerlink" title="抽象总结"></a>抽象总结</h2><p><img src="/Images/business-config-center-impl6.png" alt="business-config-center-impl6"></p>
-<p>根据这个抽象，我们可以进行关键技术点选型，来实现业务配置中心。</p>
-<h1 id="配置中心实现"><a href="#配置中心实现" class="headerlink" title="配置中心实现"></a>配置中心实现</h1><h2 id="华为云物联网配置中心实现"><a href="#华为云物联网配置中心实现" class="headerlink" title="华为云物联网配置中心实现"></a>华为云物联网配置中心实现</h2><p><img src="/Images/business-config-center-impl7.png" alt="business-config-center-impl7"></p>
-<ul>
-<li>env+cluster+config组成数据表的名称</li>
-<li>一个key、value对应一行数据</li>
-</ul>
-<h2 id="另一种实现方式"><a href="#另一种实现方式" class="headerlink" title="另一种实现方式"></a>另一种实现方式</h2><p>只要实现上述接口和抽象能力，都可以实现业务配置中心，也可以这么实现</p>
-<p><img src="/Images/business-config-center-impl8.png" alt="business-config-center-impl8"></p>
-<ul>
-<li>env+cluster+config+key 组合成etcd的key</li>
-<li>一个key、value对应一个键值对</li>
-</ul>
-<h2 id="又一种实现方式"><a href="#又一种实现方式" class="headerlink" title="又一种实现方式"></a>又一种实现方式</h2><p>当然也可以</p>
-<p><img src="/Images/business-config-center-impl9.png" alt="business-config-center-impl9"></p>
-<ul>
-<li>env+cluster+config+key 组合成RocksDB的key</li>
-<li>一个key、value对应一个键值对</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/9/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/11/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/9/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/11/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

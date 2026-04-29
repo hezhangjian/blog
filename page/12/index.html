@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">140</span>
+          <span class="site-state-item-count">141</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,99 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/02/%E8%AE%B0%E4%B8%80%E6%AC%A1%E4%BB%A3%E7%A0%81%E6%A3%80%E8%A7%86%E4%B9%8BSocket%20flush%E7%9A%84%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/04/02/%E8%AE%B0%E4%B8%80%E6%AC%A1%E4%BB%A3%E7%A0%81%E6%A3%80%E8%A7%86%E4%B9%8BSocket%20flush%E7%9A%84%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">记一次代码检视之Socket flush的问题</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-02 12:24:09" itemprop="dateCreated datePublished" datetime="2021-04-02T12:24:09+08:00">2021-04-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>记一次代码检视中领悟到的知识，和大家一起交流</p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>提交上来的代码大概是这个样子的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Socket</span> <span class="variable">socket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Socket</span>(ip, port);</span><br><span class="line"><span class="keyword">final</span> <span class="type">DataOutputStream</span> <span class="variable">dataOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DataOutputStream</span>(socket.getOutputStream());</span><br><span class="line">dataOutputStream.write(<span class="string">&quot;HelloWorld&quot;</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">socket.shutdownOutput();</span><br><span class="line">dataOutputStream.flush();</span><br></pre></td></tr></table></figure>
+
+<p>这次主要是添加<code>shutdownOutput</code>的调用，及时关闭tcp会话，防止TW过多。</p>
+<p>经过大家的讨论，主要的矛盾点在<code>shutdownOutput</code>和<code>flush</code>的顺序。首先想到的是 flush方法放在了output后面，这样还能起作用吗？但是提交代码之前是经过测试的，这样子是可以正常工作的。然后的想法就是，傻逼了，想错了，shutdown应该自带flush效果，os都发fin了，之前的buffer肯定出去了。</p>
+<p>我做个实验，来探究下是不是这样子的，我从python开启了一个http server来开启实验</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -m http.server</span><br></pre></td></tr></table></figure>
+
+<p>java测试类代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.hezhangjian.demo.basic;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.junit.Test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.DataOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.net.Socket;</span><br><span class="line"><span class="keyword">import</span> java.nio.charset.StandardCharsets;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hezhangjian</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoSocketSend</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> <span class="string">&quot;127.0.0.1&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> <span class="number">8000</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testSocketSend</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Socket</span> <span class="variable">socket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Socket</span>(ip, port);</span><br><span class="line">        <span class="keyword">final</span> <span class="type">DataOutputStream</span> <span class="variable">dataOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DataOutputStream</span>(socket.getOutputStream());</span><br><span class="line">        dataOutputStream.write(<span class="string">&quot;HelloWorld&quot;</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">        socket.shutdownOutput();</span><br><span class="line">        dataOutputStream.flush();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>随后我在25行和26行打了断点</p>
+<p>当运行到25行的时候，python server并没有收到数据</p>
+<p><img src="/Images/code-socket-flush1.png" alt="image-20210402121759024"></p>
+<p>还没运行26行的时候，数据就已经发送到python服务器了</p>
+<p><img src="/Images/code-socket-flush2.png" alt="image-20210402121818000"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这个时候证明我们的推测是正确的，<code>shutdownOutput</code>方法自带了<code>flush</code>效果。<br>我也尝试了配置<code>tcpNoDeplay</code>参数，配不配置tcpNoDelay，都是一样的效果。看起来jvm都有缓冲<br>那么已经调用了<code>shutdownOutput</code>方法之后，<code>flush</code>方法还有没有必要调用呢，从<code>clean code</code>的角度，<code>flush</code>方法的调用已经是没有任何必要的了，建议删除。一般场景下可能不会有问题，但是如果极端场景，比如在25行到26行之间，程序陷入了长gc，这行就有可能抛出IOException，影响原来的逻辑。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +334,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -331,7 +424,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -462,7 +555,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -549,7 +642,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -655,7 +748,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -852,7 +945,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -982,7 +1075,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1069,7 +1162,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1161,7 +1254,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1211,111 +1304,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/02/16/BookKeeper%20%E6%8C%81%E4%B9%85%E5%8C%96%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/bookkeeper-persistent-file" class="post-title-link post-title-link-external" itemprop="url">BookKeeper 持久化文件解析<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-02-16 12:19:19" itemprop="dateCreated datePublished" datetime="2021-02-16T12:19:19+08:00">2021-02-16</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Entry-Log-File"><a href="#Entry-Log-File" class="headerlink" title="Entry Log File"></a>Entry Log File</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>测试环境上出现了一些entryLog解析异常的问题，想分析一下磁盘上.log文件的格式，分析分析我们的文件是否有问题</p>
-<h2 id="解析代码地址"><a href="#解析代码地址" class="headerlink" title="解析代码地址"></a>解析代码地址</h2><p><a target="_blank" rel="noopener" href="https://github.com/protocol-laboratory/bookkeeper-codec-java/blob/main/src/main/java/com/github/protocol/EntryLogReader.java">https://github.com/protocol-laboratory/bookkeeper-codec-java/blob/main/src/main/java/com/github/protocol/EntryLogReader.java</a></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>我们采用的配置是singleEntryLog模式，就是说很多ledger的信息都会放在一个log文件内部。</p>
-<p>插一句话：这种log文件，其实和LSM相似，属于不可变的数据结构，这种数据结构，得益于不可变，所以内容可以安排的非常紧凑，不像B树结构，需要预留一定空间给原地更新，随机插入等。</p>
-<p><img src="/Images/bookkeeper-entry-log-format.png" alt="bookkeeper-entry-log-format"></p>
-<p>如上图所示，接下来，我们沿着解析的流程，解读每个部分的详细格式</p>
-<h3 id="解析头部"><a href="#解析头部" class="headerlink" title="解析头部"></a>解析头部</h3><p>首先，我们解析文件的头部字段，bookkeeper的设计中，文件头部预留了1024字节，目前只使用了20个字节<br>前四个字节是<strong>BKLO</strong>的文件魔数<br>然后紧跟着的4个字节是bk文件的版本号，这里我们仅分析版本号1<br>然后8字节的long类型代表<strong>ledgersMap</strong>的开始位置，称为<strong>ledgersMapOffset</strong>。<br>然后4字节的int类型代表<strong>ledgersMap</strong>的总长度。</p>
-<h3 id="解析ledgerMap部分"><a href="#解析ledgerMap部分" class="headerlink" title="解析ledgerMap部分"></a>解析ledgerMap部分</h3><p>最前面四个字节，代表这部分的大小</p>
-<p>然后开始的ledgerId和entryId分别为-1，-2，随后是一个ledger的count大小，后面的ledgerId和size才是有效值</p>
-<p>随后的部分非常紧凑，由一个个ledgerId，size组成</p>
-<p>读取完ledgerMap，可以知道，这个文件包含了多少ledger，总大小是多少？</p>
-<p>注：size代表这一段ledger占用的磁盘空间大小</p>
-<h3 id="解析body内容"><a href="#解析body内容" class="headerlink" title="解析body内容"></a>解析body内容</h3><p>body内容也非常紧凑.<br>最前面4个字节，代表这个entry的大小。<br>然后8个字节，ledgerId<br>然后8个字节，entryId<br>剩下的内容，就是pulsar写数据的编码，不再属于bookkeeper的格式范畴了</p>
-<h1 id="Txn-Log-File"><a href="#Txn-Log-File" class="headerlink" title="Txn Log File"></a>Txn Log File</h1><h2 id="解析代码地址-1"><a href="#解析代码地址-1" class="headerlink" title="解析代码地址"></a>解析代码地址</h2><p><a target="_blank" rel="noopener" href="https://github.com/protocol-laboratory/bookkeeper-codec-java/blob/main/src/main/java/com/github/protocol/TxnLogReader.java">https://github.com/protocol-laboratory/bookkeeper-codec-java/blob/main/src/main/java/com/github/protocol/TxnLogReader.java</a></p>
-<h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><p>bookkeeper中的journal log，和大部分基于LSM的数据结构一样，是用来保证文件一定被写入的。会在数据写入的时候，写入journal log，崩溃恢复的时候从journal log里面恢复。</p>
-<p><img src="/Images/bookkeeper-txn-log-format.png" alt="bookkeeper-txn-log-format"></p>
-<h3 id="解析头部-1"><a href="#解析头部-1" class="headerlink" title="解析头部"></a>解析头部</h3><p>首先，我们解析文件的头部字段<br>前四个字节是BKLG的文件魔数<br>然后紧跟着的4个字节是bk文件的版本号</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> TxnHeader <span class="title function_">readHeader</span><span class="params">(FileChannel fileChannel)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">ByteBuf</span> <span class="variable">headers</span> <span class="operator">=</span> Unpooled.buffer(HEADER_SIZE);</span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span> <span class="variable">read</span> <span class="operator">=</span> fileChannel.read(headers.internalNioBuffer( index: <span class="number">0</span>, HEADER_SIZE));</span><br><span class="line">    headers.writerIndex(read);</span><br><span class="line">    <span class="keyword">final</span> <span class="type">byte</span>[] bklgByte = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">4</span>];</span><br><span class="line">    headers.readBytes(bklgByte, dstIndex: <span class="number">0</span>, length: <span class="number">4</span>);</span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span> <span class="variable">headerVersion</span> <span class="operator">=</span> headers.readInt();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">TxnHeader</span>(headerVersion);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="解析内容"><a href="#解析内容" class="headerlink" title="解析内容"></a>解析内容</h3><p>内容非常紧凑，由ledgerId，entryId和内容组成。ledgerId一定大于0，entryId在小于0的情况下代表特殊的数据。如</p>
-<ul>
-<li>-0x1000即4096 代表ledger的masterKey</li>
-<li>-0x2000即8192 代表ledger是否被fence</li>
-<li>-0x4000即16384 代表ledger的force</li>
-<li>-0x8000即32768 代表ledger的显示LAC</li>
-</ul>
-<h2 id="回放流程"><a href="#回放流程" class="headerlink" title="回放流程"></a>回放流程</h2><p>当bookkeeper启动的时候，他会从data路径下取得lastMark文件，该文件一定为16个字节，前八个字节代表落盘的最新journal log文件，后八个字节代表文件的位置。会从这个位置开始回放。<br>值得一提的是，lastId文件，代表下一个dataLog该使用什么文件名。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/11/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/13/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/11/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/13/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

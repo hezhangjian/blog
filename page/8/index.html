@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">140</span>
+          <span class="site-state-item-count">141</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,111 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/10/20/Cassandra%E4%B8%AD%E7%9A%84Primary%20Key%E3%80%81Partition%20Key%E3%80%81Clustering%20Key%E9%83%BD%E6%98%AF%E4%BB%80%E4%B9%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/10/20/Cassandra%E4%B8%AD%E7%9A%84Primary%20Key%E3%80%81Partition%20Key%E3%80%81Clustering%20Key%E9%83%BD%E6%98%AF%E4%BB%80%E4%B9%88/" class="post-title-link" itemprop="url">Cassandra中的Primary Key、Partition Key、Clustering Key都是什么？</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-20 20:36:27" itemprop="dateCreated datePublished" datetime="2021-10-20T20:36:27+08:00">2021-10-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Cassandra中的Key有如下三种类型</p>
+<ul>
+<li>Primary Key</li>
+<li>Partitioning Key</li>
+<li>Clustering Key</li>
+</ul>
+<h2 id="Primary-Key-主键"><a href="#Primary-Key-主键" class="headerlink" title="Primary Key 主键"></a>Primary Key 主键</h2><p>每张表都需要有主键。主键可以是一个字段或者多个字段的组合。每条记录的主键必须唯一。举个例子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE player (</span><br><span class="line">   name text,</span><br><span class="line">   club text,</span><br><span class="line">   league text,</span><br><span class="line">   nationality text,</span><br><span class="line">	 kit_number text,</span><br><span class="line">   position text,</span><br><span class="line">	 goals int,</span><br><span class="line">   assists int,</span><br><span class="line">   appearences int,</span><br><span class="line">   PRIMARY KEY (club, league, name, kit_number, position, goals)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这个数据表的主键有多个字段，称做复合主键。</p>
+<h2 id="分区键"><a href="#分区键" class="headerlink" title="分区键"></a>分区键</h2><p><code>Cassandra</code>根据分区键，使用一致性哈希算法，把数据分配到集群的各个机器上。一个机器可以包含多个分区。<code>Cassandra</code>保证同一分区键的数据都在一台机器上。通过合理的设置分区键，可以让你的查询让尽量少的机器处理，提升查询的效率</p>
+<p>对于单主键字段来说，分区键和主键是同一个字段。</p>
+<p>对于复合主键字段来说，默认情况下，分区键是复合主键的第一个字段。如上例中，分区键是<code>club</code>字段</p>
+<p>可以通过括号来将分区键指定为多个字段，如将上面<code>CQL</code>的11行修改为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PRIMARY KEY ((name, club), league, kit_number, position, goals)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Clustering-Key"><a href="#Clustering-Key" class="headerlink" title="Clustering Key"></a>Clustering Key</h2><p>Clustering Keys决定了分区内数据的排序。让我们再看一下最初的例子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE player (</span><br><span class="line">   name text,</span><br><span class="line">   club text,</span><br><span class="line">   league text,</span><br><span class="line">   nationality text,</span><br><span class="line">	 kit_number text,</span><br><span class="line">   position text,</span><br><span class="line">	 goals int,</span><br><span class="line">   assists int,</span><br><span class="line">   appearences int,</span><br><span class="line">   PRIMARY KEY (club, league, name, kit_number, position, goals)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>在主键中的字段，除了分区键外都是<strong>clustering key</strong>。既然<code>club</code>是主键，那么<code>league name kit_number position goals</code>是Clustering key。你可以定义<strong>clustering key</strong>中每个字段的升降序。可以将<code>kit_number</code>降序、<code>goals</code>升序</p>
+<p>排序顺序与主键中字段的顺序相同。因此，在上面的例子中，数据是按照如下布局的</p>
+<ul>
+<li>所有相同<code>club</code>的运动员都将分在同一个分区</li>
+<li>在分区内，按照<code>leauge</code>排序</li>
+<li>然后按照<code>name</code>排序</li>
+<li>然后按照<code>kit_number</code>排序</li>
+<li>…</li>
+</ul>
+<p>定义不同字段升降序的语法如下(默认为升序)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE player (</span><br><span class="line">   name text,</span><br><span class="line">   club text,</span><br><span class="line">   league text,</span><br><span class="line">   nationality text,</span><br><span class="line">	 kit_number text,</span><br><span class="line">   position text,</span><br><span class="line">	 goals int,</span><br><span class="line">   assists int,</span><br><span class="line">   appearances int,</span><br><span class="line">   PRIMARY KEY (club, league, name, kit_number, position, goals)</span><br><span class="line">)</span><br><span class="line">WITH CLUSTERING ORDER BY (league ASC, name DESC, kit_number ASC, position DESC );</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +345,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -350,7 +455,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -435,7 +540,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -536,7 +641,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -638,7 +743,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -725,7 +830,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -823,7 +928,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -911,7 +1016,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1020,7 +1125,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1059,92 +1164,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/12/%E6%AF%94%E8%B0%83%E7%94%A8Shell%E6%9B%B4%E9%AB%98%E6%95%88%E7%9A%84%E5%88%A4%E6%96%AD%E8%BF%9B%E7%A8%8B%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8%E7%9A%84%E6%96%B9%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/linux-process-exist" class="post-title-link post-title-link-external" itemprop="url">比调用Shell更高效的判断进程是否存在的方式<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-12 17:24:44" itemprop="dateCreated datePublished" datetime="2021-08-12T17:24:44+08:00">2021-08-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>有很多场景需要我们的代码检测一个进程是否存在，常用的一种方式是通过调用脚本通过<code>ps -ef</code>的方式查看，然而其实这种做法并不怎么高效，会fork一个进程出来，还会影响<code>go</code>协程的调度</p>
-<p>一种更好的方式是可以通过解析<code>/proc</code>文件夹来得到想要的信息，其实可以通过<code>strace</code>命令查看，<code>ps -ef</code>也是读取了这个路径下的信息</p>
-<p><img src="/Images/linux-ps-ef-strace.png" alt="linux-ps-ef-strace"></p>
-<p>下面分别是java和go的轮子示例</p>
-<p>使用正则表达式<code>[0-9]+</code>的原因是<code>/proc</code>路径下还有一些其他文件，其中pid都是数字。</p>
-<h2 id="java"><a href="#java" class="headerlink" title="java"></a>java</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Pattern</span> <span class="variable">numberPattern</span> <span class="operator">=</span> Pattern.compile(<span class="string">&quot;[0-9]+&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">processExists</span><span class="params">(String processName)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">File</span> <span class="variable">procFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;/proc&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!procFile.isDirectory()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Exception</span>(<span class="string">&quot;why proc dir is not directory&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">final</span> File[] listFiles = procFile.listFiles();</span><br><span class="line">        <span class="keyword">if</span> (listFiles == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">final</span> List&lt;File&gt; procDir = Arrays.stream(listFiles).filter(f -&gt; numberPattern.matcher(f.getName()).matches()).collect(Collectors.toList());</span><br><span class="line">        <span class="comment">// find the proc cmdline</span></span><br><span class="line">        <span class="keyword">for</span> (File file : procDir) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">final</span> <span class="type">byte</span>[] byteArray = FileUtils.readFileToByteArray(<span class="keyword">new</span> <span class="title class_">File</span>(file.getCanonicalPath() + File.separator + <span class="string">&quot;cmdline&quot;</span>));</span><br><span class="line">                <span class="keyword">final</span> <span class="type">byte</span>[] bytes = <span class="keyword">new</span> <span class="title class_">byte</span>[byteArray.length];</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; byteArray.length; i++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (byteArray[i] != <span class="number">0x00</span>) &#123;</span><br><span class="line">                        bytes[i] = byteArray[i];</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        bytes[i] = (<span class="type">byte</span>) <span class="number">0x20</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">final</span> <span class="type">String</span> <span class="variable">cmdLine</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">String</span>(bytes, StandardCharsets.UTF_8);</span><br><span class="line">                <span class="keyword">if</span> (cmdLine.contains(processName)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                <span class="comment">// the proc may end during the loop, ignore it</span></span><br><span class="line">                log.error(<span class="string">&quot;read file exception &quot;</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="go"><a href="#go" class="headerlink" title="go"></a>go</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ProcessExists</span><span class="params">(processName <span class="type">string</span>)</span></span> (<span class="type">bool</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	result := <span class="literal">false</span></span><br><span class="line">	fileInfos, err := ioutil.ReadDir(<span class="string">&quot;/proc&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> _, info := <span class="keyword">range</span> fileInfos &#123;</span><br><span class="line">		name := info.Name()</span><br><span class="line">		matched, err := regexp.MatchString(<span class="string">&quot;[0-9]+&quot;</span>, name)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">false</span>, err</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> !matched &#123;</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		cmdLine, err := parseCmdLine(<span class="string">&quot;/proc/&quot;</span> + info.Name() + <span class="string">&quot;/cmdline&quot;</span>)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			glog.Error(<span class="string">&quot;read cmd line failed &quot;</span>, err)</span><br><span class="line">			<span class="comment">// the proc may end during the loop, ignore it</span></span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> strings.Contains(cmdLine, processName) &#123;</span><br><span class="line">			result = <span class="literal">true</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> result, err</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">parseCmdLine</span><span class="params">(path <span class="type">string</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	cmdData, err := ioutil.ReadFile(path)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(cmdData) &lt; <span class="number">1</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	split := strings.Split(<span class="type">string</span>(bytes.TrimRight(cmdData, <span class="type">string</span>(<span class="string">&quot;\x00&quot;</span>))), <span class="type">string</span>(<span class="type">byte</span>(<span class="number">0</span>)))</span><br><span class="line">	<span class="keyword">return</span> strings.Join(split, <span class="string">&quot; &quot;</span>), <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/9/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/9/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

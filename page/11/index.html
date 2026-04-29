@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">140</span>
+          <span class="site-state-item-count">141</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,162 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/05/13/%E4%B8%9A%E5%8A%A1%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/business-config-center-impl" class="post-title-link post-title-link-external" itemprop="url">业务配置中心的实现<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-13 15:44:23" itemprop="dateCreated datePublished" datetime="2021-05-13T15:44:23+08:00">2021-05-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前在InfoQ的《华为云物联网四年配置中心实践》文章中分享了业务配置中心。</p>
+<p>本文讲述业务配置中心（下文简述为配置中心）的关键技术和实现方式。华为云物联网平台按照本文的实现方式实现了一个业务配置中心，该配置中心2020年1月上线，平稳运行至今。</p>
+<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><h2 id="运维配置"><a href="#运维配置" class="headerlink" title="运维配置"></a>运维配置</h2><p>和用户无关，通常为集群界级别的配置，程序只会进行读取，如数据库配置、邮箱服务器配置、网卡配置、子网地址配置等。</p>
+<h2 id="业务配置"><a href="#业务配置" class="headerlink" title="业务配置"></a>业务配置</h2><p>作为SaaS 服务，每个用户在上面都有一些业务配置。如用户的证书配置、用户服务器的流控配置等，这些业务配置相对<strong>运维配置</strong>来说更加复杂，且可能会有唯一性限制，如按用户 id 唯一。这部分配置数据一般由用户操作触发，代码动态写入，并且通知到各个微服务实例。通常，我们希望这些配置能在界面展示，且支持人为修改。上述逻辑如果由各微服务自己实现，会存在大量重复代码，并且质量无法保证。我们希望由一个公共组件来统一实现这个能力。开源或体量较小的项目就不会选择依赖一个配置中心，而是直接通过连接数据库或etcd来解决问题</p>
+<h2 id="env"><a href="#env" class="headerlink" title="env"></a>env</h2><p>代表一个部署环境。</p>
+<h2 id="cluster"><a href="#cluster" class="headerlink" title="cluster"></a>cluster</h2><p>代表环境下的集群。常见于单环境下蓝绿发布，蓝集群、绿集群、金丝雀集群等。</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>配置名称，如用户证书配置、用户流控配置等。</p>
+<h2 id="Key"><a href="#Key" class="headerlink" title="Key"></a>Key</h2><p>配置的唯一键，如用户id。</p>
+<h2 id="Value"><a href="#Value" class="headerlink" title="Value"></a>Value</h2><p>配置唯一键对应的值。</p>
+<h1 id="配置中心设计梗概"><a href="#配置中心设计梗概" class="headerlink" title="配置中心设计梗概"></a>配置中心设计梗概</h1><h2 id="业务配置特点"><a href="#业务配置特点" class="headerlink" title="业务配置特点"></a>业务配置特点</h2><ul>
+<li>虽然业务配置写入可能存在并发，但并发量不大，频率较低。</li>
+<li>业务配置常常以用户为id，单集群用户量有限，一般不超过5万。</li>
+</ul>
+<h2 id="配置中心要解决的问题"><a href="#配置中心要解决的问题" class="headerlink" title="配置中心要解决的问题"></a>配置中心要解决的问题</h2><p><img src="/Images/business-config-center-impl1.png" alt="business-config-center-impl1"></p>
+<h2 id="设计要点"><a href="#设计要点" class="headerlink" title="设计要点"></a>设计要点</h2><ul>
+<li>单配置要求有配置id，每个id上通过version的乐观并发控制来解决多版本冲突问题</li>
+<li>通知不追求可靠，应用程序和配置中心断链无法接收通知的场景下，通过定期同步数据来保证数据的可靠</li>
+<li>支持Schema的变更，因Schema变更不频繁，也采用version的乐观并发控制来解决多版本冲突问题</li>
+</ul>
+<h2 id="通知是否包含消息内容"><a href="#通知是否包含消息内容" class="headerlink" title="通知是否包含消息内容"></a>通知是否包含消息内容</h2><p>我认为应该只通知Key，具体的数值让应用程序再去配置中心查询。仅通知Key实现简洁易懂。同时通知Key&amp;Value需要多考虑定期同步和通知两条通道并发，可能引起的竞态冲突。</p>
+<h1 id="配置中心业务流程"><a href="#配置中心业务流程" class="headerlink" title="配置中心业务流程"></a>配置中心业务流程</h1><p>本小节描述业务配置中心的所有业务流程，并试图从交互中抽象出与具体实现无关的接口</p>
+<h2 id="配置的增删改查"><a href="#配置的增删改查" class="headerlink" title="配置的增删改查"></a>配置的增删改查</h2><p><img src="/Images/business-config-center-impl2.png" alt="business-config-center-impl2"></p>
+<h2 id="配置值的增删改查"><a href="#配置值的增删改查" class="headerlink" title="配置值的增删改查"></a>配置值的增删改查</h2><p><img src="/Images/business-config-center-impl3.png" alt="business-config-center-impl3"></p>
+<h2 id="定期同步"><a href="#定期同步" class="headerlink" title="定期同步"></a>定期同步</h2><p>分布式场景下，通知有可能无法送达，如程序陷入网络中断（或长gc），通知消息送达超时，待程序恢复后，数据不再准确。因此需要对数据做定期同步，提高可靠性。</p>
+<p><img src="/Images/business-config-center-impl4.png" alt="business-config-center-impl4"></p>
+<p>同步过程中，仅仅请求交互id和version，避免传输大量数据。应用程序接收到需要同步的数据后：</p>
+<ul>
+<li>删除操作，触发删除通知，从本地缓存中移除数据。</li>
+<li>添加、修改操作，向配置中心查询最新数据，触发通知并写入本地缓存。</li>
+</ul>
+<h2 id="服务启动"><a href="#服务启动" class="headerlink" title="服务启动"></a>服务启动</h2><p>服务启动也可看做是一个同步的流程，只是需要同步大量的数据添加。为了避免向配置中心频繁大量的请求，引入批量操作来减轻压力</p>
+<p><img src="/Images/business-config-center-impl5.png" alt="business-config-center-impl5"></p>
+<h2 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h2><p>该配置中心设计思路依赖客户端可把数据全量放入到内存中，如用户量太大，则不适合采用这种模式。</p>
+<p>注：一个节省内存的思路是，内存中只放置全量的id和version，数据只有当用到的时候再去查询。这个思路要求配置中心持久化一些老旧数据以供以下场景的查询使用</p>
+<ul>
+<li><p>业务流程中，需要使用该配置值的。</p>
+</li>
+<li><p>回调业务程序修改的时候，需要提供旧值的。</p>
+</li>
+</ul>
+<p>除此之外没有任何区别。</p>
+<h1 id="业务配置抽象实现"><a href="#业务配置抽象实现" class="headerlink" title="业务配置抽象实现"></a>业务配置抽象实现</h1><p>从上述描述的业务场景，我们抽象出业务配置中心的交互接口和抽象实现。接口的Swagger Yaml已上传到Github：<a target="_blank" rel="noopener" href="https://gist.github.com/hezhangjian/68c9c2ecae72cc2a125184e95b0a741e">https://gist.github.com/hezhangjian/68c9c2ecae72cc2a125184e95b0a741e</a></p>
+<h2 id="配置相关接口"><a href="#配置相关接口" class="headerlink" title="配置相关接口"></a>配置相关接口</h2><ul>
+<li>提供env、cluster、配置名称、配置Schema、配置版本号添加配置</li>
+<li>提供env、cluster、配置名称删除配置</li>
+<li>提供env、cluster、配置名称、新Schema、新Version来修改配置</li>
+<li>提供env、cluster、配置名称来查询配置</li>
+</ul>
+<h2 id="配置值相关接口"><a href="#配置值相关接口" class="headerlink" title="配置值相关接口"></a>配置值相关接口</h2><ul>
+<li>提供env、cluster、配置名称、Key、Value来添加配置值</li>
+<li>提供env、cluster、Key、ValueVersion（可选）来删除配置值</li>
+<li>提供env、cluster、Key、Value、ValueVersion（可选）修改配置值</li>
+<li>提供env、cluster、Key查询配置值</li>
+<li>根据env、cluster、应用程序当前的配置数据来做定期同步</li>
+<li>根据Key列表批量查询配置值</li>
+</ul>
+<h2 id="通知相关接口"><a href="#通知相关接口" class="headerlink" title="通知相关接口"></a>通知相关接口</h2><ul>
+<li>通知某env某cluster下，配置项中的一个Key发生变化，新增、修改或是删除。可选方式有HTTP长链接（Inspired by Apollo）、Mqtt、WebSocket等。</li>
+</ul>
+<h2 id="配置中心存储层抽象实现"><a href="#配置中心存储层抽象实现" class="headerlink" title="配置中心存储层抽象实现"></a>配置中心存储层抽象实现</h2><p>配置中心存储层需要存储<strong>配置</strong>和<strong>配置值</strong>数据，支持UpdateByVersion，且需要捕捉数据的变化，用来通知到应用程序</p>
+<h2 id="服务发现抽象实现"><a href="#服务发现抽象实现" class="headerlink" title="服务发现抽象实现"></a>服务发现抽象实现</h2><p>为了使应用程序连接到配置中心，需要一个发现机制可以让应用程序感知到配置中心的地址。高可用的方式很多，如K8s发现、ZooKeeper、Etcd、ServiceComb、业务环境变量注入ELB地址（ELB后端挂载配置中心的地址）等。</p>
+<h2 id="抽象总结"><a href="#抽象总结" class="headerlink" title="抽象总结"></a>抽象总结</h2><p><img src="/Images/business-config-center-impl6.png" alt="business-config-center-impl6"></p>
+<p>根据这个抽象，我们可以进行关键技术点选型，来实现业务配置中心。</p>
+<h1 id="配置中心实现"><a href="#配置中心实现" class="headerlink" title="配置中心实现"></a>配置中心实现</h1><h2 id="华为云物联网配置中心实现"><a href="#华为云物联网配置中心实现" class="headerlink" title="华为云物联网配置中心实现"></a>华为云物联网配置中心实现</h2><p><img src="/Images/business-config-center-impl7.png" alt="business-config-center-impl7"></p>
+<ul>
+<li>env+cluster+config组成数据表的名称</li>
+<li>一个key、value对应一行数据</li>
+</ul>
+<h2 id="另一种实现方式"><a href="#另一种实现方式" class="headerlink" title="另一种实现方式"></a>另一种实现方式</h2><p>只要实现上述接口和抽象能力，都可以实现业务配置中心，也可以这么实现</p>
+<p><img src="/Images/business-config-center-impl8.png" alt="business-config-center-impl8"></p>
+<ul>
+<li>env+cluster+config+key 组合成etcd的key</li>
+<li>一个key、value对应一个键值对</li>
+</ul>
+<h2 id="又一种实现方式"><a href="#又一种实现方式" class="headerlink" title="又一种实现方式"></a>又一种实现方式</h2><p>当然也可以</p>
+<p><img src="/Images/business-config-center-impl9.png" alt="business-config-center-impl9"></p>
+<ul>
+<li>env+cluster+config+key 组合成RocksDB的key</li>
+<li>一个key、value对应一个键值对</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +396,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -341,7 +497,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -599,7 +755,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -730,7 +886,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -829,7 +985,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -923,7 +1079,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1087,7 +1243,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1195,7 +1351,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1296,7 +1452,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
+      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
     </span>
 
   
@@ -1379,101 +1535,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/02/%E8%AE%B0%E4%B8%80%E6%AC%A1%E4%BB%A3%E7%A0%81%E6%A3%80%E8%A7%86%E4%B9%8BSocket%20flush%E7%9A%84%E9%97%AE%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/04/02/%E8%AE%B0%E4%B8%80%E6%AC%A1%E4%BB%A3%E7%A0%81%E6%A3%80%E8%A7%86%E4%B9%8BSocket%20flush%E7%9A%84%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">记一次代码检视之Socket flush的问题</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-02 12:24:09" itemprop="dateCreated datePublished" datetime="2021-04-02T12:24:09+08:00">2021-04-02</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-23 13:26:45" itemprop="dateModified" datetime="2026-04-23T13:26:45+08:00">2026-04-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>记一次代码检视中领悟到的知识，和大家一起交流</p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>提交上来的代码大概是这个样子的</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Socket</span> <span class="variable">socket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Socket</span>(ip, port);</span><br><span class="line"><span class="keyword">final</span> <span class="type">DataOutputStream</span> <span class="variable">dataOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DataOutputStream</span>(socket.getOutputStream());</span><br><span class="line">dataOutputStream.write(<span class="string">&quot;HelloWorld&quot;</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">socket.shutdownOutput();</span><br><span class="line">dataOutputStream.flush();</span><br></pre></td></tr></table></figure>
-
-<p>这次主要是添加<code>shutdownOutput</code>的调用，及时关闭tcp会话，防止TW过多。</p>
-<p>经过大家的讨论，主要的矛盾点在<code>shutdownOutput</code>和<code>flush</code>的顺序。首先想到的是 flush方法放在了output后面，这样还能起作用吗？但是提交代码之前是经过测试的，这样子是可以正常工作的。然后的想法就是，傻逼了，想错了，shutdown应该自带flush效果，os都发fin了，之前的buffer肯定出去了。</p>
-<p>我做个实验，来探究下是不是这样子的，我从python开启了一个http server来开启实验</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -m http.server</span><br></pre></td></tr></table></figure>
-
-<p>java测试类代码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.hezhangjian.demo.basic;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.junit.Test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.DataOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.net.Socket;</span><br><span class="line"><span class="keyword">import</span> java.nio.charset.StandardCharsets;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hezhangjian</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoSocketSend</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> <span class="string">&quot;127.0.0.1&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> <span class="number">8000</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testSocketSend</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Socket</span> <span class="variable">socket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Socket</span>(ip, port);</span><br><span class="line">        <span class="keyword">final</span> <span class="type">DataOutputStream</span> <span class="variable">dataOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DataOutputStream</span>(socket.getOutputStream());</span><br><span class="line">        dataOutputStream.write(<span class="string">&quot;HelloWorld&quot;</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">        socket.shutdownOutput();</span><br><span class="line">        dataOutputStream.flush();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>随后我在25行和26行打了断点</p>
-<p>当运行到25行的时候，python server并没有收到数据</p>
-<p><img src="/Images/code-socket-flush1.png" alt="image-20210402121759024"></p>
-<p>还没运行26行的时候，数据就已经发送到python服务器了</p>
-<p><img src="/Images/code-socket-flush2.png" alt="image-20210402121818000"></p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这个时候证明我们的推测是正确的，<code>shutdownOutput</code>方法自带了<code>flush</code>效果。<br>我也尝试了配置<code>tcpNoDeplay</code>参数，配不配置tcpNoDelay，都是一样的效果。看起来jvm都有缓冲<br>那么已经调用了<code>shutdownOutput</code>方法之后，<code>flush</code>方法还有没有必要调用呢，从<code>clean code</code>的角度，<code>flush</code>方法的调用已经是没有任何必要的了，建议删除。一般场景下可能不会有问题，但是如果极端场景，比如在25行到26行之间，程序陷入了长gc，这行就有可能抛出IOException，影响原来的逻辑。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/12/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/12/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
