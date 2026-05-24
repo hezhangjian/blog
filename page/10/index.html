@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-count">142</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,88 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/06/Go%20%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/07/06/Go%20%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/" class="post-title-link" itemprop="url">Go 定时任务</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-06 08:28:50" itemprop="dateCreated datePublished" datetime="2021-07-06T08:28:50+08:00">2021-07-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="不使用三方库"><a href="#不使用三方库" class="headerlink" title="不使用三方库"></a>不使用三方库</h2><h3 id="协程Sleep方式"><a href="#协程Sleep方式" class="headerlink" title="协程Sleep方式"></a>协程Sleep方式</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> <span class="literal">true</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">&quot;Hello !!&quot;</span>)</span><br><span class="line">        time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;()</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用ticker方式1"><a href="#使用ticker方式1" class="headerlink" title="使用ticker方式1"></a>使用ticker方式1</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ticker := time.NewTicker(<span class="number">1</span> * time.Second)</span><br><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> <span class="keyword">range</span> ticker.C &#123;</span><br><span class="line">        fmt.Println(<span class="string">&quot;Hello !!&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;()</span><br><span class="line"></span><br><span class="line"><span class="comment">// wait for 10 seconds</span></span><br><span class="line">time.Sleep(<span class="number">10</span> *time.Second)</span><br><span class="line">ticker.Stop()</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用ticker方式2"><a href="#使用ticker方式2" class="headerlink" title="使用ticker方式2"></a>使用ticker方式2</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">done := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">bool</span>)</span><br><span class="line">ticker := time.NewTicker(<span class="number">1</span> * time.Second)</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">        <span class="keyword">select</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> &lt;-done:</span><br><span class="line">            ticker.Stop()</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        <span class="keyword">case</span> &lt;-ticker.C:</span><br><span class="line">            fmt.Println(<span class="string">&quot;Hello !!&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;()</span><br><span class="line"></span><br><span class="line"><span class="comment">// wait for 10 seconds</span></span><br><span class="line">time.Sleep(<span class="number">10</span> *time.Second)</span><br><span class="line">done &lt;- <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/53057237/how-to-schedule-a-task-at-go-periodically">https://stackoverflow.com/questions/53057237/how-to-schedule-a-task-at-go-periodically</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +322,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -377,7 +459,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -493,7 +575,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -660,7 +742,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -801,7 +883,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -894,7 +976,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -983,7 +1065,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1109,7 +1191,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1226,7 +1308,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1359,115 +1441,6 @@
 <td>低</td>
 </tr>
 </tbody></table>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/05/30/%E5%A4%A7%E5%9E%8B%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/cert-manager" class="post-title-link post-title-link-external" itemprop="url">大型系统中的证书管理<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-05-30 22:47:05" itemprop="dateCreated datePublished" datetime="2021-05-30T22:47:05+08:00">2021-05-30</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="大型系统中的证书管理"><a href="#大型系统中的证书管理" class="headerlink" title="大型系统中的证书管理"></a>大型系统中的证书管理</h1><p>随着安全的要求，现在我们在越来越多的通信中使用TLS加密。下图是一个微服务架构下数据流向的例子</p>
-<p><img src="/Images/cert-manager1.png" alt="cert-manager1"></p>
-<ul>
-<li>蓝色部分，即和三方交互时需要TLS加密认证</li>
-<li>红色部分，各个微服务、消息中间件等通信需要TLS加密认证</li>
-<li>绿色部分，各个微服务和存储层通信也需要TLS加密认证</li>
-</ul>
-<p>安全上对我们的要求逐步变化为，仅蓝色使用TLS&#x3D;》蓝色和红色使用TLS&#x3D;》全部使用TLS加密</p>
-<h2 id="证书管理的必要性"><a href="#证书管理的必要性" class="headerlink" title="证书管理的必要性"></a>证书管理的必要性</h2><p>从安全的角度上来说，我们最好能支持证书的更换和热加载。如果您的业务当前使用加密的场景不多，可能暂时看不到证书管理的意义。但是当你在各个方面使用TLS更加频繁之后，会发现证书管理可带来如下好处：</p>
-<ul>
-<li>可以通过抽象出场景，通过场景和证书的关联联系，在各个地方通信使用的证书，可以统一更换。</li>
-<li>统一提供证书过期告警等功能</li>
-<li>统一提供证书的变更通知，通知到各个实例</li>
-</ul>
-<p>以我在工作中接触到的两个基础PAAS平台，都有证书管理的功能，可见证书管理的必要性。</p>
-<p>PS: 开源组件大多都拥有证书配置能力，没有可对接证书管理的能力，但这个能力很难贡献给社区，需要自己开发。</p>
-<h2 id="证书管理概念"><a href="#证书管理概念" class="headerlink" title="证书管理概念"></a>证书管理概念</h2><p>在TLS会话中，从依赖的证书文件角度来看，可以分为加密流程和验证流程。</p>
-<h3 id="加密证书"><a href="#加密证书" class="headerlink" title="加密证书"></a>加密证书</h3><p>TLS加密流程的证书，包含证书链文件和密钥</p>
-<h3 id="验证证书"><a href="#验证证书" class="headerlink" title="验证证书"></a>验证证书</h3><p>TLS验证流程的证书，仅包含证书链文件</p>
-<h3 id="拆分为加密流程和验证流程的合理性"><a href="#拆分为加密流程和验证流程的合理性" class="headerlink" title="拆分为加密流程和验证流程的合理性"></a>拆分为加密流程和验证流程的合理性</h3><p>这使得加密流程证书和验证流程证书可以互相独立的替换，更方便在大型场景下复用证书。</p>
-<p>让我们来假设如下的场景：</p>
-<p><img src="/Images/cert-manager2.png" alt="cert-manager2"></p>
-<p>客户A、客户B、客户C、客户D的验证流程证书自然不相同，但服务跟客户交互的时候，使用的加密流程证书确实同一份。如果将两个阶段的证书合一，那么在更换证书的时候，就需要更新4份数据，当你有1000名用户的时候，这个数字将会是1000，这对于存储和应用程序来说都是不小的冲击。</p>
-<h3 id="Scene"><a href="#Scene" class="headerlink" title="Scene"></a>Scene</h3><p>Scene是在一个会话中，代表会话和请求证书、验证证书的绑定关系。Scene和请求证书、验证证书都是1：1的关系。这使得我们不仅仅可以修改证书文件，也可以对TLS会话中使用的证书进行修改。在证书无法复用，且证书绑定了多个场景的时候，针对单个场景修改其绑定的证书。</p>
-<p>以上图作为例子，假设客户D有特殊的要求，要求加密流程使用特定的证书或密钥，我们就可以将客户D的场景绑定到客户D独有的加密证书</p>
-<h3 id="多集群管理"><a href="#多集群管理" class="headerlink" title="多集群管理"></a>多集群管理</h3><p>如果证书管理需要管理多个集群，那么证书和Scene前面可以加上层级来隔离，如环境、集群等。</p>
-<h3 id="对小型系统的建议"><a href="#对小型系统的建议" class="headerlink" title="对小型系统的建议"></a>对小型系统的建议</h3><p>如果规模不大，且TLS场景有限，需要考虑一下有无拆分加密证书和验证证书的必要，可以合一，应用程序直接以合一的证书id来关联，而非场景id。虽不方便复用，但大大降低了复杂性。</p>
-<h2 id="证书管理的功能"><a href="#证书管理的功能" class="headerlink" title="证书管理的功能"></a>证书管理的功能</h2><p><img src="/Images/cert-manager3.png" alt="cert-manager3"></p>
-<h2 id="证书管理场景"><a href="#证书管理场景" class="headerlink" title="证书管理场景"></a>证书管理场景</h2><h3 id="设定一个TLS会话"><a href="#设定一个TLS会话" class="headerlink" title="设定一个TLS会话"></a>设定一个TLS会话</h3><p><img src="/Images/cert-manager4.png" alt="cert-manager4"></p>
-<h3 id="使用TLS会话"><a href="#使用TLS会话" class="headerlink" title="使用TLS会话"></a>使用TLS会话</h3><p>这要求应用程序持久化场景信息</p>
-<p><img src="/Images/cert-manager5.png" alt="cert-manager5"></p>
-<h2 id="组织架构相关"><a href="#组织架构相关" class="headerlink" title="组织架构相关"></a>组织架构相关</h2><p>大型系统下，证书管理是一个必须的组件，且一定是由团队最底层的组织架构承接。如若不然，那么由底层组织架构维护的组件，因为依赖关系，无法基于证书管理来统一实现证书的更换和过期告警。除非不基于证书管理自己构筑一套能力。</p>
-<h2 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h2><p>随着组件和使用加密场景的不断扩大，证书管理是一个必须的组件，通过抽象出场景的概念来复用证书，通过变更通知在微服务模式下快速更换所有微服务实例上的证书，并提供统一的证书过期告警功能来提醒管理员更换证书。</p>
 
       
     </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-count">142</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,110 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/10/31/%E8%87%AA%E4%B8%8A%E8%80%8C%E4%B8%8B%E7%9A%84%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/10/31/%E8%87%AA%E4%B8%8A%E8%80%8C%E4%B8%8B%E7%9A%84%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">自上而下的安全设计（一）</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-31 16:11:00" itemprop="dateCreated datePublished" datetime="2021-10-31T16:11:00+08:00">2021-10-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>这是近期观摩某个产品安全加固时的心得，也请教过我们部门的安全专家、架构师。第一篇文章，我想先分析一下重要性和我心中的实现原则。后面可以贴出一些更详细的流程和代码样例</p>
+<h2 id="早期没有做好安全，后果很严重"><a href="#早期没有做好安全，后果很严重" class="headerlink" title="早期没有做好安全，后果很严重"></a>早期没有做好安全，后果很严重</h2><p>李林峰老师，也就是《Netty权威指南》的作者，同样也在华为工作 :)<br>。在一本书就曾写过，见过很多产品在安全审核上投入了大量的时间和精力。我表示深深地认同。而这些，往往是因为产品在初期没有做好好的安全设计。以一个假想产品举例，</p>
+<p><img src="/Images/security-design.png" alt="image-20211031152752639"></p>
+<p>图中，A与B之间，A与配置中心之前，都存在放置敏感信息的可能。有意思的事情来了，当安全分析发现了A与B之前存在放置敏感信息的可能时，产品决定把A与Mysql之间的通信进行加密和认证，加密的源材料放在哪？决策放到配置中心。可是，当安全分析发现A与配置中心之间存在传递敏感信息的可能时？那产品又应该怎么做？总不能放在Mysql这里吧。</p>
+<p>由此可见，如果没有一个完善的从上而下的安全设计，产品在搞安全增强或者说加固的时候，就像哪里破了刷哪里一样，把房间弄得乱七八糟，事倍功半。我相信更难受的是那些刷墙的开发人员。</p>
+<h2 id="自上而下安全设计的核心"><a href="#自上而下安全设计的核心" class="headerlink" title="自上而下安全设计的核心"></a>自上而下安全设计的核心</h2><p>作为一个开发人员，我还是站在开发人员的角度。我认为对于开发人员的核心就是有一个 证书可轮换、密钥可轮换的基础机制。毕竟开发人员最常碰到的安全问题就是：</p>
+<ul>
+<li>通信中敏感数据没有加密</li>
+<li>通信中双方没有做认证</li>
+<li>敏感信息存储没有加密</li>
+</ul>
+<p>拥有了证书可轮换、密钥可轮换的机制，开发人员就可以轻而易举地搞定这三件事情。</p>
+<h3 id="从设计、开发人员的思维、底层库开始，证书、密钥都是支持可替换的"><a href="#从设计、开发人员的思维、底层库开始，证书、密钥都是支持可替换的" class="headerlink" title="从设计、开发人员的思维、底层库开始，证书、密钥都是支持可替换的"></a>从设计、开发人员的思维、底层库开始，证书、密钥都是支持可替换的</h3><ul>
+<li>底层库支持证书轮换、密钥轮换，同时注意轮换时老密钥的存留时间等</li>
+<li>密钥更新时，如果需要彻底废弃老密钥，注意旧数据需要重新解密后用新密钥加密</li>
+<li>开发人员也要认同密钥是可替换的，甚至不同用户的密钥可以是不一样的，不然如果平时测试覆盖不到密钥替换，真正实施的话，就会不敢实施，或者出现现网事故</li>
+</ul>
+<h3 id="证书、密钥的存储"><a href="#证书、密钥的存储" class="headerlink" title="证书、密钥的存储"></a>证书、密钥的存储</h3><p>往往，我们开发的任意两个组件之间，都可能会要求互相通信和认证，更不用提那些初始口令了，肯定是需要加密的，所以证书和密钥不适合存在产品自己开发的配置中心，或者是数据库中。更适合在安装部署阶段放置在更底层，更基础设施中，例如</p>
+<ul>
+<li>专用的加密硬件</li>
+<li>依赖公有云进行部署的，可以将证书存放在云上托管的Kubernetes集群的secret中，并对k8s集群进行加固，避免根密钥、根证书泄露</li>
+</ul>
+<p>这些都可以由部署工具自动导入或人工手动导入。</p>
+<h3 id="设计证书、密钥的使用轮换机制"><a href="#设计证书、密钥的使用轮换机制" class="headerlink" title="设计证书、密钥的使用轮换机制"></a>设计证书、密钥的使用轮换机制</h3><ul>
+<li>证书的粒度：是每个微服务一个证书还是每个业务场景一个证书</li>
+<li>密钥的粒度：是每个客户一个工作密钥还是共享一个工作密钥</li>
+<li>轮换时是否容忍业务损失，最大可损失时长是多久</li>
+<li>还要注意每个微服务能获取到的证书和密钥，它只应该获取它需要的证书、密钥，理论上单一微服务不应该有获取根证书、根密钥的能力。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +344,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -345,7 +449,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -455,7 +559,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -540,7 +644,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -641,7 +745,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -743,7 +847,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -830,7 +934,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -928,7 +1032,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1016,7 +1120,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1062,89 +1166,6 @@
 <li>GoFrame的框架默认会对全量字段进行更新，无论你的字段有没有复制</li>
 <li>OmitEmpty可以让框架跳过空值，但是int类型的0，也会跳过</li>
 <li>如果你还是想用<code>OmitEmpty</code>跳过空值的情况下，写入0，请使用<code>*int</code>类型</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/14/%E4%B8%80%E7%A7%8D%E5%A4%9A%E5%9C%B0%E5%9F%9F%E9%83%A8%E7%BD%B2%E6%97%B6%E4%BB%A3%E7%A0%81%E5%AF%B9%E6%97%B6%E5%8C%BA%E7%9A%84%E5%A4%84%E7%90%86%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/08/14/%E4%B8%80%E7%A7%8D%E5%A4%9A%E5%9C%B0%E5%9F%9F%E9%83%A8%E7%BD%B2%E6%97%B6%E4%BB%A3%E7%A0%81%E5%AF%B9%E6%97%B6%E5%8C%BA%E7%9A%84%E5%A4%84%E7%90%86%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">一种多地域部署时代码对时区的处理模式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-14 09:44:53" itemprop="dateCreated datePublished" datetime="2021-08-14T09:44:53+08:00">2021-08-14</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>当代码只在当地（example：中国）部署的时候，可能不需要太考虑时区问题，很大可能你的部署机器、容器都是在当地时间。<br>这种情况下，代码里面统一用当地时间做处理没有任何问题。</p>
-<p>但如果代码需要多地域部署，或者是部署的机器时区不一，比如XX单位机器统一采用UTC时间，YY单位机器统一采用当地时间，这么做不利于数据的导入导出，也不利于开发人员的维护</p>
-<p>一个良好的处理方式可以是这样子的</p>
-<p><img src="/Images/timezone.png" alt="image-20210814094346086"></p>
-<ul>
-<li>存储数据都使用UTC格式存储</li>
-<li>业务层跟不同的当地系统对接</li>
 </ul>
 
       

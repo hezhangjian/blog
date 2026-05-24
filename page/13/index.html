@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-count">142</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,100 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/03/06/ipvs%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E6%9C%80%E5%B0%8F%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95%E5%9C%A8UDP%E7%9A%84%E5%9D%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/03/06/ipvs%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E6%9C%80%E5%B0%8F%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95%E5%9C%A8UDP%E7%9A%84%E5%9D%91/" class="post-title-link" itemprop="url">ipvs负载均衡最小连接算法在UDP的坑</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-03-06 13:02:40" itemprop="dateCreated datePublished" datetime="2021-03-06T13:02:40+08:00">2021-03-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在ipvs中，最小连接算法是一种负载均衡算法，常见的还有轮询算法，加权轮询算法等。让我们先做个基本的假设，每个<strong>UDP</strong>会话连接上的请求量大概一致。让<strong>LB</strong>无需观测后端服务的状态，仅仅根据会话信息，做出转发到哪个后端<strong>Service</strong>的判断，事实上，lvs也目前不能根据后端服务的cpu、内存或者是其他信息做出判断。直观上来说，最小连接数很符合大家的直观感受，保证了每个工作负载上承受的业务连接数是最少的。</p>
+<p><img src="/Images/ipvs-lb-udp.png" alt="ipvs-lb-udp"></p>
+<p>但是，在LVS保留会话时间稍微较长的情况下，最小连接算法在扩容、升级（升级前后IP改变）、重启（重启前后IP改变）会有一些问题。</p>
+<p>简而言之，就是<strong>LVS</strong>向后端转发<strong>UDP</strong>消息的时候，后端服务没有很好的拒绝手段，在<strong>LC</strong>模式下，导致<strong>LVS</strong>可能转发给后端服务，超过它处理能力的消息数，等到这些会话老化之后，<strong>LVS</strong>又开始转发给后端服务，超过它处理能力的消息数，如此反复，始终造成大量消息呼损，极难自愈</p>
+<h2 id="详细数据推导"><a href="#详细数据推导" class="headerlink" title="详细数据推导"></a>详细数据推导</h2><p>以扩容为例，设</p>
+<ul>
+<li>每秒消息量 m</li>
+<li>保活时间  t</li>
+<li>旧的节点数 a</li>
+<li>新增节点数 b</li>
+<li>使用新IP的请求占比 c (0&lt;c&lt;1)</li>
+<li>在一段保活时间内的IP总数 d</li>
+<li>单节点处理能力为x</li>
+</ul>
+<p>那么，扩容时刻，老的节点上的会话数是<strong>d&#x2F;a</strong></p>
+<p>扩容的时候，由于老的节点存在<strong>mt&#x2F;a</strong>的会话，那么新IP上来的请求都会转发向新节点，直到把新节点的连接数冲到<strong>mt&#x2F;a</strong>为止，</p>
+<p>新节点接收请求的速率: <strong>(m * c)&#x2F;b</strong><br>新节点连接数和老节点持平的时间点: **(d * b)&#x2F;(m * c <em>a)</em>*</p>
+<p>如果<strong>新节点连接数和老节点持平的时间点</strong>远远小于<strong>保活时间</strong>,这就会有问题。其他节点上的会话都是相对离散的，所以在保活时间t内，一直不断有消息进来，但新的节点一瞬间接收到了大量请求，又会在同一时间老化。在下一个周期t，又接收到大量请求，如此反复，极难自愈。这也因为lvs的udp转发不关心后端服务器是否成功处理报文，只要转发过去就算了。就是lvs无视后端的状态转发，相比tcp，至少还有是否接收tck连接，后端主动拆链等手段。</p>
+<p>虽然<strong>LVS</strong>能限制后端服务器的连接数，但连接数限制在这个场景是不起作用的。如果您的服务满足上述的这个模式，还是建议您修改为rr算法更为适合。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +335,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -343,7 +437,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -444,7 +538,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -543,7 +637,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -638,7 +732,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -734,7 +828,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -824,7 +918,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -960,7 +1054,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1054,7 +1148,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1088,96 +1182,6 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://127.0.0.1:12346</span><br></pre></td></tr></table></figure>
 
 <p><img src="/Images/nginx-sni-127.png" alt="nginx-sni-127"></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2020/11/10/ZooKeeper%E4%B8%B4%E6%97%B6%E6%9C%89%E5%BA%8F%E8%8A%82%E7%82%B9%E6%8E%89%E7%BA%BF%E5%AF%B9%E8%AE%A1%E6%95%B0%E7%9A%84%E5%BD%B1%E5%93%8D/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/11/10/ZooKeeper%E4%B8%B4%E6%97%B6%E6%9C%89%E5%BA%8F%E8%8A%82%E7%82%B9%E6%8E%89%E7%BA%BF%E5%AF%B9%E8%AE%A1%E6%95%B0%E7%9A%84%E5%BD%B1%E5%93%8D/" class="post-title-link" itemprop="url">ZooKeeper临时有序节点掉线对计数的影响</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-11-10 23:57:09" itemprop="dateCreated datePublished" datetime="2020-11-10T23:57:09+08:00">2020-11-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h1><h2 id="运行zookeeper"><a href="#运行zookeeper" class="headerlink" title="运行zookeeper"></a>运行zookeeper</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 2181:2181 -d ttbb/zookeeper:stand-alone</span><br></pre></td></tr></table></figure>
-<h2 id="代码参考"><a href="#代码参考" class="headerlink" title="代码参考"></a>代码参考</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/hezhangjian/maven-demo/tree/master/demo-zookeeper/src/main/java/com/github/hezhangjian/demo/zookeeper</span><br></pre></td></tr></table></figure>
-
-<h1 id="第一次运行代码"><a href="#第一次运行代码" class="headerlink" title="第一次运行代码"></a>第一次运行代码</h1><p>创建一个临时有序Znode，程序维持一个小时</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">package com.github.hezhangjian.demo.zookeeper;</span><br><span class="line"></span><br><span class="line">import com.github.hezhangjian.javatool.util.CommonUtil;</span><br><span class="line">import com.github.hezhangjian.javatool.util.LogUtil;</span><br><span class="line">import lombok.extern.slf4j.Slf4j;</span><br><span class="line">import org.apache.curator.RetryPolicy;</span><br><span class="line">import org.apache.curator.framework.CuratorFramework;</span><br><span class="line">import org.apache.curator.framework.CuratorFrameworkFactory;</span><br><span class="line">import org.apache.curator.retry.RetryNTimes;</span><br><span class="line">import org.apache.zookeeper.CreateMode;</span><br><span class="line"></span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author hezhangjian</span><br><span class="line"> */</span><br><span class="line">@Slf4j</span><br><span class="line">public class TempOrderTest &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws Exception &#123;</span><br><span class="line">        LogUtil.configureLog();</span><br><span class="line">        RetryPolicy retryPolicy = new RetryNTimes(3, 5000);</span><br><span class="line">        CuratorFramework client = CuratorFrameworkFactory.builder().connectString(&quot;127.0.0.1:2181&quot;)</span><br><span class="line">                .sessionTimeoutMs(10000).retryPolicy(retryPolicy).build();</span><br><span class="line">        client.start();</span><br><span class="line">        String path = client.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(&quot;/seq&quot;, &quot;World&quot;.getBytes());</span><br><span class="line">        log.info(&quot;path is [&#123;&#125;]&quot;, path);</span><br><span class="line">        CommonUtil.sleep(TimeUnit.HOURS, 1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="运行第一次"><a href="#运行第一次" class="headerlink" title="运行第一次"></a>运行第一次</h2><p><img src="/Images/zookeeper-temp-seq1.png" alt="first-run"></p>
-<h2 id="运行完之后zk"><a href="#运行完之后zk" class="headerlink" title="运行完之后zk"></a>运行完之后zk</h2><p><img src="/Images/zookeeper-temp-seq2.png" alt="after-first-run"></p>
-<h2 id="第二次运行代码"><a href="#第二次运行代码" class="headerlink" title="第二次运行代码"></a>第二次运行代码</h2><p>创建一个临时有序Znode，创建完成后立刻关闭</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">package com.github.hezhangjian.demo.zookeeper;</span><br><span class="line"></span><br><span class="line">import com.github.hezhangjian.javatool.util.CommonUtil;</span><br><span class="line">import com.github.hezhangjian.javatool.util.LogUtil;</span><br><span class="line">import lombok.extern.slf4j.Slf4j;</span><br><span class="line">import org.apache.curator.RetryPolicy;</span><br><span class="line">import org.apache.curator.framework.CuratorFramework;</span><br><span class="line">import org.apache.curator.framework.CuratorFrameworkFactory;</span><br><span class="line">import org.apache.curator.retry.RetryNTimes;</span><br><span class="line">import org.apache.zookeeper.CreateMode;</span><br><span class="line"></span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author hezhangjian</span><br><span class="line"> */</span><br><span class="line">@Slf4j</span><br><span class="line">public class TempOrderTest2 &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws Exception &#123;</span><br><span class="line">        LogUtil.configureLog();</span><br><span class="line">        RetryPolicy retryPolicy = new RetryNTimes(3, 5000);</span><br><span class="line">        CuratorFramework client = CuratorFrameworkFactory.builder().connectString(&quot;127.0.0.1:2181&quot;)</span><br><span class="line">                .sessionTimeoutMs(10000).retryPolicy(retryPolicy).build();</span><br><span class="line">        client.start();</span><br><span class="line">        String path = client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(&quot;/temp/seq&quot;, &quot;World&quot;.getBytes());</span><br><span class="line">        log.info(&quot;path is [&#123;&#125;]&quot;, path);</span><br><span class="line">        client.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="运行第二次结果"><a href="#运行第二次结果" class="headerlink" title="运行第二次结果"></a>运行第二次结果</h2><p><img src="/Images/zookeeper-temp-seq3.png" alt="second-run"></p>
-<h2 id="运行后zk"><a href="#运行后zk" class="headerlink" title="运行后zk"></a>运行后zk</h2><p><img src="/Images/zookeeper-temp-seq4.png" alt="after-second-run"><br>因为是临时节点，所以存在一会后删除</p>
-<h2 id="第三次仍然运行第一次的代码"><a href="#第三次仍然运行第一次的代码" class="headerlink" title="第三次仍然运行第一次的代码"></a>第三次仍然运行第一次的代码</h2><h2 id="运行第三次结果"><a href="#运行第三次结果" class="headerlink" title="运行第三次结果"></a>运行第三次结果</h2><p><img src="/Images/zookeeper-temp-seq5.png" alt="third-run"></p>
-<h2 id="zk"><a href="#zk" class="headerlink" title="zk"></a>zk</h2><p><img src="/Images/zookeeper-temp-seq6.png" alt="after-third-run"></p>
-<h2 id="第四次，修改了zkPath的值。值得一提的是，同一个ZkPath下似乎共享临时有序节点的最大值。如果修改zkPath从-temp-seq到-temp-seqX-出现的并不是预估的0000-而是0003"><a href="#第四次，修改了zkPath的值。值得一提的是，同一个ZkPath下似乎共享临时有序节点的最大值。如果修改zkPath从-temp-seq到-temp-seqX-出现的并不是预估的0000-而是0003" class="headerlink" title="第四次，修改了zkPath的值。值得一提的是，同一个ZkPath下似乎共享临时有序节点的最大值。如果修改zkPath从&#x2F;temp&#x2F;seq到&#x2F;temp&#x2F;seqX,出现的并不是预估的0000,而是0003"></a>第四次，修改了zkPath的值。值得一提的是，同一个ZkPath下似乎共享临时有序节点的最大值。如果修改zkPath从&#x2F;temp&#x2F;seq到&#x2F;temp&#x2F;seqX,出现的并不是预估的0000,而是0003</h2><p><img src="/Images/zookeeper-temp-seq7.png" alt="fourth-run"><br>也就是意味着，zk的临时node序号添加是根据父目录下一个标志计数的</p>
-<h2 id="zk-1"><a href="#zk-1" class="headerlink" title="zk"></a>zk</h2><p><img src="/Images/zookeeper-temp-seq8.png" alt="after-fourth-run"></p>
 
       
     </div>

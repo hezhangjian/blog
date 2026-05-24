@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="SDD贯穿一切，全流程由AI生成交付件，人只做审核TL;DRAI辅助研发已经走过Chat、Copilot，进入Agent时代，为了让Agent更大程度地帮助人们提效，AI生成的产物，要直接成为研发流程中的交付件，并且要易于编辑审核。SDD将海量，人难以review的代码抽象成了更易编辑审核的SPEC，但目前业内大多数 SDD 实践，还主要停留在“代码生成”阶段。而在真实企业研发中，代码只占整个研发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SDD贯穿一切，全流程由AI生成交付件，人只做审核">
+<meta property="og:url" content="https://hezhangjian.com/2026/05/23/SDD%E8%B4%AF%E7%A9%BF%E4%B8%80%E5%88%87%EF%BC%8C%E5%85%A8%E6%B5%81%E7%A8%8B%E7%94%B1AI%E7%94%9F%E6%88%90%E4%BA%A4%E4%BB%98%E4%BB%B6%EF%BC%8C%E4%BA%BA%E5%8F%AA%E5%81%9A%E5%AE%A1%E6%A0%B8/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="SDD贯穿一切，全流程由AI生成交付件，人只做审核TL;DRAI辅助研发已经走过Chat、Copilot，进入Agent时代，为了让Agent更大程度地帮助人们提效，AI生成的产物，要直接成为研发流程中的交付件，并且要易于编辑审核。SDD将海量，人难以review的代码抽象成了更易编辑审核的SPEC，但目前业内大多数 SDD 实践，还主要停留在“代码生成”阶段。而在真实企业研发中，代码只占整个研发">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/sdd-silver1.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/sdd-silver2.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/sdd-silver3.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/sdd-silver4.png">
+<meta property="og:image" content="https://hezhangjian.com/Images/sdd-silver5.png">
+<meta property="article:published_time" content="2026-05-23T09:36:07.000Z">
+<meta property="article:modified_time" content="2026-05-24T05:53:57.845Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/sdd-silver1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2026/05/23/SDD%E8%B4%AF%E7%A9%BF%E4%B8%80%E5%88%87%EF%BC%8C%E5%85%A8%E6%B5%81%E7%A8%8B%E7%94%B1AI%E7%94%9F%E6%88%90%E4%BA%A4%E4%BB%98%E4%BB%B6%EF%BC%8C%E4%BA%BA%E5%8F%AA%E5%81%9A%E5%AE%A1%E6%A0%B8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2026/05/23/SDD%E8%B4%AF%E7%A9%BF%E4%B8%80%E5%88%87%EF%BC%8C%E5%85%A8%E6%B5%81%E7%A8%8B%E7%94%B1AI%E7%94%9F%E6%88%90%E4%BA%A4%E4%BB%98%E4%BB%B6%EF%BC%8C%E4%BA%BA%E5%8F%AA%E5%81%9A%E5%AE%A1%E6%A0%B8/","path":"2026/05/23/SDD贯穿一切，全流程由AI生成交付件，人只做审核/","title":"SDD贯穿一切，全流程由AI生成交付件，人只做审核"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SDD贯穿一切，全流程由AI生成交付件，人只做审核 | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SDD%E8%B4%AF%E7%A9%BF%E4%B8%80%E5%88%87%EF%BC%8C%E5%85%A8%E6%B5%81%E7%A8%8B%E7%94%B1AI%E7%94%9F%E6%88%90%E4%BA%A4%E4%BB%98%E4%BB%B6%EF%BC%8C%E4%BA%BA%E5%8F%AA%E5%81%9A%E5%AE%A1%E6%A0%B8"><span class="nav-number">1.</span> <span class="nav-text">SDD贯穿一切，全流程由AI生成交付件，人只做审核</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TL-DR"><span class="nav-number">2.</span> <span class="nav-text">TL;DR</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%9C%89SDD%EF%BC%8CSDD%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">为什么会有SDD，SDD是什么？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A0%94%E5%8F%91%E5%85%A8%E6%B5%81%E7%A8%8B%E6%8F%90%E6%95%88%E7%9A%84%E4%B8%8B%E4%B8%80%E4%B8%AA%E9%98%B6%E6%AE%B5"><span class="nav-number">4.</span> <span class="nav-text">企业级研发全流程提效的下一个阶段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E4%B8%80%EF%BC%9A%E6%BC%8F%E6%B4%9E%E6%8A%A5%E5%91%8A%E5%A4%84%E7%90%86"><span class="nav-number">4.1.</span> <span class="nav-text">场景一：漏洞报告处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E4%BA%8C%EF%BC%9ASDD%E3%80%81TDD%E8%9E%8D%E5%90%88"><span class="nav-number">4.2.</span> <span class="nav-text">场景二：SDD、TDD融合</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">142</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2026/05/23/SDD%E8%B4%AF%E7%A9%BF%E4%B8%80%E5%88%87%EF%BC%8C%E5%85%A8%E6%B5%81%E7%A8%8B%E7%94%B1AI%E7%94%9F%E6%88%90%E4%BA%A4%E4%BB%98%E4%BB%B6%EF%BC%8C%E4%BA%BA%E5%8F%AA%E5%81%9A%E5%AE%A1%E6%A0%B8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SDD贯穿一切，全流程由AI生成交付件，人只做审核 | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/sdd-silver" class="post-title-link post-title-link-external" itemprop="url">SDD贯穿一切，全流程由AI生成交付件，人只做审核<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-05-23 17:36:07" itemprop="dateCreated datePublished" datetime="2026-05-23T17:36:07+08:00">2026-05-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="SDD贯穿一切，全流程由AI生成交付件，人只做审核"><a href="#SDD贯穿一切，全流程由AI生成交付件，人只做审核" class="headerlink" title="SDD贯穿一切，全流程由AI生成交付件，人只做审核"></a>SDD贯穿一切，全流程由AI生成交付件，人只做审核</h1><h1 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h1><p>AI辅助研发已经走过Chat、Copilot，进入Agent时代，为了让Agent更大程度地帮助人们提效，AI生成的产物，要直接成为研发流程中的交付件，并且要易于编辑审核。SDD将海量，人难以review的代码抽象成了更易编辑审核的SPEC，但目前业内大多数 SDD 实践，还主要停留在“代码生成”阶段。而在真实企业研发中，代码只占整个研发活动的一小部分。漏洞处理、现网事件、上线说明、影响评估…….未来整个流程逐渐演化为Agent输出可结构化、可审核的交付件，人仅审核的方向发展，最终”SDD会吞噬一切”。</p>
+<h1 id="为什么会有SDD，SDD是什么？"><a href="#为什么会有SDD，SDD是什么？" class="headerlink" title="为什么会有SDD，SDD是什么？"></a>为什么会有SDD，SDD是什么？</h1><p>现在是2026年，距离GPT4发布已经过去了3年，AI辅助研发，经历了很大的改变，从Chat、Copilot再到Agent。现在没有用过Agent模式辅助开发的人，恐怕你已经有一些落后了。</p>
+<p>Agent模式下，AI生成代码的速度越来越快，以原先的方式提交、检视代码，甚至合并冲突都非常耗时，这种模式下，人越来越没有能力掌控代码。</p>
+<p>这是我在开发一个个人业余项目时跟Codex对话过的原话：<br><img src="/Images/sdd-silver1.png"></p>
+<blockquote>
+<p>我在“<a href="https://hezhangjian.com/agent-para">如何让AI真正替你干活</a>“中提到过提效的关键取决于”<strong>AI生成的产物，是否是最终的交付件，是否易于编辑。</strong> 代码本身是易于编辑的，所以它成为了AI率先提效的对象，但量变引起质变，海量的代码已经不再易于编辑和审核。</p>
+</blockquote>
+<p>为此，人们在已有的软件工程下，追求新的抽象层次，代码不好维护，那我想办法维护别的不就好了？</p>
+<p>这就是SDD的核心理念，SDD通过结构化的规格文档（Spec）作为可信生成源，让 AI 围绕规格进行实现，而人类主要审核规格本身，而不是陷入海量代码细节。这些规格通常以 Markdown 等易读、易维护的形式存在，例如 <code>Spec.md</code>、<code>design.md</code>、<code>tasks.md</code> 等。</p>
+<blockquote>
+<p>这就好像，我生成一个短剧视频，比如一次生成了2min，我想修改里面的部分很难，但是如果我先用AI生成首尾帧图，每次生成5秒钟，我先调整首尾帧图，再生成一样。</p>
+</blockquote>
+<blockquote>
+<p>不过从目前的实践来看，SDD还没能那么理想地屏蔽掉代码层，一些小修改，例如配置、端口、脚本、热修复，我们仍然会直接修改代码文件，而不会重新回到 Spec。</p>
+</blockquote>
+<p>但无论如何，SDD已经算是目前较为优秀的一种实践。这同时也让我们理解了要让AI生成的产物，就是最终的交付件，要易于编辑。</p>
+<h1 id="企业级研发全流程提效的下一个阶段"><a href="#企业级研发全流程提效的下一个阶段" class="headerlink" title="企业级研发全流程提效的下一个阶段"></a>企业级研发全流程提效的下一个阶段</h1><p>目前业内主流的SDD的实践，比如<strong>OpenSpec</strong>，主要聚焦于代码生成流程：<br><img src="/Images/sdd-silver2.png"></p>
+<p>但是在企业级研发中，真实的研发活动是一个由大量角色、流程、交付件组成的网状协同系统，单纯的写代码，只占真实研发活动中的很小一部分，比如还有 友商的洞察、漏洞检测报告漏洞处理。</p>
+<p>那么这些步骤，其实像<strong>OpenSpec</strong>这样的工具还是帮不上忙的，我们举几个例子：</p>
+<h2 id="场景一：漏洞报告处理"><a href="#场景一：漏洞报告处理" class="headerlink" title="场景一：漏洞报告处理"></a>场景一：漏洞报告处理</h2><p>企业今天可以通过扫描平台、运行时检测等工具，自动发现大量漏洞。但真正耗时的，其实并不是修改漏洞代码本身，而是整个处理流程：<br><img src="/Images/sdd-silver3.png"></p>
+<p>代码修改只是其中的很小一个部分，还有很多阶段还没有让Agent介入，可能还只是在用”Chat”模式提效。接下来通过开发Agent，由Agent分析漏洞影响输出交付件，人确认，Agent基于漏洞处理的特点（修改尽量不要太大等等）给出修改意见，人确认，自然而然地达成全流程AI提效。</p>
+<h2 id="场景二：SDD、TDD融合"><a href="#场景二：SDD、TDD融合" class="headerlink" title="场景二：SDD、TDD融合"></a>场景二：SDD、TDD融合</h2><p>Agent把个人的能力放的这么大，我有时也跟朋友闲聊到，将来一个小的公司，老板不太懂的情况下，三个技术人员就够了，又有容灾能力，又能讨论决策出结果。</p>
+<p>然而大企业却绝不可能只招聘数个技术人员，这就意味着没法<strong>尽量让一个人负责工作的各个方面</strong>，有些研发流程就很适合像”首尾帧”那样拆解。</p>
+<p>过去很多团队推行 TDD（Test-Driven Development），开发人员不是先写代码，而是先写 测试用例、输入输出，然后再让代码去满足这些约束。</p>
+<blockquote>
+<p>有些很极端的例子，比如<br>func sum(x, y) {<br>  return 42;<br>}<br>先让40+2的用例通过。</p>
+</blockquote>
+<p>某种程度上来说，TDD其实已经具备了一部分 SDD 的思想 <strong>不再直接围绕代码本身开发，而是围绕“可验证的约束”进行开发。</strong> 但是在过去这个成本非常高。现在充分利用Agent的能力，我们甚至可以做得比Agent直接生成代码更快更稳。<br><img src="/Images/sdd-silver4.png"></p>
+<p>最终，这个流程的每一个红色箭头，都可以使用Agent快速提交，并且每一步都有可审核、可编辑的交付件，希望不会再出现文章开头的问题(笑)。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>我们在这里还只展开了两个流程，真正企业里的研发流程只会更加复杂，我让AI生成了一张图：<br><img src="/Images/sdd-silver5.png"></p>
+<p>最终，随着Agent产出效率越来越高，整个研发流程都需要尽量使用Agent提效，这些原本依赖大量人力协同的研发交付流程，最终都会演化为”Agent生成交付件，人类负责最终审核与治理”。而整个企业研发体系，都会围绕这些交付件重新组织，最终<strong>SDD会吞噬一切</strong>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/28/SKILL%E6%AD%A3%E5%B0%86%E4%B8%AA%E4%BA%BA%E7%9A%84%E6%95%88%E7%8E%87%E6%83%8A%E4%BA%BA%E5%9C%B0%E6%94%BE%E5%A4%A7/" rel="prev" title="SKILL正将个人的效率惊人地放大">
+                  <i class="fa fa-angle-left"></i> SKILL正将个人的效率惊人地放大
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

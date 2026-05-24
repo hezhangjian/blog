@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-count">142</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,89 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2016/09/08/Andoird%E9%81%BF%E5%85%8D%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2016/09/08/Andoird%E9%81%BF%E5%85%8D%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/" class="post-title-link" itemprop="url">Android避免费内存泄露【翻译】</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2016-09-08 15:44:36" itemprop="dateCreated datePublished" datetime="2016-09-08T15:44:36+08:00">2016-09-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>原文：<a target="_blank" rel="noopener" href="http://android-developers.blogspot.sg/2009/01/avoiding-memory-leaks.html">http://android-developers.blogspot.sg/2009/01/avoiding-memory-leaks.html</a></p>
+<p>Android中堆的内存是有限的，你应当使用尽量小的内存。因为Android能在内存中保存越多的应用，对于用户来说，切换应用就会十分的迅速。相当多的内存泄漏的原因是因为：保持了一个对context的长引用(long-lived)。<br>    在Android中，Context可以用来做许多事情，不过大部分是用来加载和获取资源。这就是为什么所有的视图组件在构造方法里面需要context作为参数的原因。有两种Context，Activity和Application，通常使用第一个。比如:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">TextView</span> <span class="variable">label</span> <span class="operator">=</span><span class="keyword">new</span> <span class="title class_">TextView</span>(<span class="built_in">this</span>);</span><br></pre></td></tr></table></figure>
+<p>这代表着views持有一个对于activity的引用。所以，如果你泄漏了Context(你保留了一个对它的引用，在GC的时候保护了它)。如果你不够小心的话，泄漏掉整个Activity是很容易的。<br>    当屏幕的显示方向发生变化时，系统将会(默认)销毁现在的Activity，维护它的一些数据然后新建一个Activity。如果这样做的话，Android 将会重新读取UI。想象一下，你在你的应用里面使用了一个大bitmap，你不想每次旋转的时候都重新加载它。最简单的方法就是把它放在一个静态域里面。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Drawable sBackground;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line">Protected <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle state)</span>&#123;</span><br><span class="line">    <span class="built_in">super</span>.onCreate(state);</span><br><span class="line">    <span class="type">TextView</span> <span class="variable">label</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TextView</span>(<span class="built_in">this</span>);</span><br><span class="line">    label.setText(<span class="string">&quot;Leaks are bad&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span>(sBackground == <span class="literal">null</span>)&#123;</span><br><span class="line">        sBackground = getDrawable(R.drawable.hezhangjian);</span><br><span class="line">    &#125;</span><br><span class="line">    label.setBackgroundDrawable(sBackground);</span><br><span class="line">    setContentView(label);</span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
+
+
+<p>上述代码很快但是是错误的，它泄漏了在第一次屏幕旋转之前的Activity。当一个Drawable连系在view上时，view就像被设置为drawable的回调一样。对于上面的代码，就是说drawable持有了对于textview的引用，而textview又持有了activity的引用。这就把Activity泄漏掉了。当Activity被销毁的时候，把drawable的回调设置为null。<br>    有两种简单的方式去避免内存泄漏。第一个就是避免context超范围的使用。例子上展示的是静态引用但是内部类以及他们持有的对外部类的明确引用也同样危险。第二个解决方法，利用Application context，这个context的存活时间跟你的应用一样久。如果打算保持一个长久的对象，就用 Context.getApplicationContext() 或者 Activity.getApplication()。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +323,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   

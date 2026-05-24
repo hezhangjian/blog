@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-count">142</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,96 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2020/11/10/ZooKeeper%E4%B8%B4%E6%97%B6%E6%9C%89%E5%BA%8F%E8%8A%82%E7%82%B9%E6%8E%89%E7%BA%BF%E5%AF%B9%E8%AE%A1%E6%95%B0%E7%9A%84%E5%BD%B1%E5%93%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2020/11/10/ZooKeeper%E4%B8%B4%E6%97%B6%E6%9C%89%E5%BA%8F%E8%8A%82%E7%82%B9%E6%8E%89%E7%BA%BF%E5%AF%B9%E8%AE%A1%E6%95%B0%E7%9A%84%E5%BD%B1%E5%93%8D/" class="post-title-link" itemprop="url">ZooKeeper临时有序节点掉线对计数的影响</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-11-10 23:57:09" itemprop="dateCreated datePublished" datetime="2020-11-10T23:57:09+08:00">2020-11-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h1><h2 id="运行zookeeper"><a href="#运行zookeeper" class="headerlink" title="运行zookeeper"></a>运行zookeeper</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 2181:2181 -d ttbb/zookeeper:stand-alone</span><br></pre></td></tr></table></figure>
+<h2 id="代码参考"><a href="#代码参考" class="headerlink" title="代码参考"></a>代码参考</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/hezhangjian/maven-demo/tree/master/demo-zookeeper/src/main/java/com/github/hezhangjian/demo/zookeeper</span><br></pre></td></tr></table></figure>
+
+<h1 id="第一次运行代码"><a href="#第一次运行代码" class="headerlink" title="第一次运行代码"></a>第一次运行代码</h1><p>创建一个临时有序Znode，程序维持一个小时</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">package com.github.hezhangjian.demo.zookeeper;</span><br><span class="line"></span><br><span class="line">import com.github.hezhangjian.javatool.util.CommonUtil;</span><br><span class="line">import com.github.hezhangjian.javatool.util.LogUtil;</span><br><span class="line">import lombok.extern.slf4j.Slf4j;</span><br><span class="line">import org.apache.curator.RetryPolicy;</span><br><span class="line">import org.apache.curator.framework.CuratorFramework;</span><br><span class="line">import org.apache.curator.framework.CuratorFrameworkFactory;</span><br><span class="line">import org.apache.curator.retry.RetryNTimes;</span><br><span class="line">import org.apache.zookeeper.CreateMode;</span><br><span class="line"></span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author hezhangjian</span><br><span class="line"> */</span><br><span class="line">@Slf4j</span><br><span class="line">public class TempOrderTest &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws Exception &#123;</span><br><span class="line">        LogUtil.configureLog();</span><br><span class="line">        RetryPolicy retryPolicy = new RetryNTimes(3, 5000);</span><br><span class="line">        CuratorFramework client = CuratorFrameworkFactory.builder().connectString(&quot;127.0.0.1:2181&quot;)</span><br><span class="line">                .sessionTimeoutMs(10000).retryPolicy(retryPolicy).build();</span><br><span class="line">        client.start();</span><br><span class="line">        String path = client.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(&quot;/seq&quot;, &quot;World&quot;.getBytes());</span><br><span class="line">        log.info(&quot;path is [&#123;&#125;]&quot;, path);</span><br><span class="line">        CommonUtil.sleep(TimeUnit.HOURS, 1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="运行第一次"><a href="#运行第一次" class="headerlink" title="运行第一次"></a>运行第一次</h2><p><img src="/Images/zookeeper-temp-seq1.png" alt="first-run"></p>
+<h2 id="运行完之后zk"><a href="#运行完之后zk" class="headerlink" title="运行完之后zk"></a>运行完之后zk</h2><p><img src="/Images/zookeeper-temp-seq2.png" alt="after-first-run"></p>
+<h2 id="第二次运行代码"><a href="#第二次运行代码" class="headerlink" title="第二次运行代码"></a>第二次运行代码</h2><p>创建一个临时有序Znode，创建完成后立刻关闭</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">package com.github.hezhangjian.demo.zookeeper;</span><br><span class="line"></span><br><span class="line">import com.github.hezhangjian.javatool.util.CommonUtil;</span><br><span class="line">import com.github.hezhangjian.javatool.util.LogUtil;</span><br><span class="line">import lombok.extern.slf4j.Slf4j;</span><br><span class="line">import org.apache.curator.RetryPolicy;</span><br><span class="line">import org.apache.curator.framework.CuratorFramework;</span><br><span class="line">import org.apache.curator.framework.CuratorFrameworkFactory;</span><br><span class="line">import org.apache.curator.retry.RetryNTimes;</span><br><span class="line">import org.apache.zookeeper.CreateMode;</span><br><span class="line"></span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author hezhangjian</span><br><span class="line"> */</span><br><span class="line">@Slf4j</span><br><span class="line">public class TempOrderTest2 &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws Exception &#123;</span><br><span class="line">        LogUtil.configureLog();</span><br><span class="line">        RetryPolicy retryPolicy = new RetryNTimes(3, 5000);</span><br><span class="line">        CuratorFramework client = CuratorFrameworkFactory.builder().connectString(&quot;127.0.0.1:2181&quot;)</span><br><span class="line">                .sessionTimeoutMs(10000).retryPolicy(retryPolicy).build();</span><br><span class="line">        client.start();</span><br><span class="line">        String path = client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(&quot;/temp/seq&quot;, &quot;World&quot;.getBytes());</span><br><span class="line">        log.info(&quot;path is [&#123;&#125;]&quot;, path);</span><br><span class="line">        client.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="运行第二次结果"><a href="#运行第二次结果" class="headerlink" title="运行第二次结果"></a>运行第二次结果</h2><p><img src="/Images/zookeeper-temp-seq3.png" alt="second-run"></p>
+<h2 id="运行后zk"><a href="#运行后zk" class="headerlink" title="运行后zk"></a>运行后zk</h2><p><img src="/Images/zookeeper-temp-seq4.png" alt="after-second-run"><br>因为是临时节点，所以存在一会后删除</p>
+<h2 id="第三次仍然运行第一次的代码"><a href="#第三次仍然运行第一次的代码" class="headerlink" title="第三次仍然运行第一次的代码"></a>第三次仍然运行第一次的代码</h2><h2 id="运行第三次结果"><a href="#运行第三次结果" class="headerlink" title="运行第三次结果"></a>运行第三次结果</h2><p><img src="/Images/zookeeper-temp-seq5.png" alt="third-run"></p>
+<h2 id="zk"><a href="#zk" class="headerlink" title="zk"></a>zk</h2><p><img src="/Images/zookeeper-temp-seq6.png" alt="after-third-run"></p>
+<h2 id="第四次，修改了zkPath的值。值得一提的是，同一个ZkPath下似乎共享临时有序节点的最大值。如果修改zkPath从-temp-seq到-temp-seqX-出现的并不是预估的0000-而是0003"><a href="#第四次，修改了zkPath的值。值得一提的是，同一个ZkPath下似乎共享临时有序节点的最大值。如果修改zkPath从-temp-seq到-temp-seqX-出现的并不是预估的0000-而是0003" class="headerlink" title="第四次，修改了zkPath的值。值得一提的是，同一个ZkPath下似乎共享临时有序节点的最大值。如果修改zkPath从&#x2F;temp&#x2F;seq到&#x2F;temp&#x2F;seqX,出现的并不是预估的0000,而是0003"></a>第四次，修改了zkPath的值。值得一提的是，同一个ZkPath下似乎共享临时有序节点的最大值。如果修改zkPath从&#x2F;temp&#x2F;seq到&#x2F;temp&#x2F;seqX,出现的并不是预估的0000,而是0003</h2><p><img src="/Images/zookeeper-temp-seq7.png" alt="fourth-run"><br>也就是意味着，zk的临时node序号添加是根据父目录下一个标志计数的</p>
+<h2 id="zk-1"><a href="#zk-1" class="headerlink" title="zk"></a>zk</h2><p><img src="/Images/zookeeper-temp-seq8.png" alt="after-fourth-run"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +330,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -318,7 +408,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -441,7 +531,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -556,7 +646,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -649,7 +739,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -743,7 +833,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -863,7 +953,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -970,7 +1060,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1198,7 +1288,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1302,89 +1392,6 @@
 
 <p>下面的例子展示了一个程序，监听端口，当建立连接之时，它返回客户端和自身的ip和端口，然后关闭连接</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">public class HelloServer &#123;</span><br><span class="line"></span><br><span class="line">    public final static int DEFAULT_PORT = 2345;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        int port = DEFAULT_PORT;</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            port = Integer.parseInt(args[0]);</span><br><span class="line">        &#125; catch (Exception e) &#123;&#125;</span><br><span class="line">        if(port&lt;=0||port&gt;=65536) &#123;</span><br><span class="line">            port = DEFAULT_PORT;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            ServerSocket ss = new ServerSocket(port);</span><br><span class="line">            while (true) &#123;</span><br><span class="line">                try&#123;</span><br><span class="line">                    Socket s = ss.accept();</span><br><span class="line">                    String response = s.getInetAddress()+&quot;&quot;+s.getPort()+&quot;\n&quot;;</span><br><span class="line">                    response += s.getLocalAddress()+&quot;&quot;+s.getLocalPort();</span><br><span class="line">                    OutputStream out = s.getOutputStream();</span><br><span class="line">                    out.write(response.getBytes());</span><br><span class="line">                    out.flush();</span><br><span class="line">                    out.close();</span><br><span class="line">                &#125; catch (IOException e) &#123;&#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; catch (IOException e) &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2016/09/08/Andoird%E9%81%BF%E5%85%8D%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2016/09/08/Andoird%E9%81%BF%E5%85%8D%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/" class="post-title-link" itemprop="url">Android避免费内存泄露【翻译】</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2016-09-08 15:44:36" itemprop="dateCreated datePublished" datetime="2016-09-08T15:44:36+08:00">2016-09-08</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>原文：<a target="_blank" rel="noopener" href="http://android-developers.blogspot.sg/2009/01/avoiding-memory-leaks.html">http://android-developers.blogspot.sg/2009/01/avoiding-memory-leaks.html</a></p>
-<p>Android中堆的内存是有限的，你应当使用尽量小的内存。因为Android能在内存中保存越多的应用，对于用户来说，切换应用就会十分的迅速。相当多的内存泄漏的原因是因为：保持了一个对context的长引用(long-lived)。<br>    在Android中，Context可以用来做许多事情，不过大部分是用来加载和获取资源。这就是为什么所有的视图组件在构造方法里面需要context作为参数的原因。有两种Context，Activity和Application，通常使用第一个。比如:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">TextView</span> <span class="variable">label</span> <span class="operator">=</span><span class="keyword">new</span> <span class="title class_">TextView</span>(<span class="built_in">this</span>);</span><br></pre></td></tr></table></figure>
-<p>这代表着views持有一个对于activity的引用。所以，如果你泄漏了Context(你保留了一个对它的引用，在GC的时候保护了它)。如果你不够小心的话，泄漏掉整个Activity是很容易的。<br>    当屏幕的显示方向发生变化时，系统将会(默认)销毁现在的Activity，维护它的一些数据然后新建一个Activity。如果这样做的话，Android 将会重新读取UI。想象一下，你在你的应用里面使用了一个大bitmap，你不想每次旋转的时候都重新加载它。最简单的方法就是把它放在一个静态域里面。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Drawable sBackground;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line">Protected <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle state)</span>&#123;</span><br><span class="line">    <span class="built_in">super</span>.onCreate(state);</span><br><span class="line">    <span class="type">TextView</span> <span class="variable">label</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TextView</span>(<span class="built_in">this</span>);</span><br><span class="line">    label.setText(<span class="string">&quot;Leaks are bad&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span>(sBackground == <span class="literal">null</span>)&#123;</span><br><span class="line">        sBackground = getDrawable(R.drawable.hezhangjian);</span><br><span class="line">    &#125;</span><br><span class="line">    label.setBackgroundDrawable(sBackground);</span><br><span class="line">    setContentView(label);</span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
-
-
-<p>上述代码很快但是是错误的，它泄漏了在第一次屏幕旋转之前的Activity。当一个Drawable连系在view上时，view就像被设置为drawable的回调一样。对于上面的代码，就是说drawable持有了对于textview的引用，而textview又持有了activity的引用。这就把Activity泄漏掉了。当Activity被销毁的时候，把drawable的回调设置为null。<br>    有两种简单的方式去避免内存泄漏。第一个就是避免context超范围的使用。例子上展示的是静态引用但是内部类以及他们持有的对外部类的明确引用也同样危险。第二个解决方法，利用Application context，这个context的存活时间跟你的应用一样久。如果打算保持一个长久的对象，就用 Context.getApplicationContext() 或者 Activity.getApplication()。</p>
 
       
     </div>

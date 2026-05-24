@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.1">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-count">142</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,163 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/10/08/Java%20%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84%E7%BB%84%E7%BB%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/java-project-structure" class="post-title-link post-title-link-external" itemprop="url">Java 项目结构组织<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-10-08 20:08:02" itemprop="dateCreated datePublished" datetime="2023-10-08T20:08:02+08:00">2023-10-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="简单的library"><a href="#简单的library" class="headerlink" title="简单的library"></a>简单的library</h2><p>对于简单的library来说，我更推荐将所有的文件都放在同一个package下面，如简单的client封装</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">package:com.xxx.yyy/</span><br><span class="line">|-- XxClient</span><br><span class="line">|-- XxDTO</span><br><span class="line">|-- XxException</span><br><span class="line">|-- XxUtil</span><br></pre></td></tr></table></figure>
+
+<h2 id="复杂的SpringBoot项目，负责多个业务模块"><a href="#复杂的SpringBoot项目，负责多个业务模块" class="headerlink" title="复杂的SpringBoot项目，负责多个业务模块"></a>复杂的SpringBoot项目，负责多个业务模块</h2><p>备注:</p>
+<ul>
+<li>xxx、yyy代表大块的业务区分：如用户、订单、支付</li>
+<li>aaa、bbb代表小块的业务区分：如(用户的)登录、注册、查询</li>
+</ul>
+<h3 id="方案一：多业务模块通过子包来区分，不分子module"><a href="#方案一：多业务模块通过子包来区分，不分子module" class="headerlink" title="方案一：多业务模块通过子包来区分，不分子module"></a>方案一：多业务模块通过子包来区分，不分子module</h3><p>module视图:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">example(maven artifactId: example-parent)/</span><br><span class="line">|-- example-service(业务逻辑)</span><br><span class="line">|-- example-spring-ignite(依赖spring，常见为中间件client，适配spring模块用于方便单元测试)</span><br><span class="line">|-- example-spring-ignite-test(依赖spring，不依赖test-common，spring模块单元测试用)</span><br><span class="line">|-- example-starter(启动类)</span><br><span class="line">|-- example-test-common(不依赖example-common)</span><br><span class="line">|-- example-util(不依赖Spring框架，可选模块，为service与其他spring集成组件共用)</span><br></pre></td></tr></table></figure>
+
+<p>依赖关系图:</p>
+<pre class="mermaid">graph TD
+service[example-service]
+springIgnite[example-spring-ignite]
+springIgniteTest[example-spring-ignite-test]
+starter[example-starter]
+testCommon[example-test-common]
+util[example-util]
+
+starter --> service
+
+service --> springIgnite
+service --> util
+service -.-> testCommon
+
+testCommon --> springIgniteTest
+
+springIgniteTest --> springIgnite
+
+springIgnite --> util</pre>
+
+<p>service包内视图:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">io.hezhangjian.example/</span><br><span class="line">|-- service/</span><br><span class="line">|   |-- common/</span><br><span class="line">|   |-- module/</span><br><span class="line">|   |   |-- aaaModule</span><br><span class="line">|   |   |-- bbbModule</span><br><span class="line">|   |-- mapper/</span><br><span class="line">|   |   |-- aaaMapper</span><br><span class="line">|   |   |-- bbbMapper</span><br><span class="line">|   |-- repo/</span><br><span class="line">|   |   |-- aaaRepo</span><br><span class="line">|   |   |-- bbbRepo</span><br><span class="line">|   |-- service/</span><br><span class="line">|   |   |-- aaaService</span><br><span class="line">|   |   |-- bbbService</span><br></pre></td></tr></table></figure>
+
+<h3 id="方案二：根据业务模块拆分子module"><a href="#方案二：根据业务模块拆分子module" class="headerlink" title="方案二：根据业务模块拆分子module"></a>方案二：根据业务模块拆分子module</h3><p>适用于大型项目，每个业务模块都比较大。</p>
+<p>module视图：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">example(maven artifactId: example-parent)/</span><br><span class="line">|-- example-common(可依赖spring模块)</span><br><span class="line">|-- example-rest-xxx(xxx功能模块的rest接口)</span><br><span class="line">|-- example-rest-yyy(yyy功能模块的rest接口)</span><br><span class="line">|-- example-service-xxx(xxx功能的业务逻辑)</span><br><span class="line">|-- example-service-yyy(yyy功能的业务逻辑)</span><br><span class="line">|-- example-spring-ignite(依赖spring，常见为中间件client，适配spring模块用于方便单元测试)</span><br><span class="line">|-- example-spring-ignite-test(依赖spring，不依赖test-common，spring模块单元测试用)</span><br><span class="line">|-- example-starter(启动类)</span><br><span class="line">|-- example-test-common(不依赖example-common)</span><br><span class="line">|-- example-util(不依赖example-common，可选模块，为service、common与其他spring集成组件共用)</span><br></pre></td></tr></table></figure>
+
+<p>依赖关系图:</p>
+<pre class="mermaid">graph TD
+common[example-common]
+rest-xxx[example-rest-xxx]
+rest-yyy[example-rest-yyy]
+service-xxx[example-service-xxx]
+service-yyy[example-service-yyy]
+springIgnite[example-spring-ignite]
+springIgniteTest[example-spring-ignite-test]
+starter[example-starter]
+testCommon[example-test-common]
+util[example-util]
+
+starter --> rest-xxx
+starter --> rest-yyy
+
+rest-xxx --> common
+rest-xxx --> service-xxx
+
+rest-yyy --> common
+rest-yyy --> service-yyy
+
+service-xxx --> common
+service-xxx --> springIgnite
+
+service-yyy --> common
+service-yyy --> util
+
+common -.-> testCommon
+
+testCommon --> springIgniteTest
+
+springIgniteTest --> springIgnite
+
+springIgnite --> util</pre>
+
+<p>关于service模块引不引用rest模块的DTO，我的想法：</p>
+<p>如果确实service模块和rest模块DTO差距比较大，可以拆分做转换，如果差距很小&#x2F;没有差距，可以复用同一个DTO，放在service模块或者更底层的依赖。</p>
+<p>service-xxx包内视图:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">io.hezhangjian.example.service/</span><br><span class="line">|-- xxx/</span><br><span class="line">|   |-- common/</span><br><span class="line">|   |-- module/</span><br><span class="line">|   |   |-- aaaModule</span><br><span class="line">|   |   |-- bbbModule</span><br><span class="line">|   |-- mapper/</span><br><span class="line">|   |   |-- aaaMapper</span><br><span class="line">|   |   |-- bbbMapper</span><br><span class="line">|   |-- repo/</span><br><span class="line">|   |   |-- aaaRepo</span><br><span class="line">|   |   |-- bbbRepo</span><br><span class="line">|   |-- service/</span><br><span class="line">|   |   |-- aaaService</span><br><span class="line">|   |   |-- bbbService</span><br></pre></td></tr></table></figure>
+
+
+<script type="module"> import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';	mermaid.initialize({startOnLoad: true, flowchart: {curve: 'linear'}}); </script>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +397,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -326,7 +483,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -437,7 +594,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -544,7 +701,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -625,7 +782,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -772,7 +929,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -882,7 +1039,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -965,7 +1122,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1047,7 +1204,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
+      <time title="修改时间：2026-05-24 13:53:57" itemprop="dateModified" datetime="2026-05-24T13:53:57+08:00">2026-05-24</time>
     </span>
 
   
@@ -1062,96 +1219,6 @@
     <div class="post-body" itemprop="articleBody">
           <h2 id="在主函数中捕获未处理的异常"><a href="#在主函数中捕获未处理的异常" class="headerlink" title="在主函数中捕获未处理的异常"></a>在主函数中捕获未处理的异常</h2><p>在主函数中捕获未处理的异常，防止程序崩溃，同时记录日志，方便排查问题。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UncaughtExceptionHandle</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        Thread.setDefaultUncaughtExceptionHandler((t, e) -&gt; log.error(<span class="string">&quot;Uncaught exception: &quot;</span>, e));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/06/02/jetty%20servlet%E7%9A%84%E7%BC%96%E7%A0%81%E5%AD%97%E7%AC%A6%E9%9B%86%E9%80%89%E6%8B%A9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/java-servlet-encoding-charset" class="post-title-link post-title-link-external" itemprop="url">jetty servlet的代码字符集选择<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-06-03 01:05:07" itemprop="dateCreated datePublished" datetime="2023-06-03T01:05:07+08:00">2023-06-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-29 08:53:41" itemprop="dateModified" datetime="2026-04-29T08:53:41+08:00">2026-04-29</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>记一次中文指标乱码问题，问题也很简单，如下图所示：</p>
-<p><img src="/Images/20230603p1.png" alt="metrics beat collect http server metrics"></p>
-<p>从metricbeat开始找原因，发现其实只要是UTF-8的编码格式就都可以解析，最终发现是webServer返回的数据非UTF-8格式，修改方案也很简单。将servlet中的content-type里面的<strong>text&#x2F;plain</strong>修改成<strong>text&#x2F;plain; charset&#x3D;utf-8</strong>就可以了，如下面代码所示:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span><br><span class="line">        <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    response.setContentType(<span class="string">&quot;text/plain&quot;</span>);</span><br><span class="line">    response.setStatus(HttpServletResponse.SC_OK);</span><br><span class="line">    response.getWriter().write(<span class="string">&quot;&lt;h1&gt;哈哈&lt;/h1&gt;&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们可以轻易使用一个demo来复现这个问题，在maven中添加如下依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.eclipse.jetty<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jetty-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>9.4.35.v20201120<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.eclipse.jetty<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jetty-servlet<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>9.4.35.v20201120<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hezhangjian.jetty;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.eclipse.jetty.server.Server;</span><br><span class="line"><span class="keyword">import</span> org.eclipse.jetty.servlet.ServletContextHandler;</span><br><span class="line"><span class="keyword">import</span> org.eclipse.jetty.servlet.ServletHolder;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServlet;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SimpleJettyServer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Server</span> <span class="variable">server</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Server</span>(<span class="number">8080</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">ServletContextHandler</span> <span class="variable">context</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServletContextHandler</span>(ServletContextHandler.SESSIONS);</span><br><span class="line">        context.setContextPath(<span class="string">&quot;/&quot;</span>);</span><br><span class="line">        server.setHandler(context);</span><br><span class="line"></span><br><span class="line">        context.addServlet(<span class="keyword">new</span> <span class="title class_">ServletHolder</span>(<span class="keyword">new</span> <span class="title class_">HelloDefaultServlet</span>()), <span class="string">&quot;/hello-default&quot;</span>);</span><br><span class="line">        context.addServlet(<span class="keyword">new</span> <span class="title class_">ServletHolder</span>(<span class="keyword">new</span> <span class="title class_">HelloUTF8Servlet</span>()), <span class="string">&quot;/hello-utf8&quot;</span>);</span><br><span class="line"></span><br><span class="line">        server.start();</span><br><span class="line">        server.join();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">HelloDefaultServlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span><br><span class="line">                <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">            response.setContentType(<span class="string">&quot;text/plain&quot;</span>);</span><br><span class="line">            response.setStatus(HttpServletResponse.SC_OK);</span><br><span class="line">            response.getWriter().write(<span class="string">&quot;&lt;h1&gt;哈哈&lt;/h1&gt;&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">HelloUTF8Servlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span><br><span class="line">                <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">            response.setContentType(<span class="string">&quot;text/plain; charset=UTF-8&quot;</span>);</span><br><span class="line">            response.setStatus(HttpServletResponse.SC_OK);</span><br><span class="line">            response.getWriter().write(<span class="string">&quot;&lt;h1&gt;哈哈&lt;/h1&gt;&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过curl命令来复现这个问题</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl localhost:8080/hello-default</span><br><span class="line">&lt;h1&gt;??&lt;/h1&gt;%</span><br><span class="line">curl localhost:8080/hello-utf8</span><br><span class="line">&lt;h1&gt;哈哈&lt;/h1&gt;%</span><br></pre></td></tr></table></figure>
-
-<p>那么servlet里面的数据如何编码，我们可以dive一下，首先servlet里面有一个函数叫**<code>response.setCharacterEncoding();</code>**这个函数可以指定编码格式。其次，servlet还会通过上面的setContentType函数来做一定的推断，比如content-type中携带了charset，就使用content-type中的charset。还有些特定的content-type，比如text&#x2F;json，在没有设置的情况下，servlet容器会假设它使用utf-8编码。在推断不出来，也没有手动设置的情况下，jetty默认的编码是iso-8859-1，这就解释了乱码的问题。</p>
 
       
     </div>
