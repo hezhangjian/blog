@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">142</span>
+          <span class="site-state-item-count">143</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,97 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/12/08/%E4%B8%80%E4%BA%9B%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/microservice-dev-standard" class="post-title-link post-title-link-external" itemprop="url">一些微服务开发规范<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-12-08 13:27:42" itemprop="dateCreated datePublished" datetime="2024-12-08T13:27:42+08:00">2024-12-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="消费组名称"><a href="#消费组名称" class="headerlink" title="消费组名称"></a>消费组名称</h2><ul>
+<li>共享消费者使用微服务名称，比如(DeviceManager)</li>
+<li>广播消费者使用微服务名称+唯一标识，比如</li>
+<li>kubernetes部署场景下可以将pod名称的唯一部分作为唯一标识，比如下图的nginx可以使用5d4f5c59f8-7hztx作为唯一标识<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pod</span><br><span class="line">NAME                          READY   STATUS    RESTARTS   AGE</span><br><span class="line">nginx-deployment-5d4f5c59f8-7hztx   1/1     Running   0          2d3h</span><br><span class="line">nginx-deployment-5d4f5c59f8-xvbnm   1/1     Running   0          2d3h</span><br><span class="line">redis-5f67c8d8c9-4g2h3              1/1     Running   0          10h</span><br></pre></td></tr></table></figure>
+<ul>
+<li>pod的IP地址</li>
+<li>UUID</li>
+</ul>
+</li>
+</ul>
+<h2 id="数据库表"><a href="#数据库表" class="headerlink" title="数据库表"></a>数据库表</h2><ul>
+<li>数据库表名使用单数。</li>
+<li>数据库的主键，要考虑对应实体物理上是否唯一。</li>
+<li>数据库可以分为多个列组合唯一、单列唯一、是否有唯一索引、是否有二级索引。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +332,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -425,7 +516,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:34" itemprop="dateModified" datetime="2026-06-07T11:27:34+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
     </span>
 
   
@@ -509,7 +600,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -620,7 +711,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -728,7 +819,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -810,7 +901,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -928,7 +1019,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -1019,7 +1110,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -1096,7 +1187,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -1120,93 +1211,6 @@
 
 <p>包含模板变量的错误信息国际化，可以在前端通过正则表达式提取，并代入到中文字符串模板中实现。如示例代码</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// catch the error code first</span></span><br><span class="line"><span class="keyword">const</span> error_code = body.<span class="property">code</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> error_msg_capture_map = &#123;</span><br><span class="line">    <span class="string">&quot;IEEE.754&quot;</span>: <span class="string">&quot;/IEE 754 (\w+) error, do you mean (\w+)?/&quot;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> error_msg_template_map = &#123;</span><br><span class="line">    <span class="string">&quot;IEEE.754&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;en&quot;</span>: <span class="string">&quot;IEE 754 &#123;&#123;var1&#125;&#125; error, do you mean &#123;&#123;var2&#125;&#125;?&quot;</span>,</span><br><span class="line">        <span class="string">&quot;zh&quot;</span>: <span class="string">&quot;IEE 754 &#123;&#123;var1&#125;&#125; 错误，你是指 &#123;&#123;var2&#125;&#125; 吗？&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> matches = error_msg_capture_map[error_code].<span class="title function_">exec</span>(body.<span class="property">error_msg</span>);</span><br><span class="line"><span class="keyword">const</span> variables = matches.<span class="title function_">slice</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> error_msg = error_msg_template_map[error_code][lang];</span><br><span class="line">variables.<span class="title function_">forEach</span>(<span class="function">(<span class="params">value, index</span>) =&gt;</span> &#123;</span><br><span class="line">    error_msg = error_msg.<span class="title function_">replace</span>(<span class="string">`&#123;&#123;var<span class="subst">$&#123;index + <span class="number">1</span>&#125;</span>&#125;&#125;`</span>, value);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2024/03/11/%E5%88%A9%E7%94%A8Lombok%E7%9A%84@RequiredArgsConstructor%E7%AE%80%E5%8C%96Spring%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/lombok-required-args-constructor-spring" class="post-title-link post-title-link-external" itemprop="url">利用Lombok的@RequiredArgsConstructor简化Spring构造函数<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2024-03-11 20:47:12" itemprop="dateCreated datePublished" datetime="2024-03-11T20:47:12+08:00">2024-03-11</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>从Spring的新版本开始，推荐使用构造函数的注入方式，通过构造函数注入有很多优点，诸如不变性等等。同时在构造函数上，也不需要添加<code>@Autowire</code><br>注解就可以完成注入</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Before</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ABC</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> A a;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> B b;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> C c;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ABC</span><span class="params">(<span class="meta">@Autowire</span> A a, <span class="meta">@Autowire</span> B b, <span class="meta">@Autowire</span> C c)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.a = a;</span><br><span class="line">        <span class="built_in">this</span>.b = b;</span><br><span class="line">        <span class="built_in">this</span>.c = c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// After</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ABC</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> A a;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> B b;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> C c;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ABC</span><span class="params">(A a, B b, C c)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.a = a;</span><br><span class="line">        <span class="built_in">this</span>.b = b;</span><br><span class="line">        <span class="built_in">this</span>.c = c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>但是，这种注入方式会导致变动代码的时候，需要同时修改field以及构造函数，在项目早期发展时期，这种变动显得有一些枯燥，再加上已经不需要<code>@Autowire</code><br>注解。这时，我们可以用Lombok的@RequiredArgsConstructor来简化这个流程。</p>
-<p>Lombok的<code>@RequiredArgsConstructor</code>会包含这些参数：</p>
-<ul>
-<li>所有未初始化的 final 字段</li>
-<li>被标记为 @NonNull 但在声明时未初始化的字段。</li>
-</ul>
-<p>对于那些被标记为 @NonNull<br>的字段，还会生成一个显式的空检查（不过在Spring框架里这个没什么作用）。通过应用<code>@RequiredArgsConstructor</code><br>，代码可以简化为如下模样，同时添加新的字段也不需要修改多行。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ABC</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> A a;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> B b;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> C c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
       
     </div>

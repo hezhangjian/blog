@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">142</span>
+          <span class="site-state-item-count">143</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,98 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/03/07/Quorum%E7%9C%9F%E7%9A%84%E4%B8%87%E6%97%A0%E4%B8%80%E5%A4%B1%E5%90%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/03/07/Quorum%E7%9C%9F%E7%9A%84%E4%B8%87%E6%97%A0%E4%B8%80%E5%A4%B1%E5%90%97/" class="post-title-link" itemprop="url">Quorum真的万无一失吗？</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-03-07 10:33:47" itemprop="dateCreated datePublished" datetime="2021-03-07T10:33:47+08:00">2021-03-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>数据密集型系统</li>
+</ul>
+<h2 id="Quorum介绍"><a href="#Quorum介绍" class="headerlink" title="Quorum介绍"></a>Quorum介绍</h2><p>Quorum模式常用于分布式场景，保证数据的一致性。其中有两个核心参数</p>
+<ul>
+<li>Qw 代表数据写入(包括更新、删除)需要的节点数</li>
+<li>Qr 代表数据读取需要的节点数</li>
+</ul>
+<p>如果你总共有N个节点，那么很容易得出只要 W+R&gt;N，那么你的读请求和写请求一定有重叠的节点，这就保证了一致性，你总是能找到最新的那个写入请求</p>
+<h2 id="Quorum的不一致场景"><a href="#Quorum的不一致场景" class="headerlink" title="Quorum的不一致场景"></a>Quorum的不一致场景</h2><p>但Quorum模式并不一定是万无一失的，他在如下场景会导致不一致</p>
+<ul>
+<li>如果两个写操作同时发生，则无法明确先后顺序，最终需要额外的修复手段</li>
+<li>如果写操作和读操作同时发生，写操作可能仅在一部分副本上完成。此时，读取时返回旧值还是新值存在不确定性</li>
+<li>如果某些副本上已经写入成功，而其他一些副本发生写入失败（如磁盘已满），且总的成功副本数少于w，那些已成功的副本上不会做回滚。这意味着尽管这样的写操作被视为失败，后续的读操作仍可能返回新值</li>
+</ul>
+<h2 id="还有两个更加边界的场景"><a href="#还有两个更加边界的场景" class="headerlink" title="还有两个更加边界的场景"></a>还有两个更加边界的场景</h2><h3 id="Sloppy-Quorum"><a href="#Sloppy-Quorum" class="headerlink" title="Sloppy Quorum"></a>Sloppy Quorum</h3><p>也叫做宽松的Quorum模式，就是说当N不够的情况下，可以把集群的其他节点当作Qw节点。如果采用了sloppy<br>quorum，写操作的w节点和读取的r节点可能完全不同，因此无法保证读写请求一定存在重叠的节点</p>
+<h2 id="数据的恢复场景"><a href="#数据的恢复场景" class="headerlink" title="数据的恢复场景"></a>数据的恢复场景</h2><p>进行数据的恢复在所难免，如cassandra就有读修复等，如果具有新值的节点后来发生失效，但恢复数据来自某个旧值，则总的新值副本数会低于w，这就打破了之前的判定条件</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +332,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -335,7 +427,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:34" itemprop="dateModified" datetime="2026-06-07T11:27:34+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
     </span>
 
   
@@ -437,7 +529,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -538,7 +630,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -637,7 +729,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -732,7 +824,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -828,7 +920,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -918,7 +1010,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -1054,7 +1146,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -1085,103 +1177,6 @@
 <p>配置ip 隧道倒也不难</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip tunnel add $tun_name mode ipip remote $remote_ip local $local_ip ttl 255</span><br></pre></td></tr></table></figure>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以上三种方案均没有单点问题，且都兼容tcp，udp协议。GateWay处的单点问题，通过zk选主、etcd选主，keepalive等 + 浮动IP迁移的方式均能解决。大家可以根据自己的网规网设自由选择</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2020/12/05/Nginx%E6%94%AF%E6%8C%81SNI%E8%BD%AC%E5%8F%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/nginx-sni" class="post-title-link post-title-link-external" itemprop="url">Nginx支持SNI转发<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-12-05 15:20:31" itemprop="dateCreated datePublished" datetime="2020-12-05T15:20:31+08:00">2020-12-05</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>SNI是一个TLS的扩展字段，经常用于访问域名跳转到不同的后端地址。</p>
-<p>配置方式如下：打开nginx.conf文件，以ttbb&#x2F;nginx:nake镜像为例&#x2F;usr&#x2F;local&#x2F;openresty&#x2F;nginx&#x2F;conf&#x2F;nginx.conf</p>
-<p>如下为默认的nginx.conf配置</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#user  nobody;</span><br><span class="line">worker_processes  1;</span><br><span class="line"></span><br><span class="line">#error_log  logs/error.log;</span><br><span class="line">#error_log  logs/error.log  notice;</span><br><span class="line">#error_log  logs/error.log  info;</span><br><span class="line"></span><br><span class="line">#pid        logs/nginx.pid;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections  1024;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    #log_format  main  &#x27;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#x27;</span><br><span class="line">    #                  &#x27;$status $body_bytes_sent &quot;$http_referer&quot; &#x27;</span><br><span class="line">    #                  &#x27;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#x27;;</span><br><span class="line"></span><br><span class="line">    #access_log  logs/access.log  main;</span><br><span class="line"></span><br><span class="line">    sendfile        on;</span><br><span class="line">    #tcp_nopush     on;</span><br><span class="line"></span><br><span class="line">    #keepalive_timeout  0;</span><br><span class="line">    keepalive_timeout  65;</span><br><span class="line"></span><br><span class="line">    #gzip  on;</span><br><span class="line"></span><br><span class="line">    server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  localhost;</span><br><span class="line"></span><br><span class="line">        #charset koi8-r;</span><br><span class="line"></span><br><span class="line">        #access_log  logs/host.access.log  main;</span><br><span class="line"></span><br><span class="line">        location / &#123;</span><br><span class="line">            root   html;</span><br><span class="line">            index  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        #error_page  404              /404.html;</span><br><span class="line"></span><br><span class="line">        # redirect server error pages to the static page /50x.html</span><br><span class="line">        #</span><br><span class="line">        error_page   500 502 503 504  /50x.html;</span><br><span class="line">        location = /50x.html &#123;</span><br><span class="line">            root   html;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        # proxy the PHP scripts to Apache listening on 127.0.0.1:80</span><br><span class="line">        #</span><br><span class="line">        #location ~ \.php$ &#123;</span><br><span class="line">        #    proxy_pass   http://127.0.0.1;</span><br><span class="line">        #&#125;</span><br><span class="line"></span><br><span class="line">        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000</span><br><span class="line">        #</span><br><span class="line">        #location ~ \.php$ &#123;</span><br><span class="line">        #    root           html;</span><br><span class="line">        #    fastcgi_pass   127.0.0.1:9000;</span><br><span class="line">        #    fastcgi_index  index.php;</span><br><span class="line">        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;</span><br><span class="line">        #    include        fastcgi_params;</span><br><span class="line">        #&#125;</span><br><span class="line"></span><br><span class="line">        # deny access to .htaccess files, if Apache&#x27;s document root</span><br><span class="line">        # concurs with nginx&#x27;s one</span><br><span class="line">        #</span><br><span class="line">        #location ~ /\.ht &#123;</span><br><span class="line">        #    deny  all;</span><br><span class="line">        #&#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    # another virtual host using mix of IP-, name-, and port-based configuration</span><br><span class="line">    #</span><br><span class="line">    #server &#123;</span><br><span class="line">    #    listen       8000;</span><br><span class="line">    #    listen       somename:8080;</span><br><span class="line">    #    server_name  somename  alias  another.alias;</span><br><span class="line"></span><br><span class="line">    #    location / &#123;</span><br><span class="line">    #        root   html;</span><br><span class="line">    #        index  index.html index.htm;</span><br><span class="line">    #    &#125;</span><br><span class="line">    #&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    # HTTPS server</span><br><span class="line">    #</span><br><span class="line">    #server &#123;</span><br><span class="line">    #    listen       443 ssl;</span><br><span class="line">    #    server_name  localhost;</span><br><span class="line"></span><br><span class="line">    #    ssl_certificate      cert.pem;</span><br><span class="line">    #    ssl_certificate_key  cert.key;</span><br><span class="line"></span><br><span class="line">    #    ssl_session_cache    shared:SSL:1m;</span><br><span class="line">    #    ssl_session_timeout  5m;</span><br><span class="line"></span><br><span class="line">    #    ssl_ciphers  HIGH:!aNULL:!MD5;</span><br><span class="line">    #    ssl_prefer_server_ciphers  on;</span><br><span class="line"></span><br><span class="line">    #    location / &#123;</span><br><span class="line">    #        root   html;</span><br><span class="line">    #        index  index.html index.htm;</span><br><span class="line">    #    &#125;</span><br><span class="line">    #&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在最后面添加上</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">stream &#123;</span><br><span class="line"></span><br><span class="line">map $ssl_preread_server_name $name &#123;</span><br><span class="line">    backend.example.com      backend;</span><br><span class="line">    default                  backend2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">upstream backend &#123;</span><br><span class="line">    server 192.168.0.3:12345;</span><br><span class="line">    server 192.168.0.4:12345;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">upstream backend2 &#123;</span><br><span class="line">    server 127.0.0.1:8071;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    listen      12346;</span><br><span class="line">    proxy_pass  $name;</span><br><span class="line">    ssl_preread on;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这个时候，我们已经开启了SNI转发的功能，如果你使用backend.example.com的域名访问服务器，就会转发到backend，如果使用其他域名，就会转发到backend2</p>
-<p>测试的时候，让我们在&#x2F;etc&#x2F;hosts里进行设置，添加</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1 backend.example.com</span><br></pre></td></tr></table></figure>
-
-<p>然后进行请求</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://backend.example.com:12346</span><br></pre></td></tr></table></figure>
-
-<p>这里注意请求要使用https，http协议或者是tcp可没有SNI的说法</p>
-<p><img src="/Images/nginx-sni-backend.png" alt="nginx-sni-backend"></p>
-<p>发现请求的确实是backend</p>
-<p>然后测试请求127.0.0.1:12346</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://127.0.0.1:12346</span><br></pre></td></tr></table></figure>
-
-<p><img src="/Images/nginx-sni-127.png" alt="nginx-sni-127"></p>
 
       
     </div>

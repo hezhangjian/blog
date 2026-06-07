@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">142</span>
+          <span class="site-state-item-count">143</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,87 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/11/02/%E4%BC%98%E7%A7%80%E5%AE%9E%E8%B7%B5%E4%B9%8B%E7%94%A8%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E6%B5%8B%E8%AF%95%E4%B8%8B%E5%B1%82%E4%BE%9D%E8%B5%96%E7%9A%84%E9%BB%98%E8%AE%A4%E5%80%BC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/11/02/%E4%BC%98%E7%A7%80%E5%AE%9E%E8%B7%B5%E4%B9%8B%E7%94%A8%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E6%B5%8B%E8%AF%95%E4%B8%8B%E5%B1%82%E4%BE%9D%E8%B5%96%E7%9A%84%E9%BB%98%E8%AE%A4%E5%80%BC/" class="post-title-link" itemprop="url">优秀实践之用单元测试测试下层依赖的默认值</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-11-02 13:10:44" itemprop="dateCreated datePublished" datetime="2021-11-02T13:10:44+08:00">2021-11-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>这些天，在给项目<strong>servicecomb</strong>提交代码，升级其中的<code>vertx</code>和<code>netty</code>版本号，发现有单元测试用例跑不过</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/apache/servicecomb-java-chassis/pull/2614">https://github.com/apache/servicecomb-java-chassis/pull/2614</a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testGetMaxFormAttributeSize</span><span class="params">()</span> &#123;</span><br><span class="line">  Assert.assertEquals(<span class="number">8192</span>, TransportConfig.getMaxFormAttributeSize());</span><br><span class="line">  ArchaiusUtils.setProperty(<span class="string">&quot;servicecomb.rest.server.maxFormAttributeSize&quot;</span>, <span class="number">3072</span>);</span><br><span class="line">  Assert.assertEquals(<span class="number">3072</span>, TransportConfig.getMaxFormAttributeSize());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过这个用例可以拦截，如果新版本<strong>TransportConfig</strong>中依赖的底层默认值修改为非8192的问题。</p>
+<p>对于底层依赖的其他项目，有些参数有统一的文件放置，甚至有些项目，参数分散在各个文件。相比升级后，逐个参数检查，通过单元测试能更有效的发现默认值的变化或移动再处理。我觉得这是一个很好的实践。推广到非library库中，我们维护的pulsar、mysql等组件，也可以通过ut测试来保证一些配置文件中的默认参数没有新增、删除或修改。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +321,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -344,7 +425,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:34" itemprop="dateModified" datetime="2026-06-07T11:27:34+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
     </span>
 
   
@@ -449,7 +530,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -559,7 +640,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -644,7 +725,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -745,7 +826,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -847,7 +928,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -934,7 +1015,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -1032,7 +1113,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -1058,115 +1139,6 @@
 <p><img src="/Images/kubernetes-ha-keepalived-nginx.png" alt="kubernetes-ha-keepalived-nginx"></p>
 <p>为了简化图像，只画出了master1上的Nginx向后转发的场景。</p>
 <p>至于Nginx和KeepAlived如何部署，推荐采用容器化的部署模式，方便进行监控和运维；但是镜像不从镜像仓库拉取，而是保存在<code>master</code>节点上，这样虽然升级复杂一点，但是这样子<code>kubernetes</code>的高可用就不依赖镜像仓库了，不会和镜像仓库形成循环依赖，更不会影响镜像仓库的高可用方案，大大简化了后续的技术方案。（因为镜像仓库可能会占据较大的存储空间，可能会和<code>master</code>节点分离部署，这时会作为<code>worker</code>节点连接<code>master</code>节点）。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/20/GoFrame%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84Update%E9%9B%B6%E5%80%BC%E9%97%AE%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/08/20/GoFrame%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84Update%E9%9B%B6%E5%80%BC%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">GoFrame框架中的Update零值问题</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-20 20:16:14" itemprop="dateCreated datePublished" datetime="2021-08-20T20:16:14+08:00">2021-08-20</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:34" itemprop="dateModified" datetime="2026-06-07T11:27:34+08:00">2026-06-07</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>前几天，我的同事碰到了一个问题，是关于<strong>GoFrame</strong> 框架中数据字段的更新问题，数据中有一个<code>status</code>字段，他本来不想更新，但是却更新成了0。</p>
-<p>相信看到描述，已经有经验丰富的专家可以猜到是数据部分更新导致的问题。</p>
-<p>没错，就是因为数据库部分更新，把0这个值当成了需要更新的值刷新到了数据库中。</p>
-<p>中间是复现问题的流程及代码细节，不感兴趣的可以直接拉到最后</p>
-<h2 id="复现问题"><a href="#复现问题" class="headerlink" title="复现问题"></a>复现问题</h2><h3 id="创建一个数据表"><a href="#创建一个数据表" class="headerlink" title="创建一个数据表"></a>创建一个数据表</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> health_check</span><br><span class="line">(</span><br><span class="line">    id           <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    str_null     <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NULL</span>,</span><br><span class="line">    str_not_null <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    int_null     <span class="type">INT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    int_not_null <span class="type">INT</span>         <span class="keyword">NOT NULL</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-
-<h3 id="插入一条数据"><a href="#插入一条数据" class="headerlink" title="插入一条数据"></a>插入一条数据</h3><p><img src="/Images/go-frame-update-zero1.png" alt="image-20210819104835758"></p>
-<h3 id="数据库module的声明"><a href="#数据库module的声明" class="headerlink" title="数据库module的声明"></a>数据库module的声明</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> HealthCheck <span class="keyword">struct</span> &#123;</span><br><span class="line">	Id         <span class="type">string</span>  <span class="string">`orm:&quot;id&quot;`</span></span><br><span class="line">	StrNull    *<span class="type">string</span> <span class="string">`orm:&quot;str_null&quot;`</span></span><br><span class="line">	StrNotNull <span class="type">string</span>  <span class="string">`orm:&quot;str_not_null&quot;`</span></span><br><span class="line">	IntNull    *<span class="type">int</span>    <span class="string">`orm:&quot;int_null&quot;`</span></span><br><span class="line">	IntNotNull <span class="type">int</span>     <span class="string">`orm:&quot;int_not_null&quot;`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="更新数据"><a href="#更新数据" class="headerlink" title="更新数据"></a>更新数据</h3><p>这时，只想把IntNotNull字段更新成0</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UpdateHealth</span><span class="params">()</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	table := g.DB().Schema(healthDb).Table(healthTable)</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">6</span></span><br><span class="line">	healthCheck.IntNull = &amp;i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="执行完毕之后"><a href="#执行完毕之后" class="headerlink" title="执行完毕之后"></a>执行完毕之后</h3><p>除了我要更新的<code>int_not_null</code>字段，其他值都被修改了</p>
-<p><img src="/Images/go-frame-update-zero2.png" alt="image-20210819111903460"></p>
-<p>这肯定不是我们想要的效果，我们只想更新一个字段。</p>
-<p>这个时候GoFrame框架提供了<code>OmitEmpty</code>方法，可以忽略0值，也就是达到没传值不修改的效果，让我们加上<code>OmitEmpty</code>试试</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">table := g.DB().Schema(healthDb).Table(healthTable).OmitEmpty()</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">0</span></span><br><span class="line">	healthCheck.IntNotNull = i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br></pre></td></tr></table></figure>
-
-<p>重新导入数据</p>
-<p><img src="/Images/go-frame-update-zero3.png" alt="image-20210819110235646"></p>
-<p>操作update</p>
-<p><img src="/Images/go-frame-update-zero4.png" alt="image-20210819111954946"></p>
-<p>可是什么都没有更新，原来OmitEmpty把数字0当做是0值，没有进行更新，那么要怎么写呢，答案是使用<code>*int</code>类型</p>
-<p>让我们使用定位为<code>*int</code>类型的字段来更新一下<code>int_not_null</code>，代码如下</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UpdateHealth</span><span class="params">()</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	table := g.DB().Schema(healthDb).Table(healthTable).OmitEmpty()</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">0</span></span><br><span class="line">	healthCheck.IntNull = &amp;i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>再次操作Update</p>
-<p><img src="/Images/go-frame-update-zero5.png" alt="image-20210819112254854"></p>
-<p>效果达成.</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li>GoFrame的框架默认会对全量字段进行更新，无论你的字段有没有复制</li>
-<li>OmitEmpty可以让框架跳过空值，但是int类型的0，也会跳过</li>
-<li>如果你还是想用<code>OmitEmpty</code>跳过空值的情况下，写入0，请使用<code>*int</code>类型</li>
-</ul>
 
       
     </div>

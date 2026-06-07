@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">142</span>
+          <span class="site-state-item-count">143</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,115 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/20/GoFrame%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84Update%E9%9B%B6%E5%80%BC%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/08/20/GoFrame%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84Update%E9%9B%B6%E5%80%BC%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">GoFrame框架中的Update零值问题</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-20 20:16:14" itemprop="dateCreated datePublished" datetime="2021-08-20T20:16:14+08:00">2021-08-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>前几天，我的同事碰到了一个问题，是关于<strong>GoFrame</strong> 框架中数据字段的更新问题，数据中有一个<code>status</code>字段，他本来不想更新，但是却更新成了0。</p>
+<p>相信看到描述，已经有经验丰富的专家可以猜到是数据部分更新导致的问题。</p>
+<p>没错，就是因为数据库部分更新，把0这个值当成了需要更新的值刷新到了数据库中。</p>
+<p>中间是复现问题的流程及代码细节，不感兴趣的可以直接拉到最后</p>
+<h2 id="复现问题"><a href="#复现问题" class="headerlink" title="复现问题"></a>复现问题</h2><h3 id="创建一个数据表"><a href="#创建一个数据表" class="headerlink" title="创建一个数据表"></a>创建一个数据表</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> health_check</span><br><span class="line">(</span><br><span class="line">    id           <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    str_null     <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NULL</span>,</span><br><span class="line">    str_not_null <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    int_null     <span class="type">INT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    int_not_null <span class="type">INT</span>         <span class="keyword">NOT NULL</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h3 id="插入一条数据"><a href="#插入一条数据" class="headerlink" title="插入一条数据"></a>插入一条数据</h3><p><img src="/Images/go-frame-update-zero1.png" alt="image-20210819104835758"></p>
+<h3 id="数据库module的声明"><a href="#数据库module的声明" class="headerlink" title="数据库module的声明"></a>数据库module的声明</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> HealthCheck <span class="keyword">struct</span> &#123;</span><br><span class="line">	Id         <span class="type">string</span>  <span class="string">`orm:&quot;id&quot;`</span></span><br><span class="line">	StrNull    *<span class="type">string</span> <span class="string">`orm:&quot;str_null&quot;`</span></span><br><span class="line">	StrNotNull <span class="type">string</span>  <span class="string">`orm:&quot;str_not_null&quot;`</span></span><br><span class="line">	IntNull    *<span class="type">int</span>    <span class="string">`orm:&quot;int_null&quot;`</span></span><br><span class="line">	IntNotNull <span class="type">int</span>     <span class="string">`orm:&quot;int_not_null&quot;`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="更新数据"><a href="#更新数据" class="headerlink" title="更新数据"></a>更新数据</h3><p>这时，只想把IntNotNull字段更新成0</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UpdateHealth</span><span class="params">()</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	table := g.DB().Schema(healthDb).Table(healthTable)</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">6</span></span><br><span class="line">	healthCheck.IntNull = &amp;i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="执行完毕之后"><a href="#执行完毕之后" class="headerlink" title="执行完毕之后"></a>执行完毕之后</h3><p>除了我要更新的<code>int_not_null</code>字段，其他值都被修改了</p>
+<p><img src="/Images/go-frame-update-zero2.png" alt="image-20210819111903460"></p>
+<p>这肯定不是我们想要的效果，我们只想更新一个字段。</p>
+<p>这个时候GoFrame框架提供了<code>OmitEmpty</code>方法，可以忽略0值，也就是达到没传值不修改的效果，让我们加上<code>OmitEmpty</code>试试</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">table := g.DB().Schema(healthDb).Table(healthTable).OmitEmpty()</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">0</span></span><br><span class="line">	healthCheck.IntNotNull = i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br></pre></td></tr></table></figure>
+
+<p>重新导入数据</p>
+<p><img src="/Images/go-frame-update-zero3.png" alt="image-20210819110235646"></p>
+<p>操作update</p>
+<p><img src="/Images/go-frame-update-zero4.png" alt="image-20210819111954946"></p>
+<p>可是什么都没有更新，原来OmitEmpty把数字0当做是0值，没有进行更新，那么要怎么写呢，答案是使用<code>*int</code>类型</p>
+<p>让我们使用定位为<code>*int</code>类型的字段来更新一下<code>int_not_null</code>，代码如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UpdateHealth</span><span class="params">()</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	table := g.DB().Schema(healthDb).Table(healthTable).OmitEmpty()</span><br><span class="line">	healthCheck := &amp;module.HealthCheck&#123;&#125;</span><br><span class="line">	healthCheck.Id = config.HealthCheckId</span><br><span class="line">	i := <span class="number">0</span></span><br><span class="line">	healthCheck.IntNull = &amp;i</span><br><span class="line">	table.Data(healthCheck).Where(<span class="string">&quot;id&quot;</span>, config.HealthCheckId)</span><br><span class="line">	result, err := table.Update()</span><br><span class="line">	glog.Info(result)</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再次操作Update</p>
+<p><img src="/Images/go-frame-update-zero5.png" alt="image-20210819112254854"></p>
+<p>效果达成.</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>GoFrame的框架默认会对全量字段进行更新，无论你的字段有没有复制</li>
+<li>OmitEmpty可以让框架跳过空值，但是int类型的0，也会跳过</li>
+<li>如果你还是想用<code>OmitEmpty</code>跳过空值的情况下，写入0，请使用<code>*int</code>类型</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +349,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -324,7 +433,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -408,7 +517,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -522,7 +631,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -629,7 +738,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:34" itemprop="dateModified" datetime="2026-06-07T11:27:34+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
     </span>
 
   
@@ -748,7 +857,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:34" itemprop="dateModified" datetime="2026-06-07T11:27:34+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
     </span>
 
   
@@ -877,7 +986,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:35" itemprop="dateModified" datetime="2026-06-07T11:27:35+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
     </span>
 
   
@@ -976,7 +1085,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:34" itemprop="dateModified" datetime="2026-06-07T11:27:34+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
     </span>
 
   
@@ -1086,7 +1195,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:34" itemprop="dateModified" datetime="2026-06-07T11:27:34+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
     </span>
 
   
@@ -1169,112 +1278,6 @@
 
 <h3 id="指针值不能赋值给其他指针类型"><a href="#指针值不能赋值给其他指针类型" class="headerlink" title="指针值不能赋值给其他指针类型"></a>指针值不能赋值给其他指针类型</h3><p>指针值互相赋值的条件和比较的条件一样</p>
 <h2 id="有手段打破Go对指针的限制"><a href="#有手段打破Go对指针的限制" class="headerlink" title="有手段打破Go对指针的限制"></a>有手段打破Go对指针的限制</h2><p>unsafe 标准包提供的机制（特别是 unsafe.Pointer 类型）可以用来打破 Go 中对指针的限制。 unsafe.Pointer 类型类似于 C 中的<br>void*。一般不推荐使用<code>unsafe</code>。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/09/Go%20Unsafe%E5%8C%85/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/07/09/Go%20Unsafe%E5%8C%85/" class="post-title-link" itemprop="url">Go Unsafe包</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-07-09 22:46:32" itemprop="dateCreated datePublished" datetime="2021-07-09T22:46:32+08:00">2021-07-09</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:27:34" itemprop="dateModified" datetime="2026-06-07T11:27:34+08:00">2026-06-07</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="翻译自"><a href="#翻译自" class="headerlink" title="翻译自"></a>翻译自</h2><p><a target="_blank" rel="noopener" href="https://medium.com/a-journey-with-go/go-what-is-the-unsafe-package-d2443da36350">https://medium.com/a-journey-with-go/go-what-is-the-unsafe-package-d2443da36350</a></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>包的名称指引着我们的使用。了解此包可能不安全的原因，让我们首先查看如下文档</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">unsafe包包含可以绕过Go程序类型安全的操作</span><br><span class="line">引用了unsafe的包，可能会无法跨平台、跨设备，并且Go1 兼容性指南不保证这些包的兼容</span><br></pre></td></tr></table></figure>
-
-<p>因此，该名称被用作对为 Go 提供类型的安全性的反面。 现在让我们深入研究文档中提到的这两点。</p>
-<h2 id="类型安全"><a href="#类型安全" class="headerlink" title="类型安全"></a>类型安全</h2><p>在Go中，每个变量都拥有一个类型，在赋值给另外一个变量之前，可以转换为另外的类型。在此转换期间，Go 执行此数据的转换以适应所请求的类型。 这是一个例子</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> unsafe_test</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;testing&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestConvert</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	<span class="comment">// -1 二进制表达 11111111</span></span><br><span class="line">	<span class="keyword">var</span> i <span class="type">int8</span> = <span class="number">-1</span></span><br><span class="line">	<span class="comment">// -1 二进制表达 11111111 11111111</span></span><br><span class="line">	<span class="keyword">var</span> j = <span class="type">int16</span>(i)</span><br><span class="line">	<span class="built_in">println</span>(i, j)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>输出</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-1 -1</span><br></pre></td></tr></table></figure>
-
-<p><code>unsafe</code>包让我们直接操作这个变量的内存地址，直接获取里面的二进制值。在绕过类型约束时，我们可以随意使用它。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> k <span class="type">uint8</span> = *(*<span class="type">uint8</span>)(unsafe.Pointer(&amp;i))</span><br><span class="line"><span class="built_in">println</span>(k)</span><br><span class="line"><span class="comment">// 255 is the uint8 value for the binary 11111111</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Go1-兼容性指南"><a href="#Go1-兼容性指南" class="headerlink" title="Go1 兼容性指南"></a>Go1 兼容性指南</h2><p>unsafe包可能会依赖于Go的底层实现。Go可能会做出破坏性的改动。</p>
-<h2 id="Go-反射包中使用Unsafe"><a href="#Go-反射包中使用Unsafe" class="headerlink" title="Go 反射包中使用Unsafe"></a>Go 反射包中使用Unsafe</h2><p><code>reflect</code>包是使用最多的一个包。反射基于空interface包含的数据。为了读取数据，Go只是将我们的变量转化为一个空接口，并通过映射一个结构体来读取它们，该结构体匹配空接口的内部表示与指针地址处的内存。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ValueOf</span><span class="params">(i <span class="keyword">interface</span>&#123;&#125;)</span></span> Value &#123;</span><br><span class="line">   [...]</span><br><span class="line">   <span class="keyword">return</span> unpackEface(i)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// unpackEface converts the empty interface i to a Value.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">unpackEface</span><span class="params">(i <span class="keyword">interface</span>&#123;&#125;)</span></span> Value &#123;</span><br><span class="line">   e := (*emptyInterface)(unsafe.Pointer(&amp;i))</span><br><span class="line">   [...]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>变量 e 现在包含有关该值的所有信息，例如类型或该值是否已导出。 反射还使用 unsafe 包通过直接在内存中更新值来修改反射变量的值。</p>
-<h2 id="Go-Sync包使用Unsafe"><a href="#Go-Sync包使用Unsafe" class="headerlink" title="Go Sync包使用Unsafe"></a>Go Sync包使用Unsafe</h2><p><code>sync.Pool</code> 这些池通过一段go协程都能访问的内存片段来共享数据。这访问模式和C语言数组的访问方式很像</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">indexLocal</span><span class="params">(l unsafe.Pointer, i <span class="type">int</span>)</span></span> *poolLocal &#123;</span><br><span class="line">   lp := unsafe.Pointer(<span class="type">uintptr</span>(l) + <span class="type">uintptr</span>(i)*unsafe.Sizeof(poolLocal&#123;&#125;))</span><br><span class="line">   <span class="keyword">return</span> (*poolLocal)(lp)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>l</code>是内存片段，<code>i</code>是数字。函数 <code>indexLocal</code> 只是读取这个内存段——它包含 X个poolLocal 结构——与它读取的索引相关的偏移量。 存储指向完整内存段的单个指针是实现共享池的一种非常轻量的方式。</p>
-<h2 id="在Go-runtime包中的使用"><a href="#在Go-runtime包中的使用" class="headerlink" title="在Go runtime包中的使用"></a>在Go runtime包中的使用</h2><p>Go 在<code>runtime</code>包也大量使用 unsafe 包，因为它必须处理内存操作，如栈分配或释放栈内存。 栈由其结构中的两个边界表示：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> stack <span class="keyword">struct</span> &#123;</span><br><span class="line">    lo <span class="type">uintptr</span></span><br><span class="line">    hi <span class="type">uintptr</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>unsafe</code>包可以完成这个操作</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">stackfree</span><span class="params">(stk stack)</span></span> &#123;</span><br><span class="line">    [...]</span><br><span class="line">    v := unsafe.Pointer(stk.lo)</span><br><span class="line">    n := stk.hi - stk.lo</span><br><span class="line">    <span class="comment">// 内存基于栈上的指针释放</span></span><br><span class="line">    [...]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="开发平时使用"><a href="#开发平时使用" class="headerlink" title="开发平时使用"></a>开发平时使用</h2><p><code>unsafe</code>包的一个很好的用法是转换具有相同底层数据结构的不同结构体，这是转换器无法实现的</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> unsafe</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;unsafe&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> A <span class="keyword">struct</span> &#123;</span><br><span class="line">	A <span class="type">int8</span></span><br><span class="line">	B <span class="type">string</span></span><br><span class="line">	C <span class="type">float32</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> B <span class="keyword">struct</span> &#123;</span><br><span class="line">	D <span class="type">int8</span></span><br><span class="line">	E <span class="type">string</span></span><br><span class="line">	F <span class="type">float32</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestStructConvert</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	a := A&#123;A: <span class="number">1</span>, B: <span class="string">`foo`</span>, C: <span class="number">1.23</span>&#125;</span><br><span class="line">	b := *(*B)(unsafe.Pointer(&amp;a))</span><br><span class="line">	<span class="built_in">println</span>(b.D, b.E, b.F) <span class="comment">// 1 foo 1.23</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
       
     </div>
