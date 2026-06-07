@@ -52,7 +52,7 @@ PARA是一个指导原则，每个人的PARA都可以有一些定义，比如我
 生活/
 Archive/
 Areas/
-Attachments/
+Images/
 Blog/
 Documents/
 Projects/
