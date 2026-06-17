@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">143</span>
+          <span class="site-state-item-count">144</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-count">47</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,101 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/11/08/Linux%20umask%20%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/linux-umask-analyze" class="post-title-link post-title-link-external" itemprop="url">linux umask 解析<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-11-08 19:20:53" itemprop="dateCreated datePublished" datetime="2022-11-08T19:20:53+08:00">2022-11-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>什么是<strong>umask</strong>， umask即user file-creation mask. 用来控制最终创建文件的权限。</p>
+<p>umask是进程级属性，通常是由<strong>login shell</strong>设置，可以通过系统调用<strong>umask()<strong>或者命令</strong>umask permission</strong>来修改，通过umask命令来查询，linux内核版本4.7之后，还可以通过<strong>cat &#x2F;proc&#x2F;self&#x2F;status|grep -i umask</strong> 查询，示例如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">hezhangjian:~/masktest $ <span class="built_in">umask</span></span><br><span class="line">0022</span><br><span class="line">hezhangjian:~/masktest $ <span class="built_in">umask</span> 0077</span><br><span class="line">hezhangjian:~/masktest $ <span class="built_in">umask</span></span><br><span class="line">0077</span><br><span class="line">hezhangjian:~/masktest $ <span class="built_in">umask</span> 0022</span><br><span class="line">hezhangjian:~/masktest $ <span class="built_in">umask</span></span><br><span class="line">0022</span><br><span class="line">hezhangjian:~/masktest $</span><br></pre></td></tr></table></figure>
+
+<p>一般来说，umask的系统默认值在**&#x2F;etc&#x2F;login.defs** 中设置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">hezhangjian:~ <span class="variable">$cat</span> /etc/login.defs|grep -i <span class="built_in">umask</span></span><br><span class="line"><span class="comment">#	UMASK		Default &quot;umask&quot; value.</span></span><br><span class="line"><span class="comment"># UMASK is the default umask value for pam_umask and is used by</span></span><br><span class="line"><span class="comment"># 022 is the &quot;historical&quot; value in Debian for UMASK</span></span><br><span class="line"><span class="comment"># If USERGROUPS_ENAB is set to &quot;yes&quot;, that will modify this UMASK default value</span></span><br><span class="line">UMASK		022</span><br><span class="line"><span class="comment"># Other former uses of this variable such as setting the umask when</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>最常见的默认的umask值是022，目录权限755，文件权限644</li>
+<li>077 的 umask 适用于私有的系统，则其他用户无法读取或写入您的数据。</li>
+</ul>
+<p>针对标准函数<strong>open</strong>来说，最终写入磁盘的权限位是由mode参数和用户的文件创建掩码(umask)执行按位与操作而得到。</p>
+<p>假设当<strong>umask</strong>为0022时，创建一个具有0666权限的文件，就会进行运算决定文件的最终权限，先对掩码取非，再和指定的权限进行binary-And操作，如图所示</p>
+<p><img src="/Images/linux-umask-analyze.png" alt="linux-umask-analyze"></p>
+<p>示例代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span> &#123;</span><br><span class="line">    <span class="type">int</span> fd;</span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;usage: %s &lt;file&gt;&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stdout</span>, <span class="string">&quot;create file %s&quot;</span>, argv[<span class="number">1</span>]);</span><br><span class="line">    fd = open(argv[<span class="number">1</span>], O_WRONLY | O_CREAT | O_TRUNC, <span class="number">0666</span>);</span><br><span class="line">    <span class="keyword">if</span> (fd == <span class="number">-1</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;open&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    close(fd);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下，权限644，符合预期</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ll</span><br><span class="line">total 8</span><br><span class="line">drwxr-xr-x  2 hezhangjian hezhangjian 4096 Nov  8 06:25 .</span><br><span class="line">drwxr-xr-x 15 hezhangjian hezhangjian 4096 Nov  8 06:18 ..</span><br><span class="line">-rw-r--r--  1 hezhangjian hezhangjian    0 Nov  8 06:25 my.txt</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +335,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -346,7 +441,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -484,7 +579,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -612,7 +707,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -705,7 +800,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -795,7 +890,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -907,7 +1002,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1009,7 +1104,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1112,7 +1207,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1135,101 +1230,6 @@
 
 <p>输出结果</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">=== RUN   TestCallInteractiveShell</span><br><span class="line">output is  Your password is:  ZhangJian</span><br><span class="line"></span><br><span class="line">err output is  </span><br><span class="line">Execute Over</span><br><span class="line">--- PASS: TestCallInteractiveShell (0.00s)</span><br><span class="line">PASS</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/11/29/Zookeeper%20%E9%85%8D%E7%BD%AETLS%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/11/29/Zookeeper%20%E9%85%8D%E7%BD%AETLS%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/" class="post-title-link" itemprop="url">Zookeeper 配置TLS安全认证</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-11-29 18:22:58" itemprop="dateCreated datePublished" datetime="2021-11-29T18:22:58+08:00">2021-11-29</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Java系的TLS一般都会要这么几个参数</p>
-<ul>
-<li>client.keystore</li>
-<li>client.truststore</li>
-<li>client.password</li>
-<li>server.keystore</li>
-<li>server.truststore</li>
-<li>server.password</li>
-</ul>
-<h3 id="生成证书"><a href="#生成证书" class="headerlink" title="生成证书"></a>生成证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">client_pass=zk_client_pwd</span><br><span class="line">server_pass=zk_server_pwd</span><br><span class="line">server_dname=<span class="string">&quot;C=CN,ST=GD,L=SZ,O=sh,OU=sh,CN=hezhangjian&quot;</span></span><br><span class="line">client_dname=<span class="string">&quot;C=CN,ST=GD,L=SZ,O=sh,OU=sh,CN=hezhangjian&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;generate client keystore&quot;</span></span><br><span class="line">keytool -genkeypair -keypass <span class="variable">$client_pass</span> -storepass <span class="variable">$client_pass</span> -dname <span class="variable">$client_dname</span> -keyalg RSA -keysize 2048 -validity 3650 -keystore zk_client_key.jks</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;generate server keystore&quot;</span></span><br><span class="line">keytool -genkeypair -keypass <span class="variable">$server_pass</span> -storepass <span class="variable">$server_pass</span> -dname <span class="variable">$server_dname</span> -keyalg RSA -keysize 2048 -validity 3650 -keystore zk_server_key.jks</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export server certificate&quot;</span></span><br><span class="line">keytool -exportcert -keystore zk_server_key.jks -file server.cer -storepass <span class="variable">$server_pass</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export client certificate&quot;</span></span><br><span class="line">keytool -exportcert -keystore zk_client_key.jks -file client.cer -storepass <span class="variable">$client_pass</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;add server cert to client trust keystore&quot;</span></span><br><span class="line">keytool -importcert -keystore zk_client_trust.jks -file server.cer -storepass <span class="variable">$client_pass</span> -noprompt</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;add client cert to server trust keystore&quot;</span></span><br><span class="line">keytool -importcert -keystore zk_server_trust.jks -file client.cer -storepass <span class="variable">$server_pass</span> -noprompt</span><br><span class="line"><span class="built_in">rm</span> -f server.cer</span><br><span class="line"><span class="built_in">rm</span> -f client.cer</span><br></pre></td></tr></table></figure>
-
-<h3 id="添加ZooKeeper配置"><a href="#添加ZooKeeper配置" class="headerlink" title="添加ZooKeeper配置"></a>添加ZooKeeper配置</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">secureClientPort</span>=<span class="string">2182</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="服务端启动"><a href="#服务端启动" class="headerlink" title="服务端启动"></a>服务端启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> SERVER_JVMFLAGS=<span class="string">&quot;</span></span><br><span class="line"><span class="string">-Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.location=<span class="variable">$CERT_DIR</span>/zk_server_key.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.password=zk_server_pwd</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.location=<span class="variable">$CERT_DIR</span>/zk_server_trust.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.password=zk_server_pwd&quot;</span></span><br><span class="line">/bin/bash <span class="variable">$ZOOKEEPER_HOME</span>/bin/zkServer.sh start</span><br></pre></td></tr></table></figure>
-
-<h3 id="客户端启动"><a href="#客户端启动" class="headerlink" title="客户端启动"></a>客户端启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> CLIENT_JVMFLAGS=<span class="string">&quot;</span></span><br><span class="line"><span class="string">-Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty</span></span><br><span class="line"><span class="string">-Dzookeeper.client.secure=true</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.hostnameVerification=false</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.location=<span class="variable">$CERT_DIR</span>/zk_client_key.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.password=zk_client_pwd</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.location=<span class="variable">$CERT_DIR</span>/zk_client_trust.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.password=zk_client_pwd&quot;</span></span><br><span class="line">bin/zkCli.sh -server localhost:2182</span><br></pre></td></tr></table></figure>
-
-<h3 id="启动成功"><a href="#启动成功" class="headerlink" title="启动成功"></a>启动成功</h3><p><img src="/Images/zookeeper-tls.png" alt="image-20211129182141882"></p>
 
       
     </div>

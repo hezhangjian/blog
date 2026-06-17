@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">143</span>
+          <span class="site-state-item-count">144</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-count">47</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,101 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/11/29/Zookeeper%20%E9%85%8D%E7%BD%AETLS%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/11/29/Zookeeper%20%E9%85%8D%E7%BD%AETLS%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/" class="post-title-link" itemprop="url">Zookeeper 配置TLS安全认证</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-11-29 18:22:58" itemprop="dateCreated datePublished" datetime="2021-11-29T18:22:58+08:00">2021-11-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Java系的TLS一般都会要这么几个参数</p>
+<ul>
+<li>client.keystore</li>
+<li>client.truststore</li>
+<li>client.password</li>
+<li>server.keystore</li>
+<li>server.truststore</li>
+<li>server.password</li>
+</ul>
+<h3 id="生成证书"><a href="#生成证书" class="headerlink" title="生成证书"></a>生成证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">client_pass=zk_client_pwd</span><br><span class="line">server_pass=zk_server_pwd</span><br><span class="line">server_dname=<span class="string">&quot;C=CN,ST=GD,L=SZ,O=sh,OU=sh,CN=hezhangjian&quot;</span></span><br><span class="line">client_dname=<span class="string">&quot;C=CN,ST=GD,L=SZ,O=sh,OU=sh,CN=hezhangjian&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;generate client keystore&quot;</span></span><br><span class="line">keytool -genkeypair -keypass <span class="variable">$client_pass</span> -storepass <span class="variable">$client_pass</span> -dname <span class="variable">$client_dname</span> -keyalg RSA -keysize 2048 -validity 3650 -keystore zk_client_key.jks</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;generate server keystore&quot;</span></span><br><span class="line">keytool -genkeypair -keypass <span class="variable">$server_pass</span> -storepass <span class="variable">$server_pass</span> -dname <span class="variable">$server_dname</span> -keyalg RSA -keysize 2048 -validity 3650 -keystore zk_server_key.jks</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export server certificate&quot;</span></span><br><span class="line">keytool -exportcert -keystore zk_server_key.jks -file server.cer -storepass <span class="variable">$server_pass</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export client certificate&quot;</span></span><br><span class="line">keytool -exportcert -keystore zk_client_key.jks -file client.cer -storepass <span class="variable">$client_pass</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;add server cert to client trust keystore&quot;</span></span><br><span class="line">keytool -importcert -keystore zk_client_trust.jks -file server.cer -storepass <span class="variable">$client_pass</span> -noprompt</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;add client cert to server trust keystore&quot;</span></span><br><span class="line">keytool -importcert -keystore zk_server_trust.jks -file client.cer -storepass <span class="variable">$server_pass</span> -noprompt</span><br><span class="line"><span class="built_in">rm</span> -f server.cer</span><br><span class="line"><span class="built_in">rm</span> -f client.cer</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加ZooKeeper配置"><a href="#添加ZooKeeper配置" class="headerlink" title="添加ZooKeeper配置"></a>添加ZooKeeper配置</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">secureClientPort</span>=<span class="string">2182</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="服务端启动"><a href="#服务端启动" class="headerlink" title="服务端启动"></a>服务端启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> SERVER_JVMFLAGS=<span class="string">&quot;</span></span><br><span class="line"><span class="string">-Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.location=<span class="variable">$CERT_DIR</span>/zk_server_key.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.password=zk_server_pwd</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.location=<span class="variable">$CERT_DIR</span>/zk_server_trust.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.password=zk_server_pwd&quot;</span></span><br><span class="line">/bin/bash <span class="variable">$ZOOKEEPER_HOME</span>/bin/zkServer.sh start</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端启动"><a href="#客户端启动" class="headerlink" title="客户端启动"></a>客户端启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> CLIENT_JVMFLAGS=<span class="string">&quot;</span></span><br><span class="line"><span class="string">-Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty</span></span><br><span class="line"><span class="string">-Dzookeeper.client.secure=true</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.hostnameVerification=false</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.location=<span class="variable">$CERT_DIR</span>/zk_client_key.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.keyStore.password=zk_client_pwd</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.location=<span class="variable">$CERT_DIR</span>/zk_client_trust.jks</span></span><br><span class="line"><span class="string">-Dzookeeper.ssl.trustStore.password=zk_client_pwd&quot;</span></span><br><span class="line">bin/zkCli.sh -server localhost:2182</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动成功"><a href="#启动成功" class="headerlink" title="启动成功"></a>启动成功</h3><p><img src="/Images/zookeeper-tls.png" alt="image-20211129182141882"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +335,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -321,7 +416,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -425,7 +520,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -530,7 +625,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -640,7 +735,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -725,7 +820,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -826,7 +921,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -928,7 +1023,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1015,7 +1110,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1050,95 +1145,6 @@
 <li>节点数目6个</li>
 <li>EC2</li>
 </ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/28/%E9%AB%98%E5%8F%AF%E7%94%A8%E6%97%A0%E5%8D%95%E7%82%B9%E6%9E%B6%E6%9E%84%E4%B9%8Bkubernetes%E9%9B%86%E7%BE%A4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-ha" class="post-title-link post-title-link-external" itemprop="url">高可用无单点架构之kubernetes集群<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-28 08:20:33" itemprop="dateCreated datePublished" datetime="2021-08-28T08:20:33+08:00">2021-08-28</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="k8s高可用无单点故障涉及那些场景"><a href="#k8s高可用无单点故障涉及那些场景" class="headerlink" title="k8s高可用无单点故障涉及那些场景"></a>k8s高可用无单点故障涉及那些场景</h1><h2 id="k8s-节点添加、pod添加等增删查改无单点故障"><a href="#k8s-节点添加、pod添加等增删查改无单点故障" class="headerlink" title="k8s 节点添加、pod添加等增删查改无单点故障"></a>k8s 节点添加、pod添加等增删查改无单点故障</h2><p>需要元数据的存储和处理能力高可用</p>
-<h2 id="k8s对外的apiServer（如worker）无单点故障"><a href="#k8s对外的apiServer（如worker）无单点故障" class="headerlink" title="k8s对外的apiServer（如worker）无单点故障"></a>k8s对外的apiServer（如worker）无单点故障</h2><p>worker node和其他组件访问<code>apiServer</code>路径高可用</p>
-<h1 id="k8s无单点故障技术关键点"><a href="#k8s无单点故障技术关键点" class="headerlink" title="k8s无单点故障技术关键点"></a>k8s无单点故障技术关键点</h1><h2 id="元数据存储"><a href="#元数据存储" class="headerlink" title="元数据存储"></a>元数据存储</h2><p>通过etcd存储元数据，etcd三节点集群保证高可用</p>
-<h2 id="元数据处理"><a href="#元数据处理" class="headerlink" title="元数据处理"></a>元数据处理</h2><p>通过多个<code>kube-controller</code>和<code>kube-scheduler</code>节点来保证高可用</p>
-<h2 id="worker节点请求数据通过多ip或负载均衡来保证"><a href="#worker节点请求数据通过多ip或负载均衡来保证" class="headerlink" title="worker节点请求数据通过多ip或负载均衡来保证"></a>worker节点请求数据通过多ip或负载均衡来保证</h2><p>节点请求通信通过多Ip或负载均衡来保证高可用，这里也有几种方式</p>
-<h3 id="IaaS厂商可提供负载均衡的场景下"><a href="#IaaS厂商可提供负载均衡的场景下" class="headerlink" title="IaaS厂商可提供负载均衡的场景下"></a>IaaS厂商可提供负载均衡的场景下</h3><p>如下图所示，可将worker node的访问地址指向负载均衡的地址</p>
-<p><img src="/Images/kubernetes-ha-iaas-lb.png" alt="kubernetes-ha-iaas-lb"></p>
-<h3 id="私有化部署KeepAlived"><a href="#私有化部署KeepAlived" class="headerlink" title="私有化部署KeepAlived"></a>私有化部署KeepAlived</h3><p>私有化部署场景常用keepAlived提供浮动IP来给<code>worker node</code>或其他组件访问，如下图所示</p>
-<p><img src="/Images/kubernetes-ha-keepalived.png" alt="kubernetes-ha-keepalived"></p>
-<h3 id="私有化部署加上负载均衡组件"><a href="#私有化部署加上负载均衡组件" class="headerlink" title="私有化部署加上负载均衡组件"></a>私有化部署加上负载均衡组件</h3><p>如果你觉得同一时刻只有单个apiServer工作会成瓶颈，也可以使用<code>KeepAlived</code>加<code>Nginx</code>或<code>HaProxy</code>来对<code>ApiServer</code>做负载均衡</p>
-<p><img src="/Images/kubernetes-ha-keepalived-nginx.png" alt="kubernetes-ha-keepalived-nginx"></p>
-<p>为了简化图像，只画出了master1上的Nginx向后转发的场景。</p>
-<p>至于Nginx和KeepAlived如何部署，推荐采用容器化的部署模式，方便进行监控和运维；但是镜像不从镜像仓库拉取，而是保存在<code>master</code>节点上，这样虽然升级复杂一点，但是这样子<code>kubernetes</code>的高可用就不依赖镜像仓库了，不会和镜像仓库形成循环依赖，更不会影响镜像仓库的高可用方案，大大简化了后续的技术方案。（因为镜像仓库可能会占据较大的存储空间，可能会和<code>master</code>节点分离部署，这时会作为<code>worker</code>节点连接<code>master</code>节点）。</p>
 
       
     </div>

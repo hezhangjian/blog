@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">143</span>
+          <span class="site-state-item-count">144</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-count">47</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,123 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/06/14/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E%E6%B5%81%E8%BD%AC%E5%88%B0S3%E5%AF%B9%E6%AF%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/06/14/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E%E6%B5%81%E8%BD%AC%E5%88%B0S3%E5%AF%B9%E6%AF%94/" class="post-title-link" itemprop="url">物联网平台规则引擎流转到S3对比</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-14 18:48:57" itemprop="dateCreated datePublished" datetime="2021-06-14T18:48:57+08:00">2021-06-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>对于物联网平台来说，规则引擎是其中一个很重要的功能，也叫消息流转功能，将消息流转到各类中间件、云产品中。在华为、AWS、Azure、阿里这四个物联网平台中，阿里不支持流转到S3&#x2F;类S3存储中。本文对比一下华为云、AWS、Azure把设备消息流转到S3&#x2F;类S3存储的功能</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.amazonaws.cn/general/latest/gr/iot-core.html#limits_iot">https://docs.amazonaws.cn/general/latest/gr/iot-core.html#limits_iot</a></li>
+</ul>
+<h2 id="华为云"><a href="#华为云" class="headerlink" title="华为云"></a>华为云</h2><h3 id="规则粒度和限制"><a href="#规则粒度和限制" class="headerlink" title="规则粒度和限制"></a>规则粒度和限制</h3><ul>
+<li><p>规则配置粒度到<strong>OBS</strong>桶</p>
+</li>
+<li><p>限制单用户配置100条规则，每个规则10个Action</p>
+</li>
+</ul>
+<h3 id="功能实现"><a href="#功能实现" class="headerlink" title="功能实现"></a>功能实现</h3><p>针对华为云，我测试了设备的消息上报转发到华为云OBS的功能。</p>
+<p>流转规则需要指定obs桶，随后运行之后，华为云OBS体现为</p>
+<ul>
+<li>设备的每条消息都会在obs中存储为一个文件</li>
+<li>名称采用deviceId+毫秒级时间戳+后面4位数字</li>
+</ul>
+<h3 id="关键路径截图"><a href="#关键路径截图" class="headerlink" title="关键路径截图"></a>关键路径截图</h3><h4 id="配置规则时指定到obs桶"><a href="#配置规则时指定到obs桶" class="headerlink" title="配置规则时指定到obs桶"></a>配置规则时指定到obs桶</h4><p><img src="/Images/iot-push-s31.png" alt="image-20210614184348066"></p>
+<h4 id="单条消息单个文件"><a href="#单条消息单个文件" class="headerlink" title="单条消息单个文件"></a>单条消息单个文件</h4><p><img src="/Images/iot-push-s32.png" alt="image-20210614184522958"></p>
+<h3 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h3><p>可以非常轻易地查询出单个设备的消息，因为文件名携带有毫秒级时间戳，还可以指定具体</p>
+<h3 id="劣势"><a href="#劣势" class="headerlink" title="劣势"></a>劣势</h3><p>用来做MapReduce的话，文件数目太多，由于S3云厂商往往通过API调用次数收费，不仅是速度，成本也会很高。</p>
+<h2 id="AWS"><a href="#AWS" class="headerlink" title="AWS"></a>AWS</h2><h3 id="规则粒度和限制-1"><a href="#规则粒度和限制-1" class="headerlink" title="规则粒度和限制"></a>规则粒度和限制</h3><ul>
+<li>规则配置粒度到桶及Key，相当于华为云OBS桶+文件名</li>
+<li>限制规则每秒进行20k次运算</li>
+<li>限制最多拥有1000条规则</li>
+<li>限制每个规则最多10个action</li>
+</ul>
+<h3 id="功能实现-1"><a href="#功能实现-1" class="headerlink" title="功能实现"></a>功能实现</h3><p>再次上报数据触发规则会把obs中的数据替换。（通过版本控制可以获取到老的数据）</p>
+<h3 id="关键路径截图-1"><a href="#关键路径截图-1" class="headerlink" title="关键路径截图"></a>关键路径截图</h3><h4 id="配置规则指定粒度到Key"><a href="#配置规则指定粒度到Key" class="headerlink" title="配置规则指定粒度到Key"></a>配置规则指定粒度到Key</h4><p><img src="/Images/iot-push-s33.png" alt="image-20210614165708645"> </p>
+<h4 id="仅有一个Key，新值覆盖旧值"><a href="#仅有一个Key，新值覆盖旧值" class="headerlink" title="仅有一个Key，新值覆盖旧值"></a>仅有一个Key，新值覆盖旧值</h4><p><img src="/Images/iot-push-s34.png" alt="image-20210614170447237"></p>
+<h3 id="优劣势"><a href="#优劣势" class="headerlink" title="优劣势"></a>优劣势</h3><p>AWS的这个模式很适合存储每个设备的最新数据。不过由于规则数量上的限制，最多只能在S3上存储1000个键值对。可用性较低。可用于数量小于1000的设备，存储、查询最新数据。</p>
+<h2 id="Azure转发"><a href="#Azure转发" class="headerlink" title="Azure转发"></a>Azure转发</h2><h3 id="规则粒度限制"><a href="#规则粒度限制" class="headerlink" title="规则粒度限制"></a>规则粒度限制</h3><ul>
+<li>规则配置粒度到存储容器</li>
+<li>Azure可配置存储入存储容器的批量频率和大小限制</li>
+<li>编码支持Avro和Json两种格式</li>
+<li>最多100条路由</li>
+</ul>
+<h3 id="功能实现-2"><a href="#功能实现-2" class="headerlink" title="功能实现"></a>功能实现</h3><p>自上报事件，到存储中出现数据，azure是最慢的，azure做了批量的缓冲，达到batch的大小和时间要求后才会写入存储。</p>
+<h3 id="关键路径截图-2"><a href="#关键路径截图-2" class="headerlink" title="关键路径截图"></a>关键路径截图</h3><h4 id="配置路由规则"><a href="#配置路由规则" class="headerlink" title="配置路由规则"></a>配置路由规则</h4><p><img src="/Images/iot-push-s35.png" alt="image-20210614181514437"></p>
+<h4 id="存储中批量数据"><a href="#存储中批量数据" class="headerlink" title="存储中批量数据"></a>存储中批量数据</h4><p>因为选择了avro格式，所以vim打开是乱码，不过明显可以看到是多条数据</p>
+<p><img src="/Images/iot-push-s36.png" alt="image-20210614181738380"></p>
+<h3 id="优势-1"><a href="#优势-1" class="headerlink" title="优势"></a>优势</h3><p>Azure的这种方式，比较适合做MapReduce类操作，相对华为云来说，Azure的文件数量大大减少，如果用于做MapReduce这类操作，因为文件碎片小，作业速度会比华为云快，而且由于云厂商对存储，通常以api调用次数收费，价格也会比华为云低。</p>
+<h3 id="劣势-1"><a href="#劣势-1" class="headerlink" title="劣势"></a>劣势</h3><p>不易针对单个设备进行查询。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +357,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -436,7 +553,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -545,7 +662,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -700,7 +817,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -801,7 +918,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1059,7 +1176,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1190,7 +1307,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1289,7 +1406,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1383,7 +1500,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1484,115 +1601,6 @@
 <h3 id="复杂的参数校验"><a href="#复杂的参数校验" class="headerlink" title="复杂的参数校验"></a>复杂的参数校验</h3><p>建议在<code>Apollo</code>上面自建portal包裹一层，后端服务可先进行一层处理，这一层处理可以做比较复杂的格式化校验甚至<strong>回调检查</strong>，再调用<code>Apollo OpenApi</code>将配置写入<code>Apollo</code>。</p>
 <h3 id="业务配置的技术选型"><a href="#业务配置的技术选型" class="headerlink" title="业务配置的技术选型"></a>业务配置的技术选型</h3><p>最大的挑战是业务配置由用户触发，请求的并发不易处理。思路有两个，一个是在<code>Apollo</code>原生代码的基础上，通过数据库分布式锁来解决并发问题。第二个是借鉴我们的思路，通过单配置单表、mqtt协议实现通知等核心技术点，自研业务配置中心。</p>
 <h3 id="业务配置的部署"><a href="#业务配置的部署" class="headerlink" title="业务配置的部署"></a>业务配置的部署</h3><p>需要根据业务配置的数量来考虑是否合设业务配置中心。单集群场景下，毫无疑问只需要一个业务配置中心，甚至如果使用<code>Apollo</code>实现，可以考虑和运维配置中心合设。多集群场景下，部署一个业务配置中心，还是多个业务配置中心，我们自己的实践中，一个集群往往要支撑数万用户，我们采取了每个业务集群部署一套业务配置中心的策略。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/13/Kubernetes%20pod%E5%86%85%E8%B0%83%E7%94%A8API/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-pod-api" class="post-title-link post-title-link-external" itemprop="url">Kubernetes pod内调用API<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-13 21:17:20" itemprop="dateCreated datePublished" datetime="2021-04-13T21:17:20+08:00">2021-04-13</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Kubernetes pod内调用API的流程总体分为以下步骤</p>
-<ul>
-<li>创建role</li>
-<li>创建serviceaccount</li>
-<li>绑定role到serviceaccount</li>
-<li>指定pod使用serviceaccount</li>
-</ul>
-<p>我们以查pod为例，演示一下整个流程</p>
-<h2 id="创建role"><a href="#创建role" class="headerlink" title="创建role"></a>创建role</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># role.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">role-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiGroups:</span> [<span class="string">&quot;&quot;</span>]</span><br><span class="line">    <span class="attr">resources:</span> [<span class="string">&quot;pods&quot;</span>]</span><br><span class="line">    <span class="attr">verbs:</span> [<span class="string">&quot;get&quot;</span>,<span class="string">&quot;list&quot;</span>]</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f role.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="创建serviceaccount"><a href="#创建serviceaccount" class="headerlink" title="创建serviceaccount"></a>创建serviceaccount</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># serviceaccount.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">serviceaccount-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f serviceaccount.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="绑定role"><a href="#绑定role" class="headerlink" title="绑定role"></a>绑定role</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rolebinding.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">RoleBinding</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">rolebinding-hzj</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">serviceaccount-hzj</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">role-hzj</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f rolebinding.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="部署pod进行测试"><a href="#部署pod进行测试" class="headerlink" title="部署pod进行测试"></a>部署pod进行测试</h2><h3 id="部署一个zookeeper进行测试"><a href="#部署一个zookeeper进行测试" class="headerlink" title="部署一个zookeeper进行测试"></a>部署一个zookeeper进行测试</h3><p>手上刚好有zookeeper的模板文件</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">zookeeper</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">hostNetwork:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">dnsPolicy:</span> <span class="string">ClusterFirstWithHostNet</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">zookeeper</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">ttbb/zookeeper:stand-alone</span></span><br><span class="line">        <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">        <span class="attr">resources:</span></span><br><span class="line">          <span class="attr">limits:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">2G</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">1000m</span></span><br><span class="line">          <span class="attr">requests:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">2G</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">1000m</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">NODE_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">spec.nodeName</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">POD_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">metadata.name</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">PS1</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&#x27;[\u@zookeeper@\W]\$ &#x27;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="调用API"><a href="#调用API" class="headerlink" title="调用API"></a>调用API</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Point to the internal API server hostname</span></span><br><span class="line">APISERVER=https://kubernetes.default.svc</span><br><span class="line"><span class="comment"># Path to ServiceAccount token</span></span><br><span class="line">SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount</span><br><span class="line"><span class="comment"># Read this Pod&#x27;s namespace</span></span><br><span class="line">NAMESPACE=$(<span class="built_in">cat</span> <span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/namespace)</span><br><span class="line"><span class="comment"># Read the ServiceAccount bearer token</span></span><br><span class="line">TOKEN=$(<span class="built_in">cat</span> <span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/token)</span><br><span class="line"><span class="comment"># Reference the internal certificate authority (CA)</span></span><br><span class="line">CACERT=<span class="variable">$&#123;SERVICEACCOUNT&#125;</span>/ca.crt</span><br><span class="line"><span class="comment"># Explore the API with TOKEN</span></span><br><span class="line">curl --cacert <span class="variable">$&#123;CACERT&#125;</span> --header <span class="string">&quot;Authorization: Bearer <span class="variable">$&#123;TOKEN&#125;</span>&quot;</span> -X GET <span class="variable">$&#123;APISERVER&#125;</span>/api</span><br><span class="line">curl --cacert <span class="variable">$&#123;CACERT&#125;</span> --header <span class="string">&quot;Authorization: Bearer <span class="variable">$&#123;TOKEN&#125;</span>&quot;</span> -X GET <span class="variable">$&#123;APISERVER&#125;</span>/api/v1/namespaces/default/pods</span><br></pre></td></tr></table></figure>
-
-<p><img src="/Images/kubernetes-pod-api1.png" alt="kubernetes-pod-api1"></p>
-<p>发现这里，调用后面的api，403错误。第一个api不报错，是因为该接口不需要鉴权。</p>
-<h3 id="修改pod对应的serviceaccount"><a href="#修改pod对应的serviceaccount" class="headerlink" title="修改pod对应的serviceaccount"></a>修改pod对应的serviceaccount</h3><p>让我们修改部署模板对应的ServiceAccountName，注入权限。在pod的spec下，设置serviceAccountName</p>
-<p><img src="/Images/kubernetes-pod-api2.png" alt="kubernetes-pod-api2"></p>
-<h3 id="修改部署模板重启后调用api正常"><a href="#修改部署模板重启后调用api正常" class="headerlink" title="修改部署模板重启后调用api正常"></a>修改部署模板重启后调用api正常</h3><p>再次尝试上述命令，api结果返回正常</p>
-<p><img src="/Images/kubernetes-pod-api3.png" alt="kubernetes-pod-api3"></p>
 
       
     </div>

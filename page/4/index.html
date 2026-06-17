@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">143</span>
+          <span class="site-state-item-count">144</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-count">47</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -195,6 +195,125 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/11/20/%E6%96%87%E4%BB%B6%E7%BC%96%E8%A7%A3%E7%A0%81%E4%BB%A3%E7%A0%81%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/file-codec-design" class="post-title-link post-title-link-external" itemprop="url">文件编解码代码设计<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-11-20 15:30:54" itemprop="dateCreated datePublished" datetime="2023-11-20T15:30:54+08:00">2023-11-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>我们以xyz文件格式为例，来说明文件编解码的代码设计。xyz文件格式内容如下：</p>
+<ul>
+<li>header部分：文件头，包含文件版本号、文件类型、文件大小等信息</li>
+<li>body部分：文件主体</li>
+</ul>
+<p>通用设计大概如下</p>
+<pre class="mermaid">classDiagram
+    class XyzHeader {
+        + byte[] content
+    }
+    class XyzBody {
+        + byte[] content
+    }
+    class Xyz{
+        + XyzHeader header
+        + XyzBody body
+    }
+    class XyzReader {
+        + Xyz read(fileName: string)
+        + void process(String fileName, XyzProcessor processor)
+        - XyzHeader readHeader()
+        - XyzBody readBody()
+    }
+    class XyzProcessor {
+        <<interface>>
+        + void processHeader(XyzHeader header)
+        + void processBody(XyzBody body)
+    }
+    class XyzReadCollectProcessor {
+        Xyz getXyz()
+    }
+    Xyz --> XyzHeader: contains
+    Xyz --> XyzBody: contains
+    XyzReader --> Xyz: reads
+    XyzReader --> XyzProcessor: processes
+    XyzReadCollectProcessor --|> XyzProcessor: implements</pre>
+
+<h1 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h1><p>使用<code>java.io.RandomAccessFile</code>和<code>java.nio.channels.FileChannel</code>来实现文件读取，使用<code>io.netty.buffer.ByteBuf</code>来读写文件。</p>
+<p>核心代码举例:</p>
+<p>XyzReader:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">XyzHeader</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">byte</span>[] content;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">XyzBody</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">byte</span>[] content;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Xyz</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> XyzHeader header;</span><br><span class="line">    <span class="keyword">private</span> XyzBody body;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">XyzProcessor</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">processHeader</span><span class="params">(XyzHeader header)</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">processBody</span><span class="params">(XyzBody body)</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">XyzReadCollectProcessor</span> <span class="keyword">implements</span> <span class="title class_">XyzProcessor</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Xyz</span> <span class="variable">xyz</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Xyz</span>();</span><br><span class="line">    <span class="keyword">public</span> Xyz <span class="title function_">getXyz</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> xyz;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">XyzReader</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> Xyz <span class="title function_">read</span><span class="params">(String fileName)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> XyzHeader <span class="title function_">readHeader</span><span class="params">(FileChannel fileChannel)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> XyzBody <span class="title function_">readBody</span><span class="params">(FileChannel fileChannel)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<script type="module"> import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';	mermaid.initialize({startOnLoad: true, flowchart: {curve: 'linear'}}); </script>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -241,7 +360,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -328,7 +447,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -407,7 +526,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -549,7 +668,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -632,7 +751,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -717,7 +836,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -803,7 +922,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -904,7 +1023,7 @@ reactor --> common</pre>
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1026,7 +1145,7 @@ reactor --> common</pre>
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:04" itemprop="dateModified" datetime="2026-06-07T11:55:04+08:00">2026-06-07</time>
+      <time title="修改时间：2026-06-17 13:15:40" itemprop="dateModified" datetime="2026-06-17T13:15:40+08:00">2026-06-17</time>
     </span>
 
   
@@ -1059,96 +1178,6 @@ reactor --> common</pre>
 
 <h2 id="构造可执行文件-self-extracting-sh-1"><a href="#构造可执行文件-self-extracting-sh-1" class="headerlink" title="构造可执行文件 self_extracting.sh"></a>构造可执行文件 <code>self_extracting.sh</code></h2><p>以使用<code>__ARCHIVE_BELOW__</code>做分隔符为例，<code>self_extracting.sh</code>里面内容:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line">CURRENT_DIR=<span class="string">&quot;<span class="subst">$(dirname <span class="string">&quot;<span class="variable">$0</span>&quot;</span>)</span>&quot;</span></span><br><span class="line"></span><br><span class="line">ARCHIVE_START_LINE=$(awk <span class="string">&#x27;/^__ARCHIVE_BELOW__/ &#123;print NR + 1; exit 0; &#125;&#x27;</span> <span class="variable">$0</span>)</span><br><span class="line"><span class="built_in">tail</span> -n+<span class="variable">$ARCHIVE_START_LINE</span> <span class="variable">$0</span> | tar xz -C <span class="string">&quot;<span class="variable">$CURRENT_DIR</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># replace the following line with your own code</span></span><br><span class="line"><span class="built_in">cat</span> temp.txt</span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> 0</span><br><span class="line"></span><br><span class="line">__ARCHIVE_BELOW__</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/10/10/Ignite%20Java%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/ignite-java-client-best-practice" class="post-title-link post-title-link-external" itemprop="url">Ignite Java客户端最佳实践<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-10-10 22:08:55" itemprop="dateCreated datePublished" datetime="2023-10-10T22:08:55+08:00">2023-10-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-07 11:55:03" itemprop="dateModified" datetime="2026-06-07T11:55:03+08:00">2026-06-07</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Ignite-Java-客户端最佳实践"><a href="#Ignite-Java-客户端最佳实践" class="headerlink" title="Ignite Java 客户端最佳实践"></a>Ignite Java 客户端最佳实践</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>本文总结了在使用Apache Ignite（Ignite2.0）的Java客户端时，需要注意的一些问题，以及一些最佳实践。值得一提的是 Ignite的Java客户端有一些跟直觉上不太一样的地方，需要注意下。</p>
-<h2 id="客户端相关"><a href="#客户端相关" class="headerlink" title="客户端相关"></a>客户端相关</h2><p>Ignite客户端有两处跟直觉上相差较大：</p>
-<ul>
-<li>Ignite客户端连接没有默认超时时间，如果连接不上，有概率会导致创建客户端一直阻塞，所以一定要设置timeout参数</li>
-<li>Ignite客户端默认不会重连，更不用说无限重连了。并且Ignite客户端重连的实现方式是预先计算出所有重连的时间戳，然后在这些时间戳到达时重连，由于要预先计算出重连的时间戳存入数组，这也就意味着不能无限重连。如果您的应用程序需要无限重连（在云原生环境下，这是非常常见的场景），那么您需要自己实现重连逻辑。</li>
-</ul>
-<p>ClientConfiguration里的重要参数</p>
-<h3 id="ClientConfiguration-timeout"><a href="#ClientConfiguration-timeout" class="headerlink" title="ClientConfiguration timeout"></a>ClientConfiguration timeout</h3><p>控制连接超时的参数，单位是毫秒。必须设置！如果不设置，有概率会导致创建客户端一直阻塞。</p>
-<h2 id="SQL相关"><a href="#SQL相关" class="headerlink" title="SQL相关"></a>SQL相关</h2><p>SQL查询典型用法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">SqlFieldsQuery</span> <span class="variable">query</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SqlFieldsQuery</span>(<span class="string">&quot;SELECT 42&quot;</span>).setTimeout(<span class="number">5</span>, TimeUnit.SECONDS);</span><br><span class="line">FieldsQueryCursor&lt;List&lt;?&gt;&gt; cursor = igniteClient.query(query))</span><br><span class="line">List&lt;List&lt;?&gt;&gt; result = cursor.getAll();</span><br></pre></td></tr></table></figure>
-
-<p>注意：Ignite query出来的cursor如果自己通过iterator遍历则必须要close，否则会导致内存泄漏。</p>
-<p>Query相关参数</p>
-<h3 id="SqlFieldsQuery-timeout"><a href="#SqlFieldsQuery-timeout" class="headerlink" title="SqlFieldsQuery timeout"></a>SqlFieldsQuery timeout</h3><p>SqlQuery的超时时间，必须设置。默认是0，表示永不超时。如果不设置，有概率会导致查询一直阻塞。</p>
 
       
     </div>
