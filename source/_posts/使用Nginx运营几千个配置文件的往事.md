@@ -1,4 +1,6 @@
 ---
+title: 使用Nginx运营几千个配置文件的往事
+link: nginx-thousands-configs
 date: 2025-10-21 22:34:10
 tags:
 ---
