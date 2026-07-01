@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="现在已经是2026年7月份了，Agent辅助工作越来越普及，大家都在争先恐后地使用Agent提效。 但管理者真正焦虑的事情，似乎并没有变：团队到底有没有把 AI 用好？如果用好了，它真的带来了多少提效？这些提效，最后有没有变成可见的产出和业务结果？ 这个问题看起来是在问”AI的效果怎么度量”，但本质上是在问”我们的研发效率该如何计算”？这个问题很难回答。 我们有很多AI来之前、AI来之后的过程指标">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI辅助研发，为什么越来越难证明提效？">
+<meta property="og:url" content="https://hezhangjian.com/2026/07/01/AI%E8%BE%85%E5%8A%A9%E7%A0%94%E5%8F%91%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E8%B6%8A%E6%9D%A5%E8%B6%8A%E9%9A%BE%E8%AF%81%E6%98%8E%E6%8F%90%E6%95%88%EF%BC%9F/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="现在已经是2026年7月份了，Agent辅助工作越来越普及，大家都在争先恐后地使用Agent提效。 但管理者真正焦虑的事情，似乎并没有变：团队到底有没有把 AI 用好？如果用好了，它真的带来了多少提效？这些提效，最后有没有变成可见的产出和业务结果？ 这个问题看起来是在问”AI的效果怎么度量”，但本质上是在问”我们的研发效率该如何计算”？这个问题很难回答。 我们有很多AI来之前、AI来之后的过程指标">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-01T05:12:38.000Z">
+<meta property="article:modified_time" content="2026-07-01T05:17:11.277Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2026/07/01/AI%E8%BE%85%E5%8A%A9%E7%A0%94%E5%8F%91%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E8%B6%8A%E6%9D%A5%E8%B6%8A%E9%9A%BE%E8%AF%81%E6%98%8E%E6%8F%90%E6%95%88%EF%BC%9F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2026/07/01/AI%E8%BE%85%E5%8A%A9%E7%A0%94%E5%8F%91%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E8%B6%8A%E6%9D%A5%E8%B6%8A%E9%9A%BE%E8%AF%81%E6%98%8E%E6%8F%90%E6%95%88%EF%BC%9F/","path":"2026/07/01/AI辅助研发，为什么越来越难证明提效？/","title":"AI辅助研发，为什么越来越难证明提效？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>AI辅助研发，为什么越来越难证明提效？ | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%BA%E5%9D%87%E4%BB%A3%E7%A0%81%E9%87%8F"><span class="nav-number">1.</span> <span class="nav-text">人均代码量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Token%E6%B6%88%E8%80%97%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">Token消耗量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AI%E4%BD%BF%E7%94%A8%E7%8E%87"><span class="nav-number">3.</span> <span class="nav-text">AI使用率</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">145</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2026/07/01/AI%E8%BE%85%E5%8A%A9%E7%A0%94%E5%8F%91%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E8%B6%8A%E6%9D%A5%E8%B6%8A%E9%9A%BE%E8%AF%81%E6%98%8E%E6%8F%90%E6%95%88%EF%BC%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="AI辅助研发，为什么越来越难证明提效？ | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          <a href="/ai-efficiency-measurement" class="post-title-link post-title-link-external" itemprop="url">AI辅助研发，为什么越来越难证明提效？<i class="fa fa-external-link-alt"></i></a>
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-07-01 13:12:38 / 修改时间：13:17:11" itemprop="dateCreated datePublished" datetime="2026-07-01T13:12:38+08:00">2026-07-01</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>现在已经是2026年7月份了，Agent辅助工作越来越普及，大家都在争先恐后地使用Agent提效。</p>
+<p>但管理者真正焦虑的事情，似乎并没有变：团队到底有没有把 AI 用好？如果用好了，它真的带来了多少提效？这些提效，最后有没有变成可见的产出和业务结果？</p>
+<p>这个问题看起来是在问”AI的效果怎么度量”，但本质上是在问”我们的研发效率该如何计算”？这个问题很难回答。</p>
+<p>我们有很多AI来之前、AI来之后的过程指标，但这些指标都无法直接说明研发效率：</p>
+<h2 id="人均代码量"><a href="#人均代码量" class="headerlink" title="人均代码量"></a>人均代码量</h2><p>代码量这个东西作为指标，一直争议不断。一方面，大家都知道代码量不是越多越好，不同语言、不同模块、不同业务阶段，代码量都没有直接可比性。一个人写了几千行代码，不一定比另一个人改了几十行核心逻辑更有价值。</p>
+<p>但是在Agent时代之前，代码量至少还隐含着一个很朴素的含义：它大概能说明一个人投入过时间。一年输出12万行代码的人，他几乎绝对是认认真真工作了一整年的。</p>
+<p>但到了 Agent 时代，这层含义也开始变弱了。一个 Agent 任务跑十几分钟，可能就能修改几十个文件，生成几千行代码。一个开发人员一天产生的代码 Diff，可能超过过去一周甚至一个月。更麻烦的是，Agent 生成代码的边际成本很低。过去多写代码意味着更多人工投入，现在多生成代码可能只是多跑了几轮任务。生成出来的代码，开发者未必完整读过，未必充分理解，甚至可能只是靠编译、测试、运行结果做了一层确认。</p>
+<p>过去代码量不一定代表价值，但至少可能代表投入；现在代码量既不代表价值，也不一定代表投入。</p>
+<h2 id="Token消耗量"><a href="#Token消耗量" class="headerlink" title="Token消耗量"></a>Token消耗量</h2><p>很多企业会自然地统计 Token 消耗，这个数据最容易拿到，也最像”AI工作量”。</p>
+<p>但Token本质上不是产出，而是成本。它说明企业为 AI 辅助研发投入了多少计算资源，但不能说明这些资源转化成了多少有效结果。</p>
+<p>一个团队 Token 消耗很高，可能说明他们大量使用了 Agent。但也可能说明他们的任务拆分很差、上下文组织很差、代码结构很差、编译环境很差，导致 Agent 反复搜索、反复修改、反复失败、反复修复。这时候 Token 越多，不一定说明 AI 越有价值，反而可能说明整个研发系统对 AI 越不友好。尤其是Token的消耗量会随着解决问题的规模直线上升。</p>
+<h2 id="AI使用率"><a href="#AI使用率" class="headerlink" title="AI使用率"></a>AI使用率</h2><p>比如研发人员使用Agent的活跃度，它能说明 AI 是否真正进入了研发流程，也能够反映组织推广 AI 的进展。AI 使用率描述的是 工具的使用情况，而不是 工作的完成情况。</p>
+<p>到这里，我们发现上面列举的指标，都有价值，但是都无法回答一个问题：<strong>企业到底有没有因为 AI 而真正提效？</strong></p>
+<p>企业从来不是为了让研发人员写更多代码，也不是为了让 Agent 消耗更多 Token，更不是为了提高 AI 使用率。企业真正关心的，其实始终只有一件事情：</p>
+<p><strong>能否用相同的资源创造更多价值，或者用更少的资源创造相同的价值。</strong></p>
+<p>同样的人，能否把产出提升X倍；或者产出不变，只需要1&#x2F;X个人。</p>
+<p>软件行业发展了几十年，一直没有一个所有人都认可的研发效率指标，可能最接近的是<strong>需求交付周期</strong>。</p>
+<p>需求交付周期并不是研发最终创造的价值，它仍然只是一个过程指标。但相比代码量、Token、AI 使用率，它距离企业真正关心的结果已经更近了一步。一个需求交付得越快，意味着企业能够越快响应市场、越快验证产品、越快产生业务价值。它虽然不能直接代表企业收益，却已经开始影响企业收益。</p>
+<p>但即便如此，需求交付周期仍然不能单独证明 AI 提效。需求交付周期只是结果，它并不会告诉我们，周期为什么变短了。可能是因为 AI，也可能是因为需求拆分得更细了，也可能是因为减少了测试环节，甚至可能只是因为统计口径发生了变化。</p>
+<p>我们一直在寻找一个能够证明 AI 提效的指标，但在管理学中，对于这类复杂问题，通常不会试图寻找一个能够解释一切的”万能指标”，而是先建立价值创造的完整链路，再在每个环节选择合适的度量指标。</p>
+<p>例如，一个团队 AI 使用率持续提升，Token 消耗持续增加，同时需求交付周期持续缩短，而线上质量没有明显下降，那么我们有理由认为，AI 正在开始产生价值。</p>
+<p>反过来，如果 AI 使用率越来越高，Token 消耗越来越大，而需求交付周期没有变化，质量反而开始下降，那么这些指标也说明了一件事情：AI 被使用了，但并没有真正提效。</p>
+<p><strong>Logic Model（逻辑模型）</strong> 正是项目评估领域最经典的方法之一，它将价值创造拆分为 <strong>Input、Activity、Output、Outcome、Impact</strong> 五个层次，帮助回答一个核心问题：<strong>投入的资源，是如何一步步转化为最终业务价值的？</strong></p>
+<p>笔者尝试列举了一下，同时针对开发团队反馈的痛点问题，大家也可以按照这五个层次进行推演：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>含义</th>
+<th>可以观察哪些指标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Input（投入）</td>
+<td>投入了多少资源</td>
+<td>Token消耗、人力投入</td>
+</tr>
+<tr>
+<td>Activity（活动）</td>
+<td>AI有没有真正参与研发</td>
+<td>AI使用率、Skill个数</td>
+</tr>
+<tr>
+<td>Output（产出）</td>
+<td>AI产生了什么直接成果</td>
+<td>PR数量、代码行数</td>
+</tr>
+<tr>
+<td>Outcome（结果）</td>
+<td>研发是否变好了</td>
+<td>需求交付周期、交付需求数、缺陷率</td>
+</tr>
+<tr>
+<td>Impact（影响）</td>
+<td>企业是否受益</td>
+<td>收入、利润、客户满意度</td>
+</tr>
+</tbody></table>
+<p>最后，对于 AI 辅助研发来说，没有一个万能指标。只有把覆盖 <strong>Input、Activity、Output、Outcome、Impact</strong> 的指标一起观察，才能尝试回答那个最初的问题：</p>
+<p><strong>AI，到底有没有让研发真正提效？</strong></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/16/Flyway%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E5%AE%9E%E8%B7%B5/" rel="prev" title="Flyway从原理到实践">
+                  <i class="fa fa-angle-left"></i> Flyway从原理到实践
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

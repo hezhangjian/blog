@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">144</span>
+          <span class="site-state-item-count">145</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,91 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/12/12/Go%20%E8%B0%83%E7%94%A8%E4%BA%A4%E4%BA%92%E5%BC%8Fshell/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/12/12/Go%20%E8%B0%83%E7%94%A8%E4%BA%A4%E4%BA%92%E5%BC%8Fshell/" class="post-title-link" itemprop="url">Go 调用交互式shell</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-12-12 17:34:56" itemprop="dateCreated datePublished" datetime="2021-12-12T17:34:56+08:00">2021-12-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>本文的代码已上传到<a target="_blank" rel="noopener" href="https://github.com/hezhangjian/go_demo/blob/main/demo_shell/interactive_shell_test.go">github</a></p>
+<p>交互式shell常用在输入密码的场景，为了防止密码泄露在<code>cmdline</code>中被<code>ps -ef</code>读取</p>
+<p>举个🌰</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">read</span> -s -p <span class="string">&quot;Enter Password: &quot;</span>  <span class="built_in">pwd</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\nYour password is: &quot;</span> <span class="variable">$pwd</span></span><br></pre></td></tr></table></figure>
+
+<p>go调用交互式shell代码样例如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestCallInteractiveShell</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	dir, err := os.Getwd()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	cmd := exec.Command(<span class="string">&quot;/bin/bash&quot;</span>, dir+<span class="string">&quot;/interactive_shell.sh&quot;</span>)</span><br><span class="line">	<span class="keyword">var</span> stdout, stderr bytes.Buffer</span><br><span class="line">	cmd.Stdout = &amp;stdout</span><br><span class="line">	cmd.Stderr = &amp;stderr</span><br><span class="line">	buffer := bytes.Buffer&#123;&#125;</span><br><span class="line">	buffer.Write([]<span class="type">byte</span>(<span class="string">&quot;ZhangJian&quot;</span>))</span><br><span class="line">	cmd.Stdin = &amp;buffer</span><br><span class="line">	err = cmd.Run()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	outStr, errStr := <span class="type">string</span>(stdout.Bytes()), <span class="type">string</span>(stderr.Bytes())</span><br><span class="line">	fmt.Println(<span class="string">&quot;output is &quot;</span>, outStr)</span><br><span class="line">	fmt.Println(<span class="string">&quot;err output is &quot;</span>, errStr)</span><br><span class="line">	fmt.Println(<span class="string">&quot;Execute Over&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">=== RUN   TestCallInteractiveShell</span><br><span class="line">output is  Your password is:  ZhangJian</span><br><span class="line"></span><br><span class="line">err output is  </span><br><span class="line">Execute Over</span><br><span class="line">--- PASS: TestCallInteractiveShell (0.00s)</span><br><span class="line">PASS</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +325,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -335,7 +420,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -416,7 +501,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -520,7 +605,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -625,7 +710,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -735,7 +820,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -820,7 +905,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -921,7 +1006,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -1023,7 +1108,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -1047,104 +1132,6 @@
 <li>然后访问<code>localhost:8001</code>，返回<code>hello world</code>，这是<code>new_server</code>返回的结果</li>
 </ul>
 <h2 id="代码地址"><a href="#代码地址" class="headerlink" title="代码地址"></a>代码地址</h2><p><a target="_blank" rel="noopener" href="https://github.com/hezhangjian/go_demo/tree/main/demo_base/fd_migrate">https://github.com/hezhangjian/go_demo/tree/main/demo_base/fd_migrate</a></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/28/%E9%AB%98%E5%8F%AF%E7%94%A8%E6%97%A0%E5%8D%95%E7%82%B9%E6%9E%B6%E6%9E%84%E4%B9%8B%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-registry-ha" class="post-title-link post-title-link-external" itemprop="url">高可用无单点架构之镜像仓库<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-28 18:30:18" itemprop="dateCreated datePublished" datetime="2021-08-28T18:30:18+08:00">2021-08-28</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>本篇文章探讨镜像仓库<code>registry</code>的高可用</p>
-<h1 id="镜像仓库高可用无单点故障涉及那些场景"><a href="#镜像仓库高可用无单点故障涉及那些场景" class="headerlink" title="镜像仓库高可用无单点故障涉及那些场景"></a>镜像仓库高可用无单点故障涉及那些场景</h1><h2 id="镜像仓库对外提供访问无单点故障"><a href="#镜像仓库对外提供访问无单点故障" class="headerlink" title="镜像仓库对外提供访问无单点故障"></a>镜像仓库对外提供访问无单点故障</h2><p>镜像仓库对外提供的访问点保持高可用</p>
-<h2 id="镜像仓库的数据存储高可用"><a href="#镜像仓库的数据存储高可用" class="headerlink" title="镜像仓库的数据存储高可用"></a>镜像仓库的数据存储高可用</h2><p>存储在镜像仓库中的数据都得是高可用的</p>
-<h1 id="镜像仓库无单点故障技术关键点"><a href="#镜像仓库无单点故障技术关键点" class="headerlink" title="镜像仓库无单点故障技术关键点"></a>镜像仓库无单点故障技术关键点</h1><h2 id="镜像仓库对外提供访问无单点故障-1"><a href="#镜像仓库对外提供访问无单点故障-1" class="headerlink" title="镜像仓库对外提供访问无单点故障"></a>镜像仓库对外提供访问无单点故障</h2><p>和上一篇文章一样，如果<code>IaaS</code>能提供<code>ELB</code>，我们最好是使用<code>ELB</code>，或者使用浮动IP的方式替换</p>
-<h2 id="镜像仓库的数据存储高可用-1"><a href="#镜像仓库的数据存储高可用-1" class="headerlink" title="镜像仓库的数据存储高可用"></a>镜像仓库的数据存储高可用</h2><ul>
-<li>配置镜像仓库使用<code>IaaS</code>的S3存储</li>
-<li>配置镜像仓库使用本地存储，通过共享文件路径存储来实现高可用，如<code>Glusterfs</code>等</li>
-<li>配置镜像仓库使用S3存储，自建兼容S3 API的存储<code>Server</code></li>
-</ul>
-<p>通常会使用共享存储来做到镜像仓库存储的高可用</p>
-<h1 id="方案概述"><a href="#方案概述" class="headerlink" title="方案概述"></a>方案概述</h1><p>那么其实镜像仓库的高可用方案就是对上面方案的组合，下面我们举几个例子</p>
-<h2 id="镜像仓库依赖组件部署方式"><a href="#镜像仓库依赖组件部署方式" class="headerlink" title="镜像仓库依赖组件部署方式"></a>镜像仓库依赖组件部署方式</h2><p><code>MinIo</code>、<code>KeepAlived</code>、<code>registry</code>都推荐使用容器部署，方便运维管理，但是镜像推荐内置到虚拟机中，不依赖镜像仓库或其他组件，避免循环依赖</p>
-<h2 id="使用IaaS的S3存储-负载均衡组件"><a href="#使用IaaS的S3存储-负载均衡组件" class="headerlink" title="使用IaaS的S3存储 + 负载均衡组件"></a>使用IaaS的S3存储 + 负载均衡组件</h2><p>这是最简单的方案，得益于云厂商提供的S3存储和负载均衡组件，我们可以进行很简单的配置，并部署一台以上的<code>registry</code>,如下图所示</p>
-<p><img src="/Images/kubernetes-registry-ha-s3.png" alt="kubernetes-registry-ha-s3"></p>
-<h2 id="自建兼容S3存储-KeepAlived浮动Ip"><a href="#自建兼容S3存储-KeepAlived浮动Ip" class="headerlink" title="自建兼容S3存储 + KeepAlived浮动Ip"></a>自建兼容S3存储 + KeepAlived浮动Ip</h2><p>我们可以自己搭建<code>MinIo</code>集群来作为兼容S3存储，由于MINIO最低部署4个节点，我们需要根据故障域机器来选择部署MINIO的数目，比如，故障域是三台物理机，我们部署4节点就不妥。原因是，4节点，总会有一台物理机上会部署2个minio节点，如果这台物理机挂掉，就会导致单点故障。所以，如果故障域为三台物理机，我们最好部署6节点，可容忍一台物理机宕机。其他的节点，读者也可以自行测算。</p>
-<p>下图是假设三台物理机，<code>minio</code>6副本场景下的部署示意图</p>
-<p><img src="/Images/kubernetes-registry-ha-minio.png" alt="kubernetes-registry-ha-minio"></p>
-<p>注，为了图的美观，并未画出所有的连线</p>
-<h3 id="MINIO关键配置"><a href="#MINIO关键配置" class="headerlink" title="MINIO关键配置"></a>MINIO关键配置</h3><ul>
-<li>节点数目6个</li>
-<li>EC2</li>
-</ul>
 
       
     </div>

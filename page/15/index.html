@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">144</span>
+          <span class="site-state-item-count">145</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,114 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2018/09/07/WireShark%20%E5%AE%89%E8%A3%85%E5%8F%8A%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/wireshark-install-basic-op" class="post-title-link post-title-link-external" itemprop="url">Wireshark 安装及基本操作<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-09-07 21:41:22" itemprop="dateCreated datePublished" datetime="2018-09-07T21:41:22+08:00">2018-09-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="WireShark安装"><a href="#WireShark安装" class="headerlink" title="WireShark安装"></a>WireShark安装</h1><p>wireshark在windows和mac上的安装方式都比较简单,下面是Linux下的安装方式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-add-repository ppa:wireshark-dev/stable</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install wireshark</span><br><span class="line">#以root权限启动</span><br><span class="line">sudo wireshark</span><br></pre></td></tr></table></figure>
+
+<h1 id="WireShark的名字解析"><a href="#WireShark的名字解析" class="headerlink" title="WireShark的名字解析"></a>WireShark的名字解析</h1><p><img src="/Images/wireshark-name-resolve.png" alt="wireshark-name-resolve"></p>
+<ul>
+<li>L2层的名字解析，对Mac地址进行解析，返回机器名</li>
+<li>L3层 ip解析为域名</li>
+<li>L4层 端口号解析为协议端口号</li>
+</ul>
+<h1 id="Wireshark抓到的包更改时间格式"><a href="#Wireshark抓到的包更改时间格式" class="headerlink" title="Wireshark抓到的包更改时间格式"></a>Wireshark抓到的包更改时间格式</h1><p><img src="/Images/wireshark-time-format.png" alt="wireshark-time-format"></p>
+<h1 id="查看EndPoint"><a href="#查看EndPoint" class="headerlink" title="查看EndPoint"></a>查看EndPoint</h1><p>点击Statistics-&gt;EndPoints，可以查看每一个捕获文件里的每个端点</p>
+<p><img src="/Images/wireshark-endpoint.png" alt="wireshark-endpoint"></p>
+<h1 id="查看网络会话"><a href="#查看网络会话" class="headerlink" title="查看网络会话"></a>查看网络会话</h1><p>Statistics-&gt;Conversations. 查看地址A和地址B，以及每个设备发送或收到的数据包和字节数</p>
+<p><img src="/Images/wireshark-conversation.png" alt="wireshark-conversation"></p>
+<h1 id="基于协议分层结构的统计数据"><a href="#基于协议分层结构的统计数据" class="headerlink" title="基于协议分层结构的统计数据"></a>基于协议分层结构的统计数据</h1><p>Statistics-&gt;Protocol Hierarchy</p>
+<p><img src="/Images/wireshark-protocol-hierarchy.png" alt="wireshark-protocol-hierarchy"></p>
+<h1 id="跟随流功能"><a href="#跟随流功能" class="headerlink" title="跟随流功能"></a>跟随流功能</h1><p>右键选中一个数据包，然后右键，follow。比如我在这里跟随一个tcp流</p>
+<p><img src="/Images/wireshark-tcp-stream.png" alt="wireshark-tcp-stream"></p>
+<p>&#x2F;&#x2F;这里也可以使用decode as解码功能，但是没有例子，暂不附图</p>
+<h1 id="查看IO图"><a href="#查看IO图" class="headerlink" title="查看IO图"></a>查看IO图</h1><p>Statistics-&gt;IO Graphs</p>
+<p><img src="/Images/wireshark-io-graph.png" alt="wireshark-io-graph"></p>
+<h1 id="双向时间图"><a href="#双向时间图" class="headerlink" title="双向时间图"></a>双向时间图</h1><p>Statistics-&gt;TCP Stream Graph -&gt; Round Trip Time Graph<br><img src="/Images/wireshark-rtt-graph.png" alt="wireshark-rtt-graph"></p>
+<h1 id="数据流图"><a href="#数据流图" class="headerlink" title="数据流图"></a>数据流图</h1><p>Statistics-&gt;Flow Graph<br><img src="/Images/wireshark-flow-graph.png" alt="wireshark-flow-graph"></p>
+<h1 id="专家信息"><a href="#专家信息" class="headerlink" title="专家信息"></a>专家信息</h1><p>Analyze-&gt;Expert Info Composite<br><img src="/Images/wireshark-expert-info.png" alt="wireshark-expert-info"></p>
+<h2 id="触发的专家信息"><a href="#触发的专家信息" class="headerlink" title="触发的专家信息"></a>触发的专家信息</h2><h3 id="对话消息"><a href="#对话消息" class="headerlink" title="对话消息"></a>对话消息</h3><h3 id="窗口更新-由接收者发送，用来通知发送者TCP接收窗口的大小已被改变"><a href="#窗口更新-由接收者发送，用来通知发送者TCP接收窗口的大小已被改变" class="headerlink" title="窗口更新 由接收者发送，用来通知发送者TCP接收窗口的大小已被改变"></a>窗口更新 由接收者发送，用来通知发送者TCP接收窗口的大小已被改变</h3><h2 id="注意消息"><a href="#注意消息" class="headerlink" title="注意消息"></a>注意消息</h2><h3 id="TCP重传输-数据包丢失的结果，发生在收到重复的ACK，或者数据包的重传输计时器超时的时候"><a href="#TCP重传输-数据包丢失的结果，发生在收到重复的ACK，或者数据包的重传输计时器超时的时候" class="headerlink" title="TCP重传输 数据包丢失的结果，发生在收到重复的ACK，或者数据包的重传输计时器超时的时候"></a>TCP重传输 数据包丢失的结果，发生在收到重复的ACK，或者数据包的重传输计时器超时的时候</h3><h3 id="重复ACK-当一台主机没有收到下一个期望序列的数据包时，它会生成最近收到一次数据的重复ACK"><a href="#重复ACK-当一台主机没有收到下一个期望序列的数据包时，它会生成最近收到一次数据的重复ACK" class="headerlink" title="重复ACK 当一台主机没有收到下一个期望序列的数据包时，它会生成最近收到一次数据的重复ACK"></a>重复ACK 当一台主机没有收到下一个期望序列的数据包时，它会生成最近收到一次数据的重复ACK</h3><h3 id="零窗口探查ACK-用来响应零窗口探查数据包"><a href="#零窗口探查ACK-用来响应零窗口探查数据包" class="headerlink" title="零窗口探查ACK 用来响应零窗口探查数据包"></a>零窗口探查ACK 用来响应零窗口探查数据包</h3><h3 id="窗口已满-用来通知传输主机及其接收者的TCP接收窗口已满"><a href="#窗口已满-用来通知传输主机及其接收者的TCP接收窗口已满" class="headerlink" title="窗口已满 用来通知传输主机及其接收者的TCP接收窗口已满"></a>窗口已满 用来通知传输主机及其接收者的TCP接收窗口已满</h3><h2 id="警告消息"><a href="#警告消息" class="headerlink" title="警告消息"></a>警告消息</h2><h3 id="上一段丢失-指明数据包丢失-发生在当数据流中一个期望的序列号被跳过时。"><a href="#上一段丢失-指明数据包丢失-发生在当数据流中一个期望的序列号被跳过时。" class="headerlink" title="上一段丢失 指明数据包丢失,发生在当数据流中一个期望的序列号被跳过时。"></a>上一段丢失 指明数据包丢失,发生在当数据流中一个期望的序列号被跳过时。</h3><h3 id="收到丢失数据包的ACK-发生在当一个数据包已经确认丢失但受到了其ACK数据包时"><a href="#收到丢失数据包的ACK-发生在当一个数据包已经确认丢失但受到了其ACK数据包时" class="headerlink" title="收到丢失数据包的ACK 发生在当一个数据包已经确认丢失但受到了其ACK数据包时"></a>收到丢失数据包的ACK 发生在当一个数据包已经确认丢失但受到了其ACK数据包时</h3><h3 id="保活-当一个连接的保活数据包出现时触发"><a href="#保活-当一个连接的保活数据包出现时触发" class="headerlink" title="保活 当一个连接的保活数据包出现时触发"></a>保活 当一个连接的保活数据包出现时触发</h3><h3 id="零窗口-当接收方已经达到TCP接收窗口大小时，发出一个零窗口通知，要求发送方停止传输数据"><a href="#零窗口-当接收方已经达到TCP接收窗口大小时，发出一个零窗口通知，要求发送方停止传输数据" class="headerlink" title="零窗口 当接收方已经达到TCP接收窗口大小时，发出一个零窗口通知，要求发送方停止传输数据"></a>零窗口 当接收方已经达到TCP接收窗口大小时，发出一个零窗口通知，要求发送方停止传输数据</h3><h3 id="乱序-当数据包被乱序接收时，会利用序列号进行检测"><a href="#乱序-当数据包被乱序接收时，会利用序列号进行检测" class="headerlink" title="乱序 当数据包被乱序接收时，会利用序列号进行检测"></a>乱序 当数据包被乱序接收时，会利用序列号进行检测</h3><h3 id="快速重传输-一次重传会在收到一个重复ACK的20ms内进行"><a href="#快速重传输-一次重传会在收到一个重复ACK的20ms内进行" class="headerlink" title="快速重传输 一次重传会在收到一个重复ACK的20ms内进行"></a>快速重传输 一次重传会在收到一个重复ACK的20ms内进行</h3><h2 id="WireShark性能"><a href="#WireShark性能" class="headerlink" title="WireShark性能"></a>WireShark性能</h2><h3 id="Statistics-Summary-查看平均速度"><a href="#Statistics-Summary-查看平均速度" class="headerlink" title="Statistics -&gt; Summary 查看平均速度"></a>Statistics -&gt; Summary 查看平均速度</h3><h3 id="Analyze-Expert-Infos"><a href="#Analyze-Expert-Infos" class="headerlink" title="Analyze -&gt; Expert Infos"></a>Analyze -&gt; Expert Infos</h3><h3 id="Statistics-TCP-StreamGraph-TCP-Sequence-Graph-Stenens"><a href="#Statistics-TCP-StreamGraph-TCP-Sequence-Graph-Stenens" class="headerlink" title="Statistics -&gt; TCP StreamGraph -&gt; TCP Sequence Graph(Stenens)"></a>Statistics -&gt; TCP StreamGraph -&gt; TCP Sequence Graph(Stenens)</h3><h3 id="TCP-Previous-segment-not-captured"><a href="#TCP-Previous-segment-not-captured" class="headerlink" title="TCP Previous segment not captured"></a>TCP Previous segment not captured</h3><p>在TCP传输过程中,同一台主机发出的数据段应该是连续的,即后一个包的Seq号等于前一个包的Seq + Len. 如果在网络包中没有找到,就会出现这个错误</p>
+<h3 id="TCP-ACKed-unseen-segment"><a href="#TCP-ACKed-unseen-segment" class="headerlink" title="TCP ACKed unseen segment"></a>TCP ACKed unseen segment</h3><p>Wireshark发现被Ack的那个包没被wireshark捕获</p>
+<h3 id="TCP-Out-of-Order"><a href="#TCP-Out-of-Order" class="headerlink" title="TCP Out-of-Order"></a>TCP Out-of-Order</h3><p>在TCP传输过程中,同一台主机发出的数据段应该是连续的,即后一个包的Seq号等于前一个包的Seq +<br>Len.当Wireshark发现后一个包的Seq号小于前一个包的Seq+Len 就乱序le</p>
+<h3 id="TCP-Dup-ACK"><a href="#TCP-Dup-ACK" class="headerlink" title="TCP Dup ACK"></a>TCP Dup ACK</h3><p>当乱序或者丢包的时候,接收方会收到Seq号比期望值大的包,每收到一个这种包就会Ack一次期望的Seq值</p>
+<h3 id="TCP-Fast-Retransmission"><a href="#TCP-Fast-Retransmission" class="headerlink" title="TCP Fast Retransmission"></a>TCP Fast Retransmission</h3><p>当发送方收到3个或以上TCP Dup ACK,就意识到之前发的包可能丢了,触发快速重传</p>
+<h3 id="TCP-Retransmission"><a href="#TCP-Retransmission" class="headerlink" title="TCP Retransmission"></a>TCP Retransmission</h3><p>没有触发tcp超时重传,超时重传</p>
+<h3 id="TCP-zerowindow"><a href="#TCP-zerowindow" class="headerlink" title="TCP zerowindow"></a>TCP zerowindow</h3><p>缓存区已满,不能再接收数据了</p>
+<h3 id="TCP-window-FUll"><a href="#TCP-window-FUll" class="headerlink" title="TCP window FUll"></a>TCP window FUll</h3><p>Wireshark检测到,发送方发送的数据会把接收方的接收窗口耗尽</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +348,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -468,7 +576,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -634,7 +742,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -717,7 +825,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   

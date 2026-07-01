@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">144</span>
+          <span class="site-state-item-count">145</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,132 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/06/20/Go%20%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E5%85%AB%E7%A7%8D%E6%96%B9%E5%BC%8F%E4%B8%8E%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/06/20/Go%20%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E5%85%AB%E7%A7%8D%E6%96%B9%E5%BC%8F%E4%B8%8E%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/" class="post-title-link" itemprop="url">Go 生成随机字符串的八种方式与性能测试</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-20 13:57:42" itemprop="dateCreated datePublished" datetime="2021-06-20T13:57:42+08:00">2021-06-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这是**<a target="_blank" rel="noopener" href="https://stackoverflow.com/users/1705598/icza">icza</a>**<br>在StackOverflow上的一篇<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go/22892986#22892986">回答</a><br>，质量很高，翻译一下，大家一起学习</p>
+<p>问题是：在go，有没有什么最快最简单的方法，用来生成只包含英文字母的随机字符串</p>
+<p>icza给出了8个方案，最简单的方法并不是最快的方法，它们各有优劣，末尾附上性能测试结果：</p>
+<h3 id="1-Runes"><a href="#1-Runes" class="headerlink" title="1. Runes"></a>1. Runes</h3><p>比较简单的答案，声明一个rune数组，通过随机数选取rune字符，拼接成结果</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach1</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> letters = []<span class="type">rune</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">rune</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		b[i] = letters[rand.Intn(<span class="built_in">len</span>(letters))]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach1</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach1</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Bytes"><a href="#2-Bytes" class="headerlink" title="2. Bytes"></a>2. Bytes</h3><p>如果随机挑选的字符只包含英文字母，我们可以直接使用bytes，因为在UTF-8编码模式下，英文字符和Bytes是一对一的（Go正是使用UTF-8模式编码）</p>
+<p>所以可以把</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> letters = []<span class="type">rune</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>用这个替代</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> letters = []<span class="type">byte</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>或者更好</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>现在我们有很大的进展了，我们把它变为了一个常数，在go里面，只有string常数，可并没有slice常数。额外的收获，表达式<code>len(letters)</code><br>也变为了一个常数（如果<code>s</code>为常数，那么<code>len(s)</code>也将是常数)</p>
+<p>我们没有付出什么代码，现在<code>letters</code>可以通过下标访问其中的bytes了，这正是我们需要的。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach2</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		b[i] = letters[rand.Intn(<span class="built_in">len</span>(letters))]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach2</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach2</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-Remainder"><a href="#3-Remainder" class="headerlink" title="3. Remainder"></a>3. Remainder</h3><p>上面的解决方法通过<code>rand.Intn()</code>来获得一个随机字母，这个方法底层调用了<code>Rand.Intn()</code>，然后调用了<code>Rand.Int31n()</code></p>
+<p>相比于生成63个随机bits的函数<code>rand.Int63()</code>来说，<code>Rand.Int31n()</code>很慢。</p>
+<p>我们可以简单地调用<code>rand.Int63()</code>然后除以<code>len(letterBytes)</code>，使用它的余数来生成字母</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach3</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		b[i] = letters[rand.Int63() % <span class="type">int64</span>(<span class="built_in">len</span>(letters))]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach3</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach3</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这个算法能正常工作并且非常快，不过它牺牲了部分精确性，字母出现的概率并不是精确一样的（假设<code>rand.Int63()</code><br>生成63比特的数字是等概率的）。由于字母总共才52个，远小于 1&lt;&lt;63 - 1，因此失真非常小，因此实际上这完全没问题。</p>
+<p>解释: 假设你想要0<del>5的随机数，如果使用3位的bit，3位的bit等概率出现0</del>7，所以出现0和1的概率是出现2、3、4概率的两倍。使用5位的<br>bit，0和1出现的概率是<code>6/32</code>，2、3、4出现的概率是<code>5/32</code>。现在接近了一些了，是吧？不断地增加比特位，这个差距就会变得越小，当你有63位地时候，这差别已经可忽略不计。</p>
+<h3 id="4-Masking"><a href="#4-Masking" class="headerlink" title="4. Masking"></a>4. Masking</h3><p>在上一个方案的基础上，我们通过仅使用随机数的最低n位保持均匀分布，n为表示所有字符的数量。比如我们有52个字母，我们需要6位（52 &#x3D;<br>110100b）。所以我们仅仅使用了<code>rand.Int63()</code>的最后6位。并且，为了保持所有字符的均匀分布，我们决定只接受在<br><code>0..len(letterBytes)-1</code>的数字即0~51。（译者注：这里已经没有第三个方案的不准确问题了）</p>
+<p>最低几位大于等于<code>len(letterBytes)</code>的概率一般小于<code>0.5</code><br>（平均值为0.25），这意味着出现这种情况，只要重试就好。重试n次之后，我们仍然需要丢弃这个数字的概率远小于0.5的n次方（这是上界了，实际会低于这个值）。以本文的52个字母为例，最低6位需要丢弃的概率只有<br><code>(64-52)/64=0.19</code>。这意味着，重复10次，仍然没有数字的概率是1*10^-8。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach4</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// 6 bits to represent a letters index</span></span><br><span class="line">	letterIdBits = <span class="number">6</span></span><br><span class="line">	<span class="comment">// All 1-bits as many as letterIdBits</span></span><br><span class="line">	letterIdMask = <span class="number">1</span> &lt;&lt;letterIdBits - <span class="number">1</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> b &#123;</span><br><span class="line">		<span class="keyword">if</span> idx := <span class="type">int</span>(rand.Int63() &amp; letterIdMask); idx &lt; <span class="built_in">len</span>(letters) &#123;</span><br><span class="line">			b[i] = letters[idx]</span><br><span class="line">			i++</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach4</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach4</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-Masking-Improved"><a href="#5-Masking-Improved" class="headerlink" title="5. Masking Improved"></a>5. Masking Improved</h3><p>第4节的方案只使用了<code>rand.Int63()</code>方法返回的64个随机字节的后6位。这实在是太浪费了，因为<code>rand.Int63()</code>是我们算法中最耗时的部分了。</p>
+<p>如果我们有52个字母，6位就能生成一个随机字符串。所以63个随机字节，可以利用<code>63/6=10</code>次。</p>
+<p>译者注：使用了缓存，缓存了<code>rand.Int63()</code>方法返回的内容，使用10次，不过已经并不是协程安全的了。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach5</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// 6 bits to represent a letter index</span></span><br><span class="line">	letterIdBits = <span class="number">6</span></span><br><span class="line">	<span class="comment">// All 1-bits as many as letterIdBits</span></span><br><span class="line">	letterIdMask = <span class="number">1</span>&lt;&lt;letterIdBits - <span class="number">1</span></span><br><span class="line">	letterIdMax  = <span class="number">63</span> / letterIdBits</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="comment">// A rand.Int63() generates 63 random bits, enough for letterIdMax letters!</span></span><br><span class="line">	<span class="keyword">for</span> i, cache, remain := n<span class="number">-1</span>, rand.Int63(), letterIdMax; i &gt;= <span class="number">0</span>; &#123;</span><br><span class="line">		<span class="keyword">if</span> remain == <span class="number">0</span> &#123;</span><br><span class="line">			cache, remain = rand.Int63(), letterIdMax</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> idx := <span class="type">int</span>(cache &amp; letterIdMask); idx &lt; <span class="built_in">len</span>(letters) &#123;</span><br><span class="line">			b[i] = letters[idx]</span><br><span class="line">			i--</span><br><span class="line">		&#125;</span><br><span class="line">		cache &gt;&gt;= letterIdBits</span><br><span class="line">		remain--</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach5</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach5</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-Source"><a href="#6-Source" class="headerlink" title="6. Source"></a>6. Source</h3><p>第5个方案非常好，能改进的点并不多。我们可以但不值得搞得很复杂。</p>
+<p>让我们来找可以改进的点：<strong>随机数的生成源</strong></p>
+<p><code>crypto/rand</code>的包提供了<code>Read(b []byte)</code>的函数，可以通过这个函数获得需要的随机比特数，只需要一次调用。不过并不能提升性能，因为<br><code>crypto/rand</code>实现了一个密码学上的安全伪随机数，所以速度比较慢。</p>
+<p>所以让我们坚持使用<code>math/rand</code>包，<code>rand.Rand</code>使用<code>rand.Source</code>作为随机位的来源，<code>rand.Source</code>是一个声明了<code>Int63() int64</code><br>的接口：正是我们在最新解决方案中需要和使用的唯一方法。</p>
+<p>所以我们不是真的需要<code>rand.Rand</code>，<code>rand.Source</code>包对于我们来说已经足够了</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> approach6</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> letters = <span class="string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> src = rand.NewSource(time.Now().UnixNano())</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// 6 bits to represent a letter index</span></span><br><span class="line">	letterIdBits = <span class="number">6</span></span><br><span class="line">	<span class="comment">// All 1-bits as many as letterIdBits</span></span><br><span class="line">	letterIdMask = <span class="number">1</span>&lt;&lt;letterIdBits - <span class="number">1</span></span><br><span class="line">	letterIdMax  = <span class="number">63</span> / letterIdBits</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randStr</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	b := <span class="built_in">make</span>([]<span class="type">byte</span>, n)</span><br><span class="line">	<span class="comment">// A rand.Int63() generates 63 random bits, enough for letterIdMax letters!</span></span><br><span class="line">	<span class="keyword">for</span> i, cache, remain := n<span class="number">-1</span>, src.Int63(), letterIdMax; i &gt;= <span class="number">0</span>; &#123;</span><br><span class="line">		<span class="keyword">if</span> remain == <span class="number">0</span> &#123;</span><br><span class="line">			cache, remain = src.Int63(), letterIdMax</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> idx := <span class="type">int</span>(cache &amp; letterIdMask); idx &lt; <span class="built_in">len</span>(letters) &#123;</span><br><span class="line">			b[i] = letters[idx]</span><br><span class="line">			i--</span><br><span class="line">		&#125;</span><br><span class="line">		cache &gt;&gt;= letterIdBits</span><br><span class="line">		remain--</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestApproach6</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	fmt.Println(randStr(<span class="number">10</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkApproach6</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		_ = randStr(<span class="number">10</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意到这里我们没有使用种子初始化rand了，取而代之的是初始化了<code>rand.Source</code></p>
+<p>还有一件需要注意的事，<code>math/rand</code>的文档指出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">默认的Source是协程安全的</span><br></pre></td></tr></table></figure>
+
+<p>所以默认的Source比通过<code>rand.NewSource()</code>创建出来的<code>Source</code>要慢。不用处理协程并发场景，当然慢啦。</p>
+<h3 id="7-使用-strings-Builder"><a href="#7-使用-strings-Builder" class="headerlink" title="7. 使用 strings.Builder"></a>7. 使用 strings.Builder</h3><p>之前的解决方案都返回了通过slice构造的字符串。最后的一次转换进行了一次拷贝，因为字符串是不可变的，如果转换的时候不进行拷贝，就无法保证转换完成之后，byte<br>slice再被修改后，字符串仍能保持不变。</p>
+<p>Go1.10引入了<strong>strings.Builder</strong>，这是一个新的类型，和bytes.Buffer类似，用来构造字符串。底层使用<code>[]byte</code><br>来构造内容，正是我们现在在做的，最后可以通过<code>Builder.String()</code>方法来获得最终的字符串值。但它很酷的地方在于，它无需执行刚才谈到的复制即可完成此操作。它敢这么做是因为它底层构造的<br><code>[]byte</code>从未暴露出来，所以仍然可以保证没有人可以无意地、恶意地来修改已经生成的不可变字符串。</p>
+<p>所以我们的下一个想法不是在slice中构建随机字符串，而是在 strings.Builder 的帮助下，一旦我们完成，我们就可以获取并返回结果，而无需复制。<br>这可能在速度方面有所帮助，并且在内存使用和分配方面肯定会有所帮助（译者注：等会在benchmark中会清晰地看到）。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +366,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -357,7 +483,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -553,7 +679,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -662,7 +788,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -817,7 +943,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -918,7 +1044,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -1176,7 +1302,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -1307,7 +1433,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -1406,7 +1532,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
+      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
     </span>
 
   
@@ -1437,170 +1563,6 @@
 <h3 id="客户网段和其他网段又做了peering"><a href="#客户网段和其他网段又做了peering" class="headerlink" title="客户网段和其他网段又做了peering"></a>客户网段和其他网段又做了peering</h3><p><img src="/Images/pulsar-third-vendor2.png" alt="pulsar-third-vendor2"></p>
 <p>这个问题其实还好，就是路由规则配置麻烦</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Peering打通对用户来说已经比较方便了，相信做到自动化也没有太大的技术难度，只是时间和人力投入的问题。统一接入因为网络打通的原因，不好使用<code>kop</code>、<code>mop</code>这些高级特性，此外还有不小的公网带宽成本，羊毛出在羊身上，比较大量的用户也会倾向于Peering打通的模式吧。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/14/%E5%8D%8E%E4%B8%BA%E4%BA%91%E7%89%A9%E8%81%94%E7%BD%91%E5%9B%9B%E5%B9%B4%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E5%AE%9E%E8%B7%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/config-center" class="post-title-link post-title-link-external" itemprop="url">华为云物联网四年配置中心实践<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-14 08:11:47" itemprop="dateCreated datePublished" datetime="2021-04-14T08:11:47+08:00">2021-04-14</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-21 14:04:57" itemprop="dateModified" datetime="2026-06-21T14:04:57+08:00">2026-06-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>  自17年入职华为之后，一直在使用配置中心，4年期间经历了自研配置中心到<code>Apollo</code>再到自研配置中心和<code>Apollo</code>并存的场景。总结了一下这几年的配置中心演进流程，想把我们在配置中心上的一些实践分享给大家，实现共同进步。<code>Apollo</code>是一款非常优秀的开源软件，是国人的骄傲。如果对<code>Apollo</code>存在理解错误，还望大家不吝赐教，谢谢。</p>
-<h2 id="使用到的配置分类"><a href="#使用到的配置分类" class="headerlink" title="使用到的配置分类"></a>使用到的配置分类</h2><h3 id="从场景分类"><a href="#从场景分类" class="headerlink" title="从场景分类"></a>从场景分类</h3><h4 id="运维配置，即程序只读的配置"><a href="#运维配置，即程序只读的配置" class="headerlink" title="运维配置，即程序只读的配置"></a>运维配置，即程序只读的配置</h4><p>人工配置。通过人工在配置中心界面进行配置，而程序只进行读取，如数据库配置、邮箱服务器配置、网卡配置、子网地址配置等。这部分配置数据不要求代码动态写入。</p>
-<h4 id="业务配置，即程序可写的配置"><a href="#业务配置，即程序可写的配置" class="headerlink" title="业务配置，即程序可写的配置"></a>业务配置，即程序可写的配置</h4><p>我们是一个SaaS服务，每个用户在上面都有一些业务配置。如用户的证书配置、用户服务器的流控配置等，这些业务配置相对<strong>运维配置</strong>来说更加复杂，且可能会有唯一性限制，如按用户id唯一。这部分配置数据一般由用户操作触发，代码动态写入，并且通知到各个微服务实例。通常，我们希望这些配置能在界面展示，且支持人为修改。上述逻辑如果由各微服务自己实现，会存在大量重复代码，并且质量无法保证。我们希望由一个公共组件来统一实现这个能力。</p>
-<h3 id="从配置是否会有列表可分为单值配置或多值配置"><a href="#从配置是否会有列表可分为单值配置或多值配置" class="headerlink" title="从配置是否会有列表可分为单值配置或多值配置"></a>从配置是否会有列表可分为单值配置或多值配置</h3><h4 id="单值配置"><a href="#单值配置" class="headerlink" title="单值配置"></a>单值配置</h4><p>整个配置下只是多对key、value。value不是很复杂的格式，往往是整数或字符串。</p>
-<p><img src="/Images/config-center1.png" alt="image-20210330171658154"></p>
-<h4 id="多值配置"><a href="#多值配置" class="headerlink" title="多值配置"></a>多值配置</h4><p>多值配置更加复杂，往往是<strong>单值配置</strong>在不同的key下，有不同的值。比如下面的配置，用户一和用户二的线程池大小和队列不同</p>
-<p><img src="/Images/config-center2.jpg" alt="img"></p>
-<h2 id="第一阶段-自研配置中心"><a href="#第一阶段-自研配置中心" class="headerlink" title="第一阶段 自研配置中心"></a>第一阶段 自研配置中心</h2><p>在做云服务之前，我们的配置中心层级数较少。我们以软件的形式交付给客户，软件运行时分为管理面和业务面，配置中心管理着管理面和业务面的配置，最为复杂的场景是多套业务面，这个时候需要保证不同集群、不同微服务下的配置不冲突，配置层级为 集群、微服务、配置。</p>
-<p><img src="/Images/config-center3.png" alt="image-20210324204231586"></p>
-<p>此时的配置中心是完全自研的，不包含蓝绿、灰度配置这些功能，它独具特色的地方有以下两点：</p>
-<h3 id="单配置单表"><a href="#单配置单表" class="headerlink" title="单配置单表"></a>单配置单表</h3><ul>
-<li>在存储模型上，每个配置对应一张数据表。</li>
-<li>对多值配置比较友好，尤其是复杂业务配置，可以支持各种主键约束。对单值配置，稍微重型了一些。</li>
-<li>配置的强Schema限制。这些限制包括类型、大小、长度、是否敏感等限制。这种限制既能为界面修改配置提供良好的体验（如：不同格式不同的输入框、敏感字段，前台输入明文，后台入库加密等），也能在通过接口写入配置时做充分的校验。</li>
-</ul>
-<h3 id="通过回调方式来确保配置的可靠"><a href="#通过回调方式来确保配置的可靠" class="headerlink" title="通过回调方式来确保配置的可靠"></a>通过回调方式来确保配置的可靠</h3><p>举个例子，添加一个配置的流程是这样的</p>
-<p><img src="/Images/config-center4.png" alt="image-20210324205828998"></p>
-<p>可能这里，有读者想要问了，这个流程能确保什么可靠呢。这个流程通过调用微服务接口来校验配置是否可靠，如IP地址是否合法、对端地址是否可达、配置数量是否超过规格等等，来保证配置基本可用。</p>
-<p>总的来说，这个自研的配置中心在当时综合体验还是不错的。但是也有一些问题有待改进，比如单配置下配置项数量过多时，因为底层有部分接口单配置下所有数据都通过一个http请求来承载，会导致响应超时等问题。</p>
-<h2 id="第二阶段-Apollo"><a href="#第二阶段-Apollo" class="headerlink" title="第二阶段 Apollo"></a>第二阶段 Apollo</h2><p>开始第二阶段实践的原因主要是，我们进行了组织切换，业务重心转向做云服务，同时团队进行DevOps转型。原先的老配置中心是由另一个团队维护的，组织切换完之后，如果还要使用，就要我们自己维护。所以我们需要在继续维护老配置中心和引入开源<code>Apollo</code>中间进行选择。除了上文中提到的运维配置和业务配置，这个时候我们的需求还有改变：</p>
-<ul>
-<li>配置的层级愈发丰富了</li>
-<li>要构建灰度发布微服务的能力</li>
-</ul>
-<p>老配置中心一方面由于组织切换原因不提供维护了，另一方面不能支撑丰富的配置层级，也不具备灰度发布的能力。这个时候，<code>Apollo</code>的一些特性吸引了我们，这些特性正是老配置中心所缺乏的，例如（部分引用自<code>Apollo</code>github主页）</p>
-<ul>
-<li>丰富的层级，从<code>app_id</code>到<code>cluster</code>,<code>namespace</code>,<code>key-value</code>的层级能满足我们region、集群、微服务的层级诉求</li>
-<li>支持配置的灰度发布，比如点了发布后，只对部分应用实例生效，等观察一段时间没问题后再推给所有应用实例。</li>
-<li>所有的配置发布都有版本概念，从而可以方便的支持配置的回滚。</li>
-<li>应用和配置的管理都有完善的权限管理机制，对配置的管理还分为了编辑和发布两个环节，从而减少人为的错误。</li>
-<li>所有的操作都有审计日志，可以方便的追踪问题。</li>
-</ul>
-<p>因此我们选型引入了<code>Apollo</code>，我和我的主管，还有一个其他同事参与了这项工作。我们在Apollo开源代码的基础上做了比较大的改动，主要原因有以下几点</p>
-<ul>
-<li>节约成本，将注册中心、数据库替换成我们当前正在使用的组件，因为这两个依赖不是<code>Apollo</code>的核心依赖</li>
-<li>继承老配置中心强<code>Schema</code>的优点。</li>
-<li>保留回调确认配置的流程，提前拦截错误的配置，降低代码处理异常配置的复杂度</li>
-<li>通过spi或环境变量的方式兼容存量老局点使用老配置中心的场景</li>
-</ul>
-<p>结合上述原因，我们最终是这么实践的</p>
-<ul>
-<li><p>数据库切换为<code>postgre</code>数据库、注册中心切换到<code>servicecomb</code></p>
-</li>
-<li><p>在namespace上实现了<code>Schema</code>，每个namespace都可以注册对应的<code>Schema</code>，<code>Schema</code>要求数据必须是json格式，且json内对应的value必须满足Schema定义的规范（如ip地址、小数、整数等）</p>
-<p>Schema举例</p>
-</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;name&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;string&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;age&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;int&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;max&quot;</span><span class="punctuation">:</span><span class="number">120</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;ip&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;ipv4&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
-<p> 那么数据应该是这样的</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;hezhangjian&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span><span class="number">23</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ip&quot;</span><span class="punctuation">:</span><span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>在添加或修改配置的时候，实现了回调功能，由回调业务服务确认配置能否添加或修改</li>
-<li>配置分层：云服务对应<code>Apollo</code>的<code>app_id</code>，把内部的环境对应到<code>Apollo</code>上的集群，然后将微服务名+配置名拼接成配置名称。</li>
-</ul>
-<p>下图展示了业务概念和<code>Apollo</code>概念的对应关系，有些配置是单值配置，有些是多值配置，所以配置项这一层级是可选的。</p>
-<p><img src="/Images/config-center5.png" alt="配置分层示意图"></p>
-<p>在这段时间的实践中，我们也发现如下问题</p>
-<h3 id="并发问题"><a href="#并发问题" class="headerlink" title="并发问题"></a>并发问题</h3><p>其中最致命的就是并发问题，首先<code>Apollo</code>所有配置都存在一张表中，其次由于<code>Apollo</code>设计之初主要考虑的是运维人员手动在界面上操作，代码无并发语义（或者说没给客户端并发语义），使得我们通过代码写入配置时难以解决并发问题。</p>
-<h3 id="性能问题"><a href="#性能问题" class="headerlink" title="性能问题"></a>性能问题</h3><p>打开<code>namespace</code>列表页面，需要显示这个<code>app_id</code>下的所有<code>namespace</code>,因为我们单<code>app_id</code>会存放单个云服务的所有配置，这个量很大，且界面不支持分页，导致页面加载缓慢</p>
-<h3 id="体验问题"><a href="#体验问题" class="headerlink" title="体验问题"></a>体验问题</h3><p><code>Apollo</code>的<code>namespace</code>界面未提供搜索功能（可能Apollo设计之初也没想支持这么多），想要从<code>namespace</code>中定位到我们想要查看或修改的namespace，只能借助浏览器的搜索能力。</p>
-<h2 id="第三阶段-Apollo与自研配置中心并存"><a href="#第三阶段-Apollo与自研配置中心并存" class="headerlink" title="第三阶段 Apollo与自研配置中心并存"></a>第三阶段 Apollo与自研配置中心并存</h2><p>除了上述几个问题，还有一些原因使得我们开始了第三阶段的实践</p>
-<ul>
-<li>原来自上而下的配置分层模型，微服务间配置没隔离，不仅不易进行权限管理，而且不适合<code>DevOps</code> 单微服务自治的发布理念。</li>
-<li>第二阶段对<code>Apollo</code>改动太多，组织结构变动，没有足够的人力维护</li>
-<li>随着集群越来越多，回调功能需要网络的双向打通，网络维护不太方便</li>
-<li>我们对<code>Apollo</code>界面以及接口基于业务做的改动较多，导致其他兄弟部门难以共用<code>Apollo</code></li>
-</ul>
-<p>当时大家对是否保留<strong>Schema</strong>、<strong>回调检查</strong>、<strong>代码写配置</strong>这三个功能点有较大的争议。我个人最希望保留<strong>Schema</strong>、<strong>回调检查</strong>，因为它们优点显著，而且接口是兼容的，可以与其他部门共用，但是增加了<strong>Schema</strong>这个概念和<strong>回调检查</strong>这个流程，会增加学习成本。而代码写配置，由于要解决并发问题，代码改动量较大，我不建议保留。</p>
-<p>大家经过激烈的讨论，最终还是废弃了<strong>Schema</strong>、<strong>回调检查</strong>、<strong>代码写配置</strong>这三个功能点，仅仅把运维配置放在<code>Apollo</code>。</p>
-<p>然后，我们把业务配置，放在了一个自研的强Schema的配置中心上，这个配置中心，仅负责单集群的配置，每个集群部署一套，满足了我们的业务需求。自研强Schema配置中心的核心要点有，单配置单表、通过注册中心回调来检测配置是否合法、借助mqtt协议来实现长链接推送，无单点瓶颈。</p>
-<p>而我们的运维配置中心<code>Apollo</code>回归到了开源的版本，重整了配置的结构，</p>
-<p><img src="/Images/config-center6.png" alt="image-20210405224010878"></p>
-<p>对运维配置而言好处有</p>
-<ul>
-<li>配置模型适合单微服务发布</li>
-<li>配置按微服务组织，一个页面上的namespace不会很多</li>
-</ul>
-<p>缺点</p>
-<ul>
-<li>Schema缺失后，不会对操作人员在界面的配置进行校验，即使配置格式或者内容错误也能配置成功。界面上配置密码不支持明文（Apollo无法感知是否为敏感字段），必须提前使用其他工具将明文转换为密文，然后再进行配置。</li>
-<li>回调检查功能去掉后，有些配置，如网卡网段配错，操作人员不能即时得到响应</li>
-</ul>
-<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p>业务配置经过我们的实践，确实不适合使用开源的<code>Apollo</code>。运维配置使用原生的<code>Apollo</code>，但是现在还不具备<strong>回调检查</strong>和<strong>Schema</strong>的功能，希望<code>Apollo</code>能在后续版本中支持<strong>Schema</strong>，或者弱化的<strong>json</strong>格式检查功能。下面是我们在如下场景下的最佳实践</p>
-<h3 id="SRE在界面上的运维配置"><a href="#SRE在界面上的运维配置" class="headerlink" title="SRE在界面上的运维配置"></a>SRE在界面上的运维配置</h3><p>通过<code>Apollo</code>来实现功能，至于配置如何组织，根据大家的组织结构、技术架构来对应<code>Apollo</code>上的概念，可按照<code>微服务-&gt;部署环境</code>或<code>部署环境 -&gt; 微服务</code>的层级来组织配置</p>
-<h3 id="复杂的参数校验"><a href="#复杂的参数校验" class="headerlink" title="复杂的参数校验"></a>复杂的参数校验</h3><p>建议在<code>Apollo</code>上面自建portal包裹一层，后端服务可先进行一层处理，这一层处理可以做比较复杂的格式化校验甚至<strong>回调检查</strong>，再调用<code>Apollo OpenApi</code>将配置写入<code>Apollo</code>。</p>
-<h3 id="业务配置的技术选型"><a href="#业务配置的技术选型" class="headerlink" title="业务配置的技术选型"></a>业务配置的技术选型</h3><p>最大的挑战是业务配置由用户触发，请求的并发不易处理。思路有两个，一个是在<code>Apollo</code>原生代码的基础上，通过数据库分布式锁来解决并发问题。第二个是借鉴我们的思路，通过单配置单表、mqtt协议实现通知等核心技术点，自研业务配置中心。</p>
-<h3 id="业务配置的部署"><a href="#业务配置的部署" class="headerlink" title="业务配置的部署"></a>业务配置的部署</h3><p>需要根据业务配置的数量来考虑是否合设业务配置中心。单集群场景下，毫无疑问只需要一个业务配置中心，甚至如果使用<code>Apollo</code>实现，可以考虑和运维配置中心合设。多集群场景下，部署一个业务配置中心，还是多个业务配置中心，我们自己的实践中，一个集群往往要支撑数万用户，我们采取了每个业务集群部署一套业务配置中心的策略。</p>
 
       
     </div>
