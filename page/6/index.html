@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.28.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
 
     <meta property="og:type" content="website">
 <meta property="og:title" content="张俭的博客">
@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">145</span>
+          <span class="site-state-item-count">146</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,116 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/07/08/%E7%BA%BF%E7%A8%8B%E9%94%81%E5%AF%BC%E8%87%B4%E7%9A%84kafka%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/07/08/%E7%BA%BF%E7%A8%8B%E9%94%81%E5%AF%BC%E8%87%B4%E7%9A%84kafka%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">线程锁导致的kafka客户端超时问题</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-08 14:58:52" itemprop="dateCreated datePublished" datetime="2023-07-08T14:58:52+08:00">2023-07-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>有一个环境的kafka client发送数据有部分超时，拓扑图也非常简单</p>
+<p><img src="/Images/20230708p1.png" alt="Untitled"></p>
+<h2 id="定位历程"><a href="#定位历程" class="headerlink" title="定位历程"></a>定位历程</h2><p>我们先对客户端的环境及JVM情况进行了排查，从JVM所在的虚拟机到kafka server的网络正常，垃圾回收（GC）时间也在预期范围内，没有出现异常。</p>
+<p>紧接着，我们把目光转向了kafka 服务器，进行了一些基础的检查，同时也查看了kafka处理请求的超时日志，其中我们关心的metadata和produce请求都没有超时。</p>
+<p>问题就此陷入了僵局，虽然也搜到了一些kafka server会对连上来的client反解导致超时的问题（ <a target="_blank" rel="noopener" href="https://github.com/apache/kafka/pull/10059">https://github.com/apache/kafka/pull/10059</a>），但通过一些简单的分析，我们确定这并非是问题所在。</p>
+<p>同时，我们在环境上也发现一些异常情况，当时觉得不是核心问题&#x2F;解释不通，没有深入去看</p>
+<ul>
+<li>问题JVM线程数较高，已经超过10000，这个线程数量虽然确实较高，但并不会对1个4U的容器产生什么实质性的影响。</li>
+<li>负责指标上报的线程CPU较高，大约占用了1&#x2F;4 ~ 1&#x2F;2 的CPU核，这个对于4U的容器来看问题也不大</li>
+</ul>
+<p>当排查陷入僵局，我们开始考虑其他可能的调查手段。我们尝试抓包来找线索，这里的抓包是SASL鉴权+SSL加密的，非常难读，只能靠长度和响应时间勉强来推断报文的内容。</p>
+<p>在这个过程中，我们发现了一个非常重要的线索，客户端竟然发起了超时断链，并且超时的那条消息，实际服务端是有响应回复的。</p>
+<p>随后我们将kafka client的trace级别日志打开，这里不禁感叹kafka client日志打的相对较少，发现的确有<strong>log.debug(“Disconnecting from node {} due to request timeout.”, nodeId)</strong>;的日志打印。</p>
+<p>与网络相关的流程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 这里发出了请求</span></span><br><span class="line">    client.send(request, time.milliseconds());</span><br><span class="line">    <span class="keyword">while</span> (client.active()) &#123;</span><br><span class="line">        List&lt;ClientResponse&gt; responses = client.poll(Long.MAX_VALUE, time.milliseconds());</span><br><span class="line">        <span class="keyword">for</span> (ClientResponse response : responses) &#123;</span><br><span class="line">            <span class="keyword">if</span> (response.requestHeader().correlationId() == request.correlationId()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (response.wasDisconnected()) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Connection to &quot;</span> + response.destination() + <span class="string">&quot; was disconnected before the response was read&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (response.versionMismatch() != <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> response.versionMismatch();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> response;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Client was shutdown before response was read&quot;</span>);</span><br><span class="line">&#125; <span class="keyword">catch</span> (DisconnectException e) &#123;</span><br><span class="line">    <span class="keyword">if</span> (client.active())</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Client was shutdown before response was read&quot;</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个poll方法，不是简单的poll方法，而在poll方法中会进行超时判断，查看poll方法中调用的handleTimedOutRequests方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> List&lt;ClientResponse&gt; <span class="title function_">poll</span><span class="params">(<span class="type">long</span> timeout, <span class="type">long</span> now)</span> &#123;</span><br><span class="line">    ensureActive();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!abortedSends.isEmpty()) &#123;</span><br><span class="line">        <span class="comment">// If there are aborted sends because of unsupported version exceptions or disconnects,</span></span><br><span class="line">        <span class="comment">// handle them immediately without waiting for Selector#poll.</span></span><br><span class="line">        List&lt;ClientResponse&gt; responses = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        handleAbortedSends(responses);</span><br><span class="line">        completeResponses(responses);</span><br><span class="line">        <span class="keyword">return</span> responses;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">long</span> <span class="variable">metadataTimeout</span> <span class="operator">=</span> metadataUpdater.maybeUpdate(now);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.selector.poll(Utils.min(timeout, metadataTimeout, defaultRequestTimeoutMs));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;Unexpected error during I/O&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// process completed actions</span></span><br><span class="line">    <span class="type">long</span> <span class="variable">updatedNow</span> <span class="operator">=</span> <span class="built_in">this</span>.time.milliseconds();</span><br><span class="line">    List&lt;ClientResponse&gt; responses = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    handleCompletedSends(responses, updatedNow);</span><br><span class="line">    handleCompletedReceives(responses, updatedNow);</span><br><span class="line">    handleDisconnections(responses, updatedNow);</span><br><span class="line">    handleConnections();</span><br><span class="line">    handleInitiateApiVersionRequests(updatedNow);</span><br><span class="line">    <span class="comment">// 关键的超时判断</span></span><br><span class="line">    handleTimedOutRequests(responses, updatedNow);</span><br><span class="line">    completeResponses(responses);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> responses;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由此我们推断，问题可能在于客户端hang住了一段时间，从而导致超时断链。我们通过工具Arthas深入跟踪了Kafka的相关代码，甚至发现一些简单的操作（如A.field）也需要数秒的时间。这进一步确认了我们的猜想：问题可能出在JVM。JVM可能在某个时刻出现问题，导致系统hang住，但这并非由GC引起。</p>
+<p><img src="/Images/20230708p2.png" alt="Untitled"></p>
+<p>为了解决这个问题，我们又检查了监控线程CPU较高的问题。我们发现线程的执行热点是从”sun.management.ThreadImpl”中的”getThreadInfo”方法。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&quot;metrics-1@746&quot; prio=5 tid=0xf nid=NA runnable</span><br><span class="line">  java.lang.Thread.State: RUNNABLE</span><br><span class="line">    at sun.management.ThreadImpl.getThreadInfo(Native Method)</span><br><span class="line">	  at sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:185)</span><br><span class="line">	  at sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:149)</span><br></pre></td></tr></table></figure>
+
+<p>进一步发现，在某些版本的JDK8中，读取线程信息是需要加锁的。</p>
+<p>至此，问题的根源已经清晰明了：过高的线程数以及线程监控时JVM全局锁的存在导致了这个问题。您可以使用如下的demo来复现这个问题</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.management.ManagementFactory;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ThreadInfo;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ThreadMXBean;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ScheduledExecutorService;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadLockSimple</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">15_000</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">200_000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">ScheduledExecutorService</span> <span class="variable">executorService</span> <span class="operator">=</span> Executors.newSingleThreadScheduledExecutor();</span><br><span class="line">        executorService.scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;take &quot;</span> + <span class="string">&quot; &quot;</span> + System.currentTimeMillis());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="number">1</span>, <span class="number">1</span>, TimeUnit.SECONDS);</span><br><span class="line">        <span class="type">ThreadMXBean</span> <span class="variable">threadMXBean</span> <span class="operator">=</span> ManagementFactory.getThreadMXBean();</span><br><span class="line">        <span class="type">ScheduledExecutorService</span> <span class="variable">metricsService</span> <span class="operator">=</span> Executors.newSingleThreadScheduledExecutor();</span><br><span class="line">        metricsService.scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">                ThreadInfo[] threadInfoList = threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds());</span><br><span class="line">                System.out.println(<span class="string">&quot;threads count &quot;</span> + threadInfoList.length + <span class="string">&quot; cost :&quot;</span> + (System.currentTimeMillis() - start));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="number">1</span>, <span class="number">1</span>, TimeUnit.SECONDS);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为了解决这个问题，我们有以下几个可能的方案：</p>
+<ul>
+<li>将不合理的线程数往下降，可能存在线程泄露的场景</li>
+<li>升级jdk到jdk11或者jdk17（推荐）</li>
+<li>将Thread相关的监控临时关闭</li>
+</ul>
+<p>这个问题的解决方案应根据实际情况进行选择，希望对你有所帮助。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +350,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -323,7 +433,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -405,7 +515,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -483,7 +593,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -572,7 +682,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -679,7 +789,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -785,7 +895,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -897,7 +1007,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -1053,7 +1163,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -1084,92 +1194,6 @@
 <p>同样需要使用<strong>inet\b</strong>，不要使用<strong>inet</strong></p>
 <h2 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h2><p>优先配置如下yaml进行环境变量注入，其次使用<strong>ip addr show eth0 | grep “inet\b” | awk ‘{print $2}’ | cut -d&#x2F; -f1</strong>命令获取</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">POD_IP</span></span><br><span class="line">  <span class="attr">valueFrom:</span></span><br><span class="line">    <span class="attr">fieldRef:</span></span><br><span class="line">      <span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line">      <span class="attr">fieldPath:</span> <span class="string">status.podIP</span></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/01/04/%E4%BF%AE%E6%94%B9%E8%BF%90%E8%A1%8C%E4%B8%ADkubernetes%E9%9B%86%E7%BE%A4%E4%B8%ADetcd%E7%9A%84%E5%8F%82%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-etcd-config-modify" class="post-title-link post-title-link-external" itemprop="url">修改运行中kubernetes集群中etcd的参数<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-01-04 19:32:24" itemprop="dateCreated datePublished" datetime="2023-01-04T19:32:24+08:00">2023-01-04</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在一些场景下，您的kubernetes集群已经搭建完成了，但是还需要修改一些核心组件的参数，如etcd、kube-apiserver、kube-scheduler、kube-controller-manager等。</p>
-<p>通过<code>kubectl get pod -owide -n kube-system</code> 可以查看到这些核心容器。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">NAME                               READY   STATUS    RESTARTS       AGE</span><br><span class="line">coredns-78fcd69978-rdmjm           1/1     Running   11 (23s ago)   281d</span><br><span class="line">etcd-<span class="variable">$NODE1</span>                        1/1     Running   13 (23s ago)   281d</span><br><span class="line">etcd-<span class="variable">$NODE2</span>                        1/1     Running   13 (23s ago)   281d</span><br><span class="line">etcd-<span class="variable">$NODE3</span>                        1/1     Running   13 (23s ago)   281d</span><br><span class="line">.....</span><br></pre></td></tr></table></figure>
-
-<p>以etcd为例，etcd的参数就在pod中的commands参数里。可以通过<code>kubectl describe pod etcd-$NODENAME -n kube-system</code>来查看(省略部分参数)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Name: etcd-<span class="variable">$NODENAME</span></span><br><span class="line">Namespace: kube-system</span><br><span class="line">Containers:</span><br><span class="line">etcd:</span><br><span class="line">Command:</span><br><span class="line">--client-cert-auth=<span class="literal">true</span></span><br><span class="line">--trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt</span><br></pre></td></tr></table></figure>
-
-<p>然而，如果您尝试编辑pod中的参数，会发现它们是不可修改的。</p>
-<p>不过，如果您需要修改参数，还有另一个办法，通过修改<code>/etc/kubernetes/manifests/</code>下的yaml文件来修改运行中kubernetes集群中”系统”Pod的参数。原理是，当您把yaml文件修改后，kubelet会自动监听yaml文件的变更，并重新拉起本机器上的pod。</p>
-<p>举个例子，如果您希望关闭etcd集群对客户端的认证，那么您可以修改<code>/etc/kubernetes/mainfiest/etcd.yaml</code>,将<strong>client-cert-auth</strong>设置为false，把<strong>trusted-ca-file</strong>去掉。注意：三台master机器节点都需要执行此操作</p>
 
       
     </div>

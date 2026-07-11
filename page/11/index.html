@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.28.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
 
     <meta property="og:type" content="website">
 <meta property="og:title" content="张俭的博客">
@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">145</span>
+          <span class="site-state-item-count">146</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -195,6 +195,95 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/06/21/Go%20time.Time%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8%E5%80%BC%E4%BC%A0%E9%80%92%E8%BF%98%E6%98%AF%E6%8C%87%E9%92%88%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/06/21/Go%20time.Time%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8%E5%80%BC%E4%BC%A0%E9%80%92%E8%BF%98%E6%98%AF%E6%8C%87%E9%92%88%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/" class="post-title-link" itemprop="url">Go time.Time 应该使用值传递还是指针引用传递</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-21 14:48:57" itemprop="dateCreated datePublished" datetime="2021-06-21T14:48:57+08:00">2021-06-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h3><p>大部分场景应该使用值传递。</p>
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>Go 的文档指出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Programs using times should typically store and pass them as values, not pointers. That is, time variables and struct fields should be of type time.Time, not *time.Time. A Time value can be used by multiple goroutines simultaneously.</span><br></pre></td></tr></table></figure>
+
+<p>翻译一下就是</p>
+<p>程序使用times典型场景应该把它们当做值传递，而非指针。也就是说time变量及结构体field应该为<code>time.Time</code>，而不是<code>*time.Time</code>。Time值是协程安全的。之所以说<code>typically</code>，是因为有着那么不<code>typically</code>的场景，比如你想在方法内修改原来的<code>time.Time</code>对象这种场景（很少见）。</p>
+<p><code>time.Time</code>是一个较小的对象，把它作为值传递是完全合理的。传递指针而不是值的很重要的一个原因是避免昂贵的拷贝动作。但是传递指针也会给gc带来一些额外的开销，如逃逸分析等。</p>
+<p>值得一提的是，你可以通过<code>go build -gcflags=&quot;-m&quot;</code>来判断变量在堆中还是在栈中。</p>
+<p><img src="/Images/go-time-pass.png" alt="go-time-pass"></p>
+<p><code>time.Time</code>在我的MBP上只有24个字节。附上几个简单类型的字节数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">byte size is  1</span><br><span class="line">int32 size is  4</span><br><span class="line">int size is  8</span><br><span class="line">int64 size is  8</span><br><span class="line">float32 size is  4</span><br><span class="line">float64 size is  8</span><br><span class="line">time size is  24</span><br></pre></td></tr></table></figure>
+
+<p>测试程序</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> demo_base</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;testing&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">	<span class="string">&quot;unsafe&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestSize</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">byte</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;byte size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">int32</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;int32 size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">int</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;int size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">int64</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;int64 size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">float32</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;float32 size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">var</span> x <span class="type">float64</span> = <span class="number">0</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;float64 size is &quot;</span>, unsafe.Sizeof(x))</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		t := time.Now()</span><br><span class="line">		fmt.Println(<span class="string">&quot;time size is &quot;</span>, unsafe.Sizeof(t))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +329,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -366,7 +455,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -483,7 +572,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -679,7 +768,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -788,7 +877,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -943,7 +1032,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -1044,7 +1133,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -1302,7 +1391,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -1433,7 +1522,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
+      <time title="修改时间：2026-07-12 00:01:00" itemprop="dateModified" datetime="2026-07-12T00:01:00+08:00">2026-07-12</time>
     </span>
 
   
@@ -1469,100 +1558,6 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">if (argument) &#123;</span><br><span class="line">  char *start = argument;</span><br><span class="line">  my_free(opt_password);</span><br><span class="line">  opt_password = my_strdup(PSI_NOT_INSTRUMENTED, argument, MYF(MY_FAE));</span><br><span class="line">  while (*argument) *argument++ = &#x27;x&#x27;;  // Destroy argument</span><br><span class="line">  if (*start) start[1] = 0;</span><br><span class="line">  tty_password = false;</span><br><span class="line">&#125; else</span><br><span class="line">  tty_password = true;</span><br></pre></td></tr></table></figure>
 
 <p>PS: 后面，我还在OSX上用go程序尝试修改参数，估摸go程序的args传入是值拷贝，修改完成之后args没有生效，看来这个黑科技只有c程序能使用呀。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/04/20/%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%98%AF%E5%85%AC%E6%9C%89%E4%BA%91%E7%9A%84%E4%BE%9B%E5%BA%94%E5%95%86%EF%BC%8C%E8%83%BD%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84Pulsar%E6%9C%8D%E5%8A%A1%E4%BD%93%E9%AA%8C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/pulsar-third-vendor" class="post-title-link post-title-link-external" itemprop="url">如果不是公有云的供应商，能提供什么样的Pulsar服务体验<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-04-20 20:45:22" itemprop="dateCreated datePublished" datetime="2021-04-20T20:45:22+08:00">2021-04-20</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-01 13:17:11" itemprop="dateModified" datetime="2026-07-01T13:17:11+08:00">2026-07-01</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="需要了解的概念"><a href="#需要了解的概念" class="headerlink" title="需要了解的概念"></a>需要了解的概念</h1><ul>
-<li>VPC：用户的私有网段</li>
-<li>peering：多个VPC之间打通的方式，可跨用户</li>
-</ul>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今天微信推送Pulsar社区有个Hackathon比赛, 开始想的idea就是，实现<code>pulsar</code>在华为云上提供服务。因为是社区的比赛，是以一个三方系统的方式在华为云上提供服务，而非是以华为云的名义提供服务。分析了下可行性和能达到的效果，对比了<code>StreamNative</code>的官网上提供的<code>pulsar</code>服务在阿里云托管的能力，能提供的能力差不多，最多只不过是实现了在华为云托管的能力，没有从0到1的突破。</p>
-<p>现在，在公有云上买<code>redis</code>和<code>kafka</code>这类组件已经变得非常普遍，由公有云供应商提供的中间件往往能给你带来良好的体验，相比三方厂家在云上进行托管，我个人认为云厂商的优势主要在以下三点</p>
-<h2 id="网络打通容易"><a href="#网络打通容易" class="headerlink" title="网络打通容易"></a>网络打通容易</h2><p>下文说一下不是公有云的供应商能以什么样的方式暴露自己的服务。云厂商可以把中间件的ip地址申请在你的vpc内，对任何应用程序来说，连接都是最方便的。无论是容器化部署、虚拟机部署、和其他vpc peering打通的场景，都可以通信。</p>
-<h2 id="低廉的成本"><a href="#低廉的成本" class="headerlink" title="低廉的成本"></a>低廉的成本</h2><p>不考虑人力成本，云厂商自运营的价格要低于三方厂家。</p>
-<h2 id="监控系统对接"><a href="#监控系统对接" class="headerlink" title="监控系统对接"></a>监控系统对接</h2><p>方便地和云厂商的告警、统计系统对接，接收告警通知和报表等。</p>
-<p>其中<strong>网络打通</strong>和<strong>成本</strong>尤为重要，三方厂家好好做监控统计系统，也能给用户较为良好的体验。</p>
-<h1 id="三方厂家能提供什么样的Pulsar接入"><a href="#三方厂家能提供什么样的Pulsar接入" class="headerlink" title="三方厂家能提供什么样的Pulsar接入"></a>三方厂家能提供什么样的Pulsar接入</h1><h2 id="统一接入"><a href="#统一接入" class="headerlink" title="统一接入"></a>统一接入</h2><p>三方厂家自己作为公有云上一个用户，无论这个Region上有多少个租户，都用这一个用户提供服务，这也就意味着无法与每个用户进行私网通信。如果在华为云，利用华为云推出的<strong>VPCEP</strong>服务（此处应有链接），倒是可以给每个用户提供私网通信，不过这个是做了DNAT地址转换的，跟做了DNAT转换的中间件连接，是非常麻烦的。（懂的自然懂。如果有人想详细了解，可以留言，我可以写一个文章介绍里面的坑）</p>
-<p>如果使用公网，又想避免扩容的时候动态申请EIP，动态申请EIP并不复杂，问题是EIP是有配额限制的，这才是关键。那么就需要一个统一的接入点，就需要部署pulsar proxy。到这一步，是每个用户申请一个EIP的，如果还想继续节省EIP，那么可以统一域名接入，后端通过SNI的方式转发，个别流量大的客户，单独把域名指向单独的集群。</p>
-<p><img src="/Images/pulsar-third-vendor1.png" alt="pulsar-third-vendor1"></p>
-<h2 id="Peering打通"><a href="#Peering打通" class="headerlink" title="Peering打通"></a>Peering打通</h2><p>Peering打通可以给用户不错的私网体验，需要用户预留一个网段，网段不需要太大，能容纳pulsar所在的vm就行。采用peering打通一般绝不会选择容器化部署，想要两个容器化的集群互通，对网设的要求很高，暂且忽略Service的存在，这要求用户的vpc网段和pod网段和三方厂商的vpc网段和pod网段都不重叠！而且peering打通，给用户私有，再搭建一个k8s集群，对成本影响比较大。主要有如下两个问题</p>
-<h3 id="自动化"><a href="#自动化" class="headerlink" title="自动化"></a>自动化</h3><p>和客户peering打通，需要较大的权限，如何自动化，最大程度的减少需要的权限。</p>
-<h3 id="客户网段和其他网段又做了peering"><a href="#客户网段和其他网段又做了peering" class="headerlink" title="客户网段和其他网段又做了peering"></a>客户网段和其他网段又做了peering</h3><p><img src="/Images/pulsar-third-vendor2.png" alt="pulsar-third-vendor2"></p>
-<p>这个问题其实还好，就是路由规则配置麻烦</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Peering打通对用户来说已经比较方便了，相信做到自动化也没有太大的技术难度，只是时间和人力投入的问题。统一接入因为网络打通的原因，不好使用<code>kop</code>、<code>mop</code>这些高级特性，此外还有不小的公网带宽成本，羊毛出在羊身上，比较大量的用户也会倾向于Peering打通的模式吧。</p>
 
       
     </div>
