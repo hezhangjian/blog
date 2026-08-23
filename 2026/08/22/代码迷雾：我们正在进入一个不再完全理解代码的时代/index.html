@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hezhangjian.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12,"onmobile":false},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null,"show_result":false},"fold":{"enable":false,"height":500},"language":false,"highlight_theme":"normal"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="“这是 AI 写的，我也不太懂。” 这句话相信大家在工作中最近都经常听到，无论是代码，还是ppt、文档，越来越多的人用Agent生成交付件。当你仔细追问其中一些细节（比如代码中某个配置文件中的几个参数到底是干什么用的）时，你就会听到这句话，让人有时也有一些无奈。RTS游戏中，有一个经典的概念，”战争迷雾”，玩家只能看到自己及盟友单位附近的视野，但地图上的其他地方都无法看到，今天AI Agent开发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="张俭的博客">
+<meta property="og:url" content="https://hezhangjian.com/2026/08/22/%E4%BB%A3%E7%A0%81%E8%BF%B7%E9%9B%BE%EF%BC%9A%E6%88%91%E4%BB%AC%E6%AD%A3%E5%9C%A8%E8%BF%9B%E5%85%A5%E4%B8%80%E4%B8%AA%E4%B8%8D%E5%86%8D%E5%AE%8C%E5%85%A8%E7%90%86%E8%A7%A3%E4%BB%A3%E7%A0%81%E7%9A%84%E6%97%B6%E4%BB%A3/index.html">
+<meta property="og:site_name" content="张俭的博客">
+<meta property="og:description" content="“这是 AI 写的，我也不太懂。” 这句话相信大家在工作中最近都经常听到，无论是代码，还是ppt、文档，越来越多的人用Agent生成交付件。当你仔细追问其中一些细节（比如代码中某个配置文件中的几个参数到底是干什么用的）时，你就会听到这句话，让人有时也有一些无奈。RTS游戏中，有一个经典的概念，”战争迷雾”，玩家只能看到自己及盟友单位附近的视野，但地图上的其他地方都无法看到，今天AI Agent开发">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hezhangjian.com/Images/%E4%BB%A3%E7%A0%81%E8%BF%B7%E9%9B%BE%EF%BC%9A%E6%88%91%E4%BB%AC%E6%AD%A3%E5%9C%A8%E8%BF%9B%E5%85%A5%E4%B8%80%E4%B8%AA%E4%B8%8D%E5%86%8D%E5%AE%8C%E5%85%A8%E7%90%86%E8%A7%A3%E4%BB%A3%E7%A0%81%E7%9A%84%E6%97%B6%E4%BB%A3-1.png">
+<meta property="article:published_time" content="2026-08-22T09:17:34.000Z">
+<meta property="article:modified_time" content="2026-08-23T07:26:36.606Z">
+<meta property="article:author" content="Zhangjian He">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hezhangjian.com/Images/%E4%BB%A3%E7%A0%81%E8%BF%B7%E9%9B%BE%EF%BC%9A%E6%88%91%E4%BB%AC%E6%AD%A3%E5%9C%A8%E8%BF%9B%E5%85%A5%E4%B8%80%E4%B8%AA%E4%B8%8D%E5%86%8D%E5%AE%8C%E5%85%A8%E7%90%86%E8%A7%A3%E4%BB%A3%E7%A0%81%E7%9A%84%E6%97%B6%E4%BB%A3-1.png">
+
+
+<link rel="canonical" href="https://hezhangjian.com/2026/08/22/%E4%BB%A3%E7%A0%81%E8%BF%B7%E9%9B%BE%EF%BC%9A%E6%88%91%E4%BB%AC%E6%AD%A3%E5%9C%A8%E8%BF%9B%E5%85%A5%E4%B8%80%E4%B8%AA%E4%B8%8D%E5%86%8D%E5%AE%8C%E5%85%A8%E7%90%86%E8%A7%A3%E4%BB%A3%E7%A0%81%E7%9A%84%E6%97%B6%E4%BB%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hezhangjian.com/2026/08/22/%E4%BB%A3%E7%A0%81%E8%BF%B7%E9%9B%BE%EF%BC%9A%E6%88%91%E4%BB%AC%E6%AD%A3%E5%9C%A8%E8%BF%9B%E5%85%A5%E4%B8%80%E4%B8%AA%E4%B8%8D%E5%86%8D%E5%AE%8C%E5%85%A8%E7%90%86%E8%A7%A3%E4%BB%A3%E7%A0%81%E7%9A%84%E6%97%B6%E4%BB%A3/","path":"2026/08/22/代码迷雾：我们正在进入一个不再完全理解代码的时代/","title":""}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title> | 张俭的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">张俭的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E4%BB%8D%E6%98%AF%E6%9C%80%E9%87%8D%E8%A6%81%E7%9A%84%E4%BA%A4%E4%BB%98%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">代码仍是最重要的交付件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E8%BF%B7%E9%9B%BE%E7%8E%B0%E8%B1%A1%E5%8E%9F%E6%9C%AC%E5%B0%B1%E5%AD%98%E5%9C%A8%EF%BC%8CAgent%E5%8F%AA%E6%98%AF%E5%8A%A0%E5%89%A7%E4%BA%86%E8%BF%99%E4%B8%80%E7%8E%B0%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">代码迷雾现象原本就存在，Agent只是加剧了这一现象</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E8%BF%B7%E9%9B%BE%E6%97%B6%E4%BB%A3%EF%BC%8C%E6%88%91%E4%BB%AC%E5%BA%94%E8%AF%A5%E6%80%8E%E4%B9%88%E5%81%9A"><span class="nav-number">3.</span> <span class="nav-text">代码迷雾时代，我们应该怎么做</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Zhangjian He</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hezhangjian" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://x.com/hezhangjian" title="Twitter → https:&#x2F;&#x2F;x.com&#x2F;hezhangjian" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2026/08/22/%E4%BB%A3%E7%A0%81%E8%BF%B7%E9%9B%BE%EF%BC%9A%E6%88%91%E4%BB%AC%E6%AD%A3%E5%9C%A8%E8%BF%9B%E5%85%A5%E4%B8%80%E4%B8%AA%E4%B8%8D%E5%86%8D%E5%AE%8C%E5%85%A8%E7%90%86%E8%A7%A3%E4%BB%A3%E7%A0%81%E7%9A%84%E6%97%B6%E4%BB%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-08-22 17:17:34" itemprop="dateCreated datePublished" datetime="2026-08-22T17:17:34+08:00">2026-08-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><strong>“这是 AI 写的，我也不太懂。”</strong></p>
+<p>这句话相信大家在工作中最近都经常听到，无论是代码，还是ppt、文档，越来越多的人用Agent生成交付件。当你仔细追问其中一些细节（比如代码中某个配置文件中的几个参数到底是干什么用的）时，你就会听到这句话，让人有时也有一些无奈。<br><img src="/Images/%E4%BB%A3%E7%A0%81%E8%BF%B7%E9%9B%BE%EF%BC%9A%E6%88%91%E4%BB%AC%E6%AD%A3%E5%9C%A8%E8%BF%9B%E5%85%A5%E4%B8%80%E4%B8%AA%E4%B8%8D%E5%86%8D%E5%AE%8C%E5%85%A8%E7%90%86%E8%A7%A3%E4%BB%A3%E7%A0%81%E7%9A%84%E6%97%B6%E4%BB%A3-1.png"><br>RTS游戏中，有一个经典的概念，”战争迷雾”，玩家只能看到自己及盟友单位附近的视野，但地图上的其他地方都无法看到，今天AI Agent开发的仓库，也存在着<strong>代码迷雾</strong>。</p>
+<h1 id="代码仍是最重要的交付件"><a href="#代码仍是最重要的交付件" class="headerlink" title="代码仍是最重要的交付件"></a>代码仍是最重要的交付件</h1><p><strong>一天完成一个library，三天完成PoC，七天完成一个产品初稿</strong>。我们不缺乏效率神话。</p>
+<p>有些人把今天 Agent 写代码的变化，类比成从汇编语言到高级语言的跃迁：未来人只需要写自然语言、Prompt 或者 Spec，代码只是生成出来的中间产物。我觉得现在还不是这样，这两者之间还不存在类似高级语言到机器代码那样的<strong>完整映射</strong>。</p>
+<p>当前代码仓里充斥着各类SDD的交付件，不止一个人问过我SDD生成的文件是否要合并到代码仓库，因为这些文档都像是生产环境中的缓存，代码才是那个<strong>Source of Truth</strong>。</p>
+<p>除了代码之外，软件工程还不存在更高层次、同时又能与代码形成完整映射的交付件。也就是说：<strong>代码仍是最重要的交付件。</strong></p>
+<h1 id="代码迷雾现象原本就存在，Agent只是加剧了这一现象"><a href="#代码迷雾现象原本就存在，Agent只是加剧了这一现象" class="headerlink" title="代码迷雾现象原本就存在，Agent只是加剧了这一现象"></a>代码迷雾现象原本就存在，Agent只是加剧了这一现象</h1><p>我喜欢另一个比喻：拖拉机和传统农具耕地，最终都完成了同一件事情——把土地耕好。但两者之间存在一种微妙的差异。</p>
+<p>使用农具的时候，你几乎了解土地的每一道沟壑、每一次翻土的力度，你知道哪里坚硬，哪里松软，哪里需要调整。这个过程慢，但人与土地之间建立了直接连接。</p>
+<p>而拖拉机极大提升了效率，它可以在更短时间内完成更多工作，但你未必了解每一寸土地发生了什么。你看到的是结果，却不一定理解过程中的细节，这和今天使用 Agent 写代码很像，这层看不见的部分，就是<strong>代码迷雾</strong>。</p>
+<p><strong>代码真实存在，也真实参与系统运行，但已经不在任何一个人的持续认知范围内。</strong></p>
+<p>这个现象并非由于有了Agent才存在，今天没有人能够理解整个 Linux 内核，没有人能够理解整个 Chromium，也没有人能够掌握一个大型企业系统的所有细节。Agent时代下，一个高速迭代的项目，会飞快地产生<strong>代码迷雾</strong>，随着代码规模不断增长，我们既没有能力，也没有必要把所有迷雾全部<strong>驱散</strong>。</p>
+<h1 id="代码迷雾时代，我们应该怎么做"><a href="#代码迷雾时代，我们应该怎么做" class="headerlink" title="代码迷雾时代，我们应该怎么做"></a>代码迷雾时代，我们应该怎么做</h1><p><strong>现在如果你一定要手写每一行代码，那你一定会被人当做动物园里的猴子。</strong> </p>
+<p>在 Agent 的帮助下，我们可以完成很多以前没能力、没时间，甚至不敢想的事情。这种感觉很好。这种感觉叫做<strong>无敌</strong>。</p>
+<p>以前笔者可以算得上是经验丰富的开发者了，写过非常多的代码、组件，对一些仓库每个文件做什么了如指掌，最小化提交，优美的Commit记录。</p>
+<p>但在 Agent 大幅提高代码生产效率以后，这种精细到代码颗粒度的维护方式开始出现效率瓶颈。如果仍然想着读懂、吃透每一行代码，很快人的理解速度就会成为整个开发过程的瓶颈。</p>
+<p>对于个人来说，时间就是金钱，对于企业来说，如果不能充分提效，竞争对手就会充分地提效并超过你。</p>
+<p>而且，以往团队的大颗粒PR提交，Committer真的认真看了吗？大部分时间大多数人都只是一个+1的机器。</p>
+<p>所以我的第一个建议是：<strong>抓大放小，在合适的地方维护合适的颗粒度。</strong></p>
+<p>这并不是说以后我们只看架构、只看文档，不再看代码。</p>
+<p>恰恰相反，我依然会在需要的时候进入某个模块，仔细读其中几十行代码，甚至单步调试，把一个问题彻底搞明白。区别只在于，我不再追求对整个 Codebase 都保持这种颗粒度的理解。</p>
+<p>人的精力毕竟是有限的，关键是把精力放在哪里。</p>
+<p>比如我让 Agent 帮我做一个后台系统，如果精力足够，我当然可以把每一个页面、每一个 Service、每一段实现都看一遍。但如果精力不够，我会优先维护几个我认为重要的东西：<strong>前端菜单、存储结构、API 接口。</strong></p>
+<p>菜单决定了这个系统对外呈现了哪些能力，存储结构决定了数据怎么组织，API 决定了模块之间如何交互。至于某个页面内部怎么实现、某个 Service 里面具体用了什么写法，我可以先允许它待在迷雾里面。</p>
+<p>哪天这里出了问题，或者这一块开始变得重要，我再进去，<strong>把这一小片迷雾驱散。</strong></p>
+<p>所以颗粒度并不是只能向上，而是可以随时上下移动；关注的地方也不是固定的，而是取决于你认为当前什么东西最值得维护。</p>
+<p>举个更具体的例子，这是我写在一个项目<code>Agents.md</code>里的一段提示词：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Implement features elegantly and with extensibility in mind. Split code into focused files/modules when that keeps the design clearer, reduces coupling, or makes future feature types easier to add.</span><br></pre></td></tr></table></figure>
+
+<p>我首先选择维护项目的定位、每个文件夹的作用，并要求 Agent 保持代码解耦，在合适的地方拆分为不同的文件、不同的模块。</p>
+<p>代码维护不过来，那就重点维护代码结构。</p>
+<p>代码结构也开始复杂，那就重点维护模块之间的关系、接口和文档。</p>
+<p>文档越来越多，那就再建立文档的文档、目录的目录。</p>
+<p><strong>这不是放弃下面的细节，而是不再要求所有细节始终处于自己的视野之内。</strong></p>
+<p>我的第二个建议是<strong>不要追求局部完美，保证整体持续向上</strong>：</p>
+<p>只要一个修改是必要的，并且经过了足够的验证，那就合并。没有必要因为其中几行代码自己没有完全理解，就让整个开发停下来。</p>
+<p>今天 Agent 多写了一个模块，明天发现抽象得不好，那就重构；这次的设计不够好，下次继续调整。软件本来就是在一次次提交中逐渐演进出来的。</p>
+<p>所以我不要求每一次提交都是完美的，也不要求每一行代码始终在人的视野里面。<strong>只要每一次修改是必要且经过验证的，整个 Codebase 的结构、边界和能力是在往上走，那就继续往前。</strong></p>
+<p>未来 Code 可能依然是最终最精确的交付件，但人未必需要始终工作在 Code 这个颗粒度上。</p>
+<p>代码下面继续快速生长，人在更高的地方维护结构、边界和意图。需要的时候，再进入某一片代码，把那里的迷雾暂时驱散。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/07/11/%E4%BB%8E%E9%B8%A1%E6%B1%A4%E6%96%87%E5%88%B0Agent%E7%9A%84%E7%9B%AE%E6%A0%87/" rel="prev" title="从鸡汤文到Agent的目标">
+                  <i class="fa fa-angle-left"></i> 从鸡汤文到Agent的目标
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zhangjian He</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
