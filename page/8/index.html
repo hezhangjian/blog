@@ -163,7 +163,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-count">148</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -194,6 +194,118 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/03/31/%E4%B8%80%E6%AD%A5%E4%B8%80%E6%AD%A5%E6%95%99%E4%BD%A0%E5%86%99kubernetes%20sidecar/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/kubernetes-sidecar" class="post-title-link post-title-link-external" itemprop="url">一步一步教你写kubernetes sidecar<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-03-31 08:45:32" itemprop="dateCreated datePublished" datetime="2022-03-31T08:45:32+08:00">2022-03-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="什么是sidecar？"><a href="#什么是sidecar？" class="headerlink" title="什么是sidecar？"></a>什么是sidecar？</h1><p><img src="/Images/kubernetes-sidecar-what-is.png" alt="kubernetes-sidecar-what-is"></p>
+<p>sidecar，直译为边车。 如上图所示，边车就是加装在摩托车旁来达到拓展功能的目的，比如行驶更加稳定，可以拉更多的人和货物，坐在边车上的人可以给驾驶员指路等。边车模式通过给应用服务加装一个“边车”来达到<strong>控制</strong>和<strong>逻辑</strong>的分离的目的。</p>
+<p>对于微服务来讲，我们可以用边车模式来做诸如 日志收集、服务注册、服务发现、限流、鉴权等不需要业务服务实现的控制面板能力。通常和边车模式比较的就是像<strong>spring-cloud</strong>那样的sdk模式，像上面提到的这些能力都通过sdk实现。</p>
+<p><img src="/Images/kubernetes-sidecar-what-can-do.png" alt="kubernetes-sidecar-what-can-do"></p>
+<p>这两种实现模式各有优劣，sidecar模式会引入额外的性能损耗以及延时，但传统的sdk模式会让代码变得臃肿并且升级复杂，控制面能力和业务面能力不能分开升级。</p>
+<p>本文的代码已经上传到<a target="_blank" rel="noopener" href="https://gitee.com/hezhangjian/sidecar-examples.git">gitee</a></p>
+<h1 id="sidecar-实现原理"><a href="#sidecar-实现原理" class="headerlink" title="sidecar 实现原理"></a>sidecar 实现原理</h1><p>介绍了sidecar的诸多功能，但是，sidecar是如何做到这些能力的呢？</p>
+<p>原来，在kubernetes中，一个pod是部署的最小单元，但一个pod里面，允许运行多个container(容器)，多个container(容器)之间共享存储卷和网络栈。这样子，我们就可以多container来做sidecar，或者init-container（初始化容器）来调整挂载卷的权限</p>
+<p><img src="/Images/kubernetes-sidecar-inside.png" alt="kubernetes-sidecar-inside"></p>
+<h1 id="日志收集sidecar"><a href="#日志收集sidecar" class="headerlink" title="日志收集sidecar"></a>日志收集sidecar</h1><p>日志收集sidecar的原理是利用多个container间可以共用挂载卷的原理实现的，通过将应用程序的日志路径挂出，用另一个程序访问路径下的日志来实现日志收集，这里用cat来替代了日志收集，部署yaml模板如下</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">webserver</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-logs</span></span><br><span class="line">      <span class="attr">emptyDir:</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">ttbb/nginx:mate</span></span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-logs</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/opt/sh/openresty/nginx/logs</span></span><br><span class="line"></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">sidecar-container</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">ttbb/base</span></span><br><span class="line">      <span class="attr">command:</span> [<span class="string">&quot;sh&quot;</span>,<span class="string">&quot;-c&quot;</span>,<span class="string">&quot;while true; do cat /opt/sh/openresty/nginx/logs/nginx.pid; sleep 30; done&quot;</span>]</span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-logs</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/opt/sh/openresty/nginx/logs</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>使用kubectl create -f 创建pod，通过kubectl logs命令就可以看到sidecar-container打印的日志输出</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl logs webserver sidecar-container</span><br></pre></td></tr></table></figure>
+
+<h1 id="转发请求sidecar"><a href="#转发请求sidecar" class="headerlink" title="转发请求sidecar"></a>转发请求sidecar</h1><p>这一节我们来实现，一个给应用程序转发请求的sidecar，应用程序代码如下</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::io::prelude::*;</span><br><span class="line"><span class="keyword">use</span> std::net::&#123;TcpListener, TcpStream&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">listener</span> = TcpListener::<span class="title function_ invoke__">bind</span>(<span class="string">&quot;127.0.0.1:7878&quot;</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">stream</span> <span class="keyword">in</span> listener.<span class="title function_ invoke__">incoming</span>() &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">stream</span> = stream.<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">        <span class="title function_ invoke__">handle_connection</span>(stream);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Hello, world!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">handle_connection</span>(<span class="keyword">mut</span> stream: TcpStream) &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">buffer</span> = [<span class="number">0</span>; <span class="number">1024</span>];</span><br><span class="line"></span><br><span class="line">    stream.<span class="title function_ invoke__">read</span>(&amp;<span class="keyword">mut</span> buffer).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">contents</span> = <span class="string">&quot;Hello&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">response</span> = <span class="built_in">format!</span>(</span><br><span class="line">        <span class="string">&quot;HTTP/1.1 200 OK\r\nContent-Length: &#123;&#125;\r\n\r\n&#123;&#125;&quot;</span>,</span><br><span class="line">        contents.<span class="title function_ invoke__">len</span>(),</span><br><span class="line">        contents</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;receive a request!&quot;</span>);</span><br><span class="line">    stream.<span class="title function_ invoke__">write</span>(response.<span class="title function_ invoke__">as_bytes</span>()).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    stream.<span class="title function_ invoke__">flush</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们再来写一个sidecar，它会每15秒向应用程序发出请求</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">loop</span> &#123;</span><br><span class="line">        thread::<span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_secs</span>(<span class="number">15</span>));</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">response</span> = reqwest::blocking::<span class="title function_ invoke__">get</span>(<span class="string">&quot;http://localhost:7878&quot;</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, response.<span class="title function_ invoke__">text</span>().<span class="title function_ invoke__">unwrap</span>())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过仓库下的<code>intput/build.sh</code>脚本构造镜像，运行yaml如下</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">webserver</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">input-server</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">sidecar-examples:input-http-server</span></span><br><span class="line"></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">input-sidecar</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">sidecar-examples:sidecar-input</span></span><br></pre></td></tr></table></figure>
+<p>通过查看<strong>kubectl logs input input-http-server</strong>可以看到input-http-server收到了请求</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">receive a request!</span><br><span class="line">receive a request!</span><br></pre></td></tr></table></figure>
+<h1 id="拦截请求sidecar"><a href="#拦截请求sidecar" class="headerlink" title="拦截请求sidecar"></a>拦截请求sidecar</h1><p>应用程序代码，它会每15s向<code>localhost</code>发出请求</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hezhangjian.sidecar</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> akka.actor.typed.<span class="type">ActorSystem</span></span><br><span class="line"><span class="keyword">import</span> akka.actor.typed.scaladsl.<span class="type">Behaviors</span></span><br><span class="line"><span class="keyword">import</span> akka.http.scaladsl.<span class="type">Http</span></span><br><span class="line"><span class="keyword">import</span> akka.http.scaladsl.model._</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> scala.concurrent.&#123;<span class="type">ExecutionContextExecutor</span>, <span class="type">Future</span>&#125;</span><br><span class="line"><span class="keyword">import</span> scala.util.&#123;<span class="type">Failure</span>, <span class="type">Success</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">HttpClient</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="type">Thread</span>.sleep(<span class="number">15</span>_000L)</span><br><span class="line">            <span class="keyword">implicit</span> <span class="keyword">val</span> system: <span class="type">ActorSystem</span>[<span class="type">Nothing</span>] = <span class="type">ActorSystem</span>(<span class="type">Behaviors</span>.empty, <span class="string">&quot;SingleRequest&quot;</span>)</span><br><span class="line">            <span class="comment">// needed for the future flatMap/onComplete in the end</span></span><br><span class="line">            <span class="keyword">implicit</span> <span class="keyword">val</span> executionContext: <span class="type">ExecutionContextExecutor</span> = system.executionContext</span><br><span class="line"></span><br><span class="line">            <span class="keyword">val</span> responseFuture: <span class="type">Future</span>[<span class="type">HttpResponse</span>] = <span class="type">Http</span>().singleRequest(<span class="type">HttpRequest</span>(uri = <span class="string">&quot;http://localhost:7979/hello&quot;</span>))</span><br><span class="line"></span><br><span class="line">            responseFuture</span><br><span class="line">                    .onComplete &#123;</span><br><span class="line">                        <span class="keyword">case</span> <span class="type">Success</span>(res) =&gt; println(res)</span><br><span class="line">                        <span class="keyword">case</span> <span class="type">Failure</span>(_) =&gt; sys.error(<span class="string">&quot;something wrong&quot;</span>)</span><br><span class="line">                    &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们再来写一个sidecar，它会拦截http请求并打印日志</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hezhangjian.sidecar</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> akka.actor.typed.<span class="type">ActorSystem</span></span><br><span class="line"><span class="keyword">import</span> akka.actor.typed.scaladsl.<span class="type">Behaviors</span></span><br><span class="line"><span class="keyword">import</span> akka.http.scaladsl.<span class="type">Http</span></span><br><span class="line"><span class="keyword">import</span> akka.http.scaladsl.model._</span><br><span class="line"><span class="keyword">import</span> akka.http.scaladsl.server.<span class="type">Directives</span>._</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> scala.concurrent.<span class="type">ExecutionContextExecutor</span></span><br><span class="line"><span class="keyword">import</span> scala.io.<span class="type">StdIn</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">HttpServer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">implicit</span> <span class="keyword">val</span> system: <span class="type">ActorSystem</span>[<span class="type">Nothing</span>] = <span class="type">ActorSystem</span>(<span class="type">Behaviors</span>.empty, <span class="string">&quot;my-system&quot;</span>)</span><br><span class="line">        <span class="comment">// needed for the future flatMap/onComplete in the end</span></span><br><span class="line">        <span class="keyword">implicit</span> <span class="keyword">val</span> executionContext: <span class="type">ExecutionContextExecutor</span> = system.executionContext</span><br><span class="line"></span><br><span class="line">        <span class="keyword">val</span> route =</span><br><span class="line">            path(<span class="string">&quot;hello&quot;</span>) &#123;</span><br><span class="line">                get &#123;</span><br><span class="line">                    println(<span class="string">&quot;receive a request&quot;</span>)</span><br><span class="line">                    complete(<span class="type">HttpEntity</span>(<span class="type">ContentTypes</span>.`text/html(<span class="type">UTF</span><span class="number">-8</span>)`, <span class="string">&quot;&lt;h1&gt;Say hello to akka-http&lt;/h1&gt;&quot;</span>))</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">val</span> bindingFuture = <span class="type">Http</span>().newServerAt(<span class="string">&quot;localhost&quot;</span>, <span class="number">7979</span>).bind(route)</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="type">Thread</span>.sleep(<span class="number">15</span>_000L)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过仓库下的<code>output/build.sh</code>脚本构造镜像，运行yaml如下</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">output</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-logs</span></span><br><span class="line">      <span class="attr">emptyDir:</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">output-workload</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">sidecar-examples:output-workload</span></span><br><span class="line">      <span class="attr">imagePullPolicy:</span> <span class="string">Never</span></span><br><span class="line"></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">sidecar-output</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">sidecar-examples:sidecar-output</span></span><br><span class="line">      <span class="attr">imagePullPolicy:</span> <span class="string">Never</span></span><br></pre></td></tr></table></figure>
+
+<p>通过查看<strong>kubectl logs output output-workload</strong>可以看到output-sidecar收到了请求</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:15:47 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:16:02 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:16:17 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:16:32 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:16:47 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:17:02 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:17:17 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:17:32 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +352,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -342,7 +454,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -445,7 +557,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -530,7 +642,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -625,7 +737,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -706,7 +818,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -810,7 +922,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -915,7 +1027,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1025,7 +1137,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1048,107 +1160,6 @@
 <h2 id="通过kill命令获取core-file"><a href="#通过kill命令获取core-file" class="headerlink" title="通过kill命令获取core file"></a>通过kill命令获取core file</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">kill</span> -11 <span class="variable">$pid</span></span><br></pre></td></tr></table></figure>
 
 <p><img src="/Images/mysql-core-dump2.png" alt="image-20211016233105059"></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/10/12/%E5%B0%86Rust%E7%A8%8B%E5%BA%8F%E6%89%98%E7%AE%A1%E7%BB%99Systemd%E8%BF%90%E8%A1%8C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/10/12/%E5%B0%86Rust%E7%A8%8B%E5%BA%8F%E6%89%98%E7%AE%A1%E7%BB%99Systemd%E8%BF%90%E8%A1%8C/" class="post-title-link" itemprop="url">将Rust程序托管给Systemd运行</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-10-12 18:25:48" itemprop="dateCreated datePublished" datetime="2021-10-12T18:25:48+08:00">2021-10-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>将程序(以rust程序为例)托管为<code>Systemd</code>运行比较容易，步骤分为以下几步</p>
-<ul>
-<li>生成rust二进制文件</li>
-<li>创建专用用户和用户组（可省略）</li>
-<li>书写<code>.service</code>文件</li>
-<li>通过<code>systemctl</code>启动</li>
-</ul>
-<p>接下来我们以ubuntu、简单的rust web程序为例，演示一个简单的<code>rust</code>程序如何托管给<code>Systemd</code>运行</p>
-<h2 id="生成rust二进制文件"><a href="#生成rust二进制文件" class="headerlink" title="生成rust二进制文件"></a>生成rust二进制文件</h2><h3 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tokio = &#123; version = &quot;1&quot;, features = [&quot;full&quot;] &#125;</span><br><span class="line">warp = &quot;0.3&quot;</span><br></pre></td></tr></table></figure>
-
-<h3 id="书写简单代码"><a href="#书写简单代码" class="headerlink" title="书写简单代码"></a>书写简单代码</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> warp::Filter;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// GET /hello/warp =&gt; 200 OK with body &quot;Hello, warp!&quot;</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">hello</span> = warp::path!(<span class="string">&quot;hello&quot;</span> / <span class="type">String</span>)</span><br><span class="line">        .<span class="title function_ invoke__">map</span>(|name| <span class="built_in">format!</span>(<span class="string">&quot;Hello, &#123;&#125;!&quot;</span>, name));</span><br><span class="line"></span><br><span class="line">    warp::<span class="title function_ invoke__">serve</span>(hello)</span><br><span class="line">        .<span class="title function_ invoke__">run</span>(([<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>], <span class="number">3030</span>))</span><br><span class="line">        .<span class="keyword">await</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="编译生成二进制"><a href="#编译生成二进制" class="headerlink" title="编译生成二进制"></a>编译生成二进制</h3><p><code>cargo build --release</code></p>
-<p>二进制就在<code>target/release</code>中</p>
-<h2 id="创建专用用户和用户组"><a href="#创建专用用户和用户组" class="headerlink" title="创建专用用户和用户组"></a>创建专用用户和用户组</h2><p>为了更细粒度地授权和文件权限控制，我们可以给守护程序创建专用的用户</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> useradd vmproxy -s /sbin/nologin -M</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="书写-service文件"><a href="#书写-service文件" class="headerlink" title="书写.service文件"></a>书写<code>.service</code>文件</h2><p><code>.service</code>文件在<code>ubuntu</code>应该放到<code>/lib/systemd/system/</code>路径下。样例如下<code>vm-proxy.service</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Vm Proxy</span><br><span class="line">ConditionPathExists=/home/ubuntu/rust/vm-proxy/target/release/vm-proxy-rust</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">User=vmproxy</span><br><span class="line">Group=vmproxy</span><br><span class="line">LimitNOFILE=1024</span><br><span class="line"></span><br><span class="line">Restart=on-failure</span><br><span class="line">RestartSec=10</span><br><span class="line"></span><br><span class="line">WorkingDirectory=/home/ubuntu/rust/vm-proxy/target/release</span><br><span class="line">ExecStart=/home/ubuntu/rust/vm-proxy/target/release/vm-proxy-rust</span><br><span class="line"></span><br><span class="line"># make sure log directory exists and owned by syslog</span><br><span class="line">PermissionsStartOnly=true</span><br><span class="line">ExecStartPre=/bin/mkdir -p /var/log/vm-proxy</span><br><span class="line">ExecStartPre=/bin/chown syslog:adm /var/log/vm-proxy</span><br><span class="line">ExecStartPre=/bin/chmod 755 /var/log/vm-proxy</span><br><span class="line">StandardOutput=syslog</span><br><span class="line">StandardError=syslog</span><br><span class="line">SyslogIdentifier=vm-proxy</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
-
-<p><code>ConditionPathExists</code>、<code>WorkingDirectory</code>、 <code>ExecStart</code> 这三个参数需要根据自己的路径修改</p>
-<h2 id="通过Systemctl启动"><a href="#通过Systemctl启动" class="headerlink" title="通过Systemctl启动"></a>通过<code>Systemctl</code>启动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> vm-proxy.service</span><br><span class="line"><span class="built_in">sudo</span> systemctl start vm-proxy.service</span><br></pre></td></tr></table></figure>
-
-<h2 id="验证启动完成"><a href="#验证启动完成" class="headerlink" title="验证启动完成"></a>验证启动完成</h2><p><img src="/Images/rust-systemd1.png" alt="image-20211012165631993"></p>
 
       
     </div>

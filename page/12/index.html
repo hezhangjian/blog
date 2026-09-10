@@ -163,7 +163,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-count">148</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -194,6 +194,136 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/05/06/Pulsar%20broker%E9%87%87%E6%A0%B7%E8%BF%BD%E8%B8%AA%E5%8F%8A%E5%AF%B9%E6%8E%A5skywalking/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/05/06/Pulsar%20broker%E9%87%87%E6%A0%B7%E8%BF%BD%E8%B8%AA%E5%8F%8A%E5%AF%B9%E6%8E%A5skywalking/" class="post-title-link" itemprop="url">Pulsar broker采样追踪及对接skywalking</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-06 22:14:31" itemprop="dateCreated datePublished" datetime="2021-05-06T22:14:31+08:00">2021-05-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="为什么要采样追踪对接SkyWalking"><a href="#为什么要采样追踪对接SkyWalking" class="headerlink" title="为什么要采样追踪对接SkyWalking"></a>为什么要采样追踪对接SkyWalking</h3><p>为了提升Pulsar的可维护性，我们希望能深入<code>pulsar</code>和<code>bookkeeper</code>的底层，做性能剖析，识别中间延时高的环节，然后很方便地进行定位分析。</p>
+<p>为什么Pulsar原生的普罗监控无法满足</p>
+<ul>
+<li>部门基础设施方面，所有环境都集成了ELK，大部分环境都没有普罗，且部门正在引入SkyWalking。</li>
+<li>普罗的监控无法和用户的一条消息对应，较难处理单个客户保障。</li>
+</ul>
+<p>幸运的是，这两个问题都可以通过采样跟踪来解决。并且在合理的采样跟踪配置下，测试环境可以达成百分百采样追踪，对于我们定位测试环境问题非常方便。</p>
+<p>我们就想到了使用经典的采样追踪模式来对数据进行采样，将数据输出到SkyWalking进行下一步的分析、告警。并且在没有对接SkyWalking的环境，通过日志输出来进行下一步的分析、告警</p>
+<h3 id="Sample-Tracing-Basic"><a href="#Sample-Tracing-Basic" class="headerlink" title="Sample Tracing Basic"></a>Sample Tracing Basic</h3><p><img src="/Images/pulsar-skywalking1.png" alt="image-20210424091405442"></p>
+<ul>
+<li>通过<code>traceId</code>和<code>spanId</code>结合，识别一条链路。</li>
+<li>每个<code>spanId</code>中间计算耗时</li>
+<li>为了性能，不会每个<code>spanId</code>和<code>traceId</code>都收集分析，会进行采样（收集部分消息、收集时延较大的消息）</li>
+</ul>
+<p>注：SkyWalking采用STAM来进行拓扑分析，并且引入了Segment等概念来表达进程内、进程外等含义，但大致原理相同。</p>
+<h3 id="SkyWalking-Architecture"><a href="#SkyWalking-Architecture" class="headerlink" title="SkyWalking Architecture"></a>SkyWalking Architecture</h3><p><img src="/Images/pulsar-skywalking2.jpeg" alt="Image"></p>
+<h3 id="Trace-Internal-In-Pulsar"><a href="#Trace-Internal-In-Pulsar" class="headerlink" title="Trace Internal In Pulsar"></a>Trace Internal In Pulsar</h3><p>目前，我们将追踪的头部消息放在<code>BrokerMetadata</code>处，以下为追踪数据流向</p>
+<h4 id="message"><a href="#message" class="headerlink" title="message"></a>message</h4><p><img src="/Images/pulsar-skywalking3.png" alt="image-20210506200048088"></p>
+<h4 id="batch-message"><a href="#batch-message" class="headerlink" title="batch message"></a>batch message</h4><p><img src="/Images/pulsar-skywalking4.png" alt="image-20210506200035405"></p>
+<h3 id="Two-ways-output"><a href="#Two-ways-output" class="headerlink" title="Two ways output"></a>Two ways output</h3><h4 id="Logging"><a href="#Logging" class="headerlink" title="Logging"></a>Logging</h4><p>可在ELK上展示，搜索时延大的消息。（注：如搜索4位数的消息）。</p>
+<h4 id="SkyWalking"><a href="#SkyWalking" class="headerlink" title="SkyWalking"></a>SkyWalking</h4><p>可依赖SkyWalking进行分析，告警。</p>
+<h4 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>Logging</th>
+<th>SkyWalking</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>采样方式</td>
+<td>SkyWalking Way</td>
+<td>SkyWalking Way</td>
+</tr>
+<tr>
+<td>输出格式</td>
+<td>Logging</td>
+<td>SkyWalking protocol through kafka</td>
+</tr>
+<tr>
+<td>追踪数据传播方式</td>
+<td>protobuf、Broker Metadata</td>
+<td>protobuf、Broker Metadata</td>
+</tr>
+</tbody></table>
+<h3 id="Beyond-SkyWalking"><a href="#Beyond-SkyWalking" class="headerlink" title="Beyond SkyWalking"></a>Beyond SkyWalking</h3><p>在SkyWalking的采样算法之上，支持对时延大的消息再进行采样，输出到日志，进行分析、告警。</p>
+<p>采样规则</p>
+<ul>
+<li>全局一秒最多xx条，单topic一秒最多xx条</li>
+<li>采样时延大于xx的消息</li>
+</ul>
+<h3 id="Follow-up"><a href="#Follow-up" class="headerlink" title="Follow-up"></a>Follow-up</h3><ul>
+<li>将Pulsar和Bookkeeper的metric信息上报到SkyWalking，使得在SkyWalking分析、告警更多信息。</li>
+<li>使用agent方式实现，避免和SkyWalking协议过度耦合</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +370,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -339,7 +469,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -433,7 +563,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -597,7 +727,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -705,7 +835,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -806,7 +936,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -933,7 +1063,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1027,7 +1157,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1117,7 +1247,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1184,94 +1314,6 @@
 <li>针对批系统，能力有限</li>
 <li>根因分析，需要联合分析，比如在annotation中携带线程池队列大小，进行多个请求的联合分析等</li>
 <li>如何和Linux内核关联，如何将错误和内核联系起来</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/03/19/LVS%20persistent%20timeout%E5%92%8Cconnection%20timeout%E8%A7%A3%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/lvs-timeout-analyze" class="post-title-link post-title-link-external" itemprop="url">LVS persistent timeout和connection timeout解析<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-03-19 18:56:54" itemprop="dateCreated datePublished" datetime="2021-03-19T18:56:54+08:00">2021-03-19</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="两个超时的注释"><a href="#两个超时的注释" class="headerlink" title="两个超时的注释"></a>两个超时的注释</h1><p>首先看一下一下<code>ipvsadm -h</code>对这两个参数的注释</p>
-<h2 id="persistent-timeout"><a href="#persistent-timeout" class="headerlink" title="persistent timeout"></a>persistent timeout</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">--persistent  -p [timeout]     persistent service</span><br><span class="line">Specify that a virtual service is persistent. If this option is specified, multiple requests from a client are redirected to the same real server selected for the first request. Optionally, the timeout of persistent sessions may be specified given in seconds, otherwise the default of 300 seconds will be used. This option may be used in conjunction with protocols such as SSL or FTP where it is important that clients consistently connect with the same real server.</span><br></pre></td></tr></table></figure>
-
-<p>说明这个VS是否是持久的。如果配置了这个选项，来自同一个客户端的链接（这里注意：这里的同一个客户端指的是同一个IP）会转发向相同的服务器。注释中特意提到了FTP协议。我查阅了一下资料，可能像FTP协议这种，客户端通过21端口打开控制连接，再通过20端口打开数据连接，这种协议，要求来自同一个客户端ip，不同端口的请求也送向同一个服务器，估计是这个参数存在的核心原因。如果是现在的系统，比如k8s使用ipvs，这个参数是完全没必要配置的</p>
-<h2 id="connection-timeout"><a href="#connection-timeout" class="headerlink" title="connection timeout"></a>connection timeout</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">--set tcp tcpfin udp</span><br><span class="line">Change the timeout values used for IPVS connections. This command always takes 3 parameters, representing the timeout values (in seconds) for TCP sessions, TCP sessions after receiving a FIN packet, and UDP packets, respectively. A timeout value 0 means that the current timeout value of the corresponding entry is preserved.</span><br></pre></td></tr></table></figure>
-
-<p>更改用于ipvs连接的超时值。此命令始终使用3个参数，分别表示tcp会话，接收到FIN包的TCP会话和UDP包的超时值。单位为秒。设置为0并不代表将超时值设置为0，而是保持原有不变。顺便来说，<code>timeout</code>的默认值是900、120、300.</p>
-<h2 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h2><p>一个以客户端ip为维度，一个以客户端ip+port为维度</p>
-<h2 id="联系："><a href="#联系：" class="headerlink" title="联系："></a>联系：</h2><ul>
-<li>persistent值大于等于set时，persistent timeout以persistent的设置为准。</li>
-<li>persistent值小于set时，当set超时，但persistent超时后，会将persistent再次设置为60。只到set超时为止。所以这个时候，真实生效的persistent timeout是<code>(s/60)*60 + p%60 + 60</code></li>
 </ul>
 
       

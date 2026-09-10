@@ -163,7 +163,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-count">148</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -194,6 +194,99 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2020/01/12/Java%20Ping%E5%91%BD%E4%BB%A4%E5%BF%83%E8%B7%B3%E6%8E%A2%E6%B5%8B%20InetAddress%20isReachable%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/java-ping" class="post-title-link post-title-link-external" itemprop="url">Java Ping命令心跳探测 InetAddress isReachable分析<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-01-12 09:35:09" itemprop="dateCreated datePublished" datetime="2020-01-12T09:35:09+08:00">2020-01-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="业务需求分析与解决方案"><a href="#业务需求分析与解决方案" class="headerlink" title="业务需求分析与解决方案"></a>业务需求分析与解决方案</h1><p>在业务场景中，当需要利用ping命令对主机进行心跳探测时，直接在代码中fork进程执行ping命令虽然可行，但这种方法开销较大，并且处理流程易出错，与使用标准库相比缺乏优雅性。因此，本文探讨了使用Java的InetAddress类的isReachable方法作为替代方案。</p>
+<p>根据资料指出，Java的InetAddress类在root用户权限下通过执行ping命令进行探测，在非root用户权限下则通过访问TCP端口7进行探测。为验证这一点，本文撰写了相应的demo代码并进行了测试（详见：<a target="_blank" rel="noopener" href="https://github.com/hezhangjian/heart-beat">GitHub - heart-beat</a>）。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">import lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line">import java.net.InetAddress;</span><br><span class="line"></span><br><span class="line">@Slf4j</span><br><span class="line">public class PingTestMain &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws Exception &#123;</span><br><span class="line">        String testIp = System.getProperty(&quot;TestIp&quot;);</span><br><span class="line">        InetAddress inetAddress = InetAddress.getByName(testIp);</span><br><span class="line">        boolean addressReachable = inetAddress.isReachable(500);</span><br><span class="line">        log.info(&quot;address is reachable is &#123;&#125;&quot;, addressReachable);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="测试实验"><a href="#测试实验" class="headerlink" title="测试实验"></a>测试实验</h1><h2 id="root用户下执行程序"><a href="#root用户下执行程序" class="headerlink" title="root用户下执行程序"></a>root用户下执行程序</h2><p><img src="/Images/java-ping-root-success.png" alt="java-ping-root-success.png"></p>
+<p>java程序打印结果也是true</p>
+<h2 id="在普通用户权限下的测试"><a href="#在普通用户权限下的测试" class="headerlink" title="在普通用户权限下的测试"></a>在普通用户权限下的测试</h2><p><img src="/Images/java-ping-user-fail.png" alt="java-ping-user-fail.png"></p>
+<p>此时可以看到,我们的客户端程序向目标tcp7端口发送了一个报文,虽然java程序打印结果为true,但是因为收到了RST包导致的.在当今的网络安全要求下,7端口往往不会开放</p>
+<h2 id="在目标网络屏蔽TCP端口7的情况下执行程序"><a href="#在目标网络屏蔽TCP端口7的情况下执行程序" class="headerlink" title="在目标网络屏蔽TCP端口7的情况下执行程序"></a>在目标网络屏蔽TCP端口7的情况下执行程序</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -A INPUT -p tcp --dport 7 -j DROP</span><br></pre></td></tr></table></figure>
+
+<p>发送的报文没有收到RST包,此时java程序返回false.不是我们预期的结果</p>
+<h2 id="普通用户权限下携带特权的测试"><a href="#普通用户权限下携带特权的测试" class="headerlink" title="普通用户权限下携带特权的测试"></a>普通用户权限下携带特权的测试</h2><p>进一步的研究发现，Java程序发送ping命令需要创建raw socket，这要求程序具有root权限或cap_net_raw权限。赋予Java程序创建raw socket的权限后重新测试，发现程序能够正确发送ping命令，达到预期效果。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setcap cap_net_raw+ep /usr/java/jdk-13.0.1/bin/java</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>发现如下报错</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java: error while loading shared libraries: libjli.so: cannot open shared object file: No such file or directory</span><br></pre></td></tr></table></figure>
+<p>使用<a target="_blank" rel="noopener" href="https://askubuntu.com/questions/334365/how-to-add-a-directory-to-linker-command-line-in-linux%E8%A7%84%E9%81%BF%E6%B7%BB%E5%8A%A0so%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90">https://askubuntu.com/questions/334365/how-to-add-a-directory-to-linker-command-line-in-linux规避添加so文件权限</a></p>
+<p>随后抓包,发现还是发送了ping命令,达到了我们预期的效果</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文通过一系列测试得出结论，root用户权限下的Java程序会使用ping命令进行探测。若普通用户不具备相应权限，则会尝试探测TCP端口7，但在安全组未开启该端口的情况下会导致预期结果不一致。推荐赋予java程序特权,使得InetAddress类能够使用ping命令进行探测</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +333,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -334,7 +427,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -454,7 +547,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -561,7 +654,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -789,7 +882,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -955,7 +1048,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -969,13 +1062,17 @@
     
     <div class="post-body" itemprop="articleBody">
           <p>原文：<a target="_blank" rel="noopener" href="http://android-developers.blogspot.sg/2009/01/avoiding-memory-leaks.html">http://android-developers.blogspot.sg/2009/01/avoiding-memory-leaks.html</a></p>
-<p>Android中堆的内存是有限的，你应当使用尽量小的内存。因为Android能在内存中保存越多的应用，对于用户来说，切换应用就会十分的迅速。相当多的内存泄漏的原因是因为：保持了一个对context的长引用(long-lived)。<br>    在Android中，Context可以用来做许多事情，不过大部分是用来加载和获取资源。这就是为什么所有的视图组件在构造方法里面需要context作为参数的原因。有两种Context，Activity和Application，通常使用第一个。比如:</p>
+<p>Android中堆的内存是有限的，你应当使用尽量小的内存。因为Android能在内存中保存越多的应用，对于用户来说，切换应用就会十分的迅速。相当多的内存泄漏的原因是因为：保持了一个对context的长引用(long-lived)。</p>
+<p>在Android中，Context可以用来做许多事情，不过大部分是用来加载和获取资源。这就是为什么所有的视图组件在构造方法里面需要context作为参数的原因。有两种Context，Activity和Application，通常使用第一个。比如:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">TextView</span> <span class="variable">label</span> <span class="operator">=</span><span class="keyword">new</span> <span class="title class_">TextView</span>(<span class="built_in">this</span>);</span><br></pre></td></tr></table></figure>
-<p>这代表着views持有一个对于activity的引用。所以，如果你泄漏了Context(你保留了一个对它的引用，在GC的时候保护了它)。如果你不够小心的话，泄漏掉整个Activity是很容易的。<br>    当屏幕的显示方向发生变化时，系统将会(默认)销毁现在的Activity，维护它的一些数据然后新建一个Activity。如果这样做的话，Android 将会重新读取UI。想象一下，你在你的应用里面使用了一个大bitmap，你不想每次旋转的时候都重新加载它。最简单的方法就是把它放在一个静态域里面。</p>
+
+<p>这代表着views持有一个对于activity的引用。所以，如果你泄漏了Context(你保留了一个对它的引用，在GC的时候保护了它)。如果你不够小心的话，泄漏掉整个Activity是很容易的。</p>
+<p>当屏幕的显示方向发生变化时，系统将会(默认)销毁现在的Activity，维护它的一些数据然后新建一个Activity。如果这样做的话，Android 将会重新读取UI。想象一下，你在你的应用里面使用了一个大bitmap，你不想每次旋转的时候都重新加载它。最简单的方法就是把它放在一个静态域里面。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Drawable sBackground;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line">Protected <span class="type">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle state)</span>&#123;</span><br><span class="line">    <span class="built_in">super</span>.onCreate(state);</span><br><span class="line">    <span class="type">TextView</span> <span class="variable">label</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TextView</span>(<span class="built_in">this</span>);</span><br><span class="line">    label.setText(<span class="string">&quot;Leaks are bad&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span>(sBackground == <span class="literal">null</span>)&#123;</span><br><span class="line">        sBackground = getDrawable(R.drawable.hezhangjian);</span><br><span class="line">    &#125;</span><br><span class="line">    label.setBackgroundDrawable(sBackground);</span><br><span class="line">    setContentView(label);</span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
 
 
-<p>上述代码很快但是是错误的，它泄漏了在第一次屏幕旋转之前的Activity。当一个Drawable连系在view上时，view就像被设置为drawable的回调一样。对于上面的代码，就是说drawable持有了对于textview的引用，而textview又持有了activity的引用。这就把Activity泄漏掉了。当Activity被销毁的时候，把drawable的回调设置为null。<br>    有两种简单的方式去避免内存泄漏。第一个就是避免context超范围的使用。例子上展示的是静态引用但是内部类以及他们持有的对外部类的明确引用也同样危险。第二个解决方法，利用Application context，这个context的存活时间跟你的应用一样久。如果打算保持一个长久的对象，就用 Context.getApplicationContext() 或者 Activity.getApplication()。</p>
+<p>上述代码很快但是是错误的，它泄漏了在第一次屏幕旋转之前的Activity。当一个Drawable连系在view上时，view就像被设置为drawable的回调一样。对于上面的代码，就是说drawable持有了对于textview的引用，而textview又持有了activity的引用。这就把Activity泄漏掉了。当Activity被销毁的时候，把drawable的回调设置为null。</p>
+<p>有两种简单的方式去避免内存泄漏。第一个就是避免context超范围的使用。例子上展示的是静态引用但是内部类以及他们持有的对外部类的明确引用也同样危险。第二个解决方法，利用Application context，这个context的存活时间跟你的应用一样久。如果打算保持一个长久的对象，就用 Context.getApplicationContext() 或者 Activity.getApplication()。</p>
 
       
     </div>
@@ -1038,7 +1135,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   

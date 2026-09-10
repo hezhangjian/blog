@@ -163,7 +163,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-count">148</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -194,6 +194,162 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2023/02/09/%E6%8F%AD%E7%A7%98MySQL%20TLS%EF%BC%9A%E9%80%9A%E8%BF%87%E6%8A%93%E5%8C%85%E4%BA%86%E8%A7%A3%E7%9C%9F%E5%AE%9E%E7%9A%84%E5%8A%A0%E5%AF%86%E9%80%9A%E4%BF%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/mysql-default-tls" class="post-title-link post-title-link-external" itemprop="url">揭秘MySQL TLS：通过抓包了解真实的加密通信<i class="fa fa-external-link-alt"></i></a>
+          
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-02-09 08:21:43" itemprop="dateCreated datePublished" datetime="2023-02-09T08:21:43+08:00">2023-02-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>你的mysql客户端和服务端之间开启tls了吗？你的回答可能是No，我没有申请证书，也没有开启mysql客户端，服务端的tls配置。</p>
+<p>可是当你抓取了3306 mysql的端口之后，你会发现，抓出来的包里居然有Client Hello、Server Hello这样的典型TLS报文。</p>
+<p><img src="/Images/mysql-tls-pcap.png" alt="mysql-tls-pcap"></p>
+<p>其实，Mysql的通信是否加密，是由客户端和服务端共同协商是否开启的，客户端与服务端都处于默认配置下的话，有些类似于StartTls。</p>
+<h2 id="服务端侧"><a href="#服务端侧" class="headerlink" title="服务端侧"></a>服务端侧</h2><p>在连接建立时，Mysql服务端会返回一个<strong>Server Greeting</strong>，其中包含了一些关于服务端的信息，比如协议版本、Mysql版本等等。在其中有一个flag的集合字段，名为<br><strong>Capabilities Flag</strong>，顾名思义，这就是用来做兼容性，或者说特性开关的flag，大小为2个字节，其中的第12位，代表着<strong>CLIENT_SSL</strong><br>，如果设置为1，那代表着如果客户端具备能力，服务端可以在后面的会话中切换到TLS。可以看到里面还有一些其他的flag，事务、长密码等等相关的兼容性开关。</p>
+<p><img src="/Images/mysql-pcap-capabilities-flag.png" alt="mysql-pcap-capabilities-flag"></p>
+<p>我们可以测试一下设置为0的行为，只需要在my.cnf中添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;ssl=0&quot;</span> &gt;&gt; /etc/my.cnf</span><br></pre></td></tr></table></figure>
+
+<p>重启mysql。再度进行抓包，就发现没有tls的报文了，都是在使用明文进行通信了。</p>
+<p><img src="/Images/mysql-plain-pcap.png" alt="mysql-plain-pcap"></p>
+<h2 id="客户端侧"><a href="#客户端侧" class="headerlink" title="客户端侧"></a>客户端侧</h2><p>这个协商过程也可以在客户端进行控制，客户端对应的参数是sslMode，可以设置为DISABLED、PREFERRED、REQUIRED、VERIFY_CA、VERIFY_IDENTITY，分别代表不使用ssl、优先使用ssl、必须使用ssl、验证CA、验证身份。默认的行为是PREFERRED，example:</p>
+<p>比如配置sslMode为DISABLED，那么客户端就不会使用ssl进行通信，而是使用明文。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r2dbc:mysql://localhost:3306/test?sslMode=DISABLED</span><br></pre></td></tr></table></figure>
+
+<p><img src="/Images/mysql-client-disable-tls.png" alt="mysql-client-disable-tls"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><table>
+<thead>
+<tr>
+<th>客户端</th>
+<th>服务端</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DISABLED</td>
+<td>ssl&#x3D;0</td>
+<td>PLAIN</td>
+</tr>
+<tr>
+<td>DISABLED</td>
+<td>ssl&#x3D;1</td>
+<td>PLAIN</td>
+</tr>
+<tr>
+<td>PREFERRED</td>
+<td>ssl&#x3D;0</td>
+<td>PLAIN</td>
+</tr>
+<tr>
+<td>PREFERRED</td>
+<td>ssl&#x3D;1</td>
+<td>TLS</td>
+</tr>
+<tr>
+<td>REQUIRED</td>
+<td>ssl&#x3D;0</td>
+<td>Fail</td>
+</tr>
+<tr>
+<td>REQUIRED</td>
+<td>ssl&#x3D;1</td>
+<td>TLS</td>
+</tr>
+<tr>
+<td>VERIFY_CA</td>
+<td>ssl&#x3D;0</td>
+<td>Fail</td>
+</tr>
+<tr>
+<td>VERIFY_CA</td>
+<td>ssl&#x3D;1 + CA配置</td>
+<td>TLS，客户端验证证书</td>
+</tr>
+<tr>
+<td>VERIFY_IDENTITY</td>
+<td>ssl&#x3D;0</td>
+<td>Fail</td>
+</tr>
+<tr>
+<td>VERIFY_IDENTITY</td>
+<td>ssl&#x3D;1 + CA配置</td>
+<td>TLS，客户端验证证书和域名</td>
+</tr>
+</tbody></table>
+<p>注：</p>
+<ul>
+<li>VERIFY_CA：确保服务器证书由受信任的CA签发，但不验证证书的主机名或IP地址。</li>
+<li>VERIFY_IDENTITY：不仅验证证书的CA签发，还额外验证证书的主机名或IP地址与服务器的实际地址是否一致。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -240,7 +396,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -334,7 +490,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -420,7 +576,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -517,7 +673,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -611,7 +767,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -717,7 +873,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -855,7 +1011,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -983,7 +1139,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1076,7 +1232,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1103,118 +1259,6 @@
 <p>我们再运行起Server和Client，随后可以看到已经走过了Connect阶段，进入了publish message过程，接下来我们再实现更多的其他场景</p>
 <p>附上此阶段的MessageHandler代码</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.github.hezhangjian.demo.iot.mqtt.broker;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelHandlerContext;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelInboundHandlerAdapter;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttConnAckMessage;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttConnectMessage;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttConnectPayload;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttConnectVariableHeader;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttFixedHeader;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.mqtt.MqttMessageBuilders;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> io.netty.handler.codec.mqtt.MqttConnectReturnCode.CONNECTION_ACCEPTED;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 处理Mqtt协议栈</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hezhangjian</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MqttHandler</span> <span class="keyword">extends</span> <span class="title class_">ChannelInboundHandlerAdapter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">void</span> <span class="title function_">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="built_in">super</span>.channelRead(ctx, msg);</span><br><span class="line">        <span class="keyword">if</span> (msg <span class="keyword">instanceof</span> MqttConnectMessage) &#123;</span><br><span class="line">            handleConnect(ctx, (MqttConnectMessage) msg);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            log.error(<span class="string">&quot;Unsupported type msg [&#123;&#125;]&quot;</span>, msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">void</span> <span class="title function_">handleConnect</span><span class="params">(ChannelHandlerContext ctx, MqttConnectMessage connectMessage)</span> &#123;</span><br><span class="line">        log.info(<span class="string">&quot;connect msg is [&#123;&#125;]&quot;</span>, connectMessage);</span><br><span class="line">        <span class="keyword">final</span> <span class="type">MqttFixedHeader</span> <span class="variable">fixedHeader</span> <span class="operator">=</span> connectMessage.fixedHeader();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">MqttConnectVariableHeader</span> <span class="variable">variableHeader</span> <span class="operator">=</span> connectMessage.variableHeader();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">MqttConnectPayload</span> <span class="variable">connectPayload</span> <span class="operator">=</span> connectMessage.payload();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">MqttConnAckMessage</span> <span class="variable">ackMessage</span> <span class="operator">=</span> MqttMessageBuilders.connAck().returnCode(CONNECTION_ACCEPTED).build();</span><br><span class="line">        ctx.channel().writeAndFlush(ackMessage);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2022/03/31/%E4%B8%80%E6%AD%A5%E4%B8%80%E6%AD%A5%E6%95%99%E4%BD%A0%E5%86%99kubernetes%20sidecar/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/kubernetes-sidecar" class="post-title-link post-title-link-external" itemprop="url">一步一步教你写kubernetes sidecar<i class="fa fa-external-link-alt"></i></a>
-          
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2022-03-31 08:45:32" itemprop="dateCreated datePublished" datetime="2022-03-31T08:45:32+08:00">2022-03-31</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="什么是sidecar？"><a href="#什么是sidecar？" class="headerlink" title="什么是sidecar？"></a>什么是sidecar？</h1><p><img src="/Images/kubernetes-sidecar-what-is.png" alt="kubernetes-sidecar-what-is"></p>
-<p>sidecar，直译为边车。 如上图所示，边车就是加装在摩托车旁来达到拓展功能的目的，比如行驶更加稳定，可以拉更多的人和货物，坐在边车上的人可以给驾驶员指路等。边车模式通过给应用服务加装一个“边车”来达到<strong>控制</strong>和<strong>逻辑</strong>的分离的目的。</p>
-<p>对于微服务来讲，我们可以用边车模式来做诸如 日志收集、服务注册、服务发现、限流、鉴权等不需要业务服务实现的控制面板能力。通常和边车模式比较的就是像<strong>spring-cloud</strong>那样的sdk模式，像上面提到的这些能力都通过sdk实现。</p>
-<p><img src="/Images/kubernetes-sidecar-what-can-do.png" alt="kubernetes-sidecar-what-can-do"></p>
-<p>这两种实现模式各有优劣，sidecar模式会引入额外的性能损耗以及延时，但传统的sdk模式会让代码变得臃肿并且升级复杂，控制面能力和业务面能力不能分开升级。</p>
-<p>本文的代码已经上传到<a target="_blank" rel="noopener" href="https://gitee.com/hezhangjian/sidecar-examples.git">gitee</a></p>
-<h1 id="sidecar-实现原理"><a href="#sidecar-实现原理" class="headerlink" title="sidecar 实现原理"></a>sidecar 实现原理</h1><p>介绍了sidecar的诸多功能，但是，sidecar是如何做到这些能力的呢？</p>
-<p>原来，在kubernetes中，一个pod是部署的最小单元，但一个pod里面，允许运行多个container(容器)，多个container(容器)之间共享存储卷和网络栈。这样子，我们就可以多container来做sidecar，或者init-container（初始化容器）来调整挂载卷的权限</p>
-<p><img src="/Images/kubernetes-sidecar-inside.png" alt="kubernetes-sidecar-inside"></p>
-<h1 id="日志收集sidecar"><a href="#日志收集sidecar" class="headerlink" title="日志收集sidecar"></a>日志收集sidecar</h1><p>日志收集sidecar的原理是利用多个container间可以共用挂载卷的原理实现的，通过将应用程序的日志路径挂出，用另一个程序访问路径下的日志来实现日志收集，这里用cat来替代了日志收集，部署yaml模板如下</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">webserver</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-logs</span></span><br><span class="line">      <span class="attr">emptyDir:</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">ttbb/nginx:mate</span></span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-logs</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/opt/sh/openresty/nginx/logs</span></span><br><span class="line"></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">sidecar-container</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">ttbb/base</span></span><br><span class="line">      <span class="attr">command:</span> [<span class="string">&quot;sh&quot;</span>,<span class="string">&quot;-c&quot;</span>,<span class="string">&quot;while true; do cat /opt/sh/openresty/nginx/logs/nginx.pid; sleep 30; done&quot;</span>]</span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-logs</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/opt/sh/openresty/nginx/logs</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>使用kubectl create -f 创建pod，通过kubectl logs命令就可以看到sidecar-container打印的日志输出</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl logs webserver sidecar-container</span><br></pre></td></tr></table></figure>
-
-<h1 id="转发请求sidecar"><a href="#转发请求sidecar" class="headerlink" title="转发请求sidecar"></a>转发请求sidecar</h1><p>这一节我们来实现，一个给应用程序转发请求的sidecar，应用程序代码如下</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::io::prelude::*;</span><br><span class="line"><span class="keyword">use</span> std::net::&#123;TcpListener, TcpStream&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">listener</span> = TcpListener::<span class="title function_ invoke__">bind</span>(<span class="string">&quot;127.0.0.1:7878&quot;</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">stream</span> <span class="keyword">in</span> listener.<span class="title function_ invoke__">incoming</span>() &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">stream</span> = stream.<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">        <span class="title function_ invoke__">handle_connection</span>(stream);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Hello, world!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">handle_connection</span>(<span class="keyword">mut</span> stream: TcpStream) &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">buffer</span> = [<span class="number">0</span>; <span class="number">1024</span>];</span><br><span class="line"></span><br><span class="line">    stream.<span class="title function_ invoke__">read</span>(&amp;<span class="keyword">mut</span> buffer).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">contents</span> = <span class="string">&quot;Hello&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">response</span> = <span class="built_in">format!</span>(</span><br><span class="line">        <span class="string">&quot;HTTP/1.1 200 OK\r\nContent-Length: &#123;&#125;\r\n\r\n&#123;&#125;&quot;</span>,</span><br><span class="line">        contents.<span class="title function_ invoke__">len</span>(),</span><br><span class="line">        contents</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;receive a request!&quot;</span>);</span><br><span class="line">    stream.<span class="title function_ invoke__">write</span>(response.<span class="title function_ invoke__">as_bytes</span>()).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    stream.<span class="title function_ invoke__">flush</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们再来写一个sidecar，它会每15秒向应用程序发出请求</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">loop</span> &#123;</span><br><span class="line">        thread::<span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_secs</span>(<span class="number">15</span>));</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">response</span> = reqwest::blocking::<span class="title function_ invoke__">get</span>(<span class="string">&quot;http://localhost:7878&quot;</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, response.<span class="title function_ invoke__">text</span>().<span class="title function_ invoke__">unwrap</span>())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过仓库下的<code>intput/build.sh</code>脚本构造镜像，运行yaml如下</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">webserver</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">input-server</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">sidecar-examples:input-http-server</span></span><br><span class="line"></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">input-sidecar</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">sidecar-examples:sidecar-input</span></span><br></pre></td></tr></table></figure>
-<p>通过查看<strong>kubectl logs input input-http-server</strong>可以看到input-http-server收到了请求</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">receive a request!</span><br><span class="line">receive a request!</span><br></pre></td></tr></table></figure>
-<h1 id="拦截请求sidecar"><a href="#拦截请求sidecar" class="headerlink" title="拦截请求sidecar"></a>拦截请求sidecar</h1><p>应用程序代码，它会每15s向<code>localhost</code>发出请求</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hezhangjian.sidecar</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> akka.actor.typed.<span class="type">ActorSystem</span></span><br><span class="line"><span class="keyword">import</span> akka.actor.typed.scaladsl.<span class="type">Behaviors</span></span><br><span class="line"><span class="keyword">import</span> akka.http.scaladsl.<span class="type">Http</span></span><br><span class="line"><span class="keyword">import</span> akka.http.scaladsl.model._</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> scala.concurrent.&#123;<span class="type">ExecutionContextExecutor</span>, <span class="type">Future</span>&#125;</span><br><span class="line"><span class="keyword">import</span> scala.util.&#123;<span class="type">Failure</span>, <span class="type">Success</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">HttpClient</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="type">Thread</span>.sleep(<span class="number">15</span>_000L)</span><br><span class="line">            <span class="keyword">implicit</span> <span class="keyword">val</span> system: <span class="type">ActorSystem</span>[<span class="type">Nothing</span>] = <span class="type">ActorSystem</span>(<span class="type">Behaviors</span>.empty, <span class="string">&quot;SingleRequest&quot;</span>)</span><br><span class="line">            <span class="comment">// needed for the future flatMap/onComplete in the end</span></span><br><span class="line">            <span class="keyword">implicit</span> <span class="keyword">val</span> executionContext: <span class="type">ExecutionContextExecutor</span> = system.executionContext</span><br><span class="line"></span><br><span class="line">            <span class="keyword">val</span> responseFuture: <span class="type">Future</span>[<span class="type">HttpResponse</span>] = <span class="type">Http</span>().singleRequest(<span class="type">HttpRequest</span>(uri = <span class="string">&quot;http://localhost:7979/hello&quot;</span>))</span><br><span class="line"></span><br><span class="line">            responseFuture</span><br><span class="line">                    .onComplete &#123;</span><br><span class="line">                        <span class="keyword">case</span> <span class="type">Success</span>(res) =&gt; println(res)</span><br><span class="line">                        <span class="keyword">case</span> <span class="type">Failure</span>(_) =&gt; sys.error(<span class="string">&quot;something wrong&quot;</span>)</span><br><span class="line">                    &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们再来写一个sidecar，它会拦截http请求并打印日志</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hezhangjian.sidecar</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> akka.actor.typed.<span class="type">ActorSystem</span></span><br><span class="line"><span class="keyword">import</span> akka.actor.typed.scaladsl.<span class="type">Behaviors</span></span><br><span class="line"><span class="keyword">import</span> akka.http.scaladsl.<span class="type">Http</span></span><br><span class="line"><span class="keyword">import</span> akka.http.scaladsl.model._</span><br><span class="line"><span class="keyword">import</span> akka.http.scaladsl.server.<span class="type">Directives</span>._</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> scala.concurrent.<span class="type">ExecutionContextExecutor</span></span><br><span class="line"><span class="keyword">import</span> scala.io.<span class="type">StdIn</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">HttpServer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">implicit</span> <span class="keyword">val</span> system: <span class="type">ActorSystem</span>[<span class="type">Nothing</span>] = <span class="type">ActorSystem</span>(<span class="type">Behaviors</span>.empty, <span class="string">&quot;my-system&quot;</span>)</span><br><span class="line">        <span class="comment">// needed for the future flatMap/onComplete in the end</span></span><br><span class="line">        <span class="keyword">implicit</span> <span class="keyword">val</span> executionContext: <span class="type">ExecutionContextExecutor</span> = system.executionContext</span><br><span class="line"></span><br><span class="line">        <span class="keyword">val</span> route =</span><br><span class="line">            path(<span class="string">&quot;hello&quot;</span>) &#123;</span><br><span class="line">                get &#123;</span><br><span class="line">                    println(<span class="string">&quot;receive a request&quot;</span>)</span><br><span class="line">                    complete(<span class="type">HttpEntity</span>(<span class="type">ContentTypes</span>.`text/html(<span class="type">UTF</span><span class="number">-8</span>)`, <span class="string">&quot;&lt;h1&gt;Say hello to akka-http&lt;/h1&gt;&quot;</span>))</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">val</span> bindingFuture = <span class="type">Http</span>().newServerAt(<span class="string">&quot;localhost&quot;</span>, <span class="number">7979</span>).bind(route)</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="type">Thread</span>.sleep(<span class="number">15</span>_000L)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过仓库下的<code>output/build.sh</code>脚本构造镜像，运行yaml如下</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">output</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-logs</span></span><br><span class="line">      <span class="attr">emptyDir:</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">output-workload</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">sidecar-examples:output-workload</span></span><br><span class="line">      <span class="attr">imagePullPolicy:</span> <span class="string">Never</span></span><br><span class="line"></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">sidecar-output</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">sidecar-examples:sidecar-output</span></span><br><span class="line">      <span class="attr">imagePullPolicy:</span> <span class="string">Never</span></span><br></pre></td></tr></table></figure>
-
-<p>通过查看<strong>kubectl logs output output-workload</strong>可以看到output-sidecar收到了请求</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:15:47 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:16:02 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:16:17 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:16:32 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:16:47 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:17:02 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:17:17 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br><span class="line">HttpResponse(200 OK,List(Server: akka-http/10.2.9, Date: Tue, 29 Mar 2022 00:17:32 GMT),HttpEntity.Strict(text/html; charset=UTF-8,31 bytes total),HttpProtocol(HTTP/1.1))</span><br></pre></td></tr></table></figure>
 
       
     </div>

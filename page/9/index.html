@@ -163,7 +163,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-count">148</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -194,6 +194,107 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/10/12/%E5%B0%86Rust%E7%A8%8B%E5%BA%8F%E6%89%98%E7%AE%A1%E7%BB%99Systemd%E8%BF%90%E8%A1%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/10/12/%E5%B0%86Rust%E7%A8%8B%E5%BA%8F%E6%89%98%E7%AE%A1%E7%BB%99Systemd%E8%BF%90%E8%A1%8C/" class="post-title-link" itemprop="url">将Rust程序托管给Systemd运行</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-12 18:25:48" itemprop="dateCreated datePublished" datetime="2021-10-12T18:25:48+08:00">2021-10-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>将程序(以rust程序为例)托管为<code>Systemd</code>运行比较容易，步骤分为以下几步</p>
+<ul>
+<li>生成rust二进制文件</li>
+<li>创建专用用户和用户组（可省略）</li>
+<li>书写<code>.service</code>文件</li>
+<li>通过<code>systemctl</code>启动</li>
+</ul>
+<p>接下来我们以ubuntu、简单的rust web程序为例，演示一个简单的<code>rust</code>程序如何托管给<code>Systemd</code>运行</p>
+<h2 id="生成rust二进制文件"><a href="#生成rust二进制文件" class="headerlink" title="生成rust二进制文件"></a>生成rust二进制文件</h2><h3 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tokio = &#123; version = &quot;1&quot;, features = [&quot;full&quot;] &#125;</span><br><span class="line">warp = &quot;0.3&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="书写简单代码"><a href="#书写简单代码" class="headerlink" title="书写简单代码"></a>书写简单代码</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> warp::Filter;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// GET /hello/warp =&gt; 200 OK with body &quot;Hello, warp!&quot;</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">hello</span> = warp::path!(<span class="string">&quot;hello&quot;</span> / <span class="type">String</span>)</span><br><span class="line">        .<span class="title function_ invoke__">map</span>(|name| <span class="built_in">format!</span>(<span class="string">&quot;Hello, &#123;&#125;!&quot;</span>, name));</span><br><span class="line"></span><br><span class="line">    warp::<span class="title function_ invoke__">serve</span>(hello)</span><br><span class="line">        .<span class="title function_ invoke__">run</span>(([<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>], <span class="number">3030</span>))</span><br><span class="line">        .<span class="keyword">await</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="编译生成二进制"><a href="#编译生成二进制" class="headerlink" title="编译生成二进制"></a>编译生成二进制</h3><p><code>cargo build --release</code></p>
+<p>二进制就在<code>target/release</code>中</p>
+<h2 id="创建专用用户和用户组"><a href="#创建专用用户和用户组" class="headerlink" title="创建专用用户和用户组"></a>创建专用用户和用户组</h2><p>为了更细粒度地授权和文件权限控制，我们可以给守护程序创建专用的用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> useradd vmproxy -s /sbin/nologin -M</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="书写-service文件"><a href="#书写-service文件" class="headerlink" title="书写.service文件"></a>书写<code>.service</code>文件</h2><p><code>.service</code>文件在<code>ubuntu</code>应该放到<code>/lib/systemd/system/</code>路径下。样例如下<code>vm-proxy.service</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Vm Proxy</span><br><span class="line">ConditionPathExists=/home/ubuntu/rust/vm-proxy/target/release/vm-proxy-rust</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">User=vmproxy</span><br><span class="line">Group=vmproxy</span><br><span class="line">LimitNOFILE=1024</span><br><span class="line"></span><br><span class="line">Restart=on-failure</span><br><span class="line">RestartSec=10</span><br><span class="line"></span><br><span class="line">WorkingDirectory=/home/ubuntu/rust/vm-proxy/target/release</span><br><span class="line">ExecStart=/home/ubuntu/rust/vm-proxy/target/release/vm-proxy-rust</span><br><span class="line"></span><br><span class="line"># make sure log directory exists and owned by syslog</span><br><span class="line">PermissionsStartOnly=true</span><br><span class="line">ExecStartPre=/bin/mkdir -p /var/log/vm-proxy</span><br><span class="line">ExecStartPre=/bin/chown syslog:adm /var/log/vm-proxy</span><br><span class="line">ExecStartPre=/bin/chmod 755 /var/log/vm-proxy</span><br><span class="line">StandardOutput=syslog</span><br><span class="line">StandardError=syslog</span><br><span class="line">SyslogIdentifier=vm-proxy</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p><code>ConditionPathExists</code>、<code>WorkingDirectory</code>、 <code>ExecStart</code> 这三个参数需要根据自己的路径修改</p>
+<h2 id="通过Systemctl启动"><a href="#通过Systemctl启动" class="headerlink" title="通过Systemctl启动"></a>通过<code>Systemctl</code>启动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> vm-proxy.service</span><br><span class="line"><span class="built_in">sudo</span> systemctl start vm-proxy.service</span><br></pre></td></tr></table></figure>
+
+<h2 id="验证启动完成"><a href="#验证启动完成" class="headerlink" title="验证启动完成"></a>验证启动完成</h2><p><img src="/Images/rust-systemd1.png" alt="image-20211012165631993"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -239,7 +340,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -341,7 +442,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -428,7 +529,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -526,7 +627,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -614,7 +715,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -723,7 +824,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -807,7 +908,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -891,7 +992,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1005,7 +1106,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1050,125 +1151,6 @@
 <p>截止到目前，我们只需要一个静态配置，使得应用程序可以连接到中间件。最好这个配置是可以修改的，这样我们还可以继承蓝绿、灰度发布的能力。</p>
 <h3 id="中间件到业务程序的发现"><a href="#中间件到业务程序的发现" class="headerlink" title="中间件到业务程序的发现"></a>中间件到业务程序的发现</h3><p>这个模式常用于负载均衡中间件如<code>Lvs</code>、<code>Nginx</code>自动维护后端列表，我们可以通过<code>adapter</code>来从注册中心获取后端服务的实例信息，并实时更新。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在商用系统中，中间件并没有想象中的那么开箱即用，本文讲述了一些中间件集成到商用系统中需要具备的能力。在对中间件侵入式修改没有技术能力或不想对中间件进行侵入式修改的场景。选用团队常用的、占用资源少的语言来开发中间件<code>adapter</code>应该是更好的选择。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/02/Flutter%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%92%8C%E6%8A%80%E5%B7%A7%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/08/02/Flutter%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%92%8C%E6%8A%80%E5%B7%A7%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/" class="post-title-link" itemprop="url">Flutter最佳实践和技巧【翻译】</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-02 19:11:21" itemprop="dateCreated datePublished" datetime="2021-08-02T19:11:21+08:00">2021-08-02</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>翻译自 <a target="_blank" rel="noopener" href="https://medium.com/flutter-community/flutter-best-practices-and-tips-7c2782c9ebb5">https://medium.com/flutter-community/flutter-best-practices-and-tips-7c2782c9ebb5</a></p>
-<p>最佳实践是一个领域内可接受的专业标准，对于任何编程语言来说，提高代码质量、可读性、可维护性和健壮性都非常重要。<br>这是一些设计和开发 Flutter 应用程序的最佳实践。</p>
-<h2 id="命名规范"><a href="#命名规范" class="headerlink" title="命名规范"></a>命名规范</h2><p>类名、枚举、<code>typedef</code>、扩展名应该使用大驼峰命名方式</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MainScreen</span> </span>&#123; ... &#125;</span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">MainItem</span> &#123; .. &#125;</span><br><span class="line"><span class="keyword">typedef</span> <span class="title class_">Predicate</span>&lt;T&gt; = <span class="built_in">bool</span> <span class="title class_">Function</span>(T value);</span><br><span class="line"><span class="keyword">extension</span> <span class="title class_">MyList</span>&lt;T&gt; <span class="keyword">on</span> <span class="title class_">List</span>&lt;T&gt; &#123; ... &#125;</span><br></pre></td></tr></table></figure>
-
-<p>libraries、包、目录、源文件名采用蛇形命名。</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span> firebase_dynamic_links;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;socket/socket_manager.dart&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<p>变量、参数等使用蛇形命名</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> item;</span><br><span class="line"><span class="keyword">const</span> bookPrice = <span class="number">3.14</span>;</span><br><span class="line"><span class="keyword">final</span> urlScheme = <span class="title class_">RegExp</span>(<span class="string">&#x27;^([a-z]+):&#x27;</span>);</span><br><span class="line"><span class="keyword">void</span> <span class="title function_">sum</span>(<span class="built_in">int</span> bookPrice) &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="总是指定变量类型"><a href="#总是指定变量类型" class="headerlink" title="总是指定变量类型"></a>总是指定变量类型</h2><p>如果已经知道变量值的类型，那么应该指定变量的类型，尽量避免使用<code>var</code></p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> item = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">final</span> car = <span class="title class_">Car</span>();</span><br><span class="line"><span class="keyword">const</span> timeOut = <span class="number">2000</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="built_in">int</span> item = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">final</span> <span class="title class_">Car</span> bar = <span class="title class_">Car</span>();</span><br><span class="line"><span class="title class_">String</span> name = <span class="string">&#x27;john&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="built_in">int</span> timeOut = <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="尽量用is替代as"><a href="#尽量用is替代as" class="headerlink" title="尽量用is替代as"></a>尽量用<code>is</code>替代<code>as</code></h2><p><code>as</code>运算符会在无法进行类型转换的时候抛出异常，为了避免抛出异常，使用<code>is</code>操作符</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line">(item <span class="keyword">as</span> <span class="title class_">Animal</span>).name = <span class="string">&#x27;Lion&#x27;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">if</span> (item <span class="keyword">is</span> <span class="title class_">Animal</span>)</span><br><span class="line">  item.name = <span class="string">&#x27;Lion&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用-和-操作符"><a href="#使用-和-操作符" class="headerlink" title="使用??和?.操作符"></a>使用<code>??</code>和<code>?.</code>操作符</h2><p>尽量使用<code>??</code>和<code>?.</code>操作符替代<code>if-null</code>检测</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line">v = a == <span class="keyword">null</span> ? b : a;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line">v = a ?? b;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line">v = a == <span class="keyword">null</span> ? <span class="keyword">null</span> : a.b;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line">v = a?.b;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用扩散集合（Spread-Collections）"><a href="#使用扩散集合（Spread-Collections）" class="headerlink" title="使用扩散集合（Spread Collections）"></a>使用扩散集合（Spread Collections）</h2><p>当items已经存在另外的集合中时，扩展集合语法可以简化代码</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> y = [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>];</span><br><span class="line"><span class="keyword">var</span> x = [<span class="number">1</span>,<span class="number">2</span>];</span><br><span class="line">x.<span class="title function_">addAll</span>(y);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">var</span> y = [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>];</span><br><span class="line"><span class="keyword">var</span> x = [<span class="number">1</span>,<span class="number">2</span>,...y];</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用级联操作符"><a href="#使用级联操作符" class="headerlink" title="使用级联操作符"></a>使用级联操作符</h2><p>在同一Object上的连续操作可以使用级联操作符<code>..</code></p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> path = <span class="title class_">Path</span>();</span><br><span class="line">path.<span class="title function_">lineTo</span>(<span class="number">0</span>, size.height);</span><br><span class="line">path.<span class="title function_">lineTo</span>(size.width, size.height);</span><br><span class="line">path.<span class="title function_">lineTo</span>(size.width, <span class="number">0</span>);</span><br><span class="line">path.<span class="title function_">close</span>();  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Do</span></span><br><span class="line"><span class="keyword">var</span> path = <span class="title class_">Path</span>()</span><br><span class="line">..<span class="title function_">lineTo</span>(<span class="number">0</span>, size.height)</span><br><span class="line">..<span class="title function_">lineTo</span>(size.width, size.height)</span><br><span class="line">..<span class="title function_">lineTo</span>(size.width, <span class="number">0</span>)</span><br><span class="line">..<span class="title function_">close</span>(); </span><br></pre></td></tr></table></figure>
-
-<h2 id="使用原生字符串（Raw-Strings）"><a href="#使用原生字符串（Raw-Strings）" class="headerlink" title="使用原生字符串（Raw Strings）"></a>使用原生字符串（Raw Strings）</h2><p>原生字符串可以不对<code>$</code>和<code>\</code>进行转义</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> s = <span class="string">&#x27;This is demo string \\ and \$&#x27;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">var</span> s = <span class="string">r&#x27;This is demo string \ and $&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="不要使用null显示初始化变量"><a href="#不要使用null显示初始化变量" class="headerlink" title="不要使用null显示初始化变量"></a>不要使用<code>null</code>显示初始化变量</h2><p>dart中的变量默认会被初始化为<code>null</code>，设置初始值为<code>null</code>是多余且不必要的。</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="built_in">int</span> _item = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="built_in">int</span> _item;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用表达式函数体"><a href="#使用表达式函数体" class="headerlink" title="使用表达式函数体"></a>使用表达式函数体</h2><p>对于只有一个表达式的函数，你可以使用表达式函数。<code>=&gt;</code>标记着表达式函数。</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">get</span> width &#123;</span><br><span class="line">  <span class="keyword">return</span> right - left;</span><br><span class="line">&#125;</span><br><span class="line"><span class="title class_">Widget</span> <span class="title function_">getProgressBar</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">CircularProgressIndicator</span>(</span><br><span class="line">    valueColor: <span class="title class_">AlwaysStoppedAnimation</span>&lt;<span class="title class_">Color</span>&gt;(<span class="title class_">Colors</span>.blue),</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">get</span> width =&gt; right - left;</span><br><span class="line"><span class="title class_">Widget</span> <span class="title function_">getProgressBar</span>() =&gt; <span class="title class_">CircularProgressIndicator</span>(</span><br><span class="line">      valueColor: <span class="title class_">AlwaysStoppedAnimation</span>&lt;<span class="title class_">Color</span>&gt;(<span class="title class_">Colors</span>.blue),</span><br><span class="line">    );</span><br></pre></td></tr></table></figure>
-
-<h2 id="避免调用print-函数"><a href="#避免调用print-函数" class="headerlink" title="避免调用print()函数"></a>避免调用<code>print()</code>函数</h2><p><code>print()</code>和<code>debugPrint()</code>都用来向控制台打印消息。在<code>print()</code>函数中，如果输出过大，那么<code>Android</code>系统可能会丢弃一些日志。这种情况下，你可以使用<code>debugPrint</code>。</p>
-<h2 id="使用插值法来组织字符串"><a href="#使用插值法来组织字符串" class="headerlink" title="使用插值法来组织字符串"></a>使用插值法来组织字符串</h2><p>使用插值法组织字符串相对于用<code>+</code>拼接会让字符串更整洁、更短。</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don’t</span></span><br><span class="line"><span class="keyword">var</span> description = <span class="string">&#x27;Hello, &#x27;</span> + name + <span class="string">&#x27;! You are &#x27;</span> + (year - birth).<span class="title function_">toString</span>() + <span class="string">&#x27; years old.&#x27;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Do</span></span><br><span class="line"><span class="keyword">var</span> description = <span class="string">&#x27;Hello, <span class="subst">$name</span>! You are <span class="subst">$&#123;year - birth&#125;</span> years old.&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用async-await而不是滥用future-callback"><a href="#使用async-await而不是滥用future-callback" class="headerlink" title="使用async&#x2F;await而不是滥用future callback"></a>使用async&#x2F;await而不是滥用future callback</h2><p>异步代码难以阅读和调试，<code>async</code>和<code>await</code>语法增强了可读性</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Don’t</span></span><br><span class="line"><span class="title class_">Future</span>&lt;<span class="built_in">int</span>&gt; <span class="title function_">countActiveUser</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">getActiveUser</span>().<span class="title function_">then</span>((users) &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> users?.length ?? <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  &#125;).<span class="title function_">catchError</span>((e) &#123;</span><br><span class="line">    log.<span class="title function_">error</span>(e);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Do</span></span><br><span class="line"><span class="title class_">Future</span>&lt;<span class="built_in">int</span>&gt; <span class="title function_">countActiveUser</span>() <span class="keyword">async</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> users = <span class="keyword">await</span> <span class="title function_">getActiveUser</span>();</span><br><span class="line">     </span><br><span class="line">    <span class="keyword">return</span> users?.length ?? <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    log.<span class="title function_">error</span>(e);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="在widget中使用const"><a href="#在widget中使用const" class="headerlink" title="在widget中使用const"></a>在<code>widget</code>中使用<code>const</code></h2><p>如果我们把<code>widget</code>定义为<code>const</code>，那么该<code>widget</code>在<code>setState</code>的时候不会重建。通过避免重建来提升性能</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Container</span>(</span><br><span class="line">      padding: <span class="keyword">const</span> <span class="title class_">EdgeInsets</span>.<span class="title function_">only</span>(top: <span class="number">10</span>),</span><br><span class="line">      color: <span class="title class_">Colors</span>.black,</span><br><span class="line">      child: <span class="keyword">const</span> <span class="title class_">Center</span>(</span><br><span class="line">        child: <span class="keyword">const</span> <span class="title class_">Text</span>(</span><br><span class="line">          <span class="string">&quot;No Data found&quot;</span>,</span><br><span class="line">          style: <span class="keyword">const</span> <span class="title class_">TextStyle</span>(fontSize: <span class="number">30</span>, fontWeight: <span class="title class_">FontWeight</span>.w800),</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br></pre></td></tr></table></figure>
 
       
     </div>

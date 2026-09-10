@@ -163,7 +163,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-count">148</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -194,6 +194,125 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/08/02/Flutter%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%92%8C%E6%8A%80%E5%B7%A7%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Zhangjian He">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 张俭的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/08/02/Flutter%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%92%8C%E6%8A%80%E5%B7%A7%E3%80%90%E7%BF%BB%E8%AF%91%E3%80%91/" class="post-title-link" itemprop="url">Flutter最佳实践和技巧【翻译】</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-02 19:11:21" itemprop="dateCreated datePublished" datetime="2021-08-02T19:11:21+08:00">2021-08-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>翻译自 <a target="_blank" rel="noopener" href="https://medium.com/flutter-community/flutter-best-practices-and-tips-7c2782c9ebb5">https://medium.com/flutter-community/flutter-best-practices-and-tips-7c2782c9ebb5</a></p>
+<p>最佳实践是一个领域内可接受的专业标准，对于任何编程语言来说，提高代码质量、可读性、可维护性和健壮性都非常重要。<br>这是一些设计和开发 Flutter 应用程序的最佳实践。</p>
+<h2 id="命名规范"><a href="#命名规范" class="headerlink" title="命名规范"></a>命名规范</h2><p>类名、枚举、<code>typedef</code>、扩展名应该使用大驼峰命名方式</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MainScreen</span> </span>&#123; ... &#125;</span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">MainItem</span> &#123; .. &#125;</span><br><span class="line"><span class="keyword">typedef</span> <span class="title class_">Predicate</span>&lt;T&gt; = <span class="built_in">bool</span> <span class="title class_">Function</span>(T value);</span><br><span class="line"><span class="keyword">extension</span> <span class="title class_">MyList</span>&lt;T&gt; <span class="keyword">on</span> <span class="title class_">List</span>&lt;T&gt; &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>libraries、包、目录、源文件名采用蛇形命名。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span> firebase_dynamic_links;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;socket/socket_manager.dart&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>变量、参数等使用蛇形命名</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> item;</span><br><span class="line"><span class="keyword">const</span> bookPrice = <span class="number">3.14</span>;</span><br><span class="line"><span class="keyword">final</span> urlScheme = <span class="title class_">RegExp</span>(<span class="string">&#x27;^([a-z]+):&#x27;</span>);</span><br><span class="line"><span class="keyword">void</span> <span class="title function_">sum</span>(<span class="built_in">int</span> bookPrice) &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总是指定变量类型"><a href="#总是指定变量类型" class="headerlink" title="总是指定变量类型"></a>总是指定变量类型</h2><p>如果已经知道变量值的类型，那么应该指定变量的类型，尽量避免使用<code>var</code></p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> item = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">final</span> car = <span class="title class_">Car</span>();</span><br><span class="line"><span class="keyword">const</span> timeOut = <span class="number">2000</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="built_in">int</span> item = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">final</span> <span class="title class_">Car</span> bar = <span class="title class_">Car</span>();</span><br><span class="line"><span class="title class_">String</span> name = <span class="string">&#x27;john&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="built_in">int</span> timeOut = <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="尽量用is替代as"><a href="#尽量用is替代as" class="headerlink" title="尽量用is替代as"></a>尽量用<code>is</code>替代<code>as</code></h2><p><code>as</code>运算符会在无法进行类型转换的时候抛出异常，为了避免抛出异常，使用<code>is</code>操作符</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line">(item <span class="keyword">as</span> <span class="title class_">Animal</span>).name = <span class="string">&#x27;Lion&#x27;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">if</span> (item <span class="keyword">is</span> <span class="title class_">Animal</span>)</span><br><span class="line">  item.name = <span class="string">&#x27;Lion&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-和-操作符"><a href="#使用-和-操作符" class="headerlink" title="使用??和?.操作符"></a>使用<code>??</code>和<code>?.</code>操作符</h2><p>尽量使用<code>??</code>和<code>?.</code>操作符替代<code>if-null</code>检测</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line">v = a == <span class="keyword">null</span> ? b : a;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line">v = a ?? b;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line">v = a == <span class="keyword">null</span> ? <span class="keyword">null</span> : a.b;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line">v = a?.b;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用扩散集合（Spread-Collections）"><a href="#使用扩散集合（Spread-Collections）" class="headerlink" title="使用扩散集合（Spread Collections）"></a>使用扩散集合（Spread Collections）</h2><p>当items已经存在另外的集合中时，扩展集合语法可以简化代码</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> y = [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>];</span><br><span class="line"><span class="keyword">var</span> x = [<span class="number">1</span>,<span class="number">2</span>];</span><br><span class="line">x.<span class="title function_">addAll</span>(y);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">var</span> y = [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>];</span><br><span class="line"><span class="keyword">var</span> x = [<span class="number">1</span>,<span class="number">2</span>,...y];</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用级联操作符"><a href="#使用级联操作符" class="headerlink" title="使用级联操作符"></a>使用级联操作符</h2><p>在同一Object上的连续操作可以使用级联操作符<code>..</code></p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> path = <span class="title class_">Path</span>();</span><br><span class="line">path.<span class="title function_">lineTo</span>(<span class="number">0</span>, size.height);</span><br><span class="line">path.<span class="title function_">lineTo</span>(size.width, size.height);</span><br><span class="line">path.<span class="title function_">lineTo</span>(size.width, <span class="number">0</span>);</span><br><span class="line">path.<span class="title function_">close</span>();  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Do</span></span><br><span class="line"><span class="keyword">var</span> path = <span class="title class_">Path</span>()</span><br><span class="line">..<span class="title function_">lineTo</span>(<span class="number">0</span>, size.height)</span><br><span class="line">..<span class="title function_">lineTo</span>(size.width, size.height)</span><br><span class="line">..<span class="title function_">lineTo</span>(size.width, <span class="number">0</span>)</span><br><span class="line">..<span class="title function_">close</span>(); </span><br></pre></td></tr></table></figure>
+
+<h2 id="使用原生字符串（Raw-Strings）"><a href="#使用原生字符串（Raw-Strings）" class="headerlink" title="使用原生字符串（Raw Strings）"></a>使用原生字符串（Raw Strings）</h2><p>原生字符串可以不对<code>$</code>和<code>\</code>进行转义</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">var</span> s = <span class="string">&#x27;This is demo string \\ and \$&#x27;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">var</span> s = <span class="string">r&#x27;This is demo string \ and $&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="不要使用null显示初始化变量"><a href="#不要使用null显示初始化变量" class="headerlink" title="不要使用null显示初始化变量"></a>不要使用<code>null</code>显示初始化变量</h2><p>dart中的变量默认会被初始化为<code>null</code>，设置初始值为<code>null</code>是多余且不必要的。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="built_in">int</span> _item = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="built_in">int</span> _item;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用表达式函数体"><a href="#使用表达式函数体" class="headerlink" title="使用表达式函数体"></a>使用表达式函数体</h2><p>对于只有一个表达式的函数，你可以使用表达式函数。<code>=&gt;</code>标记着表达式函数。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don&#x27;t</span></span><br><span class="line"><span class="keyword">get</span> width &#123;</span><br><span class="line">  <span class="keyword">return</span> right - left;</span><br><span class="line">&#125;</span><br><span class="line"><span class="title class_">Widget</span> <span class="title function_">getProgressBar</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">CircularProgressIndicator</span>(</span><br><span class="line">    valueColor: <span class="title class_">AlwaysStoppedAnimation</span>&lt;<span class="title class_">Color</span>&gt;(<span class="title class_">Colors</span>.blue),</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Do</span></span><br><span class="line"><span class="keyword">get</span> width =&gt; right - left;</span><br><span class="line"><span class="title class_">Widget</span> <span class="title function_">getProgressBar</span>() =&gt; <span class="title class_">CircularProgressIndicator</span>(</span><br><span class="line">      valueColor: <span class="title class_">AlwaysStoppedAnimation</span>&lt;<span class="title class_">Color</span>&gt;(<span class="title class_">Colors</span>.blue),</span><br><span class="line">    );</span><br></pre></td></tr></table></figure>
+
+<h2 id="避免调用print-函数"><a href="#避免调用print-函数" class="headerlink" title="避免调用print()函数"></a>避免调用<code>print()</code>函数</h2><p><code>print()</code>和<code>debugPrint()</code>都用来向控制台打印消息。在<code>print()</code>函数中，如果输出过大，那么<code>Android</code>系统可能会丢弃一些日志。这种情况下，你可以使用<code>debugPrint</code>。</p>
+<h2 id="使用插值法来组织字符串"><a href="#使用插值法来组织字符串" class="headerlink" title="使用插值法来组织字符串"></a>使用插值法来组织字符串</h2><p>使用插值法组织字符串相对于用<code>+</code>拼接会让字符串更整洁、更短。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Don’t</span></span><br><span class="line"><span class="keyword">var</span> description = <span class="string">&#x27;Hello, &#x27;</span> + name + <span class="string">&#x27;! You are &#x27;</span> + (year - birth).<span class="title function_">toString</span>() + <span class="string">&#x27; years old.&#x27;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Do</span></span><br><span class="line"><span class="keyword">var</span> description = <span class="string">&#x27;Hello, <span class="subst">$name</span>! You are <span class="subst">$&#123;year - birth&#125;</span> years old.&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用async-await而不是滥用future-callback"><a href="#使用async-await而不是滥用future-callback" class="headerlink" title="使用async&#x2F;await而不是滥用future callback"></a>使用async&#x2F;await而不是滥用future callback</h2><p>异步代码难以阅读和调试，<code>async</code>和<code>await</code>语法增强了可读性</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Don’t</span></span><br><span class="line"><span class="title class_">Future</span>&lt;<span class="built_in">int</span>&gt; <span class="title function_">countActiveUser</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">getActiveUser</span>().<span class="title function_">then</span>((users) &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> users?.length ?? <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  &#125;).<span class="title function_">catchError</span>((e) &#123;</span><br><span class="line">    log.<span class="title function_">error</span>(e);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Do</span></span><br><span class="line"><span class="title class_">Future</span>&lt;<span class="built_in">int</span>&gt; <span class="title function_">countActiveUser</span>() <span class="keyword">async</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> users = <span class="keyword">await</span> <span class="title function_">getActiveUser</span>();</span><br><span class="line">     </span><br><span class="line">    <span class="keyword">return</span> users?.length ?? <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    log.<span class="title function_">error</span>(e);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="在widget中使用const"><a href="#在widget中使用const" class="headerlink" title="在widget中使用const"></a>在<code>widget</code>中使用<code>const</code></h2><p>如果我们把<code>widget</code>定义为<code>const</code>，那么该<code>widget</code>在<code>setState</code>的时候不会重建。通过避免重建来提升性能</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Container</span>(</span><br><span class="line">      padding: <span class="keyword">const</span> <span class="title class_">EdgeInsets</span>.<span class="title function_">only</span>(top: <span class="number">10</span>),</span><br><span class="line">      color: <span class="title class_">Colors</span>.black,</span><br><span class="line">      child: <span class="keyword">const</span> <span class="title class_">Center</span>(</span><br><span class="line">        child: <span class="keyword">const</span> <span class="title class_">Text</span>(</span><br><span class="line">          <span class="string">&quot;No Data found&quot;</span>,</span><br><span class="line">          style: <span class="keyword">const</span> <span class="title class_">TextStyle</span>(fontSize: <span class="number">30</span>, fontWeight: <span class="title class_">FontWeight</span>.w800),</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -239,7 +358,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -368,7 +487,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -467,7 +586,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -577,7 +696,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -722,7 +841,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -828,7 +947,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -910,7 +1029,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1047,7 +1166,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1163,7 +1282,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
+      <time title="修改时间：2026-09-10 21:17:05" itemprop="dateModified" datetime="2026-09-10T21:17:05+08:00">2026-09-10</time>
     </span>
 
   
@@ -1268,147 +1387,6 @@
 
 <p>尽管<code>main</code>观测到g不为nil，但是也没有任何机制保证可以读取到t.msg。</p>
 <p>在上述例子中，解决方案都是相同的：请使用显式的同步机制。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hezhangjian.com/2021/07/01/Go%20%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Zhangjian He">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 张俭的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/07/01/Go%20%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B/" class="post-title-link" itemprop="url">Go 编译流程</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-07-01 13:19:53" itemprop="dateCreated datePublished" datetime="2021-07-01T13:19:53+08:00">2021-07-01</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-23 15:26:36" itemprop="dateModified" datetime="2026-08-23T15:26:36+08:00">2026-08-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/golang/go/blob/master/src/cmd/compile/README.md">https://github.com/golang/go/blob/master/src/cmd/compile/README.md</a></li>
-<li><a target="_blank" rel="noopener" href="https://medium.com/a-journey-with-go/go-overview-of-the-compiler-4e5a153ca889">https://medium.com/a-journey-with-go/go-overview-of-the-compiler-4e5a153ca889</a></li>
-<li>基于Golang 1.16版本</li>
-</ul>
-<h2 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h2><p>Go编译器由四个阶段组成，可以分为两类</p>
-<ul>
-<li>frontend前端：这一阶段对源码进行语法解析，并生成AST</li>
-<li>backend后端：这一阶段将把transform the representation of the source code into machine code, 并进行数项优化</li>
-</ul>
-<p>为了更好地理解每个阶段，让我们使用如下的示例程序</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a := <span class="number">1</span></span><br><span class="line">	b := <span class="number">2</span></span><br><span class="line">	<span class="keyword">if</span> <span class="literal">true</span> &#123;</span><br><span class="line">		add(a, b)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(a, b <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="built_in">println</span>(a + b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="P1-解析"><a href="#P1-解析" class="headerlink" title="P1 解析"></a>P1 解析</h2><ul>
-<li><code>cmd/compile/internal/syntax</code> 词法，解析器，语法树</li>
-</ul>
-<p>第一个阶段非常简单直接：</p>
-<p>第一阶段，源码经过词法分析、语法解析，对每个源码文件，都构造出相应的语法树</p>
-<p>Lexer首先运行，把源代码转化为词法单元。我们可以通过这个程序来自己模拟运行Lexer</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;go/scanner&quot;</span></span><br><span class="line">	<span class="string">&quot;go/token&quot;</span></span><br><span class="line">	<span class="string">&quot;io/ioutil&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// src is the input that we want to tokenize.</span></span><br><span class="line">	src, _ := ioutil.ReadFile(<span class="string">`main.go`</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Initialize the scanner</span></span><br><span class="line">	<span class="keyword">var</span> s scanner.Scanner</span><br><span class="line">	<span class="comment">// positions are relative to fSet</span></span><br><span class="line">	fSet := token.NewFileSet()</span><br><span class="line">	file := fSet.AddFile(<span class="string">&quot;&quot;</span>, fSet.Base(), <span class="built_in">len</span>(src))</span><br><span class="line">	<span class="comment">// nil means no error handler</span></span><br><span class="line">	s.Init(file, src, <span class="literal">nil</span>, scanner.ScanComments)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Repeated calls to Scan yield the token sequence found in the input</span></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		pos, tok, lit := s.Scan()</span><br><span class="line">		<span class="keyword">if</span> tok == token.EOF &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;%s\t%s\t%q\n&quot;</span>, fSet.Position(pos), tok, lit)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>截选输出如下:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">1:1	package	&quot;package&quot;</span><br><span class="line">1:9	IDENT	&quot;main&quot;</span><br><span class="line">1:13	;	&quot;\n&quot;</span><br><span class="line">3:1	func	&quot;func&quot;</span><br><span class="line">3:6	IDENT	&quot;main&quot;</span><br><span class="line">3:10	(	&quot;&quot;</span><br><span class="line">3:11	)	&quot;&quot;</span><br><span class="line">3:13	&#123;	&quot;&quot;</span><br><span class="line">4:2	IDENT	&quot;a&quot;</span><br><span class="line">4:4	:=	&quot;&quot;</span><br><span class="line">4:7	INT	&quot;1&quot;</span><br><span class="line">4:8	;	&quot;\n&quot;</span><br><span class="line">5:2	IDENT	&quot;b&quot;</span><br><span class="line">5:4	:=	&quot;&quot;</span><br><span class="line">5:7	INT	&quot;2&quot;</span><br><span class="line">5:8	;	&quot;\n&quot;</span><br><span class="line">6:2	if	&quot;if&quot;</span><br><span class="line">6:5	IDENT	&quot;true&quot;</span><br><span class="line">6:10	&#123;	&quot;&quot;</span><br><span class="line">7:3	IDENT	&quot;add&quot;</span><br><span class="line">7:6	(	&quot;&quot;</span><br><span class="line">7:7	IDENT	&quot;a&quot;</span><br></pre></td></tr></table></figure>
-
-<p>一旦经过词法化，源码被解析构造成语法树。</p>
-<p>语法树还包含了代码位置信息，该信息可用于debug或错误报告。</p>
-<h2 id="P2-类型检查和AST转化"><a href="#P2-类型检查和AST转化" class="headerlink" title="P2 类型检查和AST转化"></a>P2 类型检查和AST转化</h2><ul>
-<li><code>cmd/compile/internal/gc</code> 创建编译器AST，类型检查，AST转换</li>
-</ul>
-<p>AST是类型检查的。第一个步骤就是名字解析和类型推断，确定对象和标识符的对应关系，表达式是何种类型。Type-checking这一阶段还引入了额外的确定性步骤，例如，“声明未使用”、函数是否终止等。</p>
-<p>还有一些确定的转换也在AST阶段完成。一些节点会根据类型信息进行细化，比如字符串加法从算术加法节点中分离出来。其他一些示例是不可达代码清除、内联函数调用、逃逸分析。</p>
-<p>转化到AST的步骤可以通过命令<code>go tool compile -w</code>来展示出来，如果加上-l，则可以禁用内联。在我们的样例代码中，如果不禁用内联，add方法会被内联掉。我们可以分别使用<code>go tool compile -w example.o</code>和<code>go tool compile -w -l example.o</code>进行对比</p>
-<p>禁用了内联的命令，会输出这样的AST</p>
-<p><img src="/Images/go-compile-process1.png" alt="image-20210701110847543"></p>
-<p>没禁用内联的命令则不会生成，这里可以看出来，编译器做了内联的优化。</p>
-<h2 id="SSA-生成"><a href="#SSA-生成" class="headerlink" title="SSA 生成"></a>SSA 生成</h2><h3 id="SSA-概念"><a href="#SSA-概念" class="headerlink" title="SSA 概念"></a>SSA 概念</h3><ul>
-<li><code>cmd/compile/internal/gc</code> AST转化到SSA</li>
-<li><code>cmd/compile/internal/ssa</code> SSA阶段和规则</li>
-</ul>
-<p>在这个阶段，AST转化为SSA的格式，这是一种具有特定属性的更底层的IR，可以更轻松地在上面进行优化并最终生成机器码。阶段应用了内联函数。这些是编译器被教导要根据具体情况用高度优化的代码替换的特殊函数。在AST到SSA的转换期间，某些确定的节点也被降低为更简单的组件，使得编译器的其余部分可以使用它们。例如，内置的copy函数被内存移动取代、范围循环被重写为for循环。由于历史原因，其中一些目前在SSA转换之前发生，但长期计划是将它们全部移到这里。</p>
-<p>然后，应用一系列的、机器无关的阶段和规则。这些不涉及任何的计算机架构，因此可以在任何<code>GOARCH</code>变体上运行。</p>
-<p>这些通用的阶段包括：不可达代码清除、删除不需要的nil检查、移除无用的分支。</p>
-<p>通用的重写规则主要涉及表达式，包括表达式替换为常量、优化乘法和浮点运算等。</p>
-<p>SSA code可以用这个命令<code>dump</code>并展示出来</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GOSSAFUNC=main go tool compile main.go &amp;&amp; open ssa.html</span><br></pre></td></tr></table></figure>
-
-<h3 id="SSA阶段"><a href="#SSA阶段" class="headerlink" title="SSA阶段"></a>SSA阶段</h3><p><img src="/Images/go-compile-process2.png" alt="Go编译流程"></p>
-<h3 id="SSA优化解析"><a href="#SSA优化解析" class="headerlink" title="SSA优化解析"></a>SSA优化解析</h3><p>start Tab上生成了最开始的SSA</p>
-<p><img src="/Images/go-compile-process3.png" alt="image-20210701101016958"></p>
-<p>变量 a 和 b 与 if 条件一起在此处突出显示，以便我们稍后查看这些行是如何更改的。 代码还向我们展示了编译器如何管理 <code>println</code><br>函数，它被分解为 4 个步骤：<code>printlock</code>、<code>printint</code>、<code>printnl</code>、<code>printunlock</code>。 编译器会自动为我们加锁，并根据参数的类型调用相关方法正确打印。<br>在我们的示例中，由于 a 和 b 在编译时已知，编译器可以计算最终结果并将变量标记为不再需要。  <code>opt</code>阶段 会优化这部分：</p>
-<p><img src="/Images/go-compile-process4.png" alt="image-20210701101445933"></p>
-<p>这个阶段v7被优化计算成了3。并且接下来，因为v4和v5已经没有人声明使用，在<code>opt deadcode</code>阶段，v4和v5也会被清除掉</p>
-<p><img src="/Images/go-compile-process5.png" alt="image-20210701101729496"></p>
-<p>等待所有阶段完成之后，Go编译器将会生成中间汇编语言</p>
-<p><img src="/Images/go-compile-process6.png" alt="image-20210701102735403"></p>
-<p>下一阶段会将汇编语言转换为二进制文件</p>
-<h2 id="机器代码生成"><a href="#机器代码生成" class="headerlink" title="机器代码生成"></a>机器代码生成</h2><ul>
-<li><code>cmd/compile/internal/ssa</code> SSA “lowering” 和 特定arch的阶段</li>
-<li><code>cmd/internal/obj</code> 机器语言生成</li>
-</ul>
-<p>机器相关的编译阶段从”lowering”阶段开始，它将通用的值替换成机器特定的变体。例如，在 amd64 内存操作数上是可能的，因此可以组合许多加载-存储操作。</p>
-<p>注意这些底层阶段执行了所有机器特定的规则，所以也应用了很多优化。</p>
-<p>一旦SSA被”lowered”到更特定的目标架构，就开始执行最终的代码优化。这包括另一个不可达代码清除阶段、将值更靠近它们的使用者、移除从未使用的本地变量、寄存器分配。</p>
-<p>还有一部分重要工作包括堆栈帧布局，它将堆栈偏移分配给局部变量，以及指针存活分析，它计算每个 GC 安全点上哪些堆栈上指针是活跃的。</p>
-<p>在 SSA 生成阶段结束时，Go 函数已转换为一系列 obj.Prog 指令。 这些被传递给汇编器（cmd&#x2F;internal&#x2F;obj），汇编器将它们转换成机器代码并写出最终的目标文件。<br>目标文件还将包含反射数据、导出数据和调试信息。</p>
-<p>我们可以使用<code>go tool objdump $binary</code>来查看汇编代码。当compile的<code>.o</code>文件生成之后，可以通过<code>go tool link</code>来生成二进制可运行文件。</p>
 
       
     </div>
