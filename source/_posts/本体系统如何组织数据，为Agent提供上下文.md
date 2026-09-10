@@ -1,6 +1,6 @@
 ---
-title: 本体系统如何为Agent提供上下文
-link: ontology-agent-context
+title: 本体系统如何组织数据，为Agent提供上下文
+link: ontology-data-organization-agent-context
 date: 2026-09-10T19:47:54
 tags:
 ---
