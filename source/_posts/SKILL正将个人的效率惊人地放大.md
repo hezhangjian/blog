@@ -1,5 +1,5 @@
 ---
-title: SKILL正将个人的效率惊人地放大
+title: Skill正将个人的效率惊人地放大
 link: skill-personal
 date: 2026-04-29 07:33:54
 tags:

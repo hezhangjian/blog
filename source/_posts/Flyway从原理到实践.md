@@ -18,7 +18,7 @@ Flyway主要针对Java语言，此外，也有一些[Go](https://github.com/libg
 
 # Flyway原理
 
-![](Images/Flyway从原理到实践-1.png)
+![](Images/flyway-from-principle-to-practice1.png)
 
 Flyway的运行机制可以抽象成如下几个流程：
 
@@ -82,7 +82,7 @@ Flyway本身的机制是清晰的，但是在团队协作场景下，会有一�
 
 ## Flyway团队协作机制
 
-![](Images/Flyway从原理到实践-2.png)
+![](Images/flyway-from-principle-to-practice2.png)
 
 由上面的推导来说，无论是那种颗粒度，最终都会面临到开发过程中SQL文件的改动，这些老版本的SQL文件一旦上到测试环境上，我们就需要对环境做对应的清理，保障最终环境与生产的一致性。
 
